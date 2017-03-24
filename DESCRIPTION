@@ -1,11 +1,11 @@
-Package: frontloadr
+Package: DDfabricate
 Type: Package
 Title: Tools for Simulating Data Before Data Collection
 Version: 0.1.0
 Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@ucla.edu", role = c("aut", "cre")),
-             person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut")),
-             person("Alexander", "Coppock", email = "alex.coppock@yale.edu", role = c("aut")),
-             person("Macartan", "Humphreys", email = "macartan@gmail.com", role = c("aut")))
+             person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut")),
+             person("Alexander", "Coppock", email = "alex.coppock@yale.edu", role = c("aut")),
+             person("Macartan", "Humphreys", email = "macartan@gmail.com", role = c("aut")))
 Description: Tools for Simulating Data Before Data Collection
 	This software allows the user to create mock data that follows 
 	the structure of future data to be collected.
