@@ -3,6 +3,5 @@
 #' Some stuff about what this package is
 #'
 #' @docType package
-#' @useDynLib DDestimate
-#' @name DDestimate
+#' @name DDfabricate
 NULL

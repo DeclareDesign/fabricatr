@@ -3,4 +3,3 @@
 export(bootstrap_data)
 export(fabricate_data)
 export(level)
-useDynLib(DDestimate)
