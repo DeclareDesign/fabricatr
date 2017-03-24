@@ -1,6 +1,7 @@
-# DeclareDesign
+# DDfabricate package
 
 [![Travis-CI Build Status](https://travis-ci.org/graemeblair/DDfabricate.png?branch=master)](https://travis-ci.org/graemeblair/DDfabricate)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/graemeblair/DDfabricate?branch=master&svg=true)](https://ci.appveyor.com/project/graemeblair/DDfabricate)
 [![Coverage Status](https://coveralls.io/repos/graemeblair/DDfabricate/badge.svg?branch=master&service=github)](https://coveralls.io/github/graemeblair/DDfabricate?branch=master)
 
 This software is in alpha release. Please contact the authors before using in experiments or published work.
