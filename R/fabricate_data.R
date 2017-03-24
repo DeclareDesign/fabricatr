@@ -1,11 +1,8 @@
 
 #' @export
-#'
-#' @param ...
-simulate_data <- function(...) {
+fabricate_data <- function(...) {
   options <- eval(substitute(alist(...)))
   options_text <- paste(options)
-
 
   # just trying to find our whether everything in the dots is level() or not!
   # OPEN TO OTHER SOLUTIONS

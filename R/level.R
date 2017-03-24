@@ -1,11 +1,5 @@
-#' @param level_name
-#'
-#' @param N
-#' @param data
-#' @param ...
-#'
+
 #' @export
-#'
 level <- function(level_name, N = NULL, data = NULL, ...){
 
   level_name <- as.character(substitute(level_name))
