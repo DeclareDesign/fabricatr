@@ -5,6 +5,9 @@
 
 #' @export
 fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
+
+  ## needs to be changed to lazy eval
+
   options <- eval(substitute(alist(...)))
 
   options_text <- paste(substitute(options))
