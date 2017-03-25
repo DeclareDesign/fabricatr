@@ -3,5 +3,6 @@
 export(bootstrap_data)
 export(fabricate_data)
 export(fabricate_data_)
-export(fabricate_data_single_level_)
 export(level)
+export(level_)
+importFrom(stringi,stri_split_fixed)

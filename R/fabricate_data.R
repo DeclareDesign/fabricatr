@@ -2,14 +2,26 @@
 #' @export
 fabricate_data <- function(...) {
   options <- eval(substitute(alist(...)))
-  options_text <- paste(options)
 
-  # change the ones that are calls to character strings for fabricate_data_
-  is_call <- sapply(options, class) == "call"
-  options[is_call] <- as.list(paste0(names(options[is_call]), " = ", paste(options[is_call])))
-  names(options)[is_call] <- ""
+  # if it's levels, do one thing:
+  options_text <- paste(substitute(options))
 
-  do.call(fabricate_data_, args = options)
+  # revenge of the JANK TOWN, i.e., check if all the options are level calls.
+  if(all(sapply(options_text, function(x) startsWith(x, "level(")))){
+  # do levels stuff, not sure what
+
+    return(do.call(fabricate_data_, args = as.list(options_text)))
+
+  } else {
+
+    # change the ones that are calls to character strings for fabricate_data_
+    is_call <- sapply(options, class) == "call"
+
+    options[is_call] <- as.list(paste0(names(options[is_call]), " = ", paste(options[is_call])))
+    names(options)[is_call] <- ""
+
+    return(do.call(fabricate_data_, args = options))
+    }
 }
 
 
@@ -39,7 +51,7 @@ fabricate_data_ <-
   }
 
 
-#' @export
+#' @importFrom stringi stri_split_fixed
 fabricate_data_single_level_ <-
   function(...,
            N = NULL,
@@ -76,9 +88,12 @@ fabricate_data_single_level_ <-
 
     ## we need to split the list of options by equal signs
     ## save the lhs as expressions_names, the rhs as expressions
-    expressions_list <- lapply(lapply(options, function(x) strsplit(x, split = "=")[[1]]), trimws)
-    expressions <- lapply(expressions_list, `[[`, 2)
+    expressions_list <- lapply(stri_split_fixed(options, pattern = "=", n = 2), trimws)
+    expressions <- lapply(expressions_list, `[[`, -1)
     expression_names <- lapply(expressions_list, `[[`, 1)
+
+
+
 
     ## TO DO: Make a good error for when ppl dont give their ...s as
     # things that look like

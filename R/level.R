@@ -1,8 +1,22 @@
 
 #' @export
 level <- function(level_name, N = NULL, data = NULL, ...){
+  options <- eval(substitute(alist(...)))
 
-  level_name <- as.character(substitute(level_name))
+  # change the ones that are calls to character strings for fabricate_data_
+  is_call <- sapply(options, class) == "call"
+  options[is_call] <- as.list(paste0(names(options[is_call]), " = ", paste(options[is_call])))
+  names(options)[is_call] <- ""
+
+  options$N <- eval(substitute(N))
+  options$level_name <- as.character(substitute(level_name))
+  options$data <- data
+
+  do.call(level_, args = options)
+}
+
+#' @export
+level_ <- function(level_name, N = NULL, ..., data = NULL){
 
   if (is.null(data)) {
 
@@ -34,5 +48,9 @@ level <- function(level_name, N = NULL, data = NULL, ...){
 
   # now that data is the right size, pass to "mutate", i.e., simulate data
 
-  simulate_data_internal(data = data, ID_label = level_name, ... = ...)
+  options <- list(...)
+  options$data <- data
+  options$ID_label <- level_name
+  do.call(fabricate_data_single_level_, args = options)
+
 }
