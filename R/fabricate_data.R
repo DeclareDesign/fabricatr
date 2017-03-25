@@ -1,7 +1,7 @@
 
 
 #' @export
-fabricate_data <- function(...) {
+fabricate_data <- function(..., N = NULL) {
   options <- eval(substitute(alist(...)))
 
   # if it's levels, do one thing:
@@ -12,7 +12,7 @@ fabricate_data <- function(...) {
     startsWith(x, "level(")))) {
     # do levels stuff, not sure what
 
-    return(do.call(fabricate_data_, args = as.list(options_text)))
+    return(do.call(fabricate_data_, args = c(list(N = N), as.list(options_text))))
 
   } else {
     # change the ones that are calls to character strings for fabricate_data_
@@ -22,14 +22,14 @@ fabricate_data <- function(...) {
       as.list(paste0(names(options[is_call]), " = ", paste(options[is_call])))
     names(options)[is_call] <- ""
 
-    return(do.call(fabricate_data_, args = options))
+    return(do.call(fabricate_data_, args = c(list(N = N), options)))
   }
 }
 
 
 #' @export
 fabricate_data_ <-
-  function(...) {
+  function(N = NULL, ...) {
     options <- list(...)
 
     # Say, are there any level calls in there?
@@ -48,7 +48,7 @@ fabricate_data_ <-
       return(eval(parse(text = options)))
 
     } else{
-      return(fabricate_data_single_level_(... = ...))
+      return(fabricate_data_single_level_(N = N, ... = ...))
     }
 
   }
