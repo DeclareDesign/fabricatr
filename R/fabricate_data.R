@@ -1,113 +1,92 @@
 
 
+
+
+
 #' @export
-fabricate_data <- function(..., N = NULL) {
+fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
   options <- eval(substitute(alist(...)))
 
-  # if it's levels, do one thing:
   options_text <- paste(substitute(options))
 
-  # revenge of the JANK TOWN, i.e., check if all the options are level calls.
+  # check if all the options are level calls.
   if (all(sapply(options_text, function(x)
     startsWith(x, "level(")))) {
-    # do levels stuff, not sure what
 
-    return(do.call(fabricate_data_, args = c(list(N = N), as.list(options_text))))
+    # If we don't have data yet, make the first level.
+    if (is.null(data)) {
+      # Do a sweet switcheroo with the level names if applicable.
+      if (is.null(options[[1]]$ID_label)) {
+        options[[1]]$ID_label <- names(options)[1]
+      }
+      data <- eval(options[[1]])
+    }
+
+    # iff there are multiple levels, please to continue
+    if (length(options) > 1) {
+
+      for (i in 2:length(options)) {
+        # Pop the data from the previous level in the current call
+        options[[i]]$data <- data
+
+        # Also do a sweet switcheroo with the level names if applicable.
+        if (is.null(options[[i]]$ID_label)) {
+          options[[i]]$ID_label <- names(options)[i]
+        }
+        # update the current data
+        data <- eval(options[[i]])
+
+      }
+    }
+
+    return(data)
 
   } else {
-    # change the ones that are calls to character strings for fabricate_data_
-    is_call <- sapply(options, class) == "call"
-
-    options[is_call] <-
-      as.list(paste0(names(options[is_call]), " = ", paste(options[is_call])))
-    names(options)[is_call] <- ""
-
-    return(do.call(fabricate_data_, args = c(list(N = N), options)))
+    # Sometimes life is simple
+    fabricate_data_single_level_(data = data, N = N, ID_label = ID_label, dots_capture(...))
   }
 }
 
 
-#' @importFrom magrittr %>%
+#' @importFrom lazyeval f_eval as_f_list
 #' @export
-fabricate_data_ <-
-  function(N = NULL, ...) {
-    options <- list(...)
-
-    # Say, are there any level calls in there?
-    is_level_calls <- sapply(options[sapply(options, is.character)],
-                             function(x)
-                               startsWith(x, prefix = "level("))
-
-    if (all(is_level_calls)) {
-      # THiS IS SOME JANK-CITY BECAUSE I WANNA PIPE TO THA DOTZ
-      options[2:length(options)] <-
-        sapply(options[2:length(options)], function(x)
-          paste0(substr(x, 1, nchar(x) - 1), ", data = .)"))
-
-      options <- paste(options, collapse = " %>% ")
-
-      return(eval(parse(text = options)))
-
-    } else{
-      return(fabricate_data_single_level_(N = N, ... = ...))
-    }
-
+fabricate_data_single_level_ <- function(data = NULL, N = NULL, ID_label = NULL, args) {
+  if (sum(!is.null(data),!is.null(N)) != 1) {
+    stop("Please supply either a data.frame or N and not both.")
   }
 
+  if (is.null(data)) {
+    # make IDs that are nicely padded
+    data <-
+      data.frame(sprintf(paste0("%0", nchar(N), "d"), 1:N), stringsAsFactors = FALSE)
 
-#' @importFrom stringi stri_split_fixed
-fabricate_data_single_level_ <-
-  function(...,
-           N = NULL,
-           data = NULL,
-           ID_label = NULL) {
-    # Checks
-    if (sum(!is.null(data),!is.null(N)) != 1) {
-      stop("Please supply either a data.frame or N and not both.")
+    # this creates column names from ID_label
+    # note if ID_label is NULL that the ID column name is just "ID" -- so safe
+    colnames(data) <- paste(c(ID_label, "ID"), collapse = "_")
+  } else {
+    N <- nrow(data)
+    if (!is.null(ID_label)) {
+      data[, paste(c(ID_label, "ID"), collapse = "_")] <-
+        sprintf(paste0("%0", nchar(N), "d"), 1:N)
     }
-
-
-    # IDs
-    if (is.null(data)) {
-      # make IDs that are nicely padded
-      data <-
-        data.frame(sprintf(paste0("%0", nchar(N), "d"), 1:N), stringsAsFactors = FALSE)
-
-      # this creates column names from ID_label
-      # note if ID_label is NULL that the ID column name is just "ID" -- so safe
-      colnames(data) <- paste(c(ID_label, "ID"), collapse = "_")
-    } else {
-      N <- nrow(data)
-      if (!is.null(ID_label)) {
-        data[, paste(c(ID_label, "ID"), collapse = "_")] <-
-          sprintf(paste0("%0", nchar(N), "d"), 1:N)
-      }
-    }
-
-    # Deal with quoted expressions!
-
-    options <- list(...)
-
-    ## we need to split the list of options by equal signs
-    ## save the lhs as expressions_names, the rhs as expressions
-    expressions_list <-
-      lapply(stringi::stri_split_fixed(options, pattern = "=", n = 2),
-             trimws)
-    expressions <- lapply(expressions_list, `[[`,-1)
-    expression_names <- lapply(expressions_list, `[[`, 1)
-
-
-
-
-    ## TO DO: Make a good error for when ppl dont give their ...s as
-    # things that look like
-    # "Y = 3*X"
-
-    for (i in 1:length(expressions)) {
-      data_environment <- list2env(data)
-      data[, expression_names[[i]]] <-
-        eval(parse(text = expressions[[i]]), envir = data_environment)
-    }
-    rownames(data) <- NULL
-    return(data)
   }
+
+  args <- as_f_list(args)
+
+  data_list <- as.list(data)
+  data_list$N <- N
+
+  # inspired directly by lazyeval vignette
+  for (nm in names(args)) {
+    data[[nm]] <- f_eval(args[[nm]], data_list)
+  }
+  rownames(data) <- NULL
+  return(data)
+}
+
+
+#' @importFrom lazyeval dots_capture
+#' @export
+fabricate_data_single_level <- function(data = NULL, N = NULL, ID_label = NULL, ...) {
+  fabricate_data_single_level_(data = data, N = N, ID_label = ID_label, dots_capture(...))
+}

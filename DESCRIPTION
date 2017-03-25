@@ -12,8 +12,7 @@ Description: Tools for Simulating Data Before Data Collection
 Depends:
     R (>= 3.3.0)
 Imports:
-    purrr,
-    stringi,
+    lazyeval,
     magrittr
 License: All rights reserved
 Encoding: UTF-8

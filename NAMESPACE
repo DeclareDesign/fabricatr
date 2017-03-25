@@ -2,8 +2,9 @@
 
 export(bootstrap_data)
 export(fabricate_data)
-export(fabricate_data_)
+export(fabricate_data_single_level)
+export(fabricate_data_single_level_)
 export(level)
-export(level_)
-importFrom(magrittr,"%>%")
-importFrom(stringi,stri_split_fixed)
+importFrom(lazyeval,as_f_list)
+importFrom(lazyeval,dots_capture)
+importFrom(lazyeval,f_eval)
