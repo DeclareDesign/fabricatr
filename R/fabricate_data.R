@@ -1,4 +1,5 @@
 
+
 #' @export
 fabricate_data <- function(...) {
   options <- eval(substitute(alist(...)))
@@ -7,38 +8,40 @@ fabricate_data <- function(...) {
   options_text <- paste(substitute(options))
 
   # revenge of the JANK TOWN, i.e., check if all the options are level calls.
-  if(all(sapply(options_text, function(x) startsWith(x, "level(")))){
-  # do levels stuff, not sure what
+  if (all(sapply(options_text, function(x)
+    startsWith(x, "level(")))) {
+    # do levels stuff, not sure what
 
     return(do.call(fabricate_data_, args = as.list(options_text)))
 
   } else {
-
     # change the ones that are calls to character strings for fabricate_data_
     is_call <- sapply(options, class) == "call"
 
-    options[is_call] <- as.list(paste0(names(options[is_call]), " = ", paste(options[is_call])))
+    options[is_call] <-
+      as.list(paste0(names(options[is_call]), " = ", paste(options[is_call])))
     names(options)[is_call] <- ""
 
     return(do.call(fabricate_data_, args = options))
-    }
+  }
 }
 
 
 #' @export
 fabricate_data_ <-
-  function(...){
+  function(...) {
     options <- list(...)
 
     # Say, are there any level calls in there?
     is_level_calls <- sapply(options[sapply(options, is.character)],
-                             function(x) startsWith(x, prefix = "level("))
+                             function(x)
+                               startsWith(x, prefix = "level("))
 
     if (all(is_level_calls)) {
-
       # THiS IS SOME JANK-CITY BECAUSE I WANNA PIPE TO THA DOTZ
       options[2:length(options)] <-
-        sapply(options[2:length(options)], function(x) paste0(substr(x, 1, nchar(x) - 1 ), ", data = .)"))
+        sapply(options[2:length(options)], function(x)
+          paste0(substr(x, 1, nchar(x) - 1), ", data = .)"))
 
       options <- paste(options, collapse = " %>% ")
 
@@ -56,11 +59,9 @@ fabricate_data_single_level_ <-
   function(...,
            N = NULL,
            data = NULL,
-           ID_label = NULL
-  ) {
-
+           ID_label = NULL) {
     # Checks
-    if (sum(!is.null(data), !is.null(N)) != 1) {
+    if (sum(!is.null(data),!is.null(N)) != 1) {
       stop("Please supply either a data.frame or N and not both.")
     }
 
@@ -88,8 +89,10 @@ fabricate_data_single_level_ <-
 
     ## we need to split the list of options by equal signs
     ## save the lhs as expressions_names, the rhs as expressions
-    expressions_list <- lapply(stringi::stri_split_fixed(options, pattern = "=", n = 2), trimws)
-    expressions <- lapply(expressions_list, `[[`, -1)
+    expressions_list <-
+      lapply(stringi::stri_split_fixed(options, pattern = "=", n = 2),
+             trimws)
+    expressions <- lapply(expressions_list, `[[`,-1)
     expression_names <- lapply(expressions_list, `[[`, 1)
 
 
