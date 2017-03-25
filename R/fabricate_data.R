@@ -88,7 +88,7 @@ fabricate_data_single_level_ <-
 
     ## we need to split the list of options by equal signs
     ## save the lhs as expressions_names, the rhs as expressions
-    expressions_list <- lapply(stri_split_fixed(options, pattern = "=", n = 2), trimws)
+    expressions_list <- lapply(stringi::stri_split_fixed(options, pattern = "=", n = 2), trimws)
     expressions <- lapply(expressions_list, `[[`, -1)
     expression_names <- lapply(expressions_list, `[[`, 1)
 

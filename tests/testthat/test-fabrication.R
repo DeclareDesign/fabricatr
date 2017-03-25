@@ -9,6 +9,8 @@ fabricate_data_(N = 10, "Y1 = rnorm(N)", "Y2 = rnorm(N)")
 #debugonce(fabricate_data)
 fabricate_data(N = 10, Y1 = rnorm(N), Y2 = rnorm(N))
 
+fabricate_data_(N = 5, "var1 = rnorm(N)")
+
 
 ##debugonce(level_)
 level_("bob", N = 10, "Y1 = rnorm(N)", "Y2 = rnorm(N)")
