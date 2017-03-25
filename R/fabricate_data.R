@@ -27,6 +27,7 @@ fabricate_data <- function(..., N = NULL) {
 }
 
 
+#' @importFrom magrittr %>%
 #' @export
 fabricate_data_ <-
   function(N = NULL, ...) {
