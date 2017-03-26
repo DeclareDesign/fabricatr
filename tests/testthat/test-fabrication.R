@@ -35,34 +35,3 @@ fabricate_data(regions = level(N = 5, gdp = rnorm(N)),
 declare_population(N = 2, Y = 10, ID_label = "test")()
 declare_population(N = 2, Y = 10)()
 
-
-
-rm(list=ls())
-
-library(lazyeval)
-
-my_custom_pop <- function(N){
-  data.frame(income = runif(N))
-}
-
-
-declare_population <- function(
-  population_function = fabricate_data,
-  ...){
-  func <-
-    function(){
-      ##evaluated_dots <- lapply(dots_capture(...), f_eval)
-      f_eval(~ uq(population_function)(uqs(villages)))
-    }
-}
-
-##debugonce(declare_population)
-##declare_population(villages = rnorm(N))()
-
-
-##declare_population(level(N = 5, gdp = rnorm(N), ID_label = "regions"),
-##                   level(N = sample(1:5), subways = rnorm(N, mean = gdp), ID_label = "cities"))()
-
-declare_population(regions = level(N = 5, gdp = rnorm(N)),
-                   cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp)))()
-
