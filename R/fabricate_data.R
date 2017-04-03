@@ -76,11 +76,14 @@ fabricate_data_single_level_ <- function(data = NULL, N = NULL, ID_label = NULL,
 
   args <- as_f_list(args)
 
-  data_list <- as.list(data)
-  data_list$N <- N
-
   # inspired directly by lazyeval vignette
   for (nm in names(args)) {
+
+    # This line probs bad, as it copies the data....
+    # Need to do it every time, so that the next variable can depend on old vars.
+    data_list <- as.list(data)
+    data_list$N <- N
+
     data[[nm]] <- f_eval(args[[nm]], data_list)
   }
   rownames(data) <- NULL
