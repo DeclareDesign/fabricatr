@@ -23,9 +23,9 @@ level <- function(ID_label, N = NULL, ..., data = NULL){
                     ID_label,
                     ", it must be the length of the dataset at the level above it in the heirarchy."))
       }
-      data <- data[rep(1:nrow(data), times = N),]
+      data <- data[rep(1:nrow(data), times = N), , drop = FALSE]
     } else if (class(N) == "function") {
-      data <- data[rep(1:nrow(data), times = N()),]
+      data <- data[rep(1:nrow(data), times = N()), , drop = FALSE]
     } else {
       stop(paste0("Please provide level ", ID_label, " with N that is a vector, scalar, or function that generates a vector."))
     }

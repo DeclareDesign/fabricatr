@@ -32,3 +32,6 @@ fabricate_data(level(N = 5, gdp = rnorm(N), ID_label = "regions"),
 fabricate_data(regions = level(N = 5, gdp = rnorm(N)),
                cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp)))
 
+fabricate_data(regions = level(N = 5),
+               cities = level(N = sample(1:5), subways = rnorm(N, mean = 5)))
+
