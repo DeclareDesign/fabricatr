@@ -12,9 +12,9 @@ fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
 
   options_text <- paste(substitute(options))
 
-  # check if all the options are level calls.
+  # check if all the options are level calls
   if (all(sapply(options_text, function(x)
-    startsWith(x, "level(")))) {
+    startsWith(x, "level("))) & length(options_text) > 0) {
 
     # If we don't have data yet, make the first level.
     if (is.null(data)) {

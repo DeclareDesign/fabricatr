@@ -7,10 +7,8 @@ df_2 <- fabricate_data_single_level(data = df, Y2 = Y + 1,ID_label = "BOB")
 level(ID_label = "test", N = 3, Y = 10)
 level(ID_label = "test", N = 4, Y = 10, data = df_2)
 
-
 # we expect an error here, but need a better explaination (no unnamed arguments)
-#fabricate_data_single_level(N = 10, rnorm(N), Y2 = rnorm(N))
-
+# fabricate_data_single_level(N = 10, rnorm(N), Y2 = rnorm(N))
 
 level(ID_label = "bob", N = 10, Y1 = rnorm(N), Y2 = rnorm(N))
 
@@ -21,6 +19,8 @@ wrapitup <- function(N){
 
 wrapitup(12)
 
+##debugonce(fabricate_data)
+fabricate_data(N = 100)
 
 fabricate_data(N = 2, Y = 10, ID_label = "test")
 fabricate_data(N = 2, Y = 10)
