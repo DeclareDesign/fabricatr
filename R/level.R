@@ -1,9 +1,12 @@
 
+#' @importFrom dplyr full_join
 #' @export
-level <- function(ID_label, N = NULL, ..., data = NULL){
+level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = NULL){
 
-  #ID_label <- deparse(substitute(ID_label))
-  if (is.null(data)) {
+  ## level_data is existing data to begin this level with
+  ## data is data from the level above this
+
+  if (is.null(data) & is.null(level_data)) {
 
     if (is.null(N)) {
       stop(paste0("If you do not provide data to level", ID_label, ", please provide N."))
@@ -14,24 +17,43 @@ level <- function(ID_label, N = NULL, ..., data = NULL){
     # make IDs that are nicely padded
     data <- data.frame(sprintf(paste0("%0", nchar(N), "d"), 1:N), stringsAsFactors = FALSE)
     colnames(data) <- paste(c(ID_label, "ID"), collapse = "_")
+
   } else {
 
-    # this check copied and pasted from purrr
-    if (typeof(N) %in% c("integer", "double") && length(N) == 1) {
-      data <- data[rep(1:nrow(data), each = N), ]
-    } else if (typeof(N) %in% c("integer", "double") && length(N) > 1) {
-      # check that the vector that is N is the right length, i.e the length of data
-      if (length(N) != nrow(data)) {
-        stop(paste0("If you provide a vector to N for level",
-                    ID_label,
-                    ", it must be the length of the dataset at the level above it in the heirarchy."))
+    if (is.null(level_data)) {
+
+
+      # this check copied and pasted from purrr
+      if (typeof(N) %in% c("integer", "double") && length(N) == 1) {
+        data <- data[rep(1:nrow(data), each = N), ]
+      } else if (typeof(N) %in% c("integer", "double") && length(N) > 1) {
+        # check that the vector that is N is the right length, i.e the length of data
+        if (length(N) != nrow(data)) {
+          stop(paste0("If you provide a vector to N for level",
+                      ID_label,
+                      ", it must be the length of the dataset at the level above it in the heirarchy."))
+        }
+        data <- data[rep(1:nrow(data), times = N), , drop = FALSE]
+      } else if (class(N) == "function") {
+        data <- data[rep(1:nrow(data), times = N()), , drop = FALSE]
+      } else {
+        stop(paste0("Please provide level ", ID_label, " with N that is a vector, scalar, or function that generates a vector."))
       }
-      data <- data[rep(1:nrow(data), times = N), , drop = FALSE]
-    } else if (class(N) == "function") {
-      data <- data[rep(1:nrow(data), times = N()), , drop = FALSE]
     } else {
-      stop(paste0("Please provide level ", ID_label, " with N that is a vector, scalar, or function that generates a vector."))
+      ## if they sent level_data start with that
+
+      if (!is.null(N)) {
+        stop(paste0("Please provide level ", ID_label, " with either level_data or N, not both."))
+      }
+
+      if (!is.null(data)) {
+        data <- full_join(data, level_data, by = deparse(substitute(by)))
+      } else {
+        data <- level_data
+      }
+
     }
+
   }
 
   # now that data is the right size, pass to "mutate", i.e., simulate data
