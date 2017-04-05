@@ -59,6 +59,10 @@ fabricate_data_single_level_ <- function(data = NULL, N = NULL, ID_label = NULL,
   }
 
   if (is.null(data)) {
+
+    if (length(N) > 1) {
+      stop(paste0("At the top level, ", ID_label, ", you must provide a single number to N."))
+    }
     # make IDs that are nicely padded
     data <-
       data.frame(sprintf(paste0("%0", nchar(N), "d"), 1:N), stringsAsFactors = FALSE)
@@ -70,7 +74,7 @@ fabricate_data_single_level_ <- function(data = NULL, N = NULL, ID_label = NULL,
     N <- nrow(data)
     if (!is.null(ID_label)) {
       data[, paste(c(ID_label, "ID"), collapse = "_")] <-
-        sprintf(paste0("%0", nchar(N), "d"), 1:N)
+        sprintf(paste0("%0", nchar(nrow(data)), "d"), 1:nrow(data))
     }
   }
 

@@ -8,6 +8,9 @@ level <- function(ID_label, N = NULL, ..., data = NULL){
     if (is.null(N)) {
       stop(paste0("If you do not provide data to level", ID_label, ", please provide N."))
     }
+    if (length(N) > 1) {
+      stop(paste0("At the top level, ", ID_label, ", you must provide a single number to N."))
+    }
     # make IDs that are nicely padded
     data <- data.frame(sprintf(paste0("%0", nchar(N), "d"), 1:N), stringsAsFactors = FALSE)
     colnames(data) <- paste(c(ID_label, "ID"), collapse = "_")
