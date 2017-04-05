@@ -39,6 +39,5 @@ fabricate_data(regions = level(N = 5),
 
 region_data <- data.frame(capital = c(1, 0, 0, 0, 0))
 fabricate_data(regions = level(N = 5, gdp = runif(5)),
-               cities = level(N = sample(1:5), subways = rnorm(N, mean = 5)),
-               data = region_data)
+               cities = level(N = sample(1:5), subways = rnorm(N, mean = 5)))
 

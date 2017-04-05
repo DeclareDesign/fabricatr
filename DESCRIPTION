@@ -10,7 +10,8 @@ Description: Tools for Simulating Data Before Data Collection
 	This software allows the user to create mock data that follows 
 	the structure of future data to be collected.
 Imports:
-    lazyeval
+    lazyeval,
+    dplyr
 License: All rights reserved
 Encoding: UTF-8
 LazyData: true
