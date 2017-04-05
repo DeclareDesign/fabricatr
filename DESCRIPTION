@@ -1,4 +1,4 @@
-Package: DDfabricate
+Package: fabricatr
 Type: Package
 Title: Tools for Simulating Data Before Data Collection
 Version: 0.1.0
