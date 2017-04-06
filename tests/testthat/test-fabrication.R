@@ -1,4 +1,4 @@
-library(DDfabricate)
+library(fabricatr)
 library(magrittr)
 
 df <- fabricate_data_single_level(N = 2, Y = 10)

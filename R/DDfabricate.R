@@ -1,7 +1,7 @@
-#' DDfabricate package
+#' fabricatr package
 #'
 #' Some stuff about what this package is
 #'
 #' @docType package
-#' @name DDfabricate
+#' @name fabricatr
 NULL

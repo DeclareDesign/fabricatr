@@ -1,4 +1,4 @@
 library(testthat)
-library(DDfabricate)
+library(fabricatr)
 
-test_check("DDfabricate")
+test_check("fabricatr")
