@@ -2,7 +2,20 @@
 
 
 
-
+#' Fabricate data
+#'
+#' fff
+#'
+#' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
+#'
+#' @param N number of units to draw
+#' @param ID_label label for ID variable, i.e. citizen_ID
+#' @param data user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
+#'
+#' @return data.frame
+#'
+#' @examples
+#'
 #' @export
 fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
 
