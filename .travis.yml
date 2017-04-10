@@ -24,10 +24,10 @@ after_success:
   - Rscript -e 'covr::coveralls()'
 
 after_failure:
-  - if [ ${OS} = Darwin ]; then cat /Users/travis/build/graemeblair/fabricatr/fabricatr.Rcheck/00check.log; fi
-  - if [ ${OS} = Darwin ]; then cat /Users/travis/build/graemeblair/fabricatr/fabricatr.Rcheck/00install.out; fi
-  - if [ ${OS} != Darwin ]; then cat /home/travis/build/graemeblair/fabricatr/fabricatr.Rcheck/00check.log; fi
-  - if [ ${OS} != Darwin ]; then cat /home/travis/build/graemeblair/fabricatr/fabricatr.Rcheck/00install.out; fi
+  - if [ ${OS} = Darwin ]; then cat /Users/travis/build/declaredesign/fabricatr/fabricatr.Rcheck/00check.log; fi
+  - if [ ${OS} = Darwin ]; then cat /Users/travis/build/declaredesign/fabricatr/fabricatr.Rcheck/00install.out; fi
+  - if [ ${OS} != Darwin ]; then cat /home/travis/build/declaredesign/fabricatr/fabricatr.Rcheck/00check.log; fi
+  - if [ ${OS} != Darwin ]; then cat /home/travis/build/declaredesign/fabricatr/fabricatr.Rcheck/00install.out; fi
   - ./travis-tool.sh dump_logs
 
 notifications:
