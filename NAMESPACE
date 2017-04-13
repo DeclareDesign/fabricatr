@@ -2,11 +2,11 @@
 
 export(binary_logit)
 export(binomial_count)
-export(bootstrap_data)
 export(fabricate_data)
 export(fabricate_data_single_level)
 export(fabricate_data_single_level_)
 export(level)
+export(resample_data)
 importFrom(dplyr,full_join)
 importFrom(lazyeval,as_f_list)
 importFrom(lazyeval,dots_capture)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fabricate_data.R
 \name{fabricate_data}
 \alias{fabricate_data}
-\title{Fabricate data f}
+\title{Fabricate data}
 \usage{
 fabricate_data(..., N = NULL, ID_label = NULL, data = NULL)
 }

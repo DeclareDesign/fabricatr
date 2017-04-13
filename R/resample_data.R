@@ -1,4 +1,4 @@
-#' Bootstrap data, including multi-level data
+#' Resample data, including multi-level data
 #'
 #' @param data A data.frame, usually provided by the user.
 #' @param N The number of sample N to return. If multiple levels are defined in ID_labels, N should be a vector.
@@ -7,7 +7,12 @@
 #' @return A data.frame
 #'
 #' @export
-bootstrap_data <- function(data, N, ID_labels = NULL) {
+resample_data <- function(data, N, ID_labels = NULL) {
+
+  if (missing(N)) {
+    N <- nrow(data)
+  }
+
   N_total <- prod(N)
   k <- length(N) ## number of levels
 
