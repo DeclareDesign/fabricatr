@@ -21,8 +21,8 @@ resample_data <- function(data, N, ID_labels = NULL) {
   #   ID_labels <- as.character(ID_labels)
   # }
 
-  if (k != length(ID_labels)) {
-    stop("If you provide more than one ID_labels to bootstrap for multilevel data, please provide a vector for N of the same length representing the number to resample at each level.")
+  if (!is.null(ID_labels) & (k != length(ID_labels))) {
+    stop("If you provide more than one ID_labels to resample data for multilevel data, please provide a vector for N of the same length representing the number to resample at each level.")
   }
 
   sample_by_level <- list()
@@ -31,9 +31,10 @@ resample_data <- function(data, N, ID_labels = NULL) {
       if (is.null(ID_labels) & k == 1) {
         sample_by_level[[j]] <-
           sample(1:nrow(data), N[j], replace = TRUE)
+      } else {
+        sample_by_level[[j]] <-
+          sample(data[, ID_labels[j]], N[j], replace = TRUE)
       }
-      sample_by_level[[j]] <-
-        sample(data[, ID_labels[j]], N[j], replace = TRUE)
     } else {
       ## now go through each of the units in the level above it
       sample_current_level <- c()
