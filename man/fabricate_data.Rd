@@ -19,7 +19,7 @@ fabricate_data(..., N = NULL, ID_label = NULL, data = NULL)
 data.frame
 }
 \description{
-fff
+Fabricate data
 }
 \examples{
 

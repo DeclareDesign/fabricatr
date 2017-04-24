@@ -6,6 +6,16 @@ level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = 
   ## level_data is existing data to begin this level with
   ## data is data from the level above this
 
+  # by <- substitute(by)
+  # if (!is.null(by)) {
+  #   by <- as.character(by)
+  # }
+  #
+  # ID_label <- substitute(ID_label)
+  # if (!is.null(ID_label)) {
+  #   ID_label <- as.character(ID_label)
+  # }
+
   if (is.null(data) & is.null(level_data)) {
 
     if (is.null(N)) {
