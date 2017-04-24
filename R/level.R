@@ -25,7 +25,7 @@ level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = 
 
       # this check copied and pasted from purrr
       if (typeof(N) %in% c("integer", "double") && length(N) == 1) {
-        data <- data[rep(1:nrow(data), each = N), ]
+        data <- data[rep(1:nrow(data), each = N), , drop = FALSE]
       } else if (typeof(N) %in% c("integer", "double") && length(N) > 1) {
         # check that the vector that is N is the right length, i.e the length of data
         if (length(N) != nrow(data)) {

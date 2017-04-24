@@ -19,14 +19,16 @@ wrapitup <- function(N){
 
 wrapitup(12)
 
-##debugonce(fabricate_data)
+#debugonce(fabricate_data)
 fabricate_data(N = 100)
 
 fabricate_data(N = 2, Y = 10, ID_label = "test")
 fabricate_data(N = 2, Y = 10)
+
 fabricate_data(N = 2, Y1 = rnorm(N), Y2 = rnorm(N))
 
 fabricate_data(Y1 = rnorm(N), Y2 = rnorm(N), data = data.frame(existing_data = rnorm(5)))
+
 
 fabricate_data(level(N = 5, gdp = rnorm(N), ID_label = "regions"),
                level(N = sample(1:5), subways = rnorm(N, mean = gdp), ID_label = "cities"))

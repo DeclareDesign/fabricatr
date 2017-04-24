@@ -4,8 +4,6 @@
 
 #' Fabricate data
 #'
-#' fff
-#'
 #' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
 #'
 #' @param N number of units to draw
@@ -16,30 +14,30 @@
 #'
 #' @examples
 #'
+#' @importFrom lazyeval lazy_dots dots_capture lazy_eval
+#'
 #' @export
 fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
 
-  ## needs to be changed to lazy eval
-
-  options <- eval(substitute(alist(...)))
-
-  options_text <- paste(substitute(options))
+  options <- lazy_dots(...)
+  options_text <- as.character(eval(substitute(alist(...))))
 
   # check if all the options are level calls
   if (all(sapply(options_text, function(x)
     startsWith(x, "level("))) & length(options_text) > 0) {
 
     if (!is.null(data)) {
-      stop("If you are using levels, please don't include data as an argument; instead, use level_data within the levels argument, i.e. level(level_data = your_data).")
+      stop("If you are using levels, please don't include data as an argument;
+           instead, use level_data within the levels argument, i.e. level(level_data = your_data).")
     }
 
     # If we don't have data yet, make the first level.
     if (is.null(data)) {
       # Do a sweet switcheroo with the level names if applicable.
-      if (is.null(options[[1]]$ID_label)) {
-        options[[1]]$ID_label <- names(options)[1]
+      if (is.null(options[[1]]$expr$ID_label)) {
+        options[[1]]$expr$ID_label <- names(options)[1]
       }
-      data <- eval(options[[1]])
+      data <- lazy_eval(options[[1]])
     }
 
     # iff there are multiple levels, please to continue
@@ -47,14 +45,14 @@ fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
 
       for (i in 2:length(options)) {
         # Pop the data from the previous level in the current call
-        options[[i]]$data <- data
+        options[[i]]$expr$data <- data
 
         # Also do a sweet switcheroo with the level names if applicable.
-        if (is.null(options[[i]]$ID_label)) {
-          options[[i]]$ID_label <- names(options)[i]
+        if (is.null(options[[i]]$expr$ID_label)) {
+          options[[i]]$expr$ID_label <- names(options)[i]
         }
         # update the current data
-        data <- eval(options[[i]])
+        data <- lazy_eval(options[[i]])
 
       }
     }
@@ -97,16 +95,16 @@ fabricate_data_single_level_ <- function(data = NULL, N = NULL, ID_label = NULL,
 
   args <- as_f_list(args)
 
-  # inspired directly by lazyeval vignette
+  data_list <- as.list(data)
+  data_list$N <- N
+
   for (nm in names(args)) {
-
-    # This line probs bad, as it copies the data....
-    # Need to do it every time, so that the next variable can depend on old vars.
-    data_list <- as.list(data)
-    data_list$N <- N
-
-    data[[nm]] <- f_eval(args[[nm]], data_list)
+    # inspired directly by lazyeval vignette
+    data_list[[nm]] <- f_eval(args[[nm]], data_list)
   }
+
+  data_list$N <- NULL
+  data <- data.frame(data_list, stringsAsFactors = FALSE)
   rownames(data) <- NULL
   return(data)
 }
