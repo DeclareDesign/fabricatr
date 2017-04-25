@@ -2,6 +2,7 @@
 
 export(binary_logit)
 export(binomial_count)
+export(describe_variable)
 export(fabricate_data)
 export(fabricate_data_single_level)
 export(fabricate_data_single_level_)
