@@ -15,7 +15,7 @@ format_num <- function(x, digits = 3) {
 #'
 #' @examples
 #'
-#' var1 <- sample(1:5, 50, replace = T)
+#' var1 <- sample(1:5, 50, replace = TRUE)
 #' describe_variable(var1)
 #'
 #' var2 <- runif(50)

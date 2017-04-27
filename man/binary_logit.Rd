@@ -7,7 +7,7 @@
 binary_logit(data)
 }
 \arguments{
-\item{data}{}
+\item{data}{vector, scalar, matrix, or data.frame representing the latent variable used to draw the binary outcome}
 }
 \description{
 Binary variable from a binomial distribution with a logit link

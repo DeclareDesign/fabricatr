@@ -11,7 +11,7 @@ fabricate_data(..., N = NULL, ID_label = NULL, data = NULL)
 
 \item{N}{number of units to draw}
 
-\item{ID_label}{label for ID variable, i.e. citizen_ID}
+\item{ID_label}{variable name for ID variable, i.e. citizen_ID (optional)}
 
 \item{data}{user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).}
 }
@@ -22,5 +22,23 @@ data.frame
 Fabricate data
 }
 \examples{
+
+# Draw a single-level dataset with no covariates
+df <- fabricate_data(N = 100)
+head(df)
+
+# Draw a single-level dataset with a covariate
+df <- fabricate_data(
+  N = 100,
+  height_ft = runif(N, 3.5, 8)
+)
+head(df)
+
+# Draw a two-level hierarchical dataset
+# containing cities within regions
+df <- fabricate_data(
+ regions = level(N = 5),
+ cities = level(N = 10, pollution = rnorm(N, mean = 5)))
+head(df)
 
 }

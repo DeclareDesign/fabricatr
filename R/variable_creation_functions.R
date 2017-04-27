@@ -5,7 +5,7 @@
 
 #' Binary variable from a binomial distribution with a logit link
 #'
-#' @param data
+#' @param data vector, scalar, matrix, or data.frame representing the latent variable used to draw the binary outcome
 #'
 #' @export
 binary_logit <- binary_logistic_variable <- function(data){
@@ -15,7 +15,7 @@ binary_logit <- binary_logistic_variable <- function(data){
 
 #' Count variable from a binomial distribution with a logit link
 #'
-#' @param data
+#' @param data vector, scalar, matrix, or data.frame representing the latent variable used to draw the count outcome
 #'
 #' @param k number of binomial trials, i.e. maximum of the count variable
 #'

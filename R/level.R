@@ -1,4 +1,30 @@
 
+#' Fabricate a Level of Data for Multi-Level Hierarchical Data
+#'
+#' @param ID_label variable name for ID variable, i.e. citizen_ID (optional)
+#'
+#' @param N number of units to draw in the level
+#' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
+#' @param level_data user-provided data that forms the basis of the fabrication at this level, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
+#' @param by name of variable to merge by to level above, if the level is not at the top of the hierarchy.
+#' @param data system option that is used by fabricate_data to send data from upper levels of hierarchy to this level. Do not provide data.
+#'
+#' @examples
+#'
+#' # Draw a two-level hierarchical dataset
+#' # containing cities within regions
+#' df <- fabricate_data(
+#'  regions = level(N = 5),
+#'  cities = level(N = 10, pollution = rnorm(N, mean = 5)))
+#' head(df)
+#'
+#' # Use existing data in a level using level_data
+#' region_data <- data.frame(capital = c(1, 0, 0, 0, 0))
+#' fabricate_data(regions = level(level_data = region_data,
+#'                                gdp = runif(5)),
+#'                cities = level(N = 5,
+#'                               subways = rnorm(N, mean = 5)))
+#'
 #' @importFrom dplyr full_join
 #' @export
 level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = NULL){

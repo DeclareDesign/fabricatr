@@ -7,7 +7,7 @@
 binomial_count(data, k)
 }
 \arguments{
-\item{data}{}
+\item{data}{vector, scalar, matrix, or data.frame representing the latent variable used to draw the count outcome}
 
 \item{k}{number of binomial trials, i.e. maximum of the count variable}
 }
