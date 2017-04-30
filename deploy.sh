@@ -15,7 +15,7 @@ addToDrat(){
   ## Get drat repo
   git remote add upstream "https://$GH_TOKEN@github.com/DeclareDesign/declaredesign.github.io.git"
   git fetch upstream 2>err.txt
-  git checkout gh-pages
+  git checkout master
 
   Rscript -e "for(pkg in dir("..", pattern = '.t*z')) { drat::insertPackage(pkg, \
   repodir = '.', \
