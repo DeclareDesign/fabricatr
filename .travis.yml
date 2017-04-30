@@ -21,6 +21,9 @@ r_github_packages:
   - jimhester/covr
   - graemeblair/drat
 
+r_packages:
+  - git2r
+
 after_success:
   - Rscript -e 'covr::coveralls()'
   - test $TRAVIS_OS_NAME == "osx" && Rscript -e "devtools::build(binary = TRUE, args = c('--preclean'))"
@@ -31,5 +34,6 @@ notifications:
   email:
     recipients:
     - graeme.blair@ucla.edu
+    - alex.coppock@yale.edu
     on_success: change
     on_failure: change
