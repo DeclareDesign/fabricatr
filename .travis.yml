@@ -23,7 +23,6 @@ r_github_packages:
 after_success:
   - Rscript -e 'covr::coveralls()'
   - Rscript -e "devtools::build(binary = TRUE, args = c('--preclean'))"
-  - mkdir drat; cd drat
   - test $TRAVIS_REPO_SLUG == "DeclareDesign/fabricatr" && test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
 
 notifications:
