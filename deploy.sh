@@ -4,7 +4,8 @@ PKG_REPO=$PWD
 cd ..
 
 addToDrat(){
-  mkdir drat; cd drat
+  mkdir drat
+  cd drat
 
   ## Set up Repo parameters
   git init
@@ -19,7 +20,7 @@ addToDrat(){
 
   Rscript -e "for(pkg in dir('..', pattern = '.t*z')) { drat::insertPackage(paste0('../', pkg), \
   repodir = '.', \
-  commit='Travis update $PKG_REPO: build $TRAVIS_BUILD_NUMBER', branch = 'master') }"
+  commit='Travis update $APPVEYOR_PROJECT_NAME: build $APPVEYOR_REPO_COMMIT', branch = 'master') }"
 
   git push 2>err.txt
 

@@ -21,7 +21,7 @@ test_script:
 
 on_success:
   - travis-tool.sh install_github graemeblair/drat
-  - git clone https://github.com/DeclareDesign/declaredesign.github.io drat
+  - sh deploy.sh
 
 on_failure:
   - 7z a failure.zip *.Rcheck\*
