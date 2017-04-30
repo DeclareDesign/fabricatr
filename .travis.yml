@@ -17,11 +17,9 @@ env:
   global:
     - OS=$(uname -s)
 
-r_packages:
-  - drat
-
 r_github_packages:
   - jimhester/covr
+  - graemeblair/drat
 
 after_success:
   - Rscript -e 'covr::coveralls()'

@@ -19,7 +19,7 @@ addToDrat(){
 
   Rscript -e "for(pkg in dir('..', pattern = '.t*z')) { drat::insertPackage(paste0('../', pkg), \
   repodir = '.', \
-  commit='Travis update $PKG_REPO: build $TRAVIS_BUILD_NUMBER') }"
+  commit='Travis update $PKG_REPO: build $TRAVIS_BUILD_NUMBER', branch = 'master') }"
 
   git push 2>err.txt
 
