@@ -1,35 +1,29 @@
 language: r
-
 r:
-  - release
-
+- release
 sudo: false
-
 cache: packages
-
 warnings_are_errors: false
-
 os:
-  - linux
-  - osx
-
+- linux
+- osx
 env:
   global:
-    - OS=$(uname -s)
-
+  - OS=$(uname -s)
+  matrix:
+    secure: OVXvZ2HzjL+pnzk9FOtTSk/F5LPONnNcFSJDIuAL/wAMPaqIwkqpSzd5v+mkgyxBBfW0Tm0y1Z+H/mI9YEeeG2QEJVOYiPjNh5Viu1QYYQvoAbyJ5Jtz9Z3PGGlA3Mj2+4QLoegEIKhdR0lDH7BsrdwnAboBM+aTbXsQdj4JkaeKnJBpItJECa3D6rTttzwNpMOs8N/lPMLJ1Ozjrj+hXm2IDRmhku+oH8tymdXnxz4z7CxImuOl4Z8CnWY+/8Of94/W5WL0JVyO5p7p9vKSPgWlBSNTwq6IfwhX30ziQACE08meAzSJ62JDPaTvbwVBMB3Bf0PCM+H8qnGE7mh8vqA2hc83wBHli8rGvsckNwS1qx/nfle/brCflENSZGuJg3SQQy4z9pWbPB3w9hiMGCTmY1945UVKz0jNc9p0oAFsgOfWS0cq9j/N/HHZ/D13fUgx6vzZiuKHv81oLEGGjGzpHJUmbUh1iLvtq9oyCKjkhXS74vyftkszPPgWcA9fmwuTCJgtREts3D8kRbbBLlDO5QpwRoaEgm1pPLcDiAuF6xH2Bu4E2XMvdfK6qK7Pl0+hNcg4cqVHoC9VXzSDC0XFr7FowqtcelJl5hCXObsbl6vhXh2Y4zO+wVrwOsJDYnxUAVUaM8Iyv3ci6Ww20haSWhGiVlLUaaSPuAtCUnU=
 r_github_packages:
-  - jimhester/covr
-  - graemeblair/drat
-
+- jimhester/covr
+- graemeblair/drat
 r_packages:
-  - git2r
-
+- git2r
 after_success:
-  - Rscript -e 'covr::coveralls()'
-  - test $TRAVIS_OS_NAME == "osx" && Rscript -e "devtools::build(binary = TRUE, args = c('--preclean'))"
-  - test $TRAVIS_OS_NAME == "linux" && Rscript -e "devtools::build()"
-  - test $TRAVIS_REPO_SLUG == "DeclareDesign/fabricatr" && test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
-
+- Rscript -e 'covr::coveralls()'
+- test $TRAVIS_OS_NAME == "osx" && Rscript -e "devtools::build(binary = TRUE, args
+  = c('--preclean'))"
+- test $TRAVIS_OS_NAME == "linux" && Rscript -e "devtools::build()"
+- test $TRAVIS_REPO_SLUG == "DeclareDesign/fabricatr" && test $TRAVIS_PULL_REQUEST
+  == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
 notifications:
   email:
     recipients:
