@@ -21,6 +21,7 @@ test_script:
 
 on_success:
   - travis-tool.sh install_github graemeblair/drat
+  - travis-tool.sh install_r git2r
   - sh deploy.sh
 
 on_failure:
