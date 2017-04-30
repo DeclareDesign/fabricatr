@@ -17,13 +17,9 @@ addToDrat(){
   git fetch upstream 2>err.txt
   git checkout gh-pages
 
-  Rscript -e "drat::insertPackage(dir("..", pattern = '.tgz'), \
+  Rscript -e "for(pkg in dir("..", pattern = '.t*z')) { drat::insertPackage(pkg, \
   repodir = '.', \
-  commit='Travis update $PKG_REPO: build $TRAVIS_BUILD_NUMBER')"
-
-  Rscript -e "drat::insertPackage(dir("..", pattern = '.tar.gz'), \
-  repodir = '.', \
-  commit='Travis update $PKG_REPO: build $TRAVIS_BUILD_NUMBER')"
+  commit='Travis update $PKG_REPO: build $TRAVIS_BUILD_NUMBER') }"
 
   git push 2>err.txt
 
