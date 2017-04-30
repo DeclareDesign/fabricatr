@@ -17,7 +17,7 @@ addToDrat(){
   git fetch upstream 2>err.txt
   git checkout master
 
-  Rscript -e "for(pkg in dir('..', pattern = '.t*z')) { drat::insertPackage(pkg, \
+  Rscript -e "for(pkg in dir('..', pattern = '.t*z')) { drat::insertPackage(paste0('../', pkg), \
   repodir = '.', \
   commit='Travis update $PKG_REPO: build $TRAVIS_BUILD_NUMBER') }"
 
