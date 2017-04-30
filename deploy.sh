@@ -18,8 +18,8 @@ addToDrat(){
   git fetch upstream 2>err.txt
   git checkout master
 
-  Rscript -e "for(pkg in dir('..', pattern = ifelse(.Platform$OS.type == 'windows', '.zip', '.t*z'))) { \
-  drat::insertPackage(file = paste0(ifelse(.Platform$OS.type == 'windows', '..\\', '../'), pkg), \
+  Rscript -e "for(pkg in dir('..', pattern = ifelse(.Platform\$OS.type == 'windows', '.zip', '.t*z'))) { \
+  drat::insertPackage(file = file.path("..", pkg), \
   repodir = '.', \
   commit='Travis update ${APPVEYOR_PROJECT_NAME:-$PKG_REPO} build ${APPVEYOR_REPO_COMMIT:-$TRAVIS_COMMIT}', branch = 'master') }"
 
