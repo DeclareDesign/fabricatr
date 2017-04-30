@@ -22,18 +22,13 @@ r_github_packages:
 
 after_success:
   - Rscript -e 'covr::coveralls()'
-
-after_failure:
-  - if [ ${OS} = Darwin ]; then cat /Users/travis/build/declaredesign/fabricatr/fabricatr.Rcheck/00check.log; fi
-  - if [ ${OS} = Darwin ]; then cat /Users/travis/build/declaredesign/fabricatr/fabricatr.Rcheck/00install.out; fi
-  - if [ ${OS} != Darwin ]; then cat /home/travis/build/declaredesign/fabricatr/fabricatr.Rcheck/00check.log; fi
-  - if [ ${OS} != Darwin ]; then cat /home/travis/build/declaredesign/fabricatr/fabricatr.Rcheck/00install.out; fi
-  - ./travis-tool.sh dump_logs
+  - Rscript -e "devtools::build(binary = TRUE, args = c('--preclean'))"
+  - mkdir drat; cd drat
+  - test $TRAVIS_REPO_SLUG == "DeclareDesign/fabricatr" && test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
 
 notifications:
   email:
     recipients:
     - graeme.blair@ucla.edu
-    - alex.coppock@yale.edu
     on_success: change
     on_failure: change
