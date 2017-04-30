@@ -21,7 +21,6 @@ test_script:
 
 on_success:
   - travis-tool.sh install_github graemeblair/drat
-  - dir()
   - git clone https://github.com/DeclareDesign/declaredesign.github.io drat
 
 on_failure:
