@@ -18,7 +18,7 @@ addToDrat(){
   git fetch upstream 2>err.txt
   git checkout master
 
-  Rscript -e "path <- ifelse(.Platform\$OS.type == 'windows', file.path('..', '..'), file.path('..')); \
+  Rscript -e "path <- ifelse(.Platform\$OS.type == 'windows', file.path('..', '${APPVEYOR_PROJECT_NAME:-$PKG_REPO}'), file.path('..')); \
   for(pkg in dir(path, pattern = ifelse(.Platform\$OS.type == 'windows', '.zip', '.t*z'))) { print(paste('processing', pkg)); \
   drat::insertPackage(file = file.path(path, pkg), \
   repodir = '.', \
