@@ -18,9 +18,9 @@ addToDrat(){
   git fetch upstream 2>err.txt
   git checkout master
 
-  Rscript -e "for(pkg in dir('..', pattern = '.t*z')) { drat::insertPackage(paste0('../', pkg), \
+  Rscript -e "for(pkg in dir('..', pattern = ifelse(.Platform$OS.type == 'windows', '.zip', '.t*z')) { drat::insertPackage(paste0('../', pkg), \
   repodir = '.', \
-  commit='Travis update $APPVEYOR_PROJECT_NAME: build $APPVEYOR_REPO_COMMIT', branch = 'master') }"
+  commit='Travis update ${APPVEYOR_PROJECT_NAME:-$PKG_REPO} build ${APPVEYOR_REPO_COMMIT:-$TRAVIS_COMMIT}', branch = 'master') }"
 
   git push 2>err.txt
 
