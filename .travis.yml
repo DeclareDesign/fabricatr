@@ -25,9 +25,10 @@ after_success:
 - test $TRAVIS_OS_NAME == "osx" && Rscript -e "devtools::build(binary = TRUE, args
   = c('--preclean'))"
 - test $TRAVIS_OS_NAME == "linux" && Rscript -e "devtools::build()"
-- test $TRAVIS_REPO_SLUG == "DeclareDesign/fabricatr" && test $TRAVIS_PULL_REQUEST
-  == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
-- pkgdown::build_site()
+- test $TRAVIS_OS_NAME == "linux" && test $TRAVIS_R_VERSION == "release" && pkgdown::build_site()
+- test $TRAVIS_REPO_SLUG == "DeclareDesign/fabricatr" && test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
+- echo $TRAVIS_R_VERSION
+- echo $TRAVIS_OS_NAME
 deploy:
   provider: s3
   bucket: declaredesign-web
@@ -39,7 +40,8 @@ deploy:
   upload-dir: fabricatr
   on:
     branch: master
-    condition: $OS = "linux"
+    condition: $TRAVIS_OS_NAME == "linux"
+    condition: $TRAVIS_R_VERSION = "release"
 notifications:
   email:
     recipients:
