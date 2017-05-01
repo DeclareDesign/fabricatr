@@ -1,5 +1,6 @@
-library(fabricatr)
-library(magrittr)
+context("Fabricate")
+
+test_that("Fabricate",{
 
 df <- fabricate_data_single_level(N = 2, Y = 10)
 df_2 <- fabricate_data_single_level(data = df, Y2 = Y + 1,ID_label = "BOB")
@@ -42,4 +43,4 @@ fabricate_data(regions = level(N = 5),
 region_data <- data.frame(capital = c(1, 0, 0, 0, 0))
 fabricate_data(regions = level(N = 5, gdp = runif(5)),
                cities = level(N = sample(1:5), subways = rnorm(N, mean = 5)))
-
+})

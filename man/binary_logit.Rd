@@ -12,3 +12,10 @@ binary_logit(data)
 \description{
 Binary variable from a binomial distribution with a logit link
 }
+\examples{
+
+fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = binary_logit(Y1))
+
+binary_logit(runif(10))
+
+}

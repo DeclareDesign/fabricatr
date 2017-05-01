@@ -14,3 +14,10 @@ binomial_count(data, k)
 \description{
 Count variable from a binomial distribution with a logit link
 }
+\examples{
+
+fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = binomial_count(Y1, 4))
+fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = binomial_count(Y1, 2))
+
+binomial_count(runif(50), 3)
+}
