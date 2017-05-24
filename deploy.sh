@@ -14,7 +14,7 @@ git config --global push.default simple
 
 ## Get drat repo
 git remote add upstream "https://$GH_TOKEN@github.com/DeclareDesign/declaredesign.github.io.git"
-git fetch upstream 2>err.txt
+git fetch upstream
 git checkout master
 
 dir bin
@@ -25,7 +25,7 @@ Rscript -e "path <- ifelse(.Platform\$OS.type == 'windows', file.path('..', '${A
   repodir = '.', \
   commit = FALSE) }"
 
-dir bin/windows/contrib
+dir bin/windows/contrib/3.3
 
 git commit * -m 'Travis update ${APPVEYOR_PROJECT_NAME:-$PKG_REPO} build ${APPVEYOR_REPO_COMMIT:-$TRAVIS_COMMIT}'
 
