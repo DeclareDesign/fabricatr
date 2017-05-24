@@ -15,30 +15,17 @@ env:
   - secure: Jz8S8RTYI1ol31b83k/zX1U7jSWXQ/dpK0KoDZOl3YumriHKYTiDxVlsEDVbRE/nHgbcchP30OJJOnfn5r9PgEfe9sw+1KopeTw/fKbtljXxZEdTrTE2LGjdhB5yD0CJ9dUF9vjG74BVIzn5YMQLJnVIOXjpnf7Br1JP5Hx7E2EMdqiOB4/DIo6+uRcLyDN5IGSf8ikm1yzdNPj99Tjf6vz0ntg4hgtCsFiwGPpomKoNArvtOH+v9z1aYhnuS2M4ZNr5yxZQIdEMwUzS2JF/XsQ8YMssPIrkcu3555SCA4vliPELnt0mdBB3Wn3n6XngBoDjGmAMw48YI849d3B8mVqjudvkMIJguIFpUyOESXkS+qxQUTMfn47NlP8g3PQE86vawfRX5Y4j2/jeirSIPLBdbHLVsEK5VBouRhzBg5MEnRTCdwcd/r9I6x/s7wH5r+jydZDPkdVedB4k1XrpxJZYKAWVE/ntV4ppJEO3b9ZQbngCAivJyI+5w8bcCHOfS7sb1+rdlEtzxShi21FkCiJCMVsv2+NZPJ0M0Zqe/X+z76TsbQYJNKhwhDaHNhN51fHM5gr4BxmO0mrcjxe4DgQYpwwvZJPMVLmS/9noe9QuIYLZ4vwFk58CA9IUviatgqhP/GNnKsW5z3BpkCwxGdhN1XOo1o3c0bAIRTo25Mo=
   - secure: QTan6097dNEpykGMniNg7UnbVCRb8qzyvo81Yp6KVOGqDSjOnRMLvSWRRybR7xubusB27OK9RZruno7RkkH3iRNgaYkYd48xAHW5cqTKrybMsOTim+Aij1e7gl7kNULQGpJJl0862C1/XMKmAVVwHktkKnlZmH/wGAuWs8quSqcXXpJ6ND6bJzfIQJYH6+b6PLsUPhzyIut3iUwfTE4nCpNikpwxP1TJGqKP42BpwCBEaSnlOumoIl5otsefSMH2+SzB2uNUtVfc8vOojhRR+OYJe4A9YearOrjcXa+N1qAz4O39023/lV20TU3thfStCeazs7a5X9yhd9vC6EGn5OovePO3HMlDHmV4kA7dQ+XGU7Lef0yA80F6bo9OVjsJqjc+gL28mDuaJpKMqomvaffoizuSiq0L82KvbRFxv8v+ZBabPbfg8Sgck9t3X1hlGtuXGMRhGSlq5P5JcWU0S2jd4VnFb/rbA+hXILPxEh4/4W3i53tgPFkspEIpI81LvfS/unxRUj0uFBP+a3HIb5WF/iaU+2oba+pH55p30qoz17wd1kVEQaIi1BOIP9eXPMwrypYqbSXQa7eXVQngY81ahwS2btUwwLkJ+jLKd+TukhOSQqoh2cFEvNbr39c/m1+ZrS7qsOvw4i2NOWz2XJCeRCmH3kRJP/7qeX8UyjM=
 r_github_packages:
-- jimhester/covr
 - graemeblair/drat
 - hadley/pkgdown
 r_packages:
 - git2r
+- covr
 after_success:
-- Rscript -e 'covr::coveralls()'
+- test $TRAVIS_OS_NAME == "linux" && Rscript -e 'covr::coveralls()'
 - test $TRAVIS_OS_NAME == "osx" && Rscript -e "devtools::build(binary = TRUE, args
   = c('--preclean'))"
 - test $TRAVIS_OS_NAME == "linux" && Rscript -e "devtools::build()"
-- test $TRAVIS_OS_NAME == "linux" && test $TRAVIS_R_VERSION == "3.4.0" && Rscript -e "pkgdown::build_site()"
 - test $TRAVIS_REPO_SLUG == "DeclareDesign/fabricatr" && test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
-deploy:
-  provider: s3
-  bucket: declaredesign-fabricatr
-  region: us-west-1
-  local-dir: docs
-  skip_cleanup: true
-  access_key_id: "$AWS_KEY"
-  secret_access_key: "$AWS_SECRET_KEY"
-  on:
-    branch: master
-    condition: $TRAVIS_OS_NAME == "linux"
-    condition: $TRAVIS_R_VERSION = "3.4.0"
 notifications:
   email:
     recipients:
