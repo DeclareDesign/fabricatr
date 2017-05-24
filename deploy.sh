@@ -25,8 +25,8 @@ Rscript -e "path <- ifelse(.Platform\$OS.type == 'windows', file.path('..', '${A
   repodir = '.', \
   commit = FALSE) }"
 
-dir bin/windows
+dir bin/windows/contrib
 
 git commit * -m 'Travis update ${APPVEYOR_PROJECT_NAME:-$PKG_REPO} build ${APPVEYOR_REPO_COMMIT:-$TRAVIS_COMMIT}'
 
-git push 2>err.txt
+git push
