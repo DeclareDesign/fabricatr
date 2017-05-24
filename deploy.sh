@@ -17,7 +17,7 @@ git remote add upstream "https://$GH_TOKEN@github.com/DeclareDesign/declaredesig
 git fetch upstream 2>err.txt
 git checkout master
 
-dir
+dir bin/windows /D
 
 Rscript -e "path <- ifelse(.Platform\$OS.type == 'windows', file.path('..', '${APPVEYOR_PROJECT_NAME:-$PKG_REPO}'), file.path('..')); \
   for(pkg in dir(path, pattern = ifelse(.Platform\$OS.type == 'windows', '.zip', '.t*z'))) { print(paste('processing', pkg)); \
@@ -25,6 +25,6 @@ Rscript -e "path <- ifelse(.Platform\$OS.type == 'windows', file.path('..', '${A
   repodir = '.', \
   commit='Travis update ${APPVEYOR_PROJECT_NAME:-$PKG_REPO} build ${APPVEYOR_REPO_COMMIT:-$TRAVIS_COMMIT}', branch = 'master') }"
 
-dir
+dir bin/windows /D
 
 git push 2>err.txt
