@@ -4,8 +4,8 @@ PKG_REPO=$PWD
 COMMIT="${TRAVIS_COMMIT:-$APPVEYOR_REPO_COMMIT}"
 cd ..
 
-mkdir drat
-cd drat
+mkdir repo
+cd repo
 
 ## Set up Repo parameters
 git init
@@ -18,17 +18,7 @@ git remote add upstream "https://$GH_TOKEN@github.com/DeclareDesign/declaredesig
 git fetch upstream
 git checkout master
 
-##Rscript -e "path <- ifelse(.Platform\$OS.type == 'windows', file.path('..', '${APPVEYOR_PROJECT_NAME:-$PKG_REPO}'), file.path('..')); \
-##  for(pkg in dir(path, pattern = ifelse(.Platform\$OS.type == 'windows', '.zip', '.t*z'))) { print(paste('processing', pkg)); \
-##  drat::insertPackage(file = file.path(path, pkg), \
-##  repodir = '.', \
-##  commit = FALSE) }"
-
-echo 'start update repo'
-
 Rscript update_repo.R
-
-echo 'end update repo'
 
 git add *
 
