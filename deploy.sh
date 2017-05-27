@@ -24,7 +24,11 @@ git checkout master
 ##  repodir = '.', \
 ##  commit = FALSE) }"
 
+echo 'start update repo'
+
 Rscript update_repo.R
+
+echo 'end update repo'
 
 git add *
 
