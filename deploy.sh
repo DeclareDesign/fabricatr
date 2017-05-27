@@ -24,7 +24,7 @@ git checkout master
 ##  repodir = '.', \
 ##  commit = FALSE) }"
 
-cp ../fabricatr_0.1.0.zip .
+cp ../fabricatr/fabricatr_0.1.0.zip .
 
 git add *
 
