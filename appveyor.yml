@@ -46,7 +46,7 @@ artifacts:
     name: Bits
 
 environment:
-  - R_VERSION: release
-
-  - GH_TOKEN:
-    secure: /EgVnW++QtqS0Bz89k2B8nrf7dwcL8bMXp/WCHkcdSor7JX7SRk51L+0iZUvgQJm
+  - global:
+    - R_VERSION: release
+    - GH_TOKEN:
+      secure: /EgVnW++QtqS0Bz89k2B8nrf7dwcL8bMXp/WCHkcdSor7JX7SRk51L+0iZUvgQJm
