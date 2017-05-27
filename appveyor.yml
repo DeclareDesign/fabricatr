@@ -20,8 +20,6 @@ test_script:
   - travis-tool.sh run_tests
 
 on_success:
-  - travis-tool.sh install_github graemeblair/drat
-  - travis-tool.sh install_r git2r
   - sh deploy.sh
 
 on_failure:
@@ -48,5 +46,6 @@ artifacts:
     name: Bits
 
 environment:
-  GH_TOKEN:
-    secure: /EgVnW++QtqS0Bz89k2B8nrf7dwcL8bMXp/WCHkcdSor7JX7SRk51L+0iZUvgQJm
+  - R_VERSION: release
+  - GH_TOKEN:
+      secure: /EgVnW++QtqS0Bz89k2B8nrf7dwcL8bMXp/WCHkcdSor7JX7SRk51L+0iZUvgQJm
