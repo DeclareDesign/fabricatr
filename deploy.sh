@@ -24,7 +24,7 @@ git checkout master
 ##  repodir = '.', \
 ##  commit = FALSE) }"
 
-cp ../fabricatr/fabricatr_0.1.0.zip .
+Rscript update_repo.R
 
 git add *
 
