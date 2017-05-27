@@ -46,6 +46,6 @@ artifacts:
     name: Bits
 
 environment:
-  R_VERSION: release
+  R_VERSION: 3.4.0
   GH_TOKEN:
     secure: /EgVnW++QtqS0Bz89k2B8nrf7dwcL8bMXp/WCHkcdSor7JX7SRk51L+0iZUvgQJm
