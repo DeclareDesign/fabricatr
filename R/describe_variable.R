@@ -43,7 +43,7 @@ describe_variable <- function(x){
     obj <- cbind(c("Frequency", "Proportion"), obj)
     colnames(obj) <- c("", names(tab))
 
-  } else if (typeof(x) %in% c("character", "factor") & num_unique > 5) {
+  } else if ((typeof(x) == "character" || (typeof(x) == "integer" && class(x) == "factor")) & num_unique > 5) {
 
     obj <- data.frame(N_missing = num_missing,
                       N_unique = num_unique, stringsAsFactors = FALSE)
@@ -63,5 +63,4 @@ describe_variable <- function(x){
   rownames(obj) <- NULL
   return(obj)
 }
-
 
