@@ -60,6 +60,7 @@ level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = 
 
 
       # this check copied and pasted from purrr
+      N <- eval(substitute(N), envir = data)
       if (typeof(N) %in% c("integer", "double") && length(N) == 1) {
         data <- data[rep(1:nrow(data), each = N), , drop = FALSE]
       } else if (typeof(N) %in% c("integer", "double") && length(N) > 1) {
