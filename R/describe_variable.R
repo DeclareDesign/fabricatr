@@ -37,7 +37,7 @@ describe_variable <- function(x){
         data.frame(prop_tab, stringsAsFactors = FALSE)[,2]
       )
 
-    obj <- data.frame(t(df))
+    obj <- data.frame(t(df), stringsAsFactors = FALSE)
     obj[1,] <- format_num(obj[1,], digits = 0)
     obj[2,] <- format_num(obj[2,], digits = 2)
     obj <- cbind(c("Frequency", "Proportion"), obj)
