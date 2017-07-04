@@ -19,5 +19,12 @@ test_that("Start with existing multi-level data and add variables",{
   fabricate_data(data = user_data,
                  regions_ID = level(rob = paste0(regions_ID, "r")),
                  cities_ID = level(bob = paste0(cities_ID, "c"))) %>% head
+  
+  ## do both and create a new level at the bottom level
+  ## note this will break if you try to use cities_ID at the region level (intentional)!
+  fabricate_data(data = user_data,
+                 regions_ID = level(rob = paste0(regions_ID, "r")),
+                 cities_ID = level(bob = paste0(cities_ID, "c")),
+                 neighborhoods = level(N = 10, tmp = rnorm(N))) %>% head
 
 })
