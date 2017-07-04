@@ -61,7 +61,7 @@ level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = 
       # either provide an existing ID_label or N if you don't provide custom data
 
       # if there is no ID variable, expand the dataset based on the commands in N
-      if (!ID_label %in% names(data)) {
+      if (!ID_label %in% colnames(data)) {
 
         # this check copied and pasted from purrr
         N <- eval(substitute(N), envir = data)
