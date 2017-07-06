@@ -39,28 +39,27 @@ fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
 
   # check if all the options are level calls
   if (all(sapply(options_text, function(x)
-    startsWith(x, "level("))) & length(options_text) > 0) {
+    startsWith(x, "level("))) &
+    length(options_text) > 0) {
 
     if (!is.null(data)) {
-      stop("If you are using levels, please don't include data as an argument;
-           instead, use level_data within the levels argument, i.e. level(level_data = your_data).")
+
+      ##stop("If you are using levels, please don't include data as an argument; instead, use level_data within the levels argument, i.e. level(level_data = your_data).")
+      ## instead, just let it start with the existing data
     }
 
-    # If we don't have data yet, make the first level.
-    if (is.null(data)) {
-      # Do a sweet switcheroo with the level names if applicable.
-      if (is.null(options[[1]]$expr$ID_label)) {
-        options[[1]]$expr$ID_label <- names(options)[1]
-      }
-      data <- lazy_eval(options[[1]])
-    }
+    ## make this work! needs to do a loop through all the options
 
     # iff there are multiple levels, please to continue
-    if (length(options) > 1) {
+    if ((length(options) + !is.null(data)) > 1) {
 
-      for (i in 2:length(options)) {
+      for (i in seq_along(options)) {
         # Pop the data from the previous level in the current call
-        options[[i]]$expr$data <- data
+        # Do this if there existing data to start with or
+        #   and beginning with the second level
+        if (i > 1 | !is.null(data)) {
+          options[[i]]$expr$data <- data
+        }
 
         # Also do a sweet switcheroo with the level names if applicable.
         if (is.null(options[[i]]$expr$ID_label)) {
@@ -82,7 +81,8 @@ fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
 
 
 #' @importFrom lazyeval f_eval as_f_list
-fabricate_data_single_level_ <- function(data = NULL, N = NULL, ID_label = NULL, args) {
+fabricate_data_single_level_ <- function(
+  data = NULL, N = NULL, ID_label = NULL, args, existing_ID = FALSE) {
   if (sum(!is.null(data),!is.null(N)) != 1) {
     stop("Please supply either a data.frame or N and not both.")
   }
@@ -98,11 +98,11 @@ fabricate_data_single_level_ <- function(data = NULL, N = NULL, ID_label = NULL,
 
     # this creates column names from ID_label
     # note if ID_label is NULL that the ID column name is just "ID" -- so safe
-    colnames(data) <- paste(c(ID_label, "ID"), collapse = "_")
+    colnames(data) <- ID_label
   } else {
     N <- nrow(data)
-    if (!is.null(ID_label)) {
-      data[, paste(c(ID_label, "ID"), collapse = "_")] <-
+    if (!is.null(ID_label) & existing_ID == FALSE) {
+      data[, ID_label] <-
         sprintf(paste0("%0", nchar(nrow(data)), "d"), 1:nrow(data))
     }
   }
