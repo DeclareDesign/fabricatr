@@ -52,7 +52,7 @@ level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = 
     }
     # make IDs that are nicely padded
     data <- data.frame(sprintf(paste0("%0", nchar(N), "d"), 1:N), stringsAsFactors = FALSE)
-    colnames(data) <- paste(c(ID_label, "ID"), collapse = "_")
+    colnames(data) <- ID_label
 
   } else {
 
