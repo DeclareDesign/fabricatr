@@ -98,11 +98,11 @@ fabricate_data_single_level_ <- function(
 
     # this creates column names from ID_label
     # note if ID_label is NULL that the ID column name is just "ID" -- so safe
-    colnames(data) <- ID_label
+    colnames(data) <- ifelse(is.null(ID_label), "ID", ID_label)
   } else {
     N <- nrow(data)
-    if (!is.null(ID_label) & existing_ID == FALSE) {
-      data[, ID_label] <-
+    if (existing_ID == FALSE) {
+      data[, ifelse(is.null(ID_label), "ID", ID_label)] <-
         sprintf(paste0("%0", nchar(nrow(data)), "d"), 1:nrow(data))
     }
   }
