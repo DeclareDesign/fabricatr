@@ -34,6 +34,10 @@ fabricate_data(Y1 = rnorm(N), Y2 = rnorm(N), data = data.frame(existing_data = r
 fabricate_data(level(N = 5, gdp = rnorm(N), ID_label = "regions"),
                level(N = sample(1:5), subways = rnorm(N, mean = gdp), ID_label = "cities"))
 
+# also should work with just a single level() call
+fabricate_data(level(N = 5, gdp = rnorm(N), ID_label = "regions"))
+
+
 fabricate_data(regions = level(N = 5, gdp = rnorm(N)),
                cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp)))
 

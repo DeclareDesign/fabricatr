@@ -51,7 +51,7 @@ fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
     ## make this work! needs to do a loop through all the options
 
     # iff there are multiple levels, please to continue
-    if ((length(options) + !is.null(data)) > 1) {
+    if ((length(options) + !is.null(data)) >= 1) {
 
       for (i in seq_along(options)) {
         # Pop the data from the previous level in the current call
