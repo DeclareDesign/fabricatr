@@ -13,8 +13,7 @@ install:
 
 # Adapt as necessary starting from here
 environment:
-  GH_TOKEN:
-    secure: /EgVnW++QtqS0Bz89k2B8nrf7dwcL8bMXp/WCHkcdSor7JX7SRk51L+0iZUvgQJm
+  GH_TOKEN: secure: /EgVnW++QtqS0Bz89k2B8nrf7dwcL8bMXp/WCHkcdSor7JX7SRk51L+0iZUvgQJm
 
   matrix:
   - R_VERSION: release
@@ -22,34 +21,34 @@ environment:
   - R_VERSION: oldrel
     RTOOLS_VERSION: 33
 
-  build_script:
-    - travis-tool.sh install_deps
+build_script:
+  - travis-tool.sh install_deps
 
-  test_script:
-    - travis-tool.sh run_tests
+test_script:
+  - travis-tool.sh run_tests
 
-  on_success:
-    - sh deploy.sh
+on_success:
+  - sh deploy.sh
 
-  on_failure:
-    - 7z a failure.zip *.Rcheck\*
-    - appveyor PushArtifact failure.zip
+on_failure:
+  - 7z a failure.zip *.Rcheck\*
+  - appveyor PushArtifact failure.zip
 
-  artifacts:
-    - path: '*.Rcheck\**\*.log'
-      name: Logs
+artifacts:
+  - path: '*.Rcheck\**\*.log'
+    name: Logs
 
-    - path: '*.Rcheck\**\*.out'
-      name: Logs
+  - path: '*.Rcheck\**\*.out'
+    name: Logs
 
-    - path: '*.Rcheck\**\*.fail'
-      name: Logs
+  - path: '*.Rcheck\**\*.fail'
+    name: Logs
 
-    - path: '*.Rcheck\**\*.Rout'
-      name: Logs
+  - path: '*.Rcheck\**\*.Rout'
+    name: Logs
 
-    - path: '\*_*.tar.gz'
-      name: Bits
+  - path: '\*_*.tar.gz'
+    name: Bits
 
-    - path: '\*_*.zip'
-      name: Bits
+  - path: '\*_*.zip'
+    name: Bits
