@@ -100,8 +100,9 @@ level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = 
           data = level_data, N = NULL, ID_label = ID_label,
           args = dots_capture(...), existing_ID = TRUE)
 
-        return(full_join(data, level_data[colnames(level_data)[!(colnames(level_data)
-                                                                 %in% level_variables)]],
+        return(full_join(data[, colnames(data)[!(colnames(data) %in% 
+                                                   level_variables)], drop = FALSE], 
+                         level_data,
                          by = as.character(substitute(ID_label))))
 
       }
