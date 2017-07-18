@@ -12,39 +12,47 @@ install:
   ps: Bootstrap
 
 # Adapt as necessary starting from here
+environment:
+  global:
+    GH_TOKEN:
+      secure: /EgVnW++QtqS0Bz89k2B8nrf7dwcL8bMXp/WCHkcdSor7JX7SRk51L+0iZUvgQJm
 
-build_script:
-  - travis-tool.sh install_deps
+  matrix:
+  - R_VERSION: release
 
-test_script:
-  - travis-tool.sh run_tests
+  - R_VERSION: oldrel
+    RTOOLS_VERSION: 33
 
-on_success:
-  - sh deploy.sh
+  build_script:
+    - travis-tool.sh install_deps
 
-on_failure:
-  - 7z a failure.zip *.Rcheck\*
-  - appveyor PushArtifact failure.zip
+  test_script:
+    - travis-tool.sh run_tests
 
-artifacts:
-  - path: '*.Rcheck\**\*.log'
-    name: Logs
+  on_success:
+    - sh deploy.sh
 
-  - path: '*.Rcheck\**\*.out'
-    name: Logs
+  on_failure:
+    - 7z a failure.zip *.Rcheck\*
+    - appveyor PushArtifact failure.zip
 
-  - path: '*.Rcheck\**\*.fail'
-    name: Logs
+  artifacts:
+    - path: '*.Rcheck\**\*.log'
+      name: Logs
 
-  - path: '*.Rcheck\**\*.Rout'
-    name: Logs
+    - path: '*.Rcheck\**\*.out'
+      name: Logs
 
-  - path: '\*_*.tar.gz'
-    name: Bits
+    - path: '*.Rcheck\**\*.fail'
+      name: Logs
 
-  - path: '\*_*.zip'
-    name: Bits
+    - path: '*.Rcheck\**\*.Rout'
+      name: Logs
+
+    - path: '\*_*.tar.gz'
+      name: Bits
+
+    - path: '\*_*.zip'
+      name: Bits
 
 environment:
-  GH_TOKEN:
-    secure: /EgVnW++QtqS0Bz89k2B8nrf7dwcL8bMXp/WCHkcdSor7JX7SRk51L+0iZUvgQJm
