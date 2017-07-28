@@ -109,16 +109,26 @@ fabricate_data_single_level_ <- function(
 
   args <- as_f_list(args)
 
-  data_list <- as.list(data)
-  data_list$N <- N
-
   for (nm in names(args)) {
-    # inspired directly by lazyeval vignette
+    # inspired by lazyeval vignette
+    # this was changed to move costly data.frame operations inside the loop
+    #   because previously, if you did rnorm(N) in a level
+    #   it literally did a vector of length N, rather than doing
+    #   it for all of the values of the level above it, i.e. if this
+    #   this is the second level and N = 2, it made a vector of length 2
+    #   even though there were 5 units in the higher level so there should
+    #   have been a vector of 5*2 = 10
+    # NB: this is still not super safe; if the expression returns a thing
+    # of length not exactly to N it's just going to repeat it as it does 
+    # data.frame(data_list). Usually this shouldn't be a problem but we may
+    # want a warning or error 
+    data_list <- as.list(data)
+    data_list$N <- N
     data_list[[nm]] <- f_eval(args[[nm]], data_list)
+    data_list$N <- NULL
+    data <- data.frame(data_list, stringsAsFactors = FALSE)
   }
 
-  data_list$N <- NULL
-  data <- data.frame(data_list, stringsAsFactors = FALSE)
   rownames(data) <- NULL
   return(data)
 }
