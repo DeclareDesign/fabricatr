@@ -42,16 +42,8 @@ fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
     startsWith(x, "level("))) &
     length(options_text) > 0) {
 
-    if (!is.null(data)) {
-
-      ##stop("If you are using levels, please don't include data as an argument; instead, use level_data within the levels argument, i.e. level(level_data = your_data).")
-      ## instead, just let it start with the existing data
-    }
-
-    ## make this work! needs to do a loop through all the options
-
     # iff there are multiple levels, please to continue
-    if ((length(options) + !is.null(data)) >= 1) {
+    ##if ((length(options) + !is.null(data)) >= 1) {
 
       for (i in seq_along(options)) {
         # Pop the data from the previous level in the current call
@@ -69,11 +61,15 @@ fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
         data <- lazy_eval(options[[i]])
 
       }
-    }
+    ##}
 
     return(data)
 
   } else {
+    if (any(sapply(options_text, function(x)
+      startsWith(x, "level(")))) {
+      stop("Arguments passed to ... must either all be calls to level() or have no calls to level().")
+    }
     # Sometimes life is simple
     fabricate_data_single_level_(data = data, N = N, ID_label = ID_label, dots_capture(...))
   }
@@ -119,9 +115,9 @@ fabricate_data_single_level_ <- function(
     #   even though there were 5 units in the higher level so there should
     #   have been a vector of 5*2 = 10
     # NB: this is still not super safe; if the expression returns a thing
-    # of length not exactly to N it's just going to repeat it as it does 
+    # of length not exactly to N it's just going to repeat it as it does
     # data.frame(data_list). Usually this shouldn't be a problem but we may
-    # want a warning or error 
+    # want a warning or error
     data_list <- as.list(data)
     data_list$N <- N
     data_list[[nm]] <- f_eval(args[[nm]], data_list)
