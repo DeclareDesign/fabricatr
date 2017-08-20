@@ -1,5 +1,6 @@
 
 
+
 #' Fabricate data
 #'
 #' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
@@ -47,7 +48,8 @@ fabricate_data <-
     if (length(functions_or_not) > 0) {
       options_fn <-
         sapply(options[functions_or_not], lang_name) ## function names
-      if (any(options_fn == "level") & !all(options_fn == "level")) {
+      if (any(options_fn == "level") &
+          !all(options_fn == "level")) {
         stop(
           "Arguments passed to ... must either all be calls to level() or have no calls to level()."
         )
@@ -94,16 +96,22 @@ fabricate_data <-
 
 
 #' @importFrom rlang quos eval_tidy
-fabricate_data_single_level <- function(
-  data = NULL, N = NULL, ID_label = NULL, ..., existing_ID = FALSE) {
-  if (sum(!is.null(data),!is.null(N)) != 1) {
+fabricate_data_single_level <- function(data = NULL,
+                                        N = NULL,
+                                        ID_label = NULL,
+                                        ...,
+                                        existing_ID = FALSE) {
+  if (sum(!is.null(data), !is.null(N)) != 1) {
     stop("Please supply either a data.frame or N and not both.")
   }
 
   if (is.null(data)) {
-
     if (length(N) > 1) {
-      stop(paste0("At the top level, ", ID_label, ", you must provide a single number to N."))
+      stop(paste0(
+        "At the top level, ",
+        ID_label,
+        ", you must provide a single number to N."
+      ))
     }
     # make IDs that are nicely padded
     data <-
@@ -144,4 +152,3 @@ fabricate_data_single_level <- function(
   rownames(data) <- NULL
   return(data)
 }
-

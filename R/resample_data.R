@@ -8,7 +8,6 @@
 #'
 #' @export
 resample_data <- function(data, N, ID_labels = NULL) {
-
   if (missing(N)) {
     N <- nrow(data)
   }
@@ -22,7 +21,9 @@ resample_data <- function(data, N, ID_labels = NULL) {
   # }
 
   if (!is.null(ID_labels) & (k != length(ID_labels))) {
-    stop("If you provide more than one ID_labels to resample data for multilevel data, please provide a vector for N of the same length representing the number to resample at each level.")
+    stop(
+      "If you provide more than one ID_labels to resample data for multilevel data, please provide a vector for N of the same length representing the number to resample at each level."
+    )
   }
 
   sample_by_level <- list()
