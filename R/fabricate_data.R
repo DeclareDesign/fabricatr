@@ -1,4 +1,5 @@
 
+
 #' Fabricate data
 #'
 #' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
@@ -29,56 +30,72 @@
 #'  cities = level(N = 10, pollution = rnorm(N, mean = 5)))
 #' head(df)
 #'
-#' @importFrom lazyeval lazy_dots dots_capture lazy_eval
+#' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args is_lang get_expr
 #'
 #' @export
-fabricate_data <- function(..., N = NULL, ID_label = NULL, data = NULL) {
+fabricate_data <-
+  function(...,
+           N = NULL,
+           ID_label = NULL,
+           data = NULL) {
+    options <- quos(...)
+    functions_or_not <-
+      sapply(options, function(i) {
+        is_lang(get_expr(i))
+      })
 
-  options <- lazy_dots(...)
-  options_text <- as.character(eval(substitute(alist(...))))
+    if (length(functions_or_not) > 0) {
+      options_fn <-
+        sapply(options[functions_or_not], lang_name) ## function names
+      if (any(options_fn == "level") & !all(options_fn == "level")) {
+        stop(
+          "Arguments passed to ... must either all be calls to level() or have no calls to level()."
+        )
+      }
+      all_levels <-
+        all(options_fn == "level") &
+        length(options_fn) > 0 & all(functions_or_not)
+    } else{
+      all_levels <- FALSE
+    }
 
-  # check if all the options are level calls
-  if (all(sapply(options_text, function(x)
-    startsWith(x, "level("))) &
-    length(options_text) > 0) {
-
-    # iff there are multiple levels, please to continue
-    ##if ((length(options) + !is.null(data)) >= 1) {
-
+    # check if all the options are level calls
+    if (all_levels) {
       for (i in seq_along(options)) {
         # Pop the data from the previous level in the current call
         # Do this if there existing data to start with or
         #   and beginning with the second level
         if (i > 1 | !is.null(data)) {
-          options[[i]]$expr$data <- data
+          options[[i]] <- lang_modify(options[[i]], data = data)
         }
 
         # Also do a sweet switcheroo with the level names if applicable.
-        if (is.null(options[[i]]$expr$ID_label)) {
-          options[[i]]$expr$ID_label <- names(options)[i]
+        if (is.null(lang_args(options[[i]])$ID_label)) {
+          options[[i]] <-
+            lang_modify(options[[i]], ID_label = names(options)[i])
         }
+
         # update the current data
-        data <- lazy_eval(options[[i]])
+        data <- eval_tidy(options[[i]])
 
       }
-    ##}
 
-    return(data)
+      return(data)
 
-  } else {
-    if (any(sapply(options_text, function(x)
-      startsWith(x, "level(")))) {
-      stop("Arguments passed to ... must either all be calls to level() or have no calls to level().")
+    } else {
+      fabricate_data_single_level(
+        data = data,
+        N = N,
+        ID_label = ID_label,
+        ... = ...
+      )
     }
-    # Sometimes life is simple
-    fabricate_data_single_level_(data = data, N = N, ID_label = ID_label, dots_capture(...))
   }
-}
 
 
-#' @importFrom lazyeval f_eval as_f_list
-fabricate_data_single_level_ <- function(
-  data = NULL, N = NULL, ID_label = NULL, args, existing_ID = FALSE) {
+#' @importFrom rlang quos eval_tidy
+fabricate_data_single_level <- function(
+  data = NULL, N = NULL, ID_label = NULL, ..., existing_ID = FALSE) {
   if (sum(!is.null(data),!is.null(N)) != 1) {
     stop("Please supply either a data.frame or N and not both.")
   }
@@ -103,10 +120,9 @@ fabricate_data_single_level_ <- function(
     }
   }
 
-  args <- as_f_list(args)
+  args <- quos(...)
 
   for (nm in names(args)) {
-    # inspired by lazyeval vignette
     # this was changed to move costly data.frame operations inside the loop
     #   because previously, if you did rnorm(N) in a level
     #   it literally did a vector of length N, rather than doing
@@ -120,7 +136,7 @@ fabricate_data_single_level_ <- function(
     # want a warning or error
     data_list <- as.list(data)
     data_list$N <- N
-    data_list[[nm]] <- f_eval(args[[nm]], data_list)
+    data_list[[nm]] <- eval_tidy(args[[nm]], data_list)
     data_list$N <- NULL
     data <- data.frame(data_list, stringsAsFactors = FALSE)
   }
@@ -129,8 +145,3 @@ fabricate_data_single_level_ <- function(
   return(data)
 }
 
-
-#' @importFrom lazyeval dots_capture
-fabricate_data_single_level <- function(data = NULL, N = NULL, ID_label = NULL, ...) {
-  fabricate_data_single_level_(data = data, N = N, ID_label = ID_label, dots_capture(...))
-}

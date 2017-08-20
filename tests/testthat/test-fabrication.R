@@ -2,7 +2,10 @@ context("Fabricate")
 
 test_that("Fabricate",{
 
-df <- fabricate_data_single_level(N = 2, Y = 10)
+  df <- fabricate_data_single_level(N = 2, Y = 10)
+
+
+
 df_2 <- fabricate_data_single_level(data = df, Y2 = Y + 1,ID_label = "BOB")
 
 level(ID_label = "test", N = 3, Y = 10)
@@ -24,12 +27,12 @@ wrapitup(12)
 fabricate_data(N = 100)
 
 fabricate_data(N = 2, Y = 10, ID_label = "test")
+
 fabricate_data(N = 2, Y = 10)
 
-fabricate_data(N = 2, Y1 = rnorm(N), Y2 = rnorm(N))
+fabricate_data(N = 2, Y1 = 5, Y2 = rnorm(N))
 
 fabricate_data(Y1 = rnorm(N), Y2 = rnorm(N), data = data.frame(existing_data = rnorm(5)))
-
 
 fabricate_data(level(N = 5, gdp = rnorm(N), ID_label = "regions"),
                level(N = sample(1:5), subways = rnorm(N, mean = gdp), ID_label = "cities"))
@@ -37,6 +40,7 @@ fabricate_data(level(N = 5, gdp = rnorm(N), ID_label = "regions"),
 # also should work with just a single level() call
 fabricate_data(level(N = 5, gdp = rnorm(N), ID_label = "regions"))
 
+fabricate_data(regions = level(N = 5, gdp = rnorm(N)))
 
 fabricate_data(regions = level(N = 5, gdp = rnorm(N)),
                cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp)))

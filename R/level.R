@@ -95,9 +95,13 @@ level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = 
 
         level_data <- unique(data[, unique(c(ID_label, level_variables)), drop = FALSE])
 
-        level_data <- fabricate_data_single_level_(
-          data = level_data, N = NULL, ID_label = ID_label,
-          args = dots_capture(...), existing_ID = TRUE)
+        level_data <- fabricate_data_single_level(
+          data = level_data,
+          N = NULL,
+          ID_label = ID_label,
+          ... = ...,
+          existing_ID = TRUE
+        )
 
         return(merge(data[, colnames(data)[!(colnames(data) %in%
                                                level_variables)], drop = FALSE],
@@ -125,8 +129,13 @@ level <- function(ID_label, N = NULL, ..., level_data = NULL, by = NULL, data = 
 
   # now that data is the right size, pass to "mutate", i.e., simulate data
 
-  fabricate_data_single_level_(data = data, N = NULL,
-                               ID_label = ID_label, dots_capture(...))
+  fabricate_data_single_level(
+    data = data,
+    N = NULL,
+    ID_label = ID_label,
+    ... = ...
+  )
+
 }
 
 

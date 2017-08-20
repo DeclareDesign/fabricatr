@@ -9,10 +9,11 @@ Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@ucla.edu", role = c
 Description: Tools for Simulating Data Before Data Collection
 	This software allows the user to create mock data that follows 
 	the structure of future data to be collected.
-Imports:
-    lazyeval
+Imports: rlang
 License: All rights reserved
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
-Suggests: testthat
+Suggests: 
+    testthat,
+    dplyr
