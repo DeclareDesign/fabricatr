@@ -2,13 +2,26 @@ context("Start with existing multi-level data and add variables")
 
 test_that("Start with existing multi-level data and add variables",{
 
-  # user_data <-
-  # fabricate_data(
-  #   regions = level(N = 5, gdp = rnorm(N), countries))
-  #
-  # fabricate_data(
-  #   countries = level(2, polity_score = sample(-10:10, N, replace = TRUE)),
-  #
-  # )
+  countries_data <-
+    fabricate_data(N = 2,
+                   ID_label = countries,
+                   gdp = rnorm(N))
+
+  regions_data <- fabricate_data(countries = level(N = 2),
+                                 regions = level(N = 2, elevation = rnorm(N)))
+
+
+  full_data <- fabricate_data(
+    countries = level(data = countries_data,
+                      new_country_variable = rnorm(N)),
+    regions = level(data = regions_data, by = "countries",
+                    new_region_variable = rnorm(N))
+  )
+
+  full_data <- fabricate_data(
+    countries = level(N = 2),
+    regions = level(data = regions_data, by = "countries",
+                    new_region_variable = rnorm(N))
+  )
 
 })

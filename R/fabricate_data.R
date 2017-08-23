@@ -61,6 +61,11 @@ fabricate_data <-
       all_levels <- FALSE
     }
 
+    ID_label <- substitute(ID_label)
+    if (!is.null(ID_label)) {
+      ID_label <- as.character(ID_label)
+    }
+
     # check if all the options are level calls
     if (all_levels) {
       for (i in seq_along(options)) {

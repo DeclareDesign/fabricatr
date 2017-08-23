@@ -36,6 +36,10 @@ level <-
            data = NULL) {
     ## data is existing data to begin this level with
 
+    # handle data that is sent from higher levels of the hierarchy
+    # this is done internally through data_internal_, which is passed through
+    # the ...; users can send data to any level through data, but is handled
+    # differently
     dots <- quos(...)
     if ("data_internal_" %in% names(dots)) {
       data_internal_ <- eval_tidy(dots[["data_internal_"]])
@@ -108,7 +112,7 @@ level <-
             data_internal_[, colnames(data_internal_)[!(colnames(data_internal_) %in%
                                       level_variables)], drop = FALSE],
             data,
-            by = as.character(substitute(ID_label)),
+            by = ID_label,
             all = TRUE,
             sort = FALSE
           ))
