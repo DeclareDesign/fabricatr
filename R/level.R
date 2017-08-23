@@ -61,7 +61,7 @@ level <-
     if (is.null(data_internal_) & is.null(data)) {
       if (is.null(N)) {
         stop(paste0(
-          "If you do not provide data to level",
+          "If you do not provide data to level ",
           ID_label,
           ", please provide N."
         ))
