@@ -80,51 +80,21 @@ level <-
 
         # if there is no ID variable, expand the dataset based on the commands in N
         if (!ID_label %in% colnames(data_internal_)) {
+
           # this check copied and pasted from purrr
           N <- eval(substitute(N), envir = data_internal_)
-          if (typeof(N) %in% c("integer", "double") &&
-              length(N) == 1) {
-            data_internal_ <- data_internal_[rep(1:nrow(data_internal_), each = N), , drop = FALSE]
-          } else if (typeof(N) %in% c("integer", "double") &&
-                     length(N) > 1) {
-            # check that the vector that is N is the right length, i.e the length of data_internal_
-            if (length(N) != nrow(data_internal_)) {
-              stop(
-                paste0(
-                  "If you provide a vector to N for level",
-                  ID_label,
-                  ", it must be the length of the dataset at the level above it ",
-                  "in the hierarchy"
-                )
-              )
-            }
-            data_internal_ <- data_internal_[rep(1:nrow(data_internal_), times = N), , drop = FALSE]
-          } else if (class(N) == "function") {
-            data_internal_ <- data_internal_[rep(1:nrow(data_internal_), times = N()), , drop = FALSE]
-          } else {
-            stop(
-              paste0(
-                "Please provide level ",
-                ID_label,
-                " with N that is a vector, scalar, or function that generates a vector."
-              )
-            )
-          }
+
+          data_internal_ <- expand_data_by_ID(data = data_internal_, ID_label = ID_label, N = N)
+
         } else {
           # otherwise assume you are adding variables to an existing level
           # defined by the level ID variable that exists in the data_internal_
 
-          ## identify variables that do not vary within ID_label
-          ## maybe there is a faster way to do this?
-          level_variables <-
-            sapply(colnames(data_internal_)[!colnames(data_internal_) %in% ID_label], function(i)
-              max(tapply(data_internal_[, i], list(data_internal_[, ID_label]),
-                         function(x)
-                           length(unique(x)))) == 1)
-          level_variables <- names(level_variables)[level_variables]
+          level_variables <- get_unique_variables_by_level(
+            data = data_internal_, ID_label = ID_label)
 
-          data <-
-            unique(data_internal_[, unique(c(ID_label, level_variables)), drop = FALSE])
+          data <- unique(data_internal_[, unique(c(ID_label, level_variables)),
+                                        drop = FALSE])
 
           options <- lang_modify(dots, data = data,
                                  N = NULL,
@@ -182,3 +152,46 @@ level <-
     eval_tidy(level_call)
 
   }
+
+
+get_unique_variables_by_level <- function(data, ID_label) {
+  ## identify variables that do not vary within ID_label
+  ## maybe there is a faster way to do this?
+  level_variables <-
+    sapply(colnames(data)[!colnames(data) %in% ID_label], function(i)
+      max(tapply(data[, i], list(data[, ID_label]),
+                 function(x)
+                   length(unique(x)))) == 1)
+  return(names(level_variables)[level_variables])
+}
+
+expand_data_by_ID <- function(data, ID_label, N) {
+  if (typeof(N) %in% c("integer", "double") &&
+      length(N) == 1) {
+    data <- data[rep(1:nrow(data), each = N), , drop = FALSE]
+  } else if (typeof(N) %in% c("integer", "double") &&
+             length(N) > 1) {
+    # check that the vector that is N is the right length, i.e the length of data_internal_
+    if (length(N) != nrow(data)) {
+      stop(
+        paste0(
+          "If you provide a vector to N for level",
+          ID_label,
+          ", it must be the length of the dataset at the level above it ",
+          "in the hierarchy"
+        )
+      )
+    }
+    data <- data[rep(1:nrow(data), times = N), , drop = FALSE]
+  } else if (class(N) == "function") {
+    data <- data[rep(1:nrow(data), times = N()), , drop = FALSE]
+  } else {
+    stop(
+      paste0(
+        "Please provide level ",
+        ID_label,
+        " with N that is a vector, scalar, or function that generates a vector."
+      )
+    )
+  }
+}
