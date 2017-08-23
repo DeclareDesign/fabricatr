@@ -16,6 +16,7 @@ test_that("Start with existing multi-level data and add variables",{
   expect_equal(dim(user_data), c(15, 4))
 
   ## add a variable at the region level
+
   user_data_2 <-
     fabricate_data(data = user_data,
                    regions = level(rob = paste0(regions, "r")))

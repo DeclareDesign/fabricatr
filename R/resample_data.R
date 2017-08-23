@@ -15,11 +15,6 @@ resample_data <- function(data, N, ID_labels = NULL) {
   N_total <- prod(N)
   k <- length(N) ## number of levels
 
-  # ID_labels <- substitute(ID_levels)
-  # if (!is.null(ID_labels)) {
-  #   ID_labels <- as.character(ID_labels)
-  # }
-
   if (!is.null(ID_labels) & (k != length(ID_labels))) {
     stop(
       "If you provide more than one ID_labels to resample data for multilevel data, please provide a vector for N of the same length representing the number to resample at each level."

@@ -2,14 +2,14 @@ context("Fabricate")
 
 test_that("Fabricate",{
 
-  df <- fabricate_data_single_level(N = 2, Y = 10)
+df <- fabricatr:::fabricate_data_single_level(N = 2, Y = 10)
 
 
 
-df_2 <- fabricate_data_single_level(data = df, Y2 = Y + 1,ID_label = "BOB")
+df_2 <- fabricatr:::fabricate_data_single_level(data = df, Y2 = Y + 1,ID_label = "BOB")
 
 level(ID_label = "test", N = 3, Y = 10)
-level(ID_label = "test", N = 4, Y = 10, data = df_2)
+level(ID_label = "test", Y = 10, data = df_2)
 
 # we expect an error here, but need a better explaination (no unnamed arguments)
 # fabricate_data_single_level(N = 10, rnorm(N), Y2 = rnorm(N))

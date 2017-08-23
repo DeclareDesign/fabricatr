@@ -6,9 +6,10 @@
 #'
 #' @param N number of units to draw in the level
 #' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
-#' @param level_data user-provided data that forms the basis of the fabrication at this level, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
+#' @param data user-provided data that forms the basis of the fabrication at this level, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
 #' @param by name of variable to merge by to level above, if the level is not at the top of the hierarchy.
-#' @param data system option that is used by fabricate_data to send data from upper levels of hierarchy to this level. Do not provide data.
+#'
+#' @importFrom rlang quos eval_tidy quo lang_modify
 #'
 #' @examples
 #'
@@ -19,9 +20,9 @@
 #'  cities = level(N = 10, pollution = rnorm(N, mean = 5)))
 #' head(df)
 #'
-#' # Use existing data in a level using level_data
+#' # Use existing data in a level using data
 #' region_data <- data.frame(capital = c(1, 0, 0, 0, 0))
-#' fabricate_data(regions = level(level_data = region_data,
+#' fabricate_data(regions = level(data = region_data,
 #'                                gdp = runif(5)),
 #'                cities = level(N = 5,
 #'                               subways = rnorm(N, mean = 5)))
@@ -31,11 +32,17 @@ level <-
   function(ID_label,
            N = NULL,
            ...,
-           level_data = NULL,
            by = NULL,
            data = NULL) {
-    ## level_data is existing data to begin this level with
-    ## data is data from the level above this
+    ## data is existing data to begin this level with
+
+    dots <- quos(...)
+    if ("data_internal_" %in% names(dots)) {
+      data_internal_ <- eval_tidy(dots[["data_internal_"]])
+      dots[["data_internal_"]] <- NULL
+    } else {
+      data_internal_ <- NULL
+    }
 
     by <- substitute(by)
     if (!is.null(by)) {
@@ -47,7 +54,7 @@ level <-
       ID_label <- as.character(ID_label)
     }
 
-    if (is.null(data) & is.null(level_data)) {
+    if (is.null(data_internal_) & is.null(data)) {
       if (is.null(N)) {
         stop(paste0(
           "If you do not provide data to level",
@@ -63,25 +70,25 @@ level <-
         ))
       }
       # make IDs that are nicely padded
-      data <-
+      data_internal_ <-
         data.frame(sprintf(paste0("%0", nchar(N), "d"), 1:N), stringsAsFactors = FALSE)
-      colnames(data) <- ID_label
+      colnames(data_internal_) <- ID_label
 
     } else {
-      if (is.null(level_data)) {
-        # either provide an existing ID_label or N if you don't provide custom data
+      if (is.null(data)) {
+        # either provide an existing ID_label or N if you don't provide custom data_internal_
 
         # if there is no ID variable, expand the dataset based on the commands in N
-        if (!ID_label %in% colnames(data)) {
+        if (!ID_label %in% colnames(data_internal_)) {
           # this check copied and pasted from purrr
-          N <- eval(substitute(N), envir = data)
+          N <- eval(substitute(N), envir = data_internal_)
           if (typeof(N) %in% c("integer", "double") &&
               length(N) == 1) {
-            data <- data[rep(1:nrow(data), each = N), , drop = FALSE]
+            data_internal_ <- data_internal_[rep(1:nrow(data_internal_), each = N), , drop = FALSE]
           } else if (typeof(N) %in% c("integer", "double") &&
                      length(N) > 1) {
-            # check that the vector that is N is the right length, i.e the length of data
-            if (length(N) != nrow(data)) {
+            # check that the vector that is N is the right length, i.e the length of data_internal_
+            if (length(N) != nrow(data_internal_)) {
               stop(
                 paste0(
                   "If you provide a vector to N for level",
@@ -91,9 +98,9 @@ level <-
                 )
               )
             }
-            data <- data[rep(1:nrow(data), times = N), , drop = FALSE]
+            data_internal_ <- data_internal_[rep(1:nrow(data_internal_), times = N), , drop = FALSE]
           } else if (class(N) == "function") {
-            data <- data[rep(1:nrow(data), times = N()), , drop = FALSE]
+            data_internal_ <- data_internal_[rep(1:nrow(data_internal_), times = N()), , drop = FALSE]
           } else {
             stop(
               paste0(
@@ -105,32 +112,32 @@ level <-
           }
         } else {
           # otherwise assume you are adding variables to an existing level
-          # defined by the level ID variable that exists in the data
+          # defined by the level ID variable that exists in the data_internal_
 
           ## identify variables that do not vary within ID_label
           ## maybe there is a faster way to do this?
           level_variables <-
-            sapply(colnames(data)[!colnames(data) %in% ID_label], function(i)
-              max(tapply(data[, i], list(data[, ID_label]),
+            sapply(colnames(data_internal_)[!colnames(data_internal_) %in% ID_label], function(i)
+              max(tapply(data_internal_[, i], list(data_internal_[, ID_label]),
                          function(x)
                            length(unique(x)))) == 1)
           level_variables <- names(level_variables)[level_variables]
 
-          level_data <-
-            unique(data[, unique(c(ID_label, level_variables)), drop = FALSE])
+          data <-
+            unique(data_internal_[, unique(c(ID_label, level_variables)), drop = FALSE])
 
-          level_data <- fabricate_data_single_level(
-            data = level_data,
-            N = NULL,
-            ID_label = ID_label,
-            ... = ...,
-            existing_ID = TRUE
-          )
+          options <- lang_modify(dots, data = data,
+                                 N = NULL,
+                                 ID_label = ID_label,
+                                 existing_ID = TRUE)
+          level_call <- quo(fabricate_data_single_level(!!!options))
+
+          data <- eval_tidy(level_call)
 
           return(merge(
-            data[, colnames(data)[!(colnames(data) %in%
+            data_internal_[, colnames(data_internal_)[!(colnames(data_internal_) %in%
                                       level_variables)], drop = FALSE],
-            level_data,
+            data,
             by = as.character(substitute(ID_label)),
             all = TRUE,
             sort = FALSE
@@ -139,39 +146,39 @@ level <-
         }
 
       } else {
-        ## if they sent level_data start with that
+        ## if they sent data start with that
 
         if (!is.null(N)) {
           stop(
             paste0(
               "Please provide level ",
               ID_label,
-              " with either level_data or N, not both."
+              " with either data or N, not both."
             )
           )
         }
 
-        if (!is.null(data)) {
-          data <- merge(data,
-                        level_data,
+        if (!is.null(data_internal_)) {
+          data_internal_ <- merge(data_internal_,
+                        data,
                         by = by,
                         all = TRUE,
                         sort = FALSE)
         } else {
-          data <- level_data
+          data_internal_ <- data
         }
 
       }
 
     }
 
-    # now that data is the right size, pass to "mutate", i.e., simulate data
+    # now that data_internal_ is the right size, pass to "mutate", i.e., simulate data
 
-    fabricate_data_single_level(
-      data = data,
-      N = NULL,
-      ID_label = ID_label,
-      ... = ...
-    )
+    options <- lang_modify(dots, data = data_internal_,
+                           N = NULL,
+                           ID_label = ID_label)
+    level_call <- quo(fabricate_data_single_level(!!!options))
+
+    eval_tidy(level_call)
 
   }

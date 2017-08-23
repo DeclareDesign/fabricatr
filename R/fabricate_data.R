@@ -68,7 +68,7 @@ fabricate_data <-
         # Do this if there existing data to start with or
         #   and beginning with the second level
         if (i > 1 | !is.null(data)) {
-          options[[i]] <- lang_modify(options[[i]], data = data)
+          options[[i]] <- lang_modify(options[[i]], data_internal_ = data)
         }
 
         # Also do a sweet switcheroo with the level names if applicable.
