@@ -85,7 +85,6 @@ my_data_2
 ```
 
 
-
 # Advanced Features
 
 ## Ns that vary
@@ -118,6 +117,15 @@ my_data
 Suppose you had existing heirarchical data, and you wanted to add variables that respected the levels.
 
 ```{r}
+
+my_baseline_data <-
+  fabricate_data(
+    cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+    citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+  )
+
+my_baseline_data
+
 
 ```
 
