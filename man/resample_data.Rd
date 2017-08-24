@@ -2,20 +2,42 @@
 % Please edit documentation in R/resample_data.R
 \name{resample_data}
 \alias{resample_data}
-\title{Resample data, including multi-level data}
+\title{Resample data, including hierarchical data}
 \usage{
 resample_data(data, N, ID_labels = NULL)
 }
 \arguments{
 \item{data}{A data.frame, usually provided by the user.}
 
-\item{N}{The number of sample N to return. If multiple levels are defined in ID_labels, N should be a vector.}
+\item{N}{The number of sample N to return. If multiple levels are defined in ID_labels, N should be a vector of length `length(ID_labels)`}
 
-\item{ID_labels}{The variables that indicate the data hierarchy.}
+\item{ID_labels}{A character vector of the variables that indicate the data hierarchy, from highest to lowest (i.e., from cities to citizens).}
 }
 \value{
 A data.frame
 }
 \description{
-Resample data, including multi-level data
+Resample data, including hierarchical data
+}
+\examples{
+
+# Bootstrap a dataset without any hierarchy
+
+baseline_survey <- fabricate_data(N = 5, Y_pre = rnorm(N))
+bootsrapped_data <- resample_data(baseline_survey, N = 10)
+bootsrapped_data
+
+# Bootstrap a hierarchical dataset
+
+my_data <-
+fabricate_data(
+  cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+  citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+)
+
+my_data_2 <- resample_data(my_data, N = c(3, 5), ID_labels = c("cities", "citizens"))
+my_data_2
+
+
+
 }
