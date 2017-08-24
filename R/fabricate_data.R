@@ -61,7 +61,7 @@ fabricate_data <-
       all_levels <- FALSE
     }
 
-    if (!any(class(data) == "data.frame")) {
+    if (!is.null(data) & !any(class(data) == "data.frame")) {
       stop("Please provide a data object to the data argument, e.g. a data.frame, tibble, or sf object.")
     }
 
