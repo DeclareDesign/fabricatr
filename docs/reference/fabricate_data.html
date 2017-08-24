@@ -102,14 +102,14 @@
     <p>Fabricate data</p>
     
 
-    <pre class="usage"><span class='fu'>fabricate_data</span>(<span class='no'>...</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>fabricate_data</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>...</th>
-      <td><p>Data generating arguments, such as <code>my_var = rnorm(N)</code>. You may also pass <code>level()</code> arguments, which define a level of a multi-level dataset. For example, you could send to <code>...</code> <code>level(my_level, var = rnorm)</code>. See examples.</p></td>
+      <th>data</th>
+      <td><p>user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either <code>N</code> or <code>data</code> (<code>N</code> is the number of rows of the data if <code>data</code> is provided).</p></td>
     </tr>
     <tr>
       <th>N</th>
@@ -120,8 +120,8 @@
       <td><p>variable name for ID variable, i.e. citizen_ID (optional)</p></td>
     </tr>
     <tr>
-      <th>data</th>
-      <td><p>user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either <code>N</code> or <code>data</code> (<code>N</code> is the number of rows of the data if <code>data</code> is provided).</p></td>
+      <th>...</th>
+      <td><p>Data generating arguments, such as <code>my_var = rnorm(N)</code>. You may also pass <code>level()</code> arguments, which define a level of a multi-level dataset. For example, you could send to <code>...</code> <code>level(my_level, var = rnorm)</code>. See examples.</p></td>
     </tr>
     </table>
     
@@ -147,24 +147,24 @@
   <span class='kw'>height_ft</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>3.5</span>, <span class='fl'>8</span>)
 )
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;    ID height_ft
-#&gt; 1 001  6.879562
-#&gt; 2 002  6.735563
-#&gt; 3 003  5.819099
-#&gt; 4 004  7.886763
-#&gt; 5 005  5.123499
-#&gt; 6 006  4.266780</div><div class='input'>
+#&gt; 1 001  5.867480
+#&gt; 2 002  7.298735
+#&gt; 3 003  4.111960
+#&gt; 4 004  5.194103
+#&gt; 5 005  4.684889
+#&gt; 6 006  5.740338</div><div class='input'>
 <span class='co'># Draw a two-level hierarchical dataset</span>
 <span class='co'># containing cities within regions</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate_data</span>(
  <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'><a href='level.html'>level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'><a href='level.html'>level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   regions cities pollution
-#&gt; 1       1     01  5.065487
-#&gt; 2       1     02  3.901491
-#&gt; 3       1     03  4.366822
-#&gt; 4       1     04  2.936346
-#&gt; 5       1     05  7.648932
-#&gt; 6       1     06  3.846602</div><div class='input'>
+#&gt; 1       1     01  4.171396
+#&gt; 2       1     02  5.289774
+#&gt; 3       1     03  4.519947
+#&gt; 4       1     04  4.395171
+#&gt; 5       1     05  6.460110
+#&gt; 6       1     06  5.149679</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

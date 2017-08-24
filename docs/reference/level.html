@@ -102,16 +102,11 @@
     <p>Fabricate a Level of Data for Multi-Level Hierarchical Data</p>
     
 
-    <pre class="usage"><span class='fu'>level</span>(<span class='no'>ID_label</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>level_data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>ID_label</th>
-      <td><p>variable name for ID variable, i.e. citizen_ID (optional)</p></td>
-    </tr>
     <tr>
       <th>N</th>
       <td><p>number of units to draw in the level</p></td>
@@ -119,18 +114,6 @@
     <tr>
       <th>...</th>
       <td><p>Data generating arguments, such as <code>my_var = rnorm(N)</code>. You may also pass <code>level()</code> arguments, which define a level of a multi-level dataset. For example, you could send to <code>...</code> <code>level(my_level, var = rnorm)</code>. See examples.</p></td>
-    </tr>
-    <tr>
-      <th>level_data</th>
-      <td><p>user-provided data that forms the basis of the fabrication at this level, i.e. you can add variables to existing data. Provide either <code>N</code> or <code>data</code> (<code>N</code> is the number of rows of the data if <code>data</code> is provided).</p></td>
-    </tr>
-    <tr>
-      <th>by</th>
-      <td><p>name of variable to merge by to level above, if the level is not at the top of the hierarchy.</p></td>
-    </tr>
-    <tr>
-      <th>data</th>
-      <td><p>system option that is used by fabricate_data to send data from upper levels of hierarchy to this level. Do not provide data.</p></td>
     </tr>
     </table>
     
@@ -143,43 +126,12 @@
  <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   regions cities pollution
-#&gt; 1       1     01  4.171396
-#&gt; 2       1     02  5.289774
-#&gt; 3       1     03  4.519947
-#&gt; 4       1     04  4.395171
-#&gt; 5       1     05  6.460110
-#&gt; 6       1     06  5.149679</div><div class='input'>
-<span class='co'># Use existing data in a level using level_data</span>
-<span class='no'>region_data</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>capital</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>))
-<span class='fu'><a href='fabricate_data.html'>fabricate_data</a></span>(<span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>level</span>(<span class='kw'>level_data</span> <span class='kw'>=</span> <span class='no'>region_data</span>,
-                               <span class='kw'>gdp</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='fl'>5</span>)),
-               <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-                              <span class='kw'>subways</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))</div><div class='output co'>#&gt;    capital regions       gdp cities  subways
-#&gt; 1        1       1 0.3444290     01 3.789521
-#&gt; 2        1       1 0.3444290     02 5.380149
-#&gt; 3        1       1 0.3444290     03 4.932614
-#&gt; 4        1       1 0.3444290     04 5.280100
-#&gt; 5        1       1 0.3444290     05 5.330308
-#&gt; 6        0       2 0.7608582     06 5.284752
-#&gt; 7        0       2 0.7608582     07 5.428594
-#&gt; 8        0       2 0.7608582     08 4.879033
-#&gt; 9        0       2 0.7608582     09 5.458242
-#&gt; 10       0       2 0.7608582     10 5.616535
-#&gt; 11       0       3 0.7311036     11 4.824951
-#&gt; 12       0       3 0.7311036     12 4.877169
-#&gt; 13       0       3 0.7311036     13 3.527308
-#&gt; 14       0       3 0.7311036     14 5.123693
-#&gt; 15       0       3 0.7311036     15 3.904408
-#&gt; 16       0       4 0.8524324     16 5.388342
-#&gt; 17       0       4 0.8524324     17 4.244970
-#&gt; 18       0       4 0.8524324     18 3.768397
-#&gt; 19       0       4 0.8524324     19 5.764266
-#&gt; 20       0       4 0.8524324     20 4.354195
-#&gt; 21       0       5 0.9758180     21 3.958019
-#&gt; 22       0       5 0.9758180     22 4.162794
-#&gt; 23       0       5 0.9758180     23 6.026353
-#&gt; 24       0       5 0.9758180     24 5.853874
-#&gt; 25       0       5 0.9758180     25 5.825224</div><div class='input'>
+#&gt; 1       1     01  4.599595
+#&gt; 2       1     02  5.616154
+#&gt; 3       1     03  6.974157
+#&gt; 4       1     04  6.884662
+#&gt; 5       1     05  3.411379
+#&gt; 6       1     06  4.460077</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
