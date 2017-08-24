@@ -3,11 +3,10 @@
 
 #' Fabricate data
 #'
-#' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
-#'
+#' @param data user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
 #' @param N number of units to draw
 #' @param ID_label variable name for ID variable, i.e. citizen_ID (optional)
-#' @param data user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
+#' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
 #'
 #' @return data.frame
 #'
@@ -40,6 +39,7 @@ fabricate_data <-
            ID_label = NULL,
            ...) {
     options <- quos(...)
+
     functions_or_not <-
       sapply(options, function(i) {
         is_lang(get_expr(i))
@@ -59,6 +59,10 @@ fabricate_data <-
         length(options_fn) > 0 & all(functions_or_not)
     } else{
       all_levels <- FALSE
+    }
+
+    if (!any(class(data) == "data.frame")) {
+      stop("Please provide a data object to the data argument, e.g. a data.frame, tibble, or sf object.")
     }
 
     ID_label <- substitute(ID_label)

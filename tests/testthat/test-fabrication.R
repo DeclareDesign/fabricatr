@@ -103,4 +103,8 @@ test_that("trigger errors", {
     gdp = rnorm(N)
   )))
 
+  # must send a data frame to data
+  expect_error(user_data <-
+    fabricate_data(data = c(5)))
+
 })
