@@ -124,4 +124,7 @@ test_that("trigger errors", {
     cities = level(N = c(5, 5, 5), subways = rnorm(N, mean = 5))
   ))
 
+  expect_error(fabricatr:::fabricate_data_single_level(N = c(5, 2), gdp = runif(N), ID_label = "my-level"))
+
+
 })
