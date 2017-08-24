@@ -3,10 +3,12 @@
 
 #' Fabricate data
 #'
-#' @param data user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
-#' @param N number of units to draw
-#' @param ID_label variable name for ID variable, i.e. citizen_ID (optional)
-#' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
+#' \code{fabricate_data} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate_data()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_count}}.
+#'
+#' @param data (optional) user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
+#' @param N (optional) number of units to draw, if drawing a single level of data (i.e. not hierarchical data)
+#' @param ID_label (optional) variable name for ID variable, i.e. citizen_ID
+#' @param ... Variable or level-generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{my_level = level(N = 5, var = rnorm)}. See examples.
 #'
 #' @return data.frame
 #'
@@ -23,12 +25,26 @@
 #' )
 #' head(df)
 #'
+#' # Start with existing data
+#' df <- fabricate_data(
+#'   data = df,
+#'   new_variable = rnorm(N)
+#' )
+#'
 #' # Draw a two-level hierarchical dataset
 #' # containing cities within regions
 #' df <- fabricate_data(
 #'  regions = level(N = 5),
-#'  cities = level(N = 10, pollution = rnorm(N, mean = 5)))
+#'  cities = level(N = 2, pollution = rnorm(N, mean = 5)))
 #' head(df)
+#'
+#' # Start with existing data and add variables to hierarchical data
+#' # note: do not provide N when adding variables to an existing level
+#' df <- fabricate_data(
+#'   data = df,
+#'   regions = level(watershed = sample(c(0, 1), N, replace = TRUE)),
+#'   cities = level(runoff = rnorm(N))
+#' )
 #'
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args is_lang get_expr
 #'
