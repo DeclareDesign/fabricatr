@@ -1,0 +1,128 @@
+---
+title: "Getting Started with Fabricatr"
+author: "Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with Fabricatr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`fabricatr` is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, `fabricatr` is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine **correlated** data and **heirarchical** data.
+
+
+`fabricatr` is a member of the `DeclareDesign` software suite that includes the `r` packages [randomizr](randomizr.declaredesign.org), [estimatr](estimatr.declaredesign.org), and [Declare Design](declaredesign.org). `fabricatr` plays well with the [tidyverse](https://www.tidyverse.org/). 
+
+
+# Basics
+
+The workhorse function is `fabricate_data`. You provide a number to `N`, then a series of named functions. A nice feature is that you can use `N` as an argument to any of the functions you supply. Later functions can depend on values defined earlier, making the creation of correlated data easy
+
+```{r}
+library(fabricatr)
+my_data <- fabricate_data(N = 5, Y = runif(N), Y2 = Y*5)
+my_data
+```
+
+# Heirarchical data
+
+We can create heirachical data through use of the `level` function. In the example below, we create 2 cities, each with an elecation. We then create 3 citizens per city, each with an income.
+
+There are three things to notice about this example:
+
+1. The meaning of `N` changes.  In the `cities` line, `N` means 2, the number of cities.  In the `citizens` line, `N` means 3, the number of citizens.
+2. The data created at the cities level is **constant** within cities. Each city has its own elevation. The data created at the citizens level is **not** constant within cities.
+3. Variables created at a lower level can depend on variables created at a higher level. Citizen's income depends on the elevation of cities.
+
+```{r}
+my_data <-
+  fabricate_data(
+    cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+    citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+  )
+my_data
+```
+
+# Bringing in your own data
+
+An essential part of imagining your data before you collect it is the ability to build on the data you all ready have.   
+
+A second way you may wish to use existing data is bootstrap a new dataset from it, thereby preserving all the natural intercorrelations.
+
+## Modifying existing data
+
+If you have already conducted a baseline survey, you may which to imagine how the endline may deviate from it. In this case, you will want to add new variables to your existing dataset. Notice that the meaning of `N` in the definition of `Y_post` automatically refers to the number of rows in the dataset provided to the `data` argument.
+
+```{r}
+baseline_survey <- fabricate_data(N = 5, Y_pre = rnorm(N))
+
+my_endline <- fabricate_data(data = baseline_survey, 
+                             Y_post = Y_pre + rnorm(N))
+my_endline
+```
+
+## Bootstrapping
+
+Suppose you wanted to boostrap from your baseline survey.
+
+```{r}
+bootsrapped_data <- resample_data(baseline_survey, N = 10)
+bootsrapped_data
+```
+
+The real utility of this function comes when boostrapping from heirarchical data.  The example below takes a dataset that contains 2 cities, each with 3 citizens, then boostraps to 3 cities, each with 5 citizens.
+
+```{r}
+my_data <-
+  fabricate_data(
+    cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+    citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+  )
+
+my_data_2 <- resample_data(my_data, N = c(3, 5), ID_labels = c("cities", "citizens"))
+my_data_2
+```
+
+
+
+# Advanced Features
+
+## Ns that vary
+
+When making heirarchical data, you may not want to have the same number of units at each level of the heirarchy. For example, in the example below, we want one city to have 2 citizens and the other city to have four:
+
+```{r}
+my_data <-
+  fabricate_data(
+    cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+    citizens = level(N = c(2, 4), income = round(elevation * rnorm(n = N, mean = 5)))
+  )
+my_data
+```
+
+You can even have Ns that are determined by a function, enabling a *random* number of citizens per city:
+
+```{r}
+my_data <-
+  fabricate_data(
+    cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+    citizens = level(N = sample(1:6, size = 2, replace = TRUE), income = round(elevation * rnorm(n = N, mean = 5)))
+  )
+my_data
+```
+
+
+## Bringing in your own heirarchical data
+
+Suppose you had existing heirarchical data, and you wanted to add variables that respected the levels.
+
+```{r}
+
+```
+
+
+## Letting higher levels depend on lower levels
+
+
+
