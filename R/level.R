@@ -1,13 +1,10 @@
 
-
 #' Fabricate a Level of Data for Multi-Level Hierarchical Data
 #'
 #' @param ID_label variable name for ID variable, i.e. citizen_ID (optional)
 #'
 #' @param N number of units to draw in the level
 #' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
-#' @param data user-provided data that forms the basis of the fabrication at this level, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
-#' @param by name of variable to merge by to level above, if the level is not at the top of the hierarchy.
 #'
 #' @importFrom rlang quos eval_tidy quo lang_modify
 #'
@@ -20,21 +17,11 @@
 #'  cities = level(N = 10, pollution = rnorm(N, mean = 5)))
 #' head(df)
 #'
-#' # Use existing data in a level using data
-#' region_data <- data.frame(capital = c(1, 0, 0, 0, 0))
-#' fabricate_data(regions = level(data = region_data,
-#'                                gdp = runif(5)),
-#'                cities = level(N = 5,
-#'                               subways = rnorm(N, mean = 5)))
-#'
 #' @export
 level <-
   function(ID_label,
            N = NULL,
-           ...,
-           by = NULL,
-           data = NULL) {
-    ## data is existing data to begin this level with
+           ...) {
 
     # handle data that is sent from higher levels of the hierarchy
     # this is done internally through data_internal_, which is passed through
@@ -48,23 +35,23 @@ level <-
       data_internal_ <- NULL
     }
 
-    by <- substitute(by)
-    if (!is.null(by)) {
-      by <- as.character(by)
-    }
-
     ID_label <- substitute(ID_label)
     if (!is.null(ID_label)) {
       ID_label <- as.character(ID_label)
     }
 
-    if (is.null(data_internal_) & is.null(data)) {
+    if (is.null(data_internal_)) {
+
+      ## if data is not provided to fabricate_data, this part handles the case
+      ##   of the top level, where data must be created for the first time
       if (is.null(N)) {
-        stop(paste0(
-          "If you do not provide data to level ",
-          ID_label,
-          ", please provide N."
-        ))
+        stop(
+          paste0(
+            "At the top level, ",
+            ID_label,
+            ", you must provide N if you did not provide data to fabricate_data."
+          )
+        )
       }
       if (length(N) > 1) {
         stop(paste0(
@@ -73,87 +60,86 @@ level <-
           ", you must provide a single number to N."
         ))
       }
+
       # make IDs that are nicely padded
       data_internal_ <-
         data.frame(sprintf(paste0("%0", nchar(N), "d"), 1:N), stringsAsFactors = FALSE)
       colnames(data_internal_) <- ID_label
 
+      # now that data_internal_ is the right size, pass to "mutate", i.e., simulate data
+
+      options <- lang_modify(dots,
+                             data = data_internal_,
+                             N = NULL,
+                             ID_label = ID_label)
+      level_call <- quo(fabricate_data_single_level(!!!options))
+
+      return(eval_tidy(level_call))
+
     } else {
-      if (is.null(data)) {
-        # either provide an existing ID_label or N if you don't provide custom data_internal_
+      # at the second level, after data is created, or at the top level if data is provided
+      #  to fabricate_data, there are two case:
+      # 1. ID_label does not yet exist, in which case we create the level defined by ID_label by expanding dataset based on N
+      # 2. ID label already exists, in which case we add variables to an existing level
 
-        # if there is no ID variable, expand the dataset based on the commands in N
-        if (!ID_label %in% colnames(data_internal_)) {
+      # if there is no ID variable, expand the dataset based on the commands in N
+      if (!ID_label %in% colnames(data_internal_)) {
+        N <- eval(substitute(N), envir = data_internal_)
 
-          # this check copied and pasted from purrr
-          N <- eval(substitute(N), envir = data_internal_)
+        data_internal_ <-
+          expand_data_by_ID(data = data_internal_,
+                            ID_label = ID_label,
+                            N = N)
 
-          data_internal_ <- expand_data_by_ID(data = data_internal_, ID_label = ID_label, N = N)
+        # now that data_internal_ is the right size, pass to "mutate", i.e., simulate data
 
-        } else {
-          # otherwise assume you are adding variables to an existing level
-          # defined by the level ID variable that exists in the data_internal_
+        options <- lang_modify(dots,
+                               data = data_internal_,
+                               N = NULL,
+                               ID_label = ID_label)
+        level_call <- quo(fabricate_data_single_level(!!!options))
 
-          level_variables <- get_unique_variables_by_level(
-            data = data_internal_, ID_label = ID_label)
-
-          data <- unique(data_internal_[, unique(c(ID_label, level_variables)),
-                                        drop = FALSE])
-
-          options <- lang_modify(dots, data = data,
-                                 N = NULL,
-                                 ID_label = ID_label,
-                                 existing_ID = TRUE)
-          level_call <- quo(fabricate_data_single_level(!!!options))
-
-          data <- eval_tidy(level_call)
-
-          return(merge(
-            data_internal_[, colnames(data_internal_)[!(colnames(data_internal_) %in%
-                                      level_variables)], drop = FALSE],
-            data,
-            by = ID_label,
-            all = TRUE,
-            sort = FALSE
-          ))
-
-        }
+        return(eval_tidy(level_call))
 
       } else {
-        ## if they sent data start with that
+        # otherwise assume you are adding variables to an existing level
+        # defined by the level ID variable that exists in the data_internal_
 
-        if (!is.null(N)) {
-          stop(
-            paste0(
-              "Please provide level ",
-              ID_label,
-              " with either data or N, not both."
-            )
-          )
-        }
+        # get the set of variable names that are unique within the level you are adding vars to
+        #  so the new vars can be a function of existing ones
+        level_variables <-
+          get_unique_variables_by_level(data = data_internal_, ID_label = ID_label)
 
-        if (!is.null(data_internal_)) {
-          data_internal_ <- merge(data_internal_,
-                        data,
-                        by = by,
-                        all = TRUE,
-                        sort = FALSE)
-        } else {
-          data_internal_ <- data
-        }
+        # construct a dataset with only those variables at this level
+        data <-
+          unique(data_internal_[, unique(c(ID_label, level_variables)),
+                                drop = FALSE])
+
+        # set up
+        options <- lang_modify(
+          dots,
+          data = data,
+          N = NULL,
+          ID_label = ID_label,
+          existing_ID = TRUE
+        )
+
+        level_call <- quo(fabricate_data_single_level(!!!options))
+
+        data <- eval_tidy(level_call)
+
+        return(merge(
+          data_internal_[, colnames(data_internal_)[!(colnames(data_internal_) %in%
+                                                        level_variables)], drop = FALSE],
+          data,
+          by = ID_label,
+          all = TRUE,
+          sort = FALSE
+        ))
 
       }
 
     }
-
-    # now that data_internal_ is the right size, pass to "mutate", i.e., simulate data
-
-    options <- lang_modify(dots, data = data_internal_,
-                           N = NULL,
-                           ID_label = ID_label)
-    level_call <- quo(fabricate_data_single_level(!!!options))
-
-    eval_tidy(level_call)
 
   }
 

@@ -9,7 +9,6 @@ df <- fabricatr:::fabricate_data_single_level(N = 2, Y = 10)
 df_2 <- fabricatr:::fabricate_data_single_level(data = df, Y2 = Y + 1,ID_label = "BOB")
 
 level(ID_label = "test", N = 3, Y = 10)
-level(ID_label = "test", Y = 10, data = df_2)
 
 # we expect an error here, but need a better explaination (no unnamed arguments)
 # fabricate_data_single_level(N = 10, rnorm(N), Y2 = rnorm(N))
@@ -52,3 +51,4 @@ region_data <- data.frame(capital = c(1, 0, 0, 0, 0))
 fabricate_data(regions = level(N = 5, gdp = runif(5)),
                cities = level(N = sample(1:5), subways = rnorm(N, mean = 5)))
 })
+
