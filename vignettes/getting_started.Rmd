@@ -3,6 +3,7 @@ title: "Getting Started with Fabricatr"
 author: "Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+toc: true
 vignette: >
   %\VignetteIndexEntry{Getting Started with Fabricatr}
   %\VignetteEngine{knitr::rmarkdown}
@@ -27,7 +28,7 @@ my_data
 
 # Heirarchical data
 
-We can create heirachical data through use of the `level` function. In the example below, we create 2 cities, each with an elecation. We then create 3 citizens per city, each with an income.
+We can create hierarchical data through use of the `level` function. In the example below, we create 2 cities, each with an elevation. We then create 3 citizens per city, each with an income.
 
 There are three things to notice about this example:
 
@@ -48,7 +49,7 @@ my_data
 
 An essential part of imagining your data before you collect it is the ability to build on the data you all ready have.   
 
-A second way you may wish to use existing data is bootstrap a new dataset from it, thereby preserving all the natural intercorrelations.
+A second way you may wish to use existing data is bootstrap a new dataset from it, thereby preserving all the natural inter-correlations.
 
 ## Modifying existing data
 
@@ -64,14 +65,14 @@ my_endline
 
 ## Bootstrapping
 
-Suppose you wanted to boostrap from your baseline survey.
+Suppose you wanted to bootstrap from your baseline survey.
 
 ```{r}
 bootsrapped_data <- resample_data(baseline_survey, N = 10)
 bootsrapped_data
 ```
 
-The real utility of this function comes when boostrapping from heirarchical data.  The example below takes a dataset that contains 2 cities, each with 3 citizens, then boostraps to 3 cities, each with 5 citizens.
+The real utility of this function comes when bootstrapping from hierarchical data.  The example below takes a dataset that contains 2 cities, each with 3 citizens, then bootstraps to 3 cities, each with 5 citizens.
 
 ```{r}
 my_data <-
@@ -89,7 +90,7 @@ my_data_2
 
 ## Ns that vary
 
-When making heirarchical data, you may not want to have the same number of units at each level of the heirarchy. For example, in the example below, we want one city to have 2 citizens and the other city to have four:
+When making hierarchical data, you may not want to have the same number of units at each level of the hierarchy. For example, in the example below, we want one city to have 2 citizens and the other city to have four:
 
 ```{r}
 my_data <-
@@ -112,9 +113,9 @@ my_data
 ```
 
 
-## Bringing in your own heirarchical data
+## Bringing in your own hierarchical data
 
-Suppose you had existing heirarchical data, and you wanted to add variables that respected the levels.
+Suppose you had existing hierarchical data, and you wanted to add variables that respected the levels.
 
 ```{r}
 
@@ -124,13 +125,39 @@ my_baseline_data <-
     citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
   )
 
-my_baseline_data
+# add new variables at each level
+my_data <- 
+  fabricate_data(data = my_baseline_data,
+                 cities = level(density = elevation / 2),
+                 citizens = level(wealth = income - 100))
 
+my_data
 
 ```
 
+# Tidyverse integration
 
-## Letting higher levels depend on lower levels
+Because the functions in `fabricatr` take data and return data, they are easily slotted into a `tidyverse` workflow:
+
+```{r, message=FALSE}
+library(dplyr)
+
+# letting higher levels depend on lower levels
+
+my_data <- 
+fabricate_data(
+    cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+    citizens = level(N = c(2, 3), income = round(elevation * rnorm(n = N, mean = 5)))
+  ) %>%
+  group_by(cities) %>%
+  mutate(pop = n())
+
+my_data
+
+my_data <- 
+data_frame(Y = sample(1:10, 2)) %>%
+  fabricate_data(lower_level = level(N = 3, Y2 = Y + rnorm(N)))
+my_data
 
 
-
+```
