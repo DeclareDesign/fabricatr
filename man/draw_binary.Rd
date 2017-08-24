@@ -9,7 +9,7 @@ draw_binary(vector, link = "logit")
 \arguments{
 \item{vector}{vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")}
 
-\item{link}{}
+\item{link}{link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.}
 }
 \description{
 Binary variable from a binomial distribution

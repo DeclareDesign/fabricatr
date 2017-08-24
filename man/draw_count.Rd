@@ -10,6 +10,8 @@ draw_count(vector, k, link = "logit")
 \item{vector}{vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")}
 
 \item{k}{number of binomial trials, i.e. maximum of the count variable}
+
+\item{link}{link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.}
 }
 \description{
 Count variable from a binomial distribution with a logit link

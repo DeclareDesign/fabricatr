@@ -4,7 +4,9 @@
 #' Binary variable from a binomial distribution
 #'
 #' @param vector vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")
-#' @param link
+#' @param link link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.
+#'
+#' @importFrom stats pnorm
 #'
 #' @export
 #'
@@ -50,8 +52,10 @@ draw_binary <- function(vector, link = "logit") {
 #' Count variable from a binomial distribution with a logit link
 #'
 #' @param vector vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")
-#'
 #' @param k number of binomial trials, i.e. maximum of the count variable
+#' @param link link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.
+#'
+#' @importFrom stats pnorm
 #'
 #' @export
 #'

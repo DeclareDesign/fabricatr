@@ -26,6 +26,7 @@ test_that("Variable functions", {
   draw_count(runif(5, 0, 1), k = 5, link = "identity")
 
   expect_error(draw_binary(data.frame(my_variable = runif(5, 0, 1))))
+  expect_error(draw_count(data.frame(my_variable = runif(5, 0, 1))))
 
   expect_error(draw_binary(rnorm(5), link = "link-that-doesn't-exist"))
   expect_error(draw_count(rnorm(5), link = "link-that-doesn't-exist"))
