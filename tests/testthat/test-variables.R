@@ -16,4 +16,12 @@ test_that("Variable functions", {
   draw_binary(runif(100))
   draw_count(runif(100), 4)
 
+
+  draw_binary(rnorm(5), link = "logit")
+  draw_binary(rnorm(5), link = "probit")
+  draw_binary(runif(5, 0, 1), link = "identity")
+
+
+  expect_error(draw_binary(data.frame(my_variable = runif(5, 0, 1))))
+
 })

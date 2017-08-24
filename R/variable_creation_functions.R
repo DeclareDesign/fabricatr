@@ -1,28 +1,55 @@
 
 
-#' Binary variable from a binomial distribution with a logit link
+
+#' Binary variable from a binomial distribution
 #'
-#' @param data vector, scalar, matrix, or data.frame representing the latent variable used to draw the binary outcome
+#' @param vector vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")
+#' @param link
 #'
 #' @export
 #'
 #' @examples
 #'
-#' fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = binary_logit(Y1))
+#' fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1))
+#' fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "logit"))
+#' fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "probit"))
+#' fabricate_data(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_binary(Y1, link = "identity"))
 #'
-#' binary_logit(runif(10))
+#' draw_binary(rnorm(10))
+#' draw_binary(rnorm(10), link = "logit")
+#' draw_binary(rnorm(10), link = "probit")
+#' draw_binary(runif(10, 0, 1), link = "identity")
 #'
-binary_logit <- binary_logistic_variable <- function(data) {
-  rbinom(
-    n = ifelse(is.vector(data), length(data), nrow(data)),
-    size = 1,
-    prob = 1 / (1 + exp(-data))
-  )
+draw_binary <- function(vector, link = "logit") {
+  if (!link %in% c("logit", "probit", "identity")) {
+    stop("Please choose either 'logit', 'probit', or 'identity' as a link.")
+  }
+
+  if (mode(vector) != "numeric") {
+    stop("Please provide a numeric vector to draw_binary.")
+  }
+
+  if (link == "logit") {
+    prob <- 1 / (1 + exp(-vector))
+  } else if (link == "probit") {
+    prob <- pnorm(vector)
+  } else if (link == "identity") {
+    prob <- vector
+    if (!all(0 < prob & prob < 1)) {
+      stop(
+        "You chose the identity link, which means your vector should be probabilities. Some values of your vector are outside of (0, 1)."
+      )
+    }
+  }
+
+  rbinom(n = length(vector),
+         size = 1,
+         prob = prob)
 }
 
 #' Count variable from a binomial distribution with a logit link
 #'
-#' @param data vector, scalar, matrix, or data.frame representing the latent variable used to draw the count outcome
+#' @param vector vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")
 #'
 #' @param k number of binomial trials, i.e. maximum of the count variable
 #'
@@ -30,12 +57,37 @@ binary_logit <- binary_logistic_variable <- function(data) {
 #'
 #' @examples
 #'
-#' fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = binomial_count(Y1, 4))
-#' fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = binomial_count(Y1, 2))
+#' fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = draw_count(Y1, k = 4))
+#' fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = draw_count(Y1, k = 4, link = "probit"))
+#' fabricate_data(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_count(Y1, k = 4, link = "identity"))
 #'
-#' binomial_count(runif(50), 3)
-binomial_count <- function(data, k) {
-  rbinom(ifelse(is.vector(data), length(data), nrow(data)),
+#' draw_count(rnorm(10), k = 4)
+#' draw_count(rnorm(10), k = 4, link = "logit")
+#' draw_count(rnorm(10), k = 4, link = "probit")
+#' draw_count(runif(10, 0, 1), k = 4, link = "identity")
+draw_count <- function(vector, k, link = "logit") {
+  if (!link %in% c("logit", "probit", "identity")) {
+    stop("Please choose either 'logit', 'probit', or 'identity' as a link.")
+  }
+
+  if (mode(vector) != "numeric") {
+    stop("Please provide a numeric vector to draw_binary.")
+  }
+
+  if (link == "logit") {
+    prob <- 1 / (1 + exp(-vector))
+  } else if (link == "probit") {
+    prob <- pnorm(vector)
+  } else if (link == "identity") {
+    prob <- vector
+    if (!all(0 < prob & prob < 1)) {
+      stop(
+        "You chose the identity link, which means your vector should be probabilities. Some values of your vector are outside of (0, 1)."
+      )
+    }
+  }
+
+  rbinom(n = length(vector),
          size = k,
-         prob = 1 / (1 + exp(-data)))
+         prob = prob)
 }
