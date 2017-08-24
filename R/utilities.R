@@ -1,8 +1,3 @@
-format_num <- function(x, digits = 3) {
-  x <- as.numeric(x)
-  return(paste0(sprintf(paste0("%.", digits, "f"), x)))
-}
-
 get_unique_variables_by_level <- function(data, ID_label) {
   ## identify variables that do not vary within ID_label
   ## maybe there is a faster way to do this?
@@ -24,7 +19,7 @@ expand_data_by_ID <- function(data, ID_label, N) {
     if (length(N) != nrow(data)) {
       stop(
         paste0(
-          "If you provide a vector to N for level",
+          "If you provide a vector to N for level ",
           ID_label,
           ", it must be the length of the dataset at the level above it ",
           "in the hierarchy"
