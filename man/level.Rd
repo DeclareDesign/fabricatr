@@ -2,7 +2,7 @@
 % Please edit documentation in R/level.R
 \name{level}
 \alias{level}
-\title{Fabricate a Level of Data for Multi-Level Hierarchical Data}
+\title{Fabricate a Level of Data for Hierarchical Data}
 \usage{
 level(N = NULL, ...)
 }
@@ -12,7 +12,7 @@ level(N = NULL, ...)
 \item{...}{Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.}
 }
 \description{
-Fabricate a Level of Data for Multi-Level Hierarchical Data
+Fabricate a Level of Data for Hierarchical Data
 }
 \examples{
 

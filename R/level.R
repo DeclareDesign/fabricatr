@@ -1,5 +1,5 @@
 
-#' Fabricate a Level of Data for Multi-Level Hierarchical Data
+#' Fabricate a Level of Data for Hierarchical Data
 #'
 #' @param N number of units to draw in the level
 #' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.

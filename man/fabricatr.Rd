@@ -6,5 +6,5 @@
 \alias{fabricatr-package}
 \title{fabricatr package}
 \description{
-Some stuff about what this package is
+fabricatr helps you imagine your data before you collect it. Hierarchical data structures and correlated data can be easily simulated, either from random number generators or by resampling from existing data sources.
 }

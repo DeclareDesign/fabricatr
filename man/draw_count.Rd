@@ -2,7 +2,7 @@
 % Please edit documentation in R/variable_creation_functions.R
 \name{draw_count}
 \alias{draw_count}
-\title{Count variable from a binomial distribution with a logit link}
+\title{Draw a count variable from a binomial distribution}
 \usage{
 draw_count(vector, k, link = "logit")
 }
@@ -14,7 +14,7 @@ draw_count(vector, k, link = "logit")
 \item{link}{link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.}
 }
 \description{
-Count variable from a binomial distribution with a logit link
+Drawing count variables based on probabilities or latent traits is a common task that can be cumbersome.
 }
 \examples{
 

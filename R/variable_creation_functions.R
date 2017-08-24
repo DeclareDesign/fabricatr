@@ -1,7 +1,6 @@
-
-
-
-#' Binary variable from a binomial distribution
+#' Draw a binary variable from a binomial distribution
+#'
+#' Drawing binary variables based on probabilities or latent traits is a common task that can be cumbersome.
 #'
 #' @param vector vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")
 #' @param link link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.
@@ -49,7 +48,9 @@ draw_binary <- function(vector, link = "logit") {
          prob = prob)
 }
 
-#' Count variable from a binomial distribution with a logit link
+#' Draw a count variable from a binomial distribution
+#'
+#' Drawing count variables based on probabilities or latent traits is a common task that can be cumbersome.
 #'
 #' @param vector vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")
 #' @param k number of binomial trials, i.e. maximum of the count variable

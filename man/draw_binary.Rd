@@ -2,7 +2,7 @@
 % Please edit documentation in R/variable_creation_functions.R
 \name{draw_binary}
 \alias{draw_binary}
-\title{Binary variable from a binomial distribution}
+\title{Draw a binary variable from a binomial distribution}
 \usage{
 draw_binary(vector, link = "logit")
 }
@@ -12,7 +12,7 @@ draw_binary(vector, link = "logit")
 \item{link}{link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.}
 }
 \description{
-Binary variable from a binomial distribution
+Drawing binary variables based on probabilities or latent traits is a common task that can be cumbersome.
 }
 \examples{
 
