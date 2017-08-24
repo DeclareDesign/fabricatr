@@ -4,16 +4,16 @@
 \alias{fabricate_data}
 \title{Fabricate data}
 \usage{
-fabricate_data(..., N = NULL, ID_label = NULL, data = NULL)
+fabricate_data(data = NULL, N = NULL, ID_label = NULL, ...)
 }
 \arguments{
-\item{...}{Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.}
+\item{data}{user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).}
 
 \item{N}{number of units to draw}
 
 \item{ID_label}{variable name for ID variable, i.e. citizen_ID (optional)}
 
-\item{data}{user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).}
+\item{...}{Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.}
 }
 \value{
 data.frame

@@ -4,11 +4,9 @@
 \alias{level}
 \title{Fabricate a Level of Data for Multi-Level Hierarchical Data}
 \usage{
-level(ID_label, N = NULL, ...)
+level(N = NULL, ...)
 }
 \arguments{
-\item{ID_label}{variable name for ID variable, i.e. citizen_ID (optional)}
-
 \item{N}{number of units to draw in the level}
 
 \item{...}{Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.}

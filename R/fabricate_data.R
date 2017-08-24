@@ -35,10 +35,10 @@
 #'
 #' @export
 fabricate_data <-
-  function(...,
+  function(data = NULL,
            N = NULL,
            ID_label = NULL,
-           data = NULL) {
+           ...) {
     options <- quos(...)
     functions_or_not <-
       sapply(options, function(i) {
@@ -76,11 +76,9 @@ fabricate_data <-
           options[[i]] <- lang_modify(options[[i]], data_internal_ = data)
         }
 
-        # Also do a sweet switcheroo with the level names if applicable.
-        if (is.null(lang_args(options[[i]])$ID_label)) {
-          options[[i]] <-
-            lang_modify(options[[i]], ID_label = names(options)[i])
-        }
+        # Also do a sweet switcheroo with the level names
+        options[[i]] <-
+          lang_modify(options[[i]], ID_label_ = names(options)[i])
 
         # update the current data
         data <- eval_tidy(options[[i]])

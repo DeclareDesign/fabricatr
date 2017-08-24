@@ -1,8 +1,6 @@
 
 #' Fabricate a Level of Data for Multi-Level Hierarchical Data
 #'
-#' @param ID_label variable name for ID variable, i.e. citizen_ID (optional)
-#'
 #' @param N number of units to draw in the level
 #' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
 #'
@@ -19,8 +17,7 @@
 #'
 #' @export
 level <-
-  function(ID_label,
-           N = NULL,
+  function(N = NULL,
            ...) {
 
     # handle data that is sent from higher levels of the hierarchy
@@ -35,9 +32,11 @@ level <-
       data_internal_ <- NULL
     }
 
-    ID_label <- substitute(ID_label)
-    if (!is.null(ID_label)) {
-      ID_label <- as.character(ID_label)
+    if ("ID_label_" %in% names(dots)) {
+      ID_label <- eval_tidy(dots[["ID_label_"]])
+      dots[["ID_label_"]] <- NULL
+    } else {
+      stop("Please provide a name for the level, by specifying `your_level_name = level()` in fabricate_data.")
     }
 
     if (is.null(data_internal_)) {

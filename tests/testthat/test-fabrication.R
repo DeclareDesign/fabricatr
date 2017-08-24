@@ -8,31 +8,10 @@ test_that("Fabricate", {
   df_2 <-
     fabricatr:::fabricate_data_single_level(data = df,
                                             Y2 = Y + 1,
-                                            ID_label = "BOB")
-
-  level(ID_label = "test", N = 3, Y = 10)
+                                            ID_label = "my_level_ID")
 
   # we expect an error here, but need a better explaination (no unnamed arguments)
   # fabricate_data_single_level(N = 10, rnorm(N), Y2 = rnorm(N))
-
-  level(
-    ID_label = "bob",
-    N = 10,
-    Y1 = rnorm(N),
-    Y2 = rnorm(N)
-  )
-
-  # can it be called?  YES WE CAN
-  wrapitup <- function(N) {
-    level(
-      ID_label = "bob",
-      N = N,
-      Y1 = rnorm(N),
-      Y2 = rnorm(N)
-    )
-  }
-
-  wrapitup(12)
 
   #debugonce(fabricate_data)
   fabricate_data(N = 100)
@@ -48,26 +27,6 @@ test_that("Fabricate", {
     Y2 = rnorm(N),
     data = data.frame(existing_data = rnorm(5))
   )
-
-  fabricate_data(
-    level(
-      N = 5,
-      gdp = rnorm(N),
-      ID_label = "regions"
-    ),
-    level(
-      N = sample(1:5),
-      subways = rnorm(N, mean = gdp),
-      ID_label = "cities"
-    )
-  )
-
-  # also should work with just a single level() call
-  fabricate_data(level(
-    N = 5,
-    gdp = rnorm(N),
-    ID_label = "regions"
-  ))
 
   fabricate_data(regions = level(N = 5, gdp = rnorm(N)))
 
@@ -126,5 +85,22 @@ test_that("trigger errors", {
 
   expect_error(fabricatr:::fabricate_data_single_level(N = c(5, 2), gdp = runif(N), ID_label = "my-level"))
 
+  # you must provide name for levels
+  expect_error(fabricate_data(
+    level(
+      N = 5,
+      gdp = rnorm(N)
+    ),
+    level(
+      N = sample(1:5),
+      subways = rnorm(N, mean = gdp)
+    )
+  ))
+
+  # same for a single level
+  expect_error(fabricate_data(level(
+    N = 5,
+    gdp = rnorm(N)
+  )))
 
 })
