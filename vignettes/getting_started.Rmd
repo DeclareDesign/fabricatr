@@ -26,7 +26,7 @@ my_data <- fabricate_data(N = 5, Y = runif(N), Y2 = Y*5)
 my_data
 ```
 
-# Heirarchical data
+# Hierarchical data
 
 We can create hierarchical data through use of the `level` function. In the example below, we create 2 cities, each with an elevation. We then create 3 citizens per city, each with an income.
 

@@ -29,6 +29,9 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
+  <a href="../articles/getting_started.html">Getting Started</a>
+</li>
+<li>
   <a href="../reference/">Reference</a>
 </li>
 <li class="dropdown">
@@ -56,7 +59,7 @@
   <a href="http://discuss.declaredesign.org">Discussion Board</a>
 </li>
 <li>
-  <a href="https://declaredesign.org">DeclareDesign home</a>
+  <a href="http://declaredesign.org">DeclareDesign home</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -94,18 +97,18 @@
 <a href="#basics" class="anchor"></a>Basics</h1>
 <p>The workhorse function is <code>fabricate_data</code>. You provide a number to <code>N</code>, then a series of named functions. A nice feature is that you can use <code>N</code> as an argument to any of the functions you supply. Later functions can depend on values defined earlier, making the creation of correlated data easy</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
-my_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">Y =</span> <span class="kw">runif</span>(N), <span class="dt">Y2 =</span> Y<span class="op">*</span><span class="dv">5</span>)
+my_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">Y =</span> <span class="kw">runif</span>(N), <span class="dt">Y2 =</span> Y*<span class="dv">5</span>)
 my_data</code></pre></div>
-<pre><code>##   ID          Y        Y2
-## 1  1 0.63158948 3.1579474
-## 2  2 0.08212853 0.4106427
-## 3  3 0.79288651 3.9644326
-## 4  4 0.12911714 0.6455857
-## 5  5 0.72220569 3.6110285</code></pre>
+<pre><code>##   ID         Y       Y2
+## 1  1 0.6196706 3.098353
+## 2  2 0.9409138 4.704569
+## 3  3 0.3297580 1.648790
+## 4  4 0.6333941 3.166971
+## 5  5 0.3663013 1.831506</code></pre>
 </div>
-<div id="heirarchical-data" class="section level1">
+<div id="hierarchical-data" class="section level1">
 <h1 class="hasAnchor">
-<a href="#heirarchical-data" class="anchor"></a>Heirarchical data</h1>
+<a href="#hierarchical-data" class="anchor"></a>Hierarchical data</h1>
 <p>We can create hierarchical data through use of the <code>level</code> function. In the example below, we create 2 cities, each with an elevation. We then create 3 citizens per city, each with an income.</p>
 <p>There are three things to notice about this example:</p>
 <ol style="list-style-type: decimal">
@@ -116,16 +119,16 @@ my_data</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">income =</span> <span class="kw">round</span>(elevation <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
   )
 my_data</code></pre></div>
 <pre><code>##   cities elevation citizens income
-## 1      1  1434.346        1   6816
-## 2      1  1434.346        2   5711
-## 3      1  1434.346        3   6213
-## 4      2  1622.389        4   7334
-## 5      2  1622.389        5   7505
-## 6      2  1622.389        6   6686</code></pre>
+## 1      1  1339.094        1   6991
+## 2      1  1339.094        2   8796
+## 3      1  1339.094        3   8175
+## 4      2  1510.326        4   5597
+## 5      2  1510.326        5   5892
+## 6      2  1510.326        6   7642</code></pre>
 </div>
 <div id="bringing-in-your-own-data" class="section level1">
 <h1 class="hasAnchor">
@@ -139,14 +142,14 @@ my_data</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">baseline_survey &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">Y_pre =</span> <span class="kw">rnorm</span>(N))
 
 my_endline &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(<span class="dt">data =</span> baseline_survey, 
-                             <span class="dt">Y_post =</span> Y_pre <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N))
+                             <span class="dt">Y_post =</span> Y_pre +<span class="st"> </span><span class="kw">rnorm</span>(N))
 my_endline</code></pre></div>
-<pre><code>##   ID      Y_pre    Y_post
-## 1  1 -1.8056396 -3.389334
-## 2  2  1.4585809  1.875520
-## 3  3 -0.9814822 -1.187751
-## 4  4 -2.0749899 -2.900416
-## 5  5  1.1921642  1.325742</code></pre>
+<pre><code>##   ID       Y_pre     Y_post
+## 1  1 -1.42365111 -2.0117503
+## 2  2 -0.07969871 -0.6510014
+## 3  3 -1.64760837 -1.8337462
+## 4  4  0.89080682  0.1074706
+## 5  5  1.28514345  1.3979072</code></pre>
 </div>
 <div id="bootstrapping" class="section level2">
 <h2 class="hasAnchor">
@@ -154,42 +157,42 @@ my_endline</code></pre></div>
 <p>Suppose you wanted to bootstrap from your baseline survey.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bootsrapped_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(baseline_survey, <span class="dt">N =</span> <span class="dv">10</span>)
 bootsrapped_data</code></pre></div>
-<pre><code>##    ID      Y_pre
-## 1   5  1.1921642
-## 2   5  1.1921642
-## 3   5  1.1921642
-## 4   1 -1.8056396
-## 5   1 -1.8056396
-## 6   2  1.4585809
-## 7   3 -0.9814822
-## 8   5  1.1921642
-## 9   1 -1.8056396
-## 10  3 -0.9814822</code></pre>
+<pre><code>##    ID       Y_pre
+## 1   3 -1.64760837
+## 2   5  1.28514345
+## 3   4  0.89080682
+## 4   5  1.28514345
+## 5   2 -0.07969871
+## 6   5  1.28514345
+## 7   1 -1.42365111
+## 8   4  0.89080682
+## 9   1 -1.42365111
+## 10  3 -1.64760837</code></pre>
 <p>The real utility of this function comes when bootstrapping from hierarchical data. The example below takes a dataset that contains 2 cities, each with 3 citizens, then bootstraps to 3 cities, each with 5 citizens.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">income =</span> <span class="kw">round</span>(elevation <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
   )
 
-my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">5</span>), <span class="dt">ID_labels =</span> <span class="kw">c</span>(<span class="st">"cities"</span>, <span class="st">"citizens"</span>))
-my_data_<span class="dv">2</span></code></pre></div>
+my_data_2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">5</span>), <span class="dt">ID_labels =</span> <span class="kw">c</span>(<span class="st">"cities"</span>, <span class="st">"citizens"</span>))
+my_data_2</code></pre></div>
 <pre><code>##    cities elevation citizens income
-## 1       2  1189.198        4   5922
-## 2       2  1189.198        4   5922
-## 3       2  1189.198        4   5922
-## 4       2  1189.198        6   5970
-## 5       2  1189.198        6   5970
-## 6       2  1189.198        6   5970
-## 7       2  1189.198        4   5922
-## 8       2  1189.198        4   5922
-## 9       2  1189.198        4   5922
-## 10      2  1189.198        6   5970
-## 11      2  1189.198        6   5970
-## 12      2  1189.198        6   5970
-## 13      2  1189.198        6   5970
-## 14      2  1189.198        6   5970
-## 15      2  1189.198        6   5970</code></pre>
+## 1       1  1386.161        3   6856
+## 2       1  1386.161        3   6856
+## 3       1  1386.161        3   6856
+## 4       1  1386.161        3   6856
+## 5       1  1386.161        2   7652
+## 6       1  1386.161        2   7652
+## 7       1  1386.161        2   7652
+## 8       1  1386.161        2   7652
+## 9       1  1386.161        3   6856
+## 10      1  1386.161        3   6856
+## 11      2  1150.165        4   4752
+## 12      2  1150.165        5   7998
+## 13      2  1150.165        5   7998
+## 14      2  1150.165        6   6077
+## 15      2  1150.165        5   7998</code></pre>
 </div>
 </div>
 <div id="advanced-features" class="section level1">
@@ -202,34 +205,30 @@ my_data_<span class="dv">2</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">4</span>), <span class="dt">income =</span> <span class="kw">round</span>(elevation <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">4</span>), <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
   )
 my_data</code></pre></div>
 <pre><code>##   cities elevation citizens income
-## 1      1  1598.615        1   8675
-## 2      1  1598.615        2   6028
-## 3      2  1222.723        3   6518
-## 4      2  1222.723        4   5343
-## 5      2  1222.723        5   6207
-## 6      2  1222.723        6   6076</code></pre>
+## 1      1  1100.300        1   5466
+## 2      1  1100.300        2   4045
+## 3      2  1949.345        3  10635
+## 4      2  1949.345        4   7416
+## 5      2  1949.345        5   6260
+## 6      2  1949.345        6  11132</code></pre>
 <p>You can even have Ns that are determined by a function, enabling a <em>random</em> number of citizens per city:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>, <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>), <span class="dt">income =</span> <span class="kw">round</span>(elevation <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">6</span>, <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>), <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
   )
 my_data</code></pre></div>
-<pre><code>##    cities elevation citizens income
-## 1       1  1275.729       01   4540
-## 2       1  1275.729       02   8104
-## 3       1  1275.729       03   7918
-## 4       1  1275.729       04   7465
-## 5       1  1275.729       05   4824
-## 6       2  1707.898       06   7430
-## 7       2  1707.898       07  14059
-## 8       2  1707.898       08   6807
-## 9       2  1707.898       09   9001
-## 10      2  1707.898       10   6324</code></pre>
+<pre><code>##   cities elevation citizens income
+## 1      1  1885.203        1   6464
+## 2      1  1885.203        2  12402
+## 3      1  1885.203        3   7859
+## 4      1  1885.203        4  10061
+## 5      1  1885.203        5   9288
+## 6      2  1559.138        6   8769</code></pre>
 </div>
 <div id="bringing-in-your-own-hierarchical-data" class="section level2">
 <h2 class="hasAnchor">
@@ -238,23 +237,23 @@ my_data</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_baseline_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">income =</span> <span class="kw">round</span>(elevation <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
   )
 
 <span class="co"># add new variables at each level</span>
 my_data &lt;-<span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(<span class="dt">data =</span> my_baseline_data,
-                 <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">density =</span> elevation <span class="op">/</span><span class="st"> </span><span class="dv">2</span>),
-                 <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">wealth =</span> income <span class="op">-</span><span class="st"> </span><span class="dv">100</span>))
+                 <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">density =</span> elevation /<span class="st"> </span><span class="dv">2</span>),
+                 <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">wealth =</span> income -<span class="st"> </span><span class="dv">100</span>))
 
 my_data</code></pre></div>
 <pre><code>##   citizens cities income elevation  density wealth
-## 1        1      1   4060  1031.414 515.7071   3960
-## 2        2      1   5629  1031.414 515.7071   5529
-## 3        3      1   5464  1031.414 515.7071   5364
-## 4        4      2   5607  1044.679 522.3396   5507
-## 5        5      2   4028  1044.679 522.3396   3928
-## 6        6      2   4974  1044.679 522.3396   4874</code></pre>
+## 1        1      1   5655  1350.253 675.1266   5555
+## 2        2      1   5113  1350.253 675.1266   5013
+## 3        3      1   6038  1350.253 675.1266   5938
+## 4        4      2   8589  1664.009 832.0047   8489
+## 5        5      2   9270  1664.009 832.0047   9170
+## 6        6      2   8368  1664.009 832.0047   8268</code></pre>
 </div>
 </div>
 <div id="tidyverse-integration" class="section level1">
@@ -268,42 +267,39 @@ my_data</code></pre></div>
 my_data &lt;-<span class="st"> </span>
 <span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="dt">income =</span> <span class="kw">round</span>(elevation <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
-  ) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/group_by">group_by</a></span>(cities) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/mutate">mutate</a></span>(<span class="dt">pop =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/n">n</a></span>())
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
+  ) %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(cities) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pop =</span> <span class="kw">n</span>())
 
 my_data</code></pre></div>
-<pre><code>## Source: local data frame [5 x 5]
-## Groups: cities [2]
-## 
-## # A tibble: 5 x 5
+<pre><code>## # A tibble: 5 x 5
+## # Groups:   cities [2]
 ##   cities elevation citizens income   pop
 ##    &lt;chr&gt;     &lt;dbl&gt;    &lt;chr&gt;  &lt;dbl&gt; &lt;int&gt;
-## 1      1  1791.240        1   9994     2
-## 2      1  1791.240        2   8928     2
-## 3      2  1530.127        3   5131     3
-## 4      2  1530.127        4   6192     3
-## 5      2  1530.127        5   6962     3</code></pre>
+## 1      1  1139.494        1   6925     2
+## 2      1  1139.494        2   7127     2
+## 3      2  1277.370        3   3439     3
+## 4      2  1277.370        4   6966     3
+## 5      2  1277.370        5   7049     3</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-<span class="st"> </span>
-<span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/reexports">data_frame</a></span>(<span class="dt">Y =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/dplyr/topics/sample">sample</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">2</span>)) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(<span class="dt">lower_level =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">Y2 =</span> Y <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N)))
+<span class="kw">data_frame</span>(<span class="dt">Y =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">10</span>, <span class="dv">2</span>)) %&gt;%
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate_data.html">fabricate_data</a></span>(<span class="dt">lower_level =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">Y2 =</span> Y +<span class="st"> </span><span class="kw">rnorm</span>(N)))
 my_data</code></pre></div>
-<pre><code>##   Y lower_level       Y2
-## 1 5           1 6.124862
-## 2 5           2 5.566972
-## 3 5           3 6.491212
-## 4 3           4 3.614178
-## 5 3           5 4.681353
-## 6 3           6 4.149249</code></pre>
+<pre><code>##   Y lower_level        Y2
+## 1 6           1 6.6159476
+## 2 6           2 6.5937983
+## 3 6           3 4.9188182
+## 4 3           4 2.9920638
+## 5 3           5 0.9715657
+## 6 3           6 1.0705122</code></pre>
 </div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
         <div id="tocnav">
-      <h2 class="hasAnchor">
-<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <h2>Contents</h2>
       true
     </div>
       </div>

@@ -23,8 +23,7 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -52,6 +51,9 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../articles/getting_started.html">Getting Started</a>
+</li>
+<li>
   <a href="../reference/">Reference</a>
 </li>
 <li class="dropdown">
@@ -105,7 +107,7 @@
     </div>
 
     
-    <p><code>fabricate_data</code> helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing <code>data</code> to <code>fabricate_data()</code>) or start from scratch by defining <code>N</code>. Create hierarchical data with multiple levels of data such as citizens within cities within states using <code><a href='level.html'>level()</a></code>. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, <code><a href='draw_binary.html'>draw_binary</a></code> and <code><a href='draw_count.html'>draw_count</a></code>.</p>
+    <p><code>fabricate_data</code> helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing <code>data</code> to <code>fabricate_data()</code>) or start from scratch by defining <code>N</code>. Create hierarchical data with multiple levels of data such as citizens within cities within states using <code>level()</code>. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, <code><a href='draw_binary.html'>draw_binary</a></code> and <code><a href='draw_count.html'>draw_count</a></code>.</p>
     
 
     <pre class="usage"><span class='fu'>fabricate_data</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
@@ -127,7 +129,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Variable or level-generating arguments, such as <code>my_var = rnorm(N)</code>. You may also pass <code><a href='level.html'>level()</a></code> arguments, which define a level of a multi-level dataset. For example, you could send to <code>...</code> <code>my_level = level(N = 5, var = rnorm)</code>. See examples.</p></td>
+      <td><p>Variable or level-generating arguments, such as <code>my_var = rnorm(N)</code>. You may also pass <code>level()</code> arguments, which define a level of a multi-level dataset. For example, you could send to <code>...</code> <code>my_level = level(N = 5, var = rnorm)</code>. See examples.</p></td>
     </tr>
     </table>
     

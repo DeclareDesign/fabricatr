@@ -1,6 +1,8 @@
 navbar:
   type: default
   left:
+  - text: Getting Started
+    href: articles/getting_started.html
   - text: Reference
     href: reference/
   - text: "Packages"
