@@ -8,44 +8,58 @@
 #'
 #' @export
 resample_data <- function(data, N, ID_labels = NULL) {
-  if (missing(N)) {
+  # setup
+  if (missing(N) & is.null(ID_labels)) {
     N <- nrow(data)
   }
-
-  N_total <- prod(N)
   k <- length(N) ## number of levels
 
+  # checks
   if (!is.null(ID_labels) & (k != length(ID_labels))) {
     stop(
       "If you provide more than one ID_labels to resample data for multilevel data, please provide a vector for N of the same length representing the number to resample at each level."
     )
   }
 
-  sample_by_level <- list()
-  for (j in k:1) {
-    if (j == k) {
-      if (is.null(ID_labels) & k == 1) {
-        sample_by_level[[j]] <-
-          sample(1:nrow(data), N[j], replace = TRUE)
-      } else {
-        sample_by_level[[j]] <-
-          sample(data[, ID_labels[j]], N[j], replace = TRUE)
-      }
-    } else {
-      ## now go through each of the units in the level above it
-      sample_current_level <- c()
-      for (k in sample_by_level[[j + 1]]) {
-        sample_current_level <- c(sample_current_level,
-                                  sample(data[data[, ID_labels[j + 1]] == k, ID_labels[j]],
-                                         round(N[j]), replace = TRUE))
-      }
-      sample_by_level[[j]] <- sample_current_level
+  # Case 1: Single Level
+  if (k == 1) {
+    data <- bootstrap_single_level(data = data, N = N)
+  } else {
+    # Case 2: Multi Level
+
+    data <- bootstrap_single_level(data, ID_label = ID_labels[1], N = N[1])
+
+    for (i in 2:k) {
+      group_by_set <- ID_labels[1:(i - 1)]
+      group_by_list <- as.list(data[, group_by_set, drop = FALSE])
+      new_data_list <- split(data, group_by_list)
+      new_data_list <-
+        lapply(new_data_list,
+               bootstrap_single_level,
+               ID_label = ID_labels[i],
+               N = N[i])
+      data <- do.call(rbind, new_data_list)
     }
   }
-  data <- data[sample_by_level[[1]], , drop = FALSE]
-
-  ## reset row names so they are unique
-  rownames(data) <- 1:nrow(data)
-
+  rownames(data) <- NULL
   return(data)
 }
+
+
+
+bootstrap_single_level <-
+  function(data, ID_label = NULL, N) {
+    if (is.null(ID_label)) {
+      boot_indicies <- sample(1:nrow(data), N, replace = TRUE)
+    } else {
+      boot_ids <-
+        sample(unique(data[, ID_label]), size = N, replace = TRUE)
+      boot_indicies <- unlist(lapply(boot_ids, function(i) {
+        which(data[, ID_label] == i)
+      }))
+    }
+    new_data <- data[boot_indicies, , drop = FALSE]
+    return(new_data)
+  }
+
+
