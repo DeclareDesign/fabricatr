@@ -1,18 +1,20 @@
 Package: fabricatr
 Type: Package
-Title: Tools for Simulating Data Before Data Collection
+Title: Imagine Your Data Before You Collect It 
 Version: 1.0.0
 Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@ucla.edu", role = c("aut", "cre")),
              person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut")),
              person("Alexander", "Coppock", email = "alex.coppock@yale.edu", role = c("aut")),
              person("Macartan", "Humphreys", email = "macartan@gmail.com", role = c("aut")))
-Description: Tools for Simulating Data Before Data Collection
-	This software allows the user to create mock data that follows 
-	the structure of future data to be collected.
+Description: Helps you imagine your data before you collect it. Hierarchical data structures
+   and correlated data can be easily simulated, either from random number generators or 
+   by resampling from existing data sources. 
+URL: http://fabricatr.declaredesign.org, https://github.com/DeclareDesign/fabricatr
+BugReports: https://github.com/DeclareDesign/fabricatr/issues
+Depends: R (>= 3.2.0)
 Imports: rlang
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 6.0.1
 Suggests:
     testthat,

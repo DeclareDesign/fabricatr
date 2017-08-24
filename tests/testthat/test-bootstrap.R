@@ -6,14 +6,13 @@ test_that("Bootstrap", {
     cities = level(N = 5, subways = rnorm(N, mean = gdp))
   )
 
+  resampled_two_levels <- resample_data(two_levels, N = c(2, 2), ID_labels = c("regions", "cities"))
 
-  q <- resample_data(two_levels, N = c(2, 2), ID_labels = c("regions", "cities"))
+  expect_equal(nrow(resampled_two_levels), 4)
 
-  nrow(q)
+  resampled_two_levels <- resample_data(two_levels, 5)
 
-  q <- resample_data(two_levels, 5)
-
-  nrow(q)
+  expect_equal(nrow(resampled_two_levels), 5)
 })
 
 test_that("Error handling of Bootstrap", {
@@ -22,6 +21,6 @@ test_that("Error handling of Bootstrap", {
     cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
-  q <- resample_data(two_levels) # Missing N
+  resampled_two_levels <- resample_data(two_levels) # Missing N
   expect_error(resample_data(two_levels, c(100, 10), ID_labels = c("Invalid_ID")))
 })

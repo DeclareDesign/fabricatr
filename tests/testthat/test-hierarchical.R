@@ -29,14 +29,14 @@ test_that("creating variables", {
       N = 5,
       block_effect = rnorm(N)
     ),
-    individuals = level(N = 10, noise = rnorm(N))
+    individuals = level(N = 2, noise = rnorm(N))
   )
 
   expect_error(fabricate_data(
-    N = 10^5,
+    N = 10,
     noise = rnorm(N),
     block = level(
-      N = 5^4,
+      N = 5,
       block_effect = rnorm(N)
     )
   ))

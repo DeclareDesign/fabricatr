@@ -96,6 +96,7 @@ fabricate_data <-
         data = data,
         N = N,
         ID_label = ID_label,
+        existing_ID = !is.null(data) & is.null(ID_label),
         ... = ...
       )
     }

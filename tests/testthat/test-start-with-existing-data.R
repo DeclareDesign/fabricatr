@@ -30,8 +30,6 @@ test_that("Start with existing multi-level data and add variables",{
 
   expect_equal(dim(user_data_3), c(15, 5))
 
-  ## do both
-  ## note this will break if you try to use cities_ID at the region level (intentional)!
   user_data_4 <-
   fabricate_data(data = user_data,
                  regions = level(rob = paste0(regions, "r")),
@@ -39,8 +37,6 @@ test_that("Start with existing multi-level data and add variables",{
 
   expect_equal(dim(user_data_4), c(15, 6))
 
-  ## do both and create a new level at the bottom level
-  ## note this will break if you try to use cities_ID at the region level (intentional)!
   user_data_5 <-
   fabricate_data(data = user_data,
                  regions = level(rob = paste0(regions, "r")),

@@ -56,7 +56,34 @@ my_baseline_data <-
     citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
   )
 
-my_baseline_data
+# add new variables at each level
+my_data <- 
+  fabricate_data(data = my_baseline_data,
+                 cities = level(density = elevation / 2),
+                 citizens = level(wealth = income - 100))
+
+my_data
+
+
+## ---- message=FALSE------------------------------------------------------
+library(dplyr)
+
+# letting higher levels depend on lower levels
+
+my_data <- 
+fabricate_data(
+    cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+    citizens = level(N = c(2, 3), income = round(elevation * rnorm(n = N, mean = 5)))
+  ) %>%
+  group_by(cities) %>%
+  mutate(pop = n())
+
+my_data
+
+my_data <- 
+data_frame(Y = sample(1:10, 2)) %>%
+  fabricate_data(lower_level = level(N = 3, Y2 = Y + rnorm(N)))
+my_data
 
 
 
