@@ -10,7 +10,7 @@
 #'
 #' # Draw a two-level hierarchical dataset
 #' # containing cities within regions
-#' df <- fabricate_data(
+#' df <- fabricate(
 #'  regions = level(N = 5),
 #'  cities = level(N = 10, pollution = rnorm(N, mean = 5)))
 #' head(df)
@@ -36,19 +36,19 @@ level <-
       ID_label <- eval_tidy(dots[["ID_label_"]])
       dots[["ID_label_"]] <- NULL
     } else {
-      stop("Please provide a name for the level, by specifying `your_level_name = level()` in fabricate_data.")
+      stop("Please provide a name for the level, by specifying `your_level_name = level()` in fabricate.")
     }
 
     if (is.null(data_internal_)) {
 
-      ## if data is not provided to fabricate_data, this part handles the case
+      ## if data is not provided to fabricate, this part handles the case
       ##   of the top level, where data must be created for the first time
       if (is.null(N)) {
         stop(
           paste0(
             "At the top level, ",
             ID_label,
-            ", you must provide N if you did not provide data to fabricate_data."
+            ", you must provide N if you did not provide data to fabricate."
           )
         )
       }
@@ -77,7 +77,7 @@ level <-
 
     } else {
       # at the second level, after data is created, or at the top level if data is provided
-      #  to fabricate_data, there are two case:
+      #  to fabricate, there are two case:
       # 1. ID_label does not yet exist, in which case we create the level defined by ID_label by expanding dataset based on N
       # 2. ID label already exists, in which case we add variables to an existing level
 

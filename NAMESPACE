@@ -2,7 +2,7 @@
 
 export(draw_binary)
 export(draw_count)
-export(fabricate_data)
+export(fabricate)
 export(level)
 export(resample_data)
 importFrom(rlang,eval_tidy)

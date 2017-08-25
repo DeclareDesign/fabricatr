@@ -130,7 +130,7 @@
     <pre class="examples"><div class='input'>
 <span class='co'># Draw a two-level hierarchical dataset</span>
 <span class='co'># containing cities within regions</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate_data.html'>fabricate_data</a></span>(
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
  <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   regions cities pollution

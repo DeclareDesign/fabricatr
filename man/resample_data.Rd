@@ -23,14 +23,14 @@ Resample data, including hierarchical data
 
 # Bootstrap a dataset without any hierarchy
 
-baseline_survey <- fabricate_data(N = 5, Y_pre = rnorm(N))
+baseline_survey <- fabricate(N = 5, Y_pre = rnorm(N))
 bootsrapped_data <- resample_data(baseline_survey, N = 10)
 bootsrapped_data
 
 # Bootstrap a hierarchical dataset
 
 my_data <-
-fabricate_data(
+fabricate(
   cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
   citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
 )

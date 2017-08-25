@@ -18,7 +18,7 @@ Fabricate a Level of Data for Hierarchical Data
 
 # Draw a two-level hierarchical dataset
 # containing cities within regions
-df <- fabricate_data(
+df <- fabricate(
  regions = level(N = 5),
  cities = level(N = 10, pollution = rnorm(N, mean = 5)))
 head(df)

@@ -2,7 +2,7 @@ context("hierarchical")
 
 test_that("hierarchical data is created correctly when you have a vector variable that is of length N per level",{
 
-  hierarchy <- fabricate_data(
+  hierarchy <- fabricate(
     regions = level(N = 3, gdp = rnorm(N)),
     districts = level(
       N = 2,
@@ -24,7 +24,7 @@ df_2 <- unique(hierarchy[,c("regions", "var2")])
 })
 
 test_that("creating variables", {
-  population <- fabricate_data(
+  population <- fabricate(
     block = level(
       N = 5,
       block_effect = rnorm(N)
@@ -32,7 +32,7 @@ test_that("creating variables", {
     individuals = level(N = 2, noise = rnorm(N))
   )
 
-  expect_error(fabricate_data(
+  expect_error(fabricate(
     N = 10,
     noise = rnorm(N),
     block = level(

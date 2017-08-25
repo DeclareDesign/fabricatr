@@ -18,11 +18,11 @@ vignette: >
 
 # Basics
 
-The workhorse function is `fabricate_data`. You provide a number to `N`, then a series of named functions. A nice feature is that you can use `N` as an argument to any of the functions you supply. Later functions can depend on values defined earlier, making the creation of correlated data easy
+The workhorse function is `fabricate`. You provide a number to `N`, then a series of named functions. A nice feature is that you can use `N` as an argument to any of the functions you supply. Later functions can depend on values defined earlier, making the creation of correlated data easy
 
 ```{r}
 library(fabricatr)
-my_data <- fabricate_data(N = 5, Y = runif(N), Y2 = Y*5)
+my_data <- fabricate(N = 5, Y = runif(N), Y2 = Y*5)
 my_data
 ```
 
@@ -38,7 +38,7 @@ There are three things to notice about this example:
 
 ```{r}
 my_data <-
-  fabricate_data(
+  fabricate(
     cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
     citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
   )
@@ -56,9 +56,9 @@ A second way you may wish to use existing data is bootstrap a new dataset from i
 If you have already conducted a baseline survey, you may which to imagine how the endline may deviate from it. In this case, you will want to add new variables to your existing dataset. Notice that the meaning of `N` in the definition of `Y_post` automatically refers to the number of rows in the dataset provided to the `data` argument.
 
 ```{r}
-baseline_survey <- fabricate_data(N = 5, Y_pre = rnorm(N))
+baseline_survey <- fabricate(N = 5, Y_pre = rnorm(N))
 
-my_endline <- fabricate_data(data = baseline_survey, 
+my_endline <- fabricate(data = baseline_survey, 
                              Y_post = Y_pre + rnorm(N))
 my_endline
 ```
@@ -76,7 +76,7 @@ The real utility of this function comes when bootstrapping from hierarchical dat
 
 ```{r}
 my_data <-
-  fabricate_data(
+  fabricate(
     cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
     citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
   )
@@ -94,7 +94,7 @@ When making hierarchical data, you may not want to have the same number of units
 
 ```{r}
 my_data <-
-  fabricate_data(
+  fabricate(
     cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
     citizens = level(N = c(2, 4), income = round(elevation * rnorm(n = N, mean = 5)))
   )
@@ -105,7 +105,7 @@ You can even have Ns that are determined by a function, enabling a *random* numb
 
 ```{r}
 my_data <-
-  fabricate_data(
+  fabricate(
     cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
     citizens = level(N = sample(1:6, size = 2, replace = TRUE), income = round(elevation * rnorm(n = N, mean = 5)))
   )
@@ -120,14 +120,14 @@ Suppose you had existing hierarchical data, and you wanted to add variables that
 ```{r}
 
 my_baseline_data <-
-  fabricate_data(
+  fabricate(
     cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
     citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
   )
 
 # add new variables at each level
 my_data <- 
-  fabricate_data(data = my_baseline_data,
+  fabricate(data = my_baseline_data,
                  cities = level(density = elevation / 2),
                  citizens = level(wealth = income - 100))
 
@@ -145,7 +145,7 @@ library(dplyr)
 # letting higher levels depend on lower levels
 
 my_data <- 
-fabricate_data(
+fabricate(
     cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
     citizens = level(N = c(2, 3), income = round(elevation * rnorm(n = N, mean = 5)))
   ) %>%
@@ -156,7 +156,7 @@ my_data
 
 my_data <- 
 data_frame(Y = sample(1:10, 2)) %>%
-  fabricate_data(lower_level = level(N = 3, Y2 = Y + rnorm(N)))
+  fabricate(lower_level = level(N = 3, Y2 = Y + rnorm(N)))
 my_data
 
 

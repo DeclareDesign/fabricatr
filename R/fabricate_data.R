@@ -3,7 +3,7 @@
 
 #' Fabricate data
 #'
-#' \code{fabricate_data} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate_data()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_count}}.
+#' \code{fabricate} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_count}}.
 #'
 #' @param data (optional) user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
 #' @param N (optional) number of units to draw, if drawing a single level of data (i.e. not hierarchical data)
@@ -15,32 +15,32 @@
 #' @examples
 #'
 #' # Draw a single-level dataset with no covariates
-#' df <- fabricate_data(N = 100)
+#' df <- fabricate(N = 100)
 #' head(df)
 #'
 #' # Draw a single-level dataset with a covariate
-#' df <- fabricate_data(
+#' df <- fabricate(
 #'   N = 100,
 #'   height_ft = runif(N, 3.5, 8)
 #' )
 #' head(df)
 #'
 #' # Start with existing data
-#' df <- fabricate_data(
+#' df <- fabricate(
 #'   data = df,
 #'   new_variable = rnorm(N)
 #' )
 #'
 #' # Draw a two-level hierarchical dataset
 #' # containing cities within regions
-#' df <- fabricate_data(
+#' df <- fabricate(
 #'  regions = level(N = 5),
 #'  cities = level(N = 2, pollution = rnorm(N, mean = 5)))
 #' head(df)
 #'
 #' # Start with existing data and add variables to hierarchical data
 #' # note: do not provide N when adding variables to an existing level
-#' df <- fabricate_data(
+#' df <- fabricate(
 #'   data = df,
 #'   regions = level(watershed = sample(c(0, 1), N, replace = TRUE)),
 #'   cities = level(runoff = rnorm(N))
@@ -49,7 +49,7 @@
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args is_lang get_expr
 #'
 #' @export
-fabricate_data <-
+fabricate <-
   function(data = NULL,
            N = NULL,
            ID_label = NULL,

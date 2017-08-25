@@ -1,7 +1,7 @@
 context("Bootstrap")
 
 test_that("Bootstrap", {
-  two_levels <- fabricate_data(
+  two_levels <- fabricate(
     regions = level(N = 5, gdp = rnorm(N)),
     cities = level(N = 5, subways = rnorm(N, mean = gdp))
   )
@@ -16,7 +16,7 @@ test_that("Bootstrap", {
 })
 
 test_that("Error handling of Bootstrap", {
-  two_levels <- fabricate_data(
+  two_levels <- fabricate(
     regions = level(N = 5, gdp = rnorm(N)),
     cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )

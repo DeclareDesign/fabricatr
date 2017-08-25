@@ -16,10 +16,10 @@ Drawing binary variables based on probabilities or latent traits is a common tas
 }
 \examples{
 
-fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1))
-fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "logit"))
-fabricate_data(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "probit"))
-fabricate_data(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_binary(Y1, link = "identity"))
+fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1))
+fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "logit"))
+fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "probit"))
+fabricate(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_binary(Y1, link = "identity"))
 
 draw_binary(rnorm(10))
 draw_binary(rnorm(10), link = "logit")
