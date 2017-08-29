@@ -1,21 +1,9 @@
 
 #' Fabricate a Level of Data for Hierarchical Data
 #'
-#' @param N number of units to draw in the level
-#' @param ... Data generating arguments, such as \code{my_var = rnorm(N)}. You may also pass \code{level()} arguments, which define a level of a multi-level dataset. For example, you could send to \code{...} \code{level(my_level, var = rnorm)}. See examples.
-#'
 #' @importFrom rlang quos eval_tidy quo lang_modify
 #'
-#' @examples
-#'
-#' # Draw a two-level hierarchical dataset
-#' # containing cities within regions
-#' df <- fabricate(
-#'  regions = level(N = 5),
-#'  cities = level(N = 10, pollution = rnorm(N, mean = 5)))
-#' head(df)
-#'
-#' @export
+#' @rdname fabricate
 level <-
   function(N = NULL,
            ...) {
