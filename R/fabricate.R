@@ -1,6 +1,7 @@
 
 
 
+
 #' Fabricate data
 #'
 #' \code{fabricate} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_count}}.
@@ -78,7 +79,9 @@ fabricate <-
     }
 
     if (!is.null(data) & !any(class(data) == "data.frame")) {
-      stop("Please provide a data object to the data argument, e.g. a data.frame, tibble, or sf object.")
+      stop(
+        "Please provide a data object to the data argument, e.g. a data.frame, tibble, or sf object."
+      )
     }
 
     ID_label <- substitute(ID_label)
@@ -125,7 +128,7 @@ fabricate_data_single_level <- function(data = NULL,
                                         ID_label = NULL,
                                         ...,
                                         existing_ID = FALSE) {
-  if (sum(!is.null(data), !is.null(N)) != 1) {
+  if (sum(!is.null(data),!is.null(N)) != 1) {
     stop("Please supply either a data.frame or N and not both.")
   }
 
@@ -154,23 +157,28 @@ fabricate_data_single_level <- function(data = NULL,
 
   args <- quos(...)
 
-  for (nm in names(args)) {
-    # this was changed to move costly data.frame operations inside the loop
-    #   because previously, if you did rnorm(N) in a level
-    #   it literally did a vector of length N, rather than doing
-    #   it for all of the values of the level above it, i.e. if this
-    #   this is the second level and N = 2, it made a vector of length 2
-    #   even though there were 5 units in the higher level so there should
-    #   have been a vector of 5*2 = 10
-    # NB: this is still not super safe; if the expression returns a thing
-    # of length not exactly to N it's just going to repeat it as it does
-    # data.frame(data_list). Usually this shouldn't be a problem but we may
-    # want a warning or error
-    data_list <- as.list(data)
-    data_list$N <- N
-    data_list[[nm]] <- eval_tidy(args[[nm]], data_list)
-    data_list$N <- NULL
-    data <- data.frame(data_list, stringsAsFactors = FALSE)
+  args_names <- names(args)
+
+  if (length(args) > 0) {
+    for (i in 1:length(args)) {
+      # this was changed to move costly data.frame operations inside the loop
+      #   because previously, if you did rnorm(N) in a level
+      #   it literally did a vector of length N, rather than doing
+      #   it for all of the values of the level above it, i.e. if this
+      #   this is the second level and N = 2, it made a vector of length 2
+      #   even though there were 5 units in the higher level so there should
+      #   have been a vector of 5*2 = 10
+      # NB: this is still not super safe; if the expression returns a thing
+      # of length not exactly to N it's just going to repeat it as it does
+      # data.frame(data_list). Usually this shouldn't be a problem but we may
+      # want a warning or error
+      data_list <- as.list(data)
+      data_list$N <- N
+      data_list[[args_names[i]]] <-
+        eval_tidy(args[[i]], data_list)
+      data_list$N <- NULL
+      data <- data.frame(data_list, stringsAsFactors = FALSE)
+    }
   }
 
   rownames(data) <- NULL

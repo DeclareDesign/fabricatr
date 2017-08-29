@@ -6,6 +6,10 @@ test_that("Fabricate", {
   fabricate(N = 2, Y = 10, ID_label = "test")
   fabricate(N = 2, Y1 = 5, Y2 = rnorm(N))
 
+  expect_equal(max(fabricate(
+    N = 2, A = 1:2, A = 3
+  )$A),  3)
+
   df <- fabricate(N = 2, Y = 10)
   df
   fabricate(data = df, Y2 = Y + 1)
