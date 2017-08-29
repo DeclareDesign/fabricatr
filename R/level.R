@@ -4,6 +4,7 @@
 #' @importFrom rlang quos eval_tidy quo lang_modify
 #'
 #' @rdname fabricate
+#' @export
 level <-
   function(N = NULL,
            ...) {
