@@ -88,6 +88,18 @@ my_data_2
 
 # Advanced Features
 
+## Averages within higher levels of hierarchy
+
+You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with `ave`:
+
+```{r}
+fabricate(
+    cities = level(N = 2),
+    citizens = level(
+      N = 1:2, income = rnorm(N), income_mean_city = ave(income, cities))
+  ) 
+```
+
 ## Ns that vary
 
 When making hierarchical data, you may not want to have the same number of units at each level of the hierarchy. For example, in the example below, we want one city to have 2 citizens and the other city to have four:
