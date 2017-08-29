@@ -4,10 +4,12 @@
 \alias{draw_binary}
 \title{Draw a binary variable from a binomial distribution}
 \usage{
-draw_binary(vector, link = "logit")
+draw_binary(latent = NULL, prob = NULL, link = "logit")
 }
 \arguments{
-\item{vector}{vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")}
+\item{latent}{vector representing the latent variable used to draw the count outcome (if link is "logit" or "probit")}
+
+\item{prob}{vector representing the probability for the count outcome (if link is "identity"). Link is automatically set to "identity" if probabilities is provided.}
 
 \item{link}{link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.}
 }
@@ -19,11 +21,12 @@ Drawing binary variables based on probabilities or latent traits is a common tas
 fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1))
 fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "logit"))
 fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "probit"))
-fabricate(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_binary(Y1, link = "identity"))
+fabricate(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_binary(prob = Y1))
 
 draw_binary(rnorm(10))
 draw_binary(rnorm(10), link = "logit")
 draw_binary(rnorm(10), link = "probit")
-draw_binary(runif(10, 0, 1), link = "identity")
+draw_binary(prob = runif(10, 0, 1))
+draw_binary(prob = runif(10, 0, 1), link = "identity")
 
 }

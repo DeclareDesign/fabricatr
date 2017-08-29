@@ -4,10 +4,12 @@
 \alias{draw_count}
 \title{Draw a count variable from a binomial distribution}
 \usage{
-draw_count(vector, k, link = "logit")
+draw_count(latent = NULL, prob = NULL, k, link = "logit")
 }
 \arguments{
-\item{vector}{vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity")}
+\item{latent}{vector representing the latent variable used to draw the count outcome (if link is "logit" or "probit")}
+
+\item{prob}{vector representing the probability for the count outcome (if link is "identity"). Link is automatically set to "identity" if probabilities is provided.}
 
 \item{k}{number of binomial trials, i.e. maximum of the count variable}
 
@@ -20,10 +22,11 @@ Drawing count variables based on probabilities or latent traits is a common task
 
 fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_count(Y1, k = 4))
 fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_count(Y1, k = 4, link = "probit"))
-fabricate(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_count(Y1, k = 4, link = "identity"))
+fabricate(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_count(prob = Y1, k = 4))
 
 draw_count(rnorm(10), k = 4)
 draw_count(rnorm(10), k = 4, link = "logit")
 draw_count(rnorm(10), k = 4, link = "probit")
-draw_count(runif(10, 0, 1), k = 4, link = "identity")
+draw_count(prob = runif(10, 0, 1), k = 4)
+draw_count(prob = runif(10, 0, 1), k = 4, link = "identity")
 }
