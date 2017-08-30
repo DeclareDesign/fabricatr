@@ -1,138 +1,145 @@
-#' Draw a binary variable from a binomial distribution
+#' Draw discrete variables including binary, binomial count, poisson count, ordered, and categorical
 #'
-#' Drawing binary variables based on probabilities or latent traits is a common task that can be cumbersome.
+#' Drawing discrete data based on probabilities or latent traits is a common task that can be cumbersome. \code{draw_binary} is an alias for \code{draw_discrete(type = "binary")} that allows you to draw binary outcomes more easily.
 #'
-#' @param latent vector representing the latent variable used to draw the count outcome (if link is "logit" or "probit")
-#' @param prob vector representing the probability for the count outcome (if link is "identity"). Link is automatically set to "identity" if probabilities is provided.
+#' @param x vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity"). For cartegorical distributions x is a matrix with as many columns as possible outcomes.
+#' @param type type of discrete outcome to draw, one of 'binary' (or 'bernoulli'), 'binomial', 'categorical', 'ordered' or 'count'
 #' @param link link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.
+#' @param breaks vector of breaks to cut an ordered latent outcome
+#' @param break_labels vector of labels for the breaks for an ordered latent outcome (must be the same length as breaks)
+#' @param k the number of trials (zero or more)
 #'
-#' @importFrom stats pnorm
+#' @importFrom stats pnorm rnorm rpois
 #'
 #' @export
 #'
 #' @examples
+#' fabricate(N = 3,
+#'    p = c(0, .5, 1),
+#'    binary = draw_discrete(p))
 #'
-#' fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1))
-#' fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "logit"))
-#' fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_binary(Y1, link = "probit"))
-#' fabricate(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_binary(prob = Y1))
+#' fabricate(N = 3,
+#'    p = c(0, .5, 1),
+#'    binary = draw_discrete(p, type = "bernoulli"))
 #'
-#' draw_binary(rnorm(10))
-#' draw_binary(rnorm(10), link = "logit")
-#' draw_binary(rnorm(10), link = "probit")
-#' draw_binary(prob = runif(10, 0, 1))
-#' draw_binary(prob = runif(10, 0, 1), link = "identity")
+#' fabricate(N = 3,
+#'    x = 10*rnorm(N),
+#'    binary = draw_discrete(x, type = "bernoulli", link = "probit"))
 #'
-draw_binary <- function(latent = NULL, prob = NULL, link = "logit") {
-  if (!is.null(prob)) {
-    link <- "identity"
-  }
+#' fabricate(N = 3,
+#'    p = c(0, .5, 1),
+#'    binomial = draw_discrete(p, type = "binomial", k = 10))
+#'
+#' fabricate(N = 3,
+#'    x = 5*rnorm(N),
+#'    ordered = draw_discrete(x, type = "ordered", breaks = c(-Inf, -1, 1, Inf)))
+#'
+#' fabricate(N = 3,
+#'    x = c(0,5,100),
+#'    count = draw_discrete(x, type = "count"))
+#'
+#' # Categorical
+#' fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),
+#'          cat = draw_discrete(cbind(p1, p2, p3), type = "categorical"))
+draw_discrete <-
+  function(x,
+           type = "binary",
+           link = "identity",
+           breaks = c(-Inf, 0, Inf),
+           break_labels = FALSE,
+           k = 1) {
 
-  if (all(!is.null(latent),!is.null(prob))) {
-    stop("Please either provide a vector of numbers to latent or prob, not both.")
-  }
-
-  if (!is.null(latent) & mode(latent) != "numeric") {
-    stop("Please provide a numeric vector for the latent variable to draw_binary.")
-  }
-
-  if (!is.null(prob) & mode(prob) != "numeric") {
-    stop("Please provide a numeric vector to `prob` for draw_binary.")
-  }
-
-  if (link == "logit") {
-    if (is.null(latent)) {
-      stop("Please provide a vector of the latent response when you choose the logit link.")
+    if (!link %in% c("logit", "probit", "identity")) {
+      stop("Please choose either 'logit' or 'probit' or 'identity' as a link.")
     }
-    prob <- 1 / (1 + exp(-latent))
-  } else if (link == "probit") {
-    if (is.null(latent)) {
-      stop("Please provide a vector of the latent response when you choose the logit link.")
-    }
-    prob <- pnorm(latent)
-  } else if (link == "identity") {
-    if (is.null(prob)) {
-      stop("Please provide a vector of the probability of a `yes` response when you choose the identity link.")
-    }
-    if (!all(0 < prob & prob < 1)) {
+
+    if (!type %in% c("binary",
+                          "binomial",
+                          "bernoulli",
+                          "categorical",
+                          "ordered",
+                          "count")) {
       stop(
-        "You chose the identity link, which means your vector should be probabilities. Some values of your vector are outside of (0, 1)."
+        "Please choose either 'binary' (or 'bernoulli'), 'binomial', 'categorical', 'ordered' or 'count' as a data type."
       )
     }
+
+    if (mode(x) != "numeric") {
+      stop("Please provide a numeric vector to x.")
+    }
+
+    if (link == "logit") {
+      prob <- 1 / (1 + exp(-x))
+    } else if (link == "probit") {
+      prob <- pnorm(x)
+    } else if (link == "identity") {
+      prob <- x
+    }
+
+    if (type %in% c("binary", "bernoulli"))   {
+      if (k != 1) {
+        k <- 1
+        warning("Binary data selected and the number of trials, k, reset to 1.")
+      }
+      if (link == "identity")
+        if (!all(0 <= x & x <= 1)) {
+          warning("The identity link requires values between 0 and 1, inclusive")
+        }
+
+      n <- length(x)
+      out <- rbinom(n, k, prob)
+
+    } else if (type == "binomial")   {
+      if (link == "identity")
+        if (!all(0 <= x & x <= 1)) {
+          warning("The identity link requires values between 0 and 1, inclusive")
+        }
+
+      n <- length(x)
+      out <- rbinom(n, k, prob)
+
+    } else if (type == "ordered") {
+      if (link == "probit"){
+        x <- x + rnorm(length(x))
+      }
+
+      out <- cut(x, breaks, labels = break_labels) - 1
+
+    } else if (type == "count") {
+      if (link != "identity") {
+        stop("Count data does not accept link functions.")
+      }
+
+      n <- length(x)
+      out <- rpois(n, lambda = x)
+
+      ## Categorical
+
+    } else if (type == "categorical") {
+      if (is.null(dim(x)))
+        stop("For a categorical distribution a matrix of probabilities should be provided")
+      if (!all(apply(x, 1, min) > 0)) {
+        stop(
+          "For a categorical (multinomial) distribution, the elements of x should be positive and sum to a positive number."
+        )
+      }
+
+      m <- ncol(x)
+      rcateg <- function(p)
+        sample(1:m, 1, prob = p)
+      out <- apply(x, 1, rcateg)
+    }
+
+    return(out)
   }
 
-  rbinom(n = length(vector),
-         size = 1,
-         prob = prob)
-}
-
-#' Draw a count variable from a binomial distribution
-#'
-#' Drawing count variables based on probabilities or latent traits is a common task that can be cumbersome.
-#'
-#' @param latent vector representing the latent variable used to draw the count outcome (if link is "logit" or "probit")
-#' @param prob vector representing the probability for the count outcome (if link is "identity"). Link is automatically set to "identity" if probabilities is provided.
-#' @param k number of binomial trials, i.e. maximum of the count variable
-#' @param link link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.
-#'
-#' @importFrom stats pnorm
-#'
+#' @rdname draw_discrete
 #' @export
-#'
-#' @examples
-#'
-#' fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_count(Y1, k = 4))
-#' fabricate(N = 10, Y1 = rnorm(N),  Y2 = draw_count(Y1, k = 4, link = "probit"))
-#' fabricate(N = 10, Y1 = runif(N, 0, 1),  Y2 = draw_count(prob = Y1, k = 4))
-#'
-#' draw_count(rnorm(10), k = 4)
-#' draw_count(rnorm(10), k = 4, link = "logit")
-#' draw_count(rnorm(10), k = 4, link = "probit")
-#' draw_count(prob = runif(10, 0, 1), k = 4)
-#' draw_count(prob = runif(10, 0, 1), k = 4, link = "identity")
-draw_count <- function(latent = NULL, prob = NULL, k, link = "logit") {
-  if (!is.null(prob)) {
-    link <- "identity"
-  }
-
-  if (all(!is.null(latent),!is.null(prob))) {
-    stop("Please either provide a vector of numbers to latent or prob, not both.")
-  }
-
-  if (!link %in% c("logit", "probit", "identity")) {
-    stop("Please choose either 'logit', 'probit', or 'identity' as a link.")
-  }
-
-  if (!is.null(latent) & mode(latent) != "numeric") {
-    stop("Please provide a numeric vector for the latent variable to draw_count")
-  }
-
-  if (!is.null(prob) & mode(prob) != "numeric") {
-    stop("Please provide a numeric vector to `prob` for draw_count.")
-  }
-
-  if (link == "logit") {
-    if (is.null(latent)) {
-      stop("Please provide a vector of the latent response when you choose the logit link.")
-    }
-    prob <- 1 / (1 + exp(-latent))
-  } else if (link == "probit") {
-    if (is.null(latent)) {
-      stop("Please provide a vector of the latent response when you choose the logit link.")
-    }
-    prob <- pnorm(latent)
-  } else if (link == "identity") {
-    if (is.null(prob)) {
-      stop("Please provide a vector of the probability of a `yes` response when you choose the identity link.")
-    }
-    if (!all(0 < prob & prob < 1)) {
-      stop(
-        "You chose the identity link, which means your vector should be probabilities. Some values of your vector are outside of (0, 1)."
-      )
-    }
-  }
-
-  rbinom(n = length(vector),
-         size = k,
-         prob = prob)
+draw_binary <- function(x, link = "identity") {
+  return(draw_discrete(
+    x,
+    type = "binary",
+    link = link,
+    k = 1
+  ))
 }
