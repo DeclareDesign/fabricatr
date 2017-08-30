@@ -45,6 +45,77 @@ my_data <-
 my_data
 ```
 
+# Fabricating variables
+
+You can use any R function to fabricate a variable. For example, if you want to fabricate a random normal variable, you can use the base `R` function `rnorm()`, i.e.:
+
+```{r}
+fabricate(N = 3, normal_var = rnorm(N))
+```
+
+Now, what if you want to fabricate discrete variables like binary variables or counts?
+
+## Binary can be called as binary, bernoulli, or binomial
+
+```{r}
+fabricate(N = 3, p = c(0, .5, 1), binary = draw_discrete(p))
+```
+
+
+##  Binary can be called as binary, bernoulli, or binomial
+```{r}
+fabricate(N = 3, p = c(0, .5, 1), binary = draw_discrete(p, type = "bernoulli"))
+```
+
+## Binary with link
+```{r}
+fabricate(N = 3, x = 10*rnorm(N), binary = draw_discrete(x, type = "bernoulli", link = "probit"))
+```
+
+##  Binomial
+
+```{r}
+fabricate(N = 3, p = c(0, .5, 1), binomial = draw_discrete(p, type = "binomial", k = 10))
+```
+
+## Binomial with link
+
+```{r}
+fabricate(N = 3, x = 10*rnorm(N), binomial = draw_discrete(x, type = "binomial", k = 10, link = "logit"))
+```
+
+##  Ordered requires cutoffs
+
+```{r}
+set.seed(1)
+fabricate(N = 3, x = 5*rnorm(N), ordered = draw_discrete(x, type = "ordered", breaks = c(-Inf, -1, 1, Inf)))
+```
+
+This really just cuts the data
+
+## Ordered probit
+```{r}
+set.seed(1)
+fabricate(N = 3, x = 5*rnorm(N), ordered = draw_discrete(x, type = "ordered", breaks = c(-Inf, -1, 1, Inf), link = "probit"))
+```
+This is actually ordered probit since x is normal.
+
+## Count is poisson
+```{r}
+fabricate(N = 3, x = c(0,5,100), count = draw_discrete(x, type = "count"))
+```
+
+Negative binomial easily added. Currently takes lamda as argument though could easily take a real number or a probability.
+
+## Categorical  takes as input a matrix of probabilities (that get normalized if they do not sum to 1)
+```{r}
+fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),
+          cat = draw_discrete(cbind(p1, p2, p3), type = "categorical"))
+```
+
+This could also be set up to take latent variables in the style of multinomial probit or multinomial logit.
+
+
 # Bringing in your own data
 
 An essential part of imagining your data before you collect it is the ability to build on the data you all ready have.   
@@ -170,6 +241,4 @@ my_data <-
 data_frame(Y = sample(1:10, 2)) %>%
   fabricate(lower_level = level(N = 3, Y2 = Y + rnorm(N)))
 my_data
-
-
 ```
