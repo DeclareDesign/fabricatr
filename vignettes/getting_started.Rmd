@@ -139,8 +139,8 @@ my_endline
 Suppose you wanted to bootstrap from your baseline survey.
 
 ```{r}
-bootsrapped_data <- resample_data(baseline_survey, N = 10)
-bootsrapped_data
+bootstrapped_data <- resample_data(baseline_survey, N = 10)
+bootstrapped_data
 ```
 
 The real utility of this function comes when bootstrapping from hierarchical data.  The example below takes a dataset that contains 2 cities, each with 3 citizens, then bootstraps to 3 cities, each with 5 citizens.
