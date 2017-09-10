@@ -3,6 +3,7 @@
 #' Drawing discrete data based on probabilities or latent traits is a common task that can be cumbersome. \code{draw_binary} is an alias for \code{draw_discrete(type = "binary")} that allows you to draw binary outcomes more easily.
 #'
 #' @param x vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity"). For cartegorical distributions x is a matrix with as many columns as possible outcomes.
+#' @param N number of units to draw. Defaults to the length of the vector \code{x}
 #' @param type type of discrete outcome to draw, one of 'binary' (or 'bernoulli'), 'binomial', 'categorical', 'ordered' or 'count'
 #' @param link link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.
 #' @param breaks vector of breaks to cut an ordered latent outcome
@@ -43,6 +44,7 @@
 #'          cat = draw_discrete(cbind(p1, p2, p3), type = "categorical"))
 draw_discrete <-
   function(x,
+           N = length(x),
            type = "binary",
            link = "identity",
            breaks = c(-Inf, 0, Inf),
@@ -83,24 +85,22 @@ draw_discrete <-
       }
       if (link == "identity")
         if (!all(0 <= x & x <= 1)) {
-          warning("The identity link requires values between 0 and 1, inclusive")
+          warning("The identity link requires values between 0 and 1, inclusive.")
         }
 
-      n <- length(x)
-      out <- rbinom(n, k, prob)
+      out <- rbinom(N, k, prob)
 
     } else if (type == "binomial")   {
       if (link == "identity")
         if (!all(0 <= x & x <= 1)) {
-          warning("The identity link requires values between 0 and 1, inclusive")
+          warning("The identity link requires values between 0 and 1, inclusive.")
         }
 
-      n <- length(x)
-      out <- rbinom(n, k, prob)
+      out <- rbinom(N, k, prob)
 
     } else if (type == "ordered") {
-      if (link == "probit"){
-        x <- x + rnorm(length(x))
+      if (link == "probit") {
+        x <- x + rnorm(N)
       }
 
       out <- cut(x, breaks, labels = break_labels) - 1
@@ -110,8 +110,7 @@ draw_discrete <-
         stop("Count data does not accept link functions.")
       }
 
-      n <- length(x)
-      out <- rpois(n, lambda = x)
+      out <- rpois(N, lambda = x)
 
       ## Categorical
 
@@ -135,9 +134,10 @@ draw_discrete <-
 
 #' @rdname draw_discrete
 #' @export
-draw_binary <- function(x, link = "identity") {
+draw_binary <- function(x, N = length(x), link = "identity") {
   return(draw_discrete(
     x,
+    N = N,
     type = "binary",
     link = link,
     k = 1

@@ -5,13 +5,15 @@
 \alias{draw_binary}
 \title{Draw discrete variables including binary, binomial count, poisson count, ordered, and categorical}
 \usage{
-draw_discrete(x, type = "binary", link = "identity", breaks = c(-Inf, 0,
-  Inf), break_labels = FALSE, k = 1)
+draw_discrete(x, N = length(x), type = "binary", link = "identity",
+  breaks = c(-Inf, 0, Inf), break_labels = FALSE, k = 1)
 
-draw_binary(x, link = "identity")
+draw_binary(x, N = length(x), link = "identity")
 }
 \arguments{
 \item{x}{vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity"). For cartegorical distributions x is a matrix with as many columns as possible outcomes.}
+
+\item{N}{number of units to draw. Defaults to the length of the vector \code{x}}
 
 \item{type}{type of discrete outcome to draw, one of 'binary' (or 'bernoulli'), 'binomial', 'categorical', 'ordered' or 'count'}
 
