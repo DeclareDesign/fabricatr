@@ -103,7 +103,8 @@ draw_discrete <-
         x <- x + rnorm(N)
       }
 
-      out <- cut(x, breaks, labels = break_labels) - 1
+      # out <- cut(x, breaks, labels = break_labels) - 1
+      out <- cut(x, breaks, labels = break_labels)
 
     } else if (type == "count") {
       if (link != "identity") {

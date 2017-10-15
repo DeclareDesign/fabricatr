@@ -25,6 +25,13 @@ test_that("Variable functions", {
   draw_discrete(runif(5, 0, 5), type = "count", k = 5)
   draw_discrete(runif(5, 0, 1), type = "count", k = 5)
 
+  draw_discrete(rnorm(5),
+                type = "ordered",
+                breaks = c(-Inf, -1, 0, 1, Inf),
+                break_labels = c("A", "B", "C", "D"))
+
+
+
   expect_error(draw_binary(data.frame(my_variable = runif(5, 0, 1))))
   expect_error(draw_count(data.frame(runif(5, 0, 1)), k = 5))
 
