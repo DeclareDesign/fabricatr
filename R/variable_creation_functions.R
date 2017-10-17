@@ -161,7 +161,7 @@ draw_discrete <-
       if(any(breaks[1] > x) | any(breaks[length(breaks)] < x)) {
         stop("Numeric break endpoints should be outside min/max of x data range.")
       }
-      if(!is.na(break_labels) & !is.null(break_labels) & length(break_labels) != length(breaks)-1) {
+      if(is.vector(break_labels) & !is.logical(break_labels) & all(!is.na(break_labels)) & length(break_labels) != length(breaks)-1) {
         stop("Break labels should be of length one less than breaks.")
       }
 
