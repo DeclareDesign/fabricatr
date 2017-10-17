@@ -98,12 +98,34 @@ test_that("Variable functions", {
   # Invalid categorical draws
   expect_error(draw_discrete(x=c(-1, 0, -0.5), N=3, type="categorical")) # Negative probability
   expect_error(draw_discrete(x="invalid", N=3, type="categorical")) # Non-numeric probability
-  expect_error(draw_discrete(x=c(0.5, 0.75), N=10, type="categorical", link="probit")) # Link functions not accepted
+  expect_error(draw_discrete(x=c(0.5, 0.75),
+                             N=10, type="categorical", link="probit")) # Link functions not accepted
 
   # Valid categorical draw
-  draw_discrete(x=matrix(rep(c(0.3, 0.3, 0.4), 3), byrow=TRUE, ncol=3, nrow=3), N=3, type="categorical")
+  draw_discrete(x=matrix(rep(c(0.3, 0.3, 0.4), 3), byrow=TRUE, ncol=3, nrow=3),
+                N=3, type="categorical")
 
   # Convert vector of probabilities to matrix of probabilities
   expect_warning(draw_discrete(x=c(0.3, 0.3, 0.4), N=3, type="categorical"))
 
+  # Ordered data break test
+  expect_error(draw_discrete(x=rnorm(5), type="ordered",
+                             breaks=NA, break_labels=NA)) # Need to specify breask
+  expect_error(draw_discrete(x=rnorm(5), type="ordered",
+                             breaks=c("invalid", "break", "test"), break_labels=NA)) # Non-numeric breaks
+  expect_error(draw_discrete(x=rnorm(5), type="ordered",
+                             breaks=c(1, 2), break_labels=NA)) # Insufficient number of breaks
+  expect_error(draw_discrete(x=rnorm(5), type="ordered",
+                             breaks=c(1, 3, 2), break_labels=NA)) # Breaks out of order
+  expect_error(draw_discrete(x=rnorm(5), type="ordered",
+                             breaks=c(10, 20, 30), break_labels=NA)) # Break endpoints above data
+  expect_error(draw_discrete(x=rnorm(5), type="ordered",
+                             breaks=c(-50, -40, -30), break_labels=NA)) # Break endpoints below data
+  expect_error(draw_discrete(x=rnorm(5), type="ordered",
+                             breaks=c(-Inf, 0, Inf), break_labels=c(1))) # Invalid length break labels.
+
+  draw_discrete(rnorm(5),
+                type = "ordered",
+                breaks = c(-Inf, -1, 0, 1, Inf),
+                break_labels = c("A", "B", "C", "D"))
 })

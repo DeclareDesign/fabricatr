@@ -143,7 +143,29 @@ draw_discrete <-
         x <- x + rnorm(N)
       }
 
-      out <- cut(x, breaks, labels = break_labels) - 1
+      if (is.null(breaks) | any(is.na(breaks))) {
+        stop("You must specify numeric breaks for ordered data.")
+      }
+      if (any(!is.numeric(breaks))) {
+        stop("All breaks specified for ordered data must be numeric.")
+      }
+      if (is.matrix(breaks) | is.data.frame(breaks)) {
+        stop("Numeric breaks must be a vector.")
+      }
+      if (length(breaks) < 3) {
+        stop("Numeric breaks for ordered data must be of at least length 3.")
+      }
+      if (!all(sort(breaks) == breaks)) {
+        stop("Numeric breaks must be in ascending order.")
+      }
+      if(any(breaks[1] > x) | any(breaks[length(breaks)] < x)) {
+        stop("Numeric break endpoints should be outside min/max of x data range.")
+      }
+      if(!is.na(break_labels) & !is.null(break_labels) & length(break_labels) != length(breaks)-1) {
+        stop("Break labels should be of length one less than breaks.")
+      }
+
+      out <- cut(x, breaks, labels = break_labels)
 
     } else if (type == "count") {
       if (link != "identity") {
