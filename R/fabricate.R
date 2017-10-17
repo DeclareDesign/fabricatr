@@ -84,7 +84,7 @@ fabricate <-
     }
 
     # Processing user-provided data frame
-    if (!is.null(data) & !any(class(data) == "data.frame")) {
+    if (!any(is.null(data)) & !any(class(data) == "data.frame")) {
       # Not a data frame, but we might be able to make it one
       if(any(class(data) == "matrix")) {
         conversion_result = tryCatch({
@@ -95,10 +95,16 @@ fabricate <-
           )
         })
       } else {
-        # Not a data frame, need to error out.
-        stop(
-          "Please provide a data object to the data argument, e.g. a data.frame, tibble, or sf object."
-        )
+        if(!"data" %in% names(sys.call())) {
+          stop(
+            "The data argument must be a data object. The argument call, ", deparse(substitute(data)), ", was not a data object (e.g. a data.frame, tibble, sf object, or convertible matrix)."
+          )
+        } else {
+          # Not a data frame, need to error out.
+          stop(
+            "Please provide a data object to the data argument, e.g. a data.frame, tibble, convertible matrix, or sf object."
+          )
+        }
       }
     }
 
@@ -166,8 +172,11 @@ fabricate_data_single_level <- function(data = NULL,
                                         existing_ID = FALSE) {
 
   # This should have been taken care of by fabricate, but let's ensure at this level as well
-  if (sum(!is.null(data),!is.null(N)) != 1) {
-    stop("Please supply either a data.frame or N and not both.")
+  if(is.null(data) & is.null(N)) {
+    stop("You must provide either the data argument or the N argument to fabricate single-level data.")
+  }
+  if (sum(!is.null(data),!is.null(N)) > 1) {
+    stop("You must provide either the data argument or the N argument, but not both. Currently, data=", deparse(data), " and N=", deparse(N))
   }
 
   # If we provided an N, it must be sane
@@ -179,7 +188,7 @@ fabricate_data_single_level <- function(data = NULL,
       )
     }
     # N is not numeric or else it's a non-integer number.
-    if (!is.numeric(N) | (!is.integer(N) & !is.vector(N))) {
+    if(length(N) == 1 & is.numeric(N) & any(!N%%1 == 0)) {
       stop(paste0(
         "The provided N must be an integer number. Provided N was of type ",
         typeof(N)

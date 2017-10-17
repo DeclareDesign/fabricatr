@@ -104,6 +104,22 @@ test_that("trigger errors", {
   expect_error(fabricate(level(N = 5,
                                     gdp = rnorm(N))))
 
+  # No N, no data
+  expect_error(fabricate(test1 = runif(10), test2 = test1 * 3 * runif(10, 1, 2)))
+
+  # Non-integer N:
+  expect_error(fabricate(N = 3.5, test1=runif(3)))
+
+  # Vector N:
+  expect_error(fabricate(N = c(3, 4), test1=runif(3)))
+  expect_error(fabricate(N = c(3, 4), test1=runif(3), ID_label="my_id"))
+
+  # Non-numeric N
+  expect_error(fabricate(N = "hello", test1=runif(3)))
+
+  # Negative N
+  expect_error(fabricate(N = -1, test1=runif(10)))
+
   # must send a data frame to data
   expect_error(user_data <-
                  fabricate(data = c(5)))
