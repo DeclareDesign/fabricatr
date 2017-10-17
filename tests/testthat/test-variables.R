@@ -53,10 +53,10 @@ test_that("Variable functions", {
   expect_error(draw_binary()) # No arguments
   expect_error(draw_binary(N=10)) # Missing probability
   expect_error(draw_binary(x=c(0.3, 0.4, 0.5), N=10)) # Not a multiple, don't want to recycle
+  expect_warning(draw_discrete(x=c(0.5, 0.9), type="binary", N=10, k=2)) # Invalid k for binary data
 
   # Valid binary data
   draw_binary(x=c(0.5, 0.9), N=10)
-
 
   # Binomial data, invalid probabilities
   expect_error(draw_discrete(x=-1, N=10, type="binomial")) # Negative
@@ -64,6 +64,9 @@ test_that("Variable functions", {
   expect_error(draw_discrete(x=1.2, N=10, type="binomial")) # Positive outside 0-1
   expect_error(draw_discrete(x=c(0.5, 0.5, "invalid mixed"), N=10, type="binomial")) # Mixed non-numeric
   expect_error(draw_discrete()) # No arguments
+  expect_error(draw_discrete(x=0.3, N=10, k=2.5, type="binomial")) # Non-integer k
+  expect_error(draw_discrete(x=0.3, N=10, k=c(2.5, 3), type="binomial")) # Non-integer k, mixed trials num.
+
   expect_error(draw_discrete(N=10, type="binomial")) # Missing probability
   expect_error(draw_discrete(x=c(0.3, 0.4, 0.5), N=10, type="binomial")) # Not a multiple, don't want to recycle
 
@@ -71,6 +74,7 @@ test_that("Variable functions", {
   expect_error(draw_discrete(x=c(0.2, 0.8), k=NA, type="binomial")) # NA
   expect_error(draw_discrete(x=c(0.2, 0.8), k="invalid", type="binomial")) # Character
   expect_error(draw_discrete(x=c(0.2, 0.8), k=0.5, type="binomial")) # Non-integer
+  expect_error(draw_discrete(x=c(0.2, 0.8), k=c(1, 0.5), type="binomial")) # Non-integer mixed
   expect_error(draw_discrete(x=c(0.2, 0.8), k=-1, type="binomial")) # Negative integer
   expect_error(draw_discrete(x=c(0.2, 0.8), k=c(10, 100, 1000), type="binomial")) # Non-multiple
   expect_error(draw_discrete(x=c(0.2, 0.8), k=c(10, "mixed invalid"), type="binomial")) # Mixed non-integer
@@ -98,6 +102,7 @@ test_that("Variable functions", {
   # Invalid categorical draws
   expect_error(draw_discrete(x=c(-1, 0, -0.5), N=3, type="categorical")) # Negative probability
   expect_error(draw_discrete(x="invalid", N=3, type="categorical")) # Non-numeric probability
+  expect_error(draw_discrete(x=0.3, N=3, type="categorical")) # Only one class label
   expect_error(draw_discrete(x=c(0.5, 0.75),
                              N=10, type="categorical", link="probit")) # Link functions not accepted
 
@@ -110,7 +115,7 @@ test_that("Variable functions", {
 
   # Ordered data break test
   expect_error(draw_discrete(x=rnorm(5), type="ordered",
-                             breaks=NA, break_labels=NA)) # Need to specify breask
+                             breaks=NA, break_labels=NA)) # Need to specify breaks
   expect_error(draw_discrete(x=rnorm(5), type="ordered",
                              breaks=c("invalid", "break", "test"), break_labels=NA)) # Non-numeric breaks
   expect_error(draw_discrete(x=rnorm(5), type="ordered",
@@ -122,10 +127,20 @@ test_that("Variable functions", {
   expect_error(draw_discrete(x=rnorm(5), type="ordered",
                              breaks=c(-50, -40, -30), break_labels=NA)) # Break endpoints below data
   expect_error(draw_discrete(x=rnorm(5), type="ordered",
+                             breaks=matrix(rep(c(0, 1, 2), 3), byrow=TRUE, ncol=3, nrow=3))) # Non-vector breaks
+  expect_error(draw_discrete(x=rnorm(5), type="ordered",
                              breaks=c(-Inf, 0, Inf), break_labels=c(1))) # Invalid length break labels.
 
+  # Identity link
   draw_discrete(rnorm(5),
                 type = "ordered",
                 breaks = c(-Inf, -1, 0, 1, Inf),
                 break_labels = c("A", "B", "C", "D"))
+
+  # Probit link
+  draw_discrete(rnorm(5),
+                type = "ordered",
+                breaks = c(-Inf, 0, Inf),
+                break_labels = c("A", "B"),
+                link="probit")
 })
