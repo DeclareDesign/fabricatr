@@ -114,7 +114,7 @@ draw_discrete <-
           )
         }
       }
-      if(!is.null(dim(x))) {
+      if(!is.null(dim(k))) {
         stop(
           "Number of trials must be an integer or vector, not higher-dimensional."
         )
@@ -169,12 +169,6 @@ draw_discrete <-
     } else if (type == "count") {
       if (link != "identity") {
         stop("Count data does not accept link functions.")
-      }
-
-      if (any(!is.numeric(x))) {
-        stop(
-          "All provided count values must be numbers."
-        )
       }
 
       if (any(x < 0)) {
