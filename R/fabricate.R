@@ -102,15 +102,26 @@ fabricate <-
       }
     }
 
-    # If there's a user-supplied ID level, substitute and convert to a character.
-    ID_label <- substitute(ID_label)
-    if (!is.null(ID_label)) {
-      if (is.vector(ID_label) & length(ID_label) > 1) {
-        stop(
-          "Provided ID label is a vector of length more than one. Please leave ID_label empty or provide a single character string as ID_label."
-        )
-      } else {
+    # ID label is a non-standard evaluated variable name
+    if(is.symbol(substitute(ID_label))) {
+      ID_label <- substitute(ID_label)
+      # Ensure it's not null, in case substitution still passed a null
+      if(!is.null(ID_label)) {
         ID_label <- as.character(ID_label)
+      }
+    } else if(!is.null(ID_label)) {
+      if(is.vector(ID_label) & length(ID_label) > 1) {
+        # Vector of length n>1, error
+        stop("Provided ID_label must be a character vector of length 1 or variable name.")
+      } else if(is.vector(ID_label) & is.numeric(ID_label[1])) {
+        # Numeric ID_label
+        warning("Provided ID_label is numeric and will be prefixed with the character \"X\"")
+        ID_label <- as.character(ID_label)
+      } else if(is.vector(ID_label) & is.character(ID_label[1])) {
+        # Valid ID_label
+        ID_label <- as.character(ID_label)
+      } else if(!is.null(dim(ID_label))) {
+        stop("Provided ID_label must be a character vector or variable name, not a data frame or matrix.")
       }
     }
 

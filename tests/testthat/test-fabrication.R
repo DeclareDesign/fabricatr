@@ -40,6 +40,9 @@ test_that("Fabricate", {
     regions = level(N = 5, gdp = runif(N)),
     cities = level(N = sample(1:5), subways = rnorm(N, mean = 5))
   )
+
+  # User provides matrix, test conversion.
+  fabricate(data = matrix(rep(c(1, 2, 3), 3), byrow=TRUE, ncol=3, nrow=3))
 })
 
 test_that("use a function to choose N of a level", {
@@ -105,4 +108,16 @@ test_that("trigger errors", {
   expect_error(user_data <-
                  fabricate(data = c(5)))
 
+  # Vector as ID_label
+  expect_error(fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=c("invalid", "id")))
+  # Matrix as ID_label
+  expect_error(fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=matrix(rep(c(1,2,3),3), byrow=TRUE, ncol=3, nrow=3)))
+  # Numeric as ID_label
+  expect_warning(fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=7))
+  # Character as ID_label
+  fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label="hello")
+  fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=c("hello"))
+  # Symbol as ID_label
+  fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=test1)
+  fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=test3)
 })
