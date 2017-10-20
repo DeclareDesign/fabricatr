@@ -66,7 +66,7 @@ level <-
           unique(data_internal_[, unique(c(ID_label, level_variables)),
                                 drop = FALSE])
 
-        data <- fabricate_data_single_level(data, NULL, ID_label, existing_id = TRUE, options=dots)
+        data <- fabricate_data_single_level(data, NULL, ID_label, existing_ID = TRUE, options=dots)
 
         return(merge(
           data_internal_[, colnames(data_internal_)[!(colnames(data_internal_) %in%
