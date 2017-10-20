@@ -127,12 +127,17 @@ fabricate_data_single_level <- function(data = NULL,
         ", you must provide a single number to N."
       )
     }
-    data <- genID(data.frame(), ifelse(is.null(ID_label), "ID", ID_label), N)
-  } else if (!is.null(data)){
-    if (existing_ID == FALSE) {
-      data <- genID(data, ifelse(is.null(ID_label), "ID", ID_label))
-    }
+    data <- data.frame()
+    existing_ID <- FALSE
+  } else if(!is.null(data)){
+    N <- nrow(data)
   }
+
+  if (!existing_ID) {
+    if(is.null(ID_label)) ID_label <- "ID"
+    data <- genID(data, ID_label, N)
+  }
+
 
   fab(data, options)
 }
