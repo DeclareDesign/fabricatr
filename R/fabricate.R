@@ -51,24 +51,20 @@
 #'
 #' @export
 fabricate <-
-  function(data = NULL,
-           N = NULL,
-           ID_label = NULL,
+  function(data,
+           N,
+           ID_label,
            ...) {
     options <- quos(...)
 
     all_levels <- check_all_levels(options)
 
-    if (!is.null(data) && !"data.frame"  %in% class(data)) {
+    if (!missing(data) && !"data.frame"  %in% class(data)) {
       stop(
         "Please provide a data object to the data argument, e.g. a data.frame, tibble, or sf object."
       )
     }
 
-    ID_label <- substitute(ID_label)
-    if (!is.null(ID_label)) {
-      ID_label <- as.character(ID_label)
-    }
 
     # check if all the options are level calls
     if (all_levels) {
@@ -76,7 +72,7 @@ fabricate <-
         # Pop the data from the previous level in the current call
         # Do this if there existing data to start with or
         #   and beginning with the second level
-        if (i > 1 | !is.null(data)) {
+        if (i > 1 | !missing(data)) {
           options[[i]] <- lang_modify(options[[i]], data_internal_ = data)
         }
 
@@ -92,6 +88,15 @@ fabricate <-
       return(data)
 
     } else {
+      if(missing(data)) data <- NULL
+      if(missing(N)) N <- NULL
+      if(missing(ID_label)) ID_label <- NULL
+
+      ID_label <- substitute(ID_label)
+      if (!is.null(ID_label)) {
+        ID_label <- as.character(ID_label)
+      }
+
       fabricate_data_single_level(
         data = data,
         N = N,
