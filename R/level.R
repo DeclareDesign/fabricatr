@@ -50,14 +50,7 @@ level <-
                             N = N)
 
         # now that data_internal_ is the right size, pass to "mutate", i.e., simulate data
-
-        options <- lang_modify(dots,
-                               data = data_internal_,
-                               N = NULL,
-                               ID_label = ID_label)
-        level_call <- quo(fabricate_data_single_level(!!!options))
-
-        return(eval_tidy(level_call))
+        return(fabricate_data_single_level(data_internal_, NULL, ID_label, options=dots))
 
       } else {
         # otherwise assume you are adding variables to an existing level
@@ -73,18 +66,7 @@ level <-
           unique(data_internal_[, unique(c(ID_label, level_variables)),
                                 drop = FALSE])
 
-        # set up
-        options <- lang_modify(
-          dots,
-          data = data,
-          N = NULL,
-          ID_label = ID_label,
-          existing_ID = TRUE
-        )
-
-        level_call <- quo(fabricate_data_single_level(!!!options))
-
-        data <- eval_tidy(level_call)
+        data <- fabricate_data_single_level(data, NULL, ID_label, existing_id = TRUE, options=dots)
 
         return(merge(
           data_internal_[, colnames(data_internal_)[!(colnames(data_internal_) %in%
