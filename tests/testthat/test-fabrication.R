@@ -121,8 +121,7 @@ test_that("trigger errors", {
   expect_error(fabricate(N = -1, test1=runif(10)))
 
   # must send a data frame to data
-  expect_error(user_data <-
-                 fabricate(data = c(5)))
+  expect_error(user_data <- fabricate(data = c(5)))
 
   # Vector as ID_label
   expect_error(fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=c("invalid", "id")))
