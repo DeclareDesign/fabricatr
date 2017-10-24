@@ -32,37 +32,7 @@ level <-
 
       ## if data is not provided to fabricate, this part handles the case
       ##   of the top level, where data must be created for the first time
-      if (is.null(N)) {
-        stop(
-          paste0(
-            "At the top level, ",
-            ID_label,
-            ", you must provide N if you did not provide data to fabricate."
-          )
-        )
-      }
-      if (length(N) > 1) {
-        stop(paste0(
-          "At the top level, ",
-          ID_label,
-          ", you must provide a single number to N."
-        ))
-      }
-
-      # make IDs that are nicely padded
-      data_internal_ <-
-        data.frame(sprintf(paste0("%0", nchar(N), "d"), 1:N), stringsAsFactors = FALSE)
-      colnames(data_internal_) <- ID_label
-
-      # now that data_internal_ is the right size, pass to "mutate", i.e., simulate data
-
-      options <- lang_modify(dots,
-                             data = data_internal_,
-                             N = NULL,
-                             ID_label = ID_label)
-      level_call <- quo(fabricate_data_single_level(!!!options))
-
-      return(eval_tidy(level_call))
+      return(fabricate_data_single_level(N=N, ID_label=ID_label, options=dots))
 
     } else {
       # at the second level, after data is created, or at the top level if data is provided
@@ -80,14 +50,7 @@ level <-
                             N = N)
 
         # now that data_internal_ is the right size, pass to "mutate", i.e., simulate data
-
-        options <- lang_modify(dots,
-                               data = data_internal_,
-                               N = NULL,
-                               ID_label = ID_label)
-        level_call <- quo(fabricate_data_single_level(!!!options))
-
-        return(eval_tidy(level_call))
+        return(fabricate_data_single_level(data_internal_, NULL, ID_label, options=dots))
 
       } else {
         # otherwise assume you are adding variables to an existing level
@@ -103,18 +66,7 @@ level <-
           unique(data_internal_[, unique(c(ID_label, level_variables)),
                                 drop = FALSE])
 
-        # set up
-        options <- lang_modify(
-          dots,
-          data = data,
-          N = NULL,
-          ID_label = ID_label,
-          existing_ID = TRUE
-        )
-
-        level_call <- quo(fabricate_data_single_level(!!!options))
-
-        data <- eval_tidy(level_call)
+        data <- fabricate_data_single_level(data, NULL, ID_label, existing_ID = TRUE, options=dots)
 
         return(merge(
           data_internal_[, colnames(data_internal_)[!(colnames(data_internal_) %in%

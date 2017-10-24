@@ -5,7 +5,7 @@
 \alias{level}
 \title{Fabricate data}
 \usage{
-fabricate(data = NULL, N = NULL, ID_label = NULL, ...)
+fabricate(data, N, ID_label, ...)
 
 level(N = NULL, ...)
 }
