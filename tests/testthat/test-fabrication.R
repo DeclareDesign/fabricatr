@@ -136,4 +136,7 @@ test_that("trigger errors", {
   # Symbol as ID_label
   fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=test1)
   fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=test3)
+
+  # Unusual test with implicit data argument
+  expect_error(fabricate(N=10, 1:N))
 })
