@@ -60,9 +60,23 @@ fabricate <-
     all_levels <- check_all_levels(options)
 
     if (!missing(data) && !"data.frame"  %in% class(data)) {
-      stop(
-        "Please provide a data object to the data argument, e.g. a data.frame, tibble, or sf object."
-      )
+      if(is.null(dim(data))) {
+          stop(
+            "User provided data must be a data frame. Provided data was low dimensional."
+          )
+      }
+      if(!"data" %in% names(sys.call())) {
+        stop(
+          "The data argument must be a data object. The argument call, ", deparse(substitute(data)), ", was not a data object (e.g. a data.frame, tibble, sf object, or convertible matrix)."
+        )
+      }
+      tryCatch({
+        data = as.data.frame(data)
+      }, error=function(e) {
+        stop(
+          "User provided data could not convert to a data frame."
+        )
+      })
     }
 
 
@@ -92,9 +106,26 @@ fabricate <-
       if(missing(N)) N <- NULL
       if(missing(ID_label)) ID_label <- NULL
 
-      ID_label <- substitute(ID_label)
-      if (!is.null(ID_label)) {
-        ID_label <- as.character(ID_label)
+      if(is.symbol(substitute(ID_label))) {
+        ID_label <- substitute(ID_label)
+        if (!is.null(ID_label)) {
+          ID_label <- as.character(ID_label)
+        }
+      } else if(!is.null(ID_label)) {
+        if(is.vector(ID_label) & length(ID_label) > 1) {
+          # Vector of length n>1, error
+          stop("Provided ID_label must be a character vector of length 1 or variable name.")
+        } else if(is.vector(ID_label) & is.numeric(ID_label[1])) {
+          # Numeric ID_label
+          warning("Provided ID_label is numeric and will be prefixed with the character \"X\"")
+          ID_label <- as.character(ID_label)
+        } else if(is.vector(ID_label) & is.character(ID_label[1])) {
+          # Valid ID_label
+          ID_label <- as.character(ID_label)
+        } else if(!is.null(dim(ID_label))) {
+          # Higher dimensional ID_label
+          stop("Provided ID_label must be a character vector or variable name, not a data frame or matrix.")
+        }
       }
 
       fabricate_data_single_level(
@@ -121,12 +152,36 @@ fabricate_data_single_level <- function(data = NULL,
 
   if (!is.null(N)) {
     if (length(N) != 1) {
-      stop(
-        "At the top level, ",
-        ID_label,
-        ", you must provide a single number to N."
-      )
+      if(is.null(ID_label)) {
+        stop(
+          "At the top level, you must provide a single number to N."
+          )
+      } else {
+        stop(
+          "At the top level, ",
+          ID_label,
+          ", you must provide a single number to N."
+        )
+      }
     }
+
+    if(is.numeric(N) & any(!N%%1 == 0)) {
+      stop(paste0(
+        "The provided N must be an integer number. Provided N was of type ",
+        typeof(N)
+      ))
+    }
+
+    if(!is.numeric(N)) {
+      tryCatch({
+        N = as.numeric(N)
+      }, error=function(e) {
+        stop(
+          "The provided value for N must be an integer number."
+        )
+      })
+    }
+
     data <- data.frame()
     existing_ID <- FALSE
   } else if(!is.null(data)){
@@ -180,7 +235,6 @@ fab <- function(data, args) {
 check_all_levels <- function(options){
 
   if (length(options) == 0)  return(FALSE)
-
 
   is_function <- sapply(options, function(i) {
       is_lang(get_expr(i))
