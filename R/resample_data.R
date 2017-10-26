@@ -65,17 +65,19 @@ resample_data = function(data, N, ID_labels=NULL) {
   # Do the current bootstrap level
   current_boot_values = unique(data[, ID_labels[1]])
   sampled_boot_values = sample(1:length(current_boot_values), N[1], replace=TRUE)
+  # Split indices of data frame by the thing we're strapping on
+  split_data_on_boot_id = split(1:nrow(data), data[,ID_labels[1]])
 
   # Iterate over each thing chosen at the current level
-
   results_all = lapply(sampled_boot_values, function(i) {
+    # Now just get the row IDs from the current bootstrap index and subset using that.
     new_results = resample_data(
-      data[data[, ID_labels[1]] == current_boot_values[i], ],
+      data[unlist(split_data_on_boot_id[i]), ],
       N=N[2:length(N)],
       ID_labels=ID_labels[2:length(ID_labels)]
       )
   })
-  #res = rbindlist(results_all)
+  #res = rbindlist(results_all) # Still trying to decide if we want to add dependencies.
   res = do.call(rbind, results_all)
   rownames(res) = NULL
   # Return to preceding level
@@ -92,16 +94,14 @@ bootstrap_single_level <- function(data, ID_label = NULL, N) {
     } else if(!ID_label %in% colnames(data)) {
       stop("ID label provided is not a column in the data being bootstrapped.")
     }  else {
-      # Bootstrapping unique values of ID_label (i.e. cluster selection when data
-      # are observations, not clusters
-      boot_ids <-
-        sample(unique(data[, ID_label]), size = N, replace = TRUE)
-      # Need to do the unlist-apply approach to ensure each row
-      # is appropriately duplicated. Faster than other ways to map
-      # cluster ids to row ids.
-      boot_indices <- unlist(lapply(boot_ids, function(i) {
-        which(data[, ID_label] == i)
-      }))
+      # What clusters are we bootstrapping over?
+      cluster_IDs = unique(data[, ID_label])
+      # Get cluster IDs (not the actual cluster values, the indices of the clusters)
+      boot_ids = sample(1:length(cluster_IDs), size=N, replace=TRUE)
+      # Split data by cluster ID, storing all row indices associated with that cluster ID
+      indices_split = split(1:nrow(data), data[, ID_label])
+      # Get all row indices associated with every cluster ID combined
+      boot_indices = unlist(indices_split[boot_ids])
     }
     # Grab the relevant rows
     new_data <- data[boot_indices, , drop = FALSE]
