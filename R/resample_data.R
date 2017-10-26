@@ -60,26 +60,27 @@ resample_data = function(data, N, ID_labels=NULL) {
     return(bootstrap_single_level(data,
                                   N[1],
                                   ID_label=ID_labels[1]))
-  } else {
-    # Do the current bootstrap level
-    current_boot_values = unique(data[, ID_labels[1]])
-    sampled_boot_values = sample(1:length(current_boot_values), N[1], replace=TRUE)
-    app = 0
-
-    # Iterate over each thing chosen at the current level
-    results_all = lapply(sampled_boot_values, function(i) {
-      new_results = resample_data(
-        data[data[, ID_labels[1]] == i, ],
-        N=N[2:length(N)],
-        ID_labels=ID_labels[2:length(ID_labels)]
-      )
-    })
-    #res = rbindlist(results_all)
-    res = do.call(rbind, results_all)
-    rownames(res) = NULL
-    # Return to preceding level
-    return(res)
   }
+
+  # Do the current bootstrap level
+  current_boot_values = unique(data[, ID_labels[1]])
+  sampled_boot_values = sample(1:length(current_boot_values), N[1], replace=TRUE)
+  app = 0
+
+  # Iterate over each thing chosen at the current level
+
+  results_all = lapply(sampled_boot_values, function(i) {
+    new_results = resample_data(
+      data[data[, ID_labels[1]] == i, ],
+      N=N[2:length(N)],
+      ID_labels=ID_labels[2:length(ID_labels)]
+      )
+  })
+  #res = rbindlist(results_all)
+  res = do.call(rbind, results_all)
+  rownames(res) = NULL
+  # Return to preceding level
+  return(res)
 }
 
 bootstrap_single_level <- function(data, ID_label = NULL, N) {

@@ -154,7 +154,7 @@ draw_discrete <-
       if (length(breaks) < 3) {
         stop("Numeric breaks for ordered data must be of at least length 3.")
       }
-      if (!all(sort(breaks) == breaks)) {
+      if (is.unsorted(breaks)) {
         stop("Numeric breaks must be in ascending order.")
       }
       if(any(breaks[1] > x) | any(breaks[length(breaks)] < x)) {
