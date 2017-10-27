@@ -21,4 +21,5 @@ Suggests:
     dplyr,
     knitr,
     rmarkdown
+FasterWith: data.table
 VignetteBuilder: knitr
