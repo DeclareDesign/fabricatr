@@ -20,6 +20,7 @@ Suggests:
     testthat,
     dplyr,
     knitr,
-    rmarkdown
+    rmarkdown,
+    data.table
 FasterWith: data.table
 VignetteBuilder: knitr

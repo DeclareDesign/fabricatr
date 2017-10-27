@@ -29,7 +29,13 @@
 #'
 #' @export
 #'
-resample_data = function(data, N, ID_labels=NULL, outer_level=1, use_dt = 0) {
+
+resample_data = function(data, N, ID_labels=NULL) {
+  # Mask internal outer_level and use_dt arguments from view.
+  .resample_data_internal(data, N, ID_labels)
+}
+
+.resample_data_internal = function(data, N, ID_labels=NULL, outer_level=1, use_dt = 0) {
   # Handle all the data sanity checks in outer_level so we don't have redundant error
   # checks further down the recursion.
   if(outer_level) {
@@ -82,8 +88,7 @@ resample_data = function(data, N, ID_labels=NULL, outer_level=1, use_dt = 0) {
   {
     return(bootstrap_single_level(data,
                                   N[1],
-                                  ID_label=ID_labels[1],
-                                  check_sanity=0))
+                                  ID_label=ID_labels[1]))
   }
 
   # OK, if not, we need to recurse
@@ -102,7 +107,7 @@ resample_data = function(data, N, ID_labels=NULL, outer_level=1, use_dt = 0) {
     # layer that it doesn't need to sanity check and we already know
     # if data.table is around.
     # The list subset on the split is faster than unlisting
-    resample_data(
+    .resample_data_internal(
       data[split_data_on_boot_id[i][[1]], ],
       N=N[2:length(N)],
       ID_labels=ID_labels[2:length(ID_labels)],
@@ -130,7 +135,7 @@ resample_data = function(data, N, ID_labels=NULL, outer_level=1, use_dt = 0) {
   return(res)
 }
 
-bootstrap_single_level <- function(data, ID_label = NULL, N, check_sanity=1) {
+bootstrap_single_level <- function(data, ID_label = NULL, N) {
   # dim slightly faster than nrow
   if(dim(data)[1] == 0) {
     stop("Data being bootstrapped has no rows.")
