@@ -35,12 +35,13 @@ resample_data = function(data, N, ID_labels=NULL) {
   .resample_data_internal(data, N, ID_labels)
 }
 
-.resample_data_internal = function(data, N, ID_labels=NULL, outer_level=1, use_dt = 0) {
+.resample_data_internal = function(data, N, ID_labels=NULL, outer_level=1, use_dt = NA) {
   # Handle all the data sanity checks in outer_level so we don't have redundant error
   # checks further down the recursion.
   if(outer_level) {
     # Optional usage of data.table to speed up functionality
-    if(requireNamespace("data.table", quietly=T)) {
+    # Short-circuit on the is.na to only attempt the package load if necessary.
+    if(is.na(use_dt) && requireNamespace("data.table", quietly=T)) {
       use_dt = 1
     } else {
       use_dt = 0

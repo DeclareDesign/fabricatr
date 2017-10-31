@@ -6,7 +6,14 @@ test_that("Bootstrap", {
     cities = level(N = 5, subways = rnorm(N, mean = gdp))
   )
 
-  resampled_two_levels <- resample_data(two_levels, N = c(2, 2), ID_labels = c("regions", "cities"))
+  # Example with data.table codepath
+  resampled_two_levels <- resample_data(two_levels, N = c(2, 2),
+                                        ID_labels = c("regions", "cities"))
+
+  # Example without data.table codepath
+  resampled_two_levels <- .resample_data_internal(two_levels, N = c(2, 2),
+                                                  ID_labels = c("regions", "cities"),
+                                                  use_dt=0)
 
   expect_equal(nrow(resampled_two_levels), 4)
 
