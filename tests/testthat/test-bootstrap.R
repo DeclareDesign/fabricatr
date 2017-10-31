@@ -13,7 +13,7 @@ test_that("Bootstrap", {
   # Example without data.table codepath
   resampled_two_levels <- .resample_data_internal(two_levels, N = c(2, 2),
                                                   ID_labels = c("regions", "cities"),
-                                                  use_dt=0)
+                                                  use_dt=FALSE)
 
   expect_equal(nrow(resampled_two_levels), 4)
 

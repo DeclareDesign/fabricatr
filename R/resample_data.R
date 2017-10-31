@@ -35,17 +35,13 @@ resample_data = function(data, N, ID_labels=NULL) {
   .resample_data_internal(data, N, ID_labels)
 }
 
-.resample_data_internal = function(data, N, ID_labels=NULL, outer_level=1, use_dt = NA) {
+.resample_data_internal = function(data, N, ID_labels=NULL, outer_level=1, use_dt = TRUE) {
   # Handle all the data sanity checks in outer_level so we don't have redundant error
   # checks further down the recursion.
   if(outer_level) {
     # Optional usage of data.table to speed up functionality
     # Short-circuit on the is.na to only attempt the package load if necessary.
-    if(is.na(use_dt) && requireNamespace("data.table", quietly=T)) {
-      use_dt = 1
-    } else {
-      use_dt = 0
-    }
+    use_dt = use_dt && requireNamespace("data.table", quietly=T)
 
     # User didn't provide an N or an ID label, it's clear they just want a regular bootstrap
     # of N units by row.
@@ -53,11 +49,10 @@ resample_data = function(data, N, ID_labels=NULL) {
       return(bootstrap_single_level(data, dim(data)[1], ID_label=NULL))
     }
 
-    # No negative or non-numeric Ns
-    # Note: this should be rewritten when we implement the "ALL" option for a level.
+    # No negative or non-numeric Ns unless they are ALL_UNITS
     if (any(!is.numeric(N) | N%%1 | N<=0)) {
       stop(
-        "All specified Ns must be numeric and at least 1."
+        "All specified Ns must be numeric and at least 1, or the constant ALL_UNITS = TRUE to keep all units at a level."
       )
     }
 
@@ -95,11 +90,16 @@ resample_data = function(data, N, ID_labels=NULL) {
   # OK, if not, we need to recurse
 
   # Split indices of data frame by the thing we're strapping on
-  split_data_on_boot_id = split(seq_len(dim(data)[1]), data[,ID_labels[1]])
+  split_data_on_boot_id = split(seq_len(dim(data)[1]), data[[ID_labels[1]]])
 
   # Do the current bootstrap level
-  # sample.int is faster than sample(1:length(.)) or sample(seq.len(length(.))
-  sampled_boot_values = sample.int(length(split_data_on_boot_id), N[1], replace=TRUE)
+  if(!is.null(names(N[1])) && names(N[1]) == "ALL_UNITS") {
+    # Take each level once -- seq_len should be marginally faster than 1:length(.)
+    sampled_boot_values = seq_len(length(split_data_on_boot_id))
+  } else {
+    # sample.int is faster than sample(1:length(.)) or sample(seq.len(length(.))
+    sampled_boot_values = sample.int(length(split_data_on_boot_id), N[1], replace=TRUE)
+  }
 
   # Iterate over each thing chosen at the current level
   results_all = lapply(sampled_boot_values, function(i) {
@@ -149,14 +149,26 @@ bootstrap_single_level <- function(data, ID_label = NULL, N) {
     stop("ID label provided is not a column in the data being bootstrapped.")
   }
 
+  if(length(N) > 1 | !is.numeric(N) | N%%1 | N<=0) {
+    stop("For a single bootstrap level, N should be a single positive integer.")
+  }
+
   # Split data by cluster ID, storing all row indices associated with that cluster ID
   # nrow passes through transparently to dim, so this is slightly faster
-  indices_split = split(seq_len(dim(data)[1]), data[, ID_label])
+  indices_split = split(seq_len(dim(data)[1]), data[[ID_label]])
   # Get cluster IDs (not the actual cluster values, the indices of the clusters)
-  # sample.int is slightly faster than sample(1:length(.)) or sample(seq_len(length(.))
-  boot_ids = sample.int(length(indices_split), size=N, replace=TRUE)
+  if(!is.null(names(N)) && names(N) == "ALL_UNITS") {
+    # seq_len should be a little faster than 1:length(.)
+    boot_ids = seq_len(length(indices_split))
+    warning("You do not need to specify ALL_UNITS for the final level of your resampling plan. By default any excluded levels implicitly keep ALL_UNITS.")
+  } else {
+    # sample.int is slightly faster than sample(1:length(.)) or sample(seq_len(length(.))
+    boot_ids = sample.int(length(indices_split), size=N, replace=TRUE)
+  }
   # Get all row indices associated with every cluster ID combined
   boot_indices = unlist(indices_split[boot_ids], recursive=F, use.names=F)
   # Only take the indices we want (repeats will be handled properly)
   return(data[boot_indices, , drop=F])
 }
+
+
