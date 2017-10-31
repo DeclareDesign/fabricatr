@@ -152,24 +152,18 @@ fabricate_data_single_level <- function(data = NULL,
 
   if (!is.null(N)) {
     if (length(N) != 1) {
-      if(is.null(ID_label)) {
-        stop(
-          "At the top level, you must provide a single number to N."
-          )
-      } else {
-        stop(
-          "At the top level, ",
-          ID_label,
-          ", you must provide a single number to N."
-        )
-      }
-    }
-
-    if(is.numeric(N) & any(!N%%1 == 0)) {
-      stop(paste0(
+      stop(
+        "At the top level, ",
+        ifelse(!is.null(ID_label),
+               paste0(ID_label, ", "),
+               ""),
+        "you must provide a single number to N"
+      )
+    } else if(is.numeric(N) & any(!N%%1 == 0)) {
+      stop(
         "The provided N must be an integer number. Provided N was of type ",
         typeof(N)
-      ))
+      )
     }
 
     if(!is.numeric(N)) {
