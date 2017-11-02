@@ -14,7 +14,7 @@
 #' bootsrapped_data <- resample_data(baseline_survey, N = 10)
 #' bootsrapped_data
 #'
-#' # Bootstrap a hierarchical dataset
+#' # Resample a hierarchical dataset
 #'
 #' my_data <-
 #' fabricate(
@@ -35,6 +35,11 @@ resample_data = function(data, N, ID_labels=NULL) {
   .resample_data_internal(data, N, ID_labels)
 }
 
+#' Magic number constant to allow users to specify "ALL" for passthrough resampling
+#' @keywords internal
+#' @export
+ALL = -20171101L
+
 .resample_data_internal = function(data, N, ID_labels=NULL, outer_level=1, use_dt = TRUE) {
   # Handle all the data sanity checks in outer_level so we don't have redundant error
   # checks further down the recursion.
@@ -46,13 +51,20 @@ resample_data = function(data, N, ID_labels=NULL) {
     # User didn't provide an N or an ID label, it's clear they just want a regular bootstrap
     # of N units by row.
     if (missing(N) & is.null(ID_labels)) {
-      return(bootstrap_single_level(data, dim(data)[1], ID_label=NULL))
+      return(resample_single_level(data, dim(data)[1], ID_label=NULL))
     }
 
-    # No negative or non-numeric Ns unless they are ALL_UNITS
-    if (any(!is.numeric(N) | N%%1 | N<=0)) {
+    # No negative or non-numeric Ns unless they are ALL
+    if (any(!is.numeric(N) | N%%1 | (N<=0 & N!=ALL))) {
       stop(
-        "All specified Ns must be numeric and at least 1, or the constant ALL_UNITS = TRUE to keep all units at a level."
+        "All specified Ns must be numeric and at least 1, or the constant ALL to keep all units at a level and pass through."
+      )
+    }
+
+    # Provided names for ID labels AND for names attributes of N vector
+    if(!is.null(ID_labels) & !is.null(names(N))) {
+      stop(
+        "You may provide names of ID_labels as part of N or as part of the argument ID_labels but not both."
       )
     }
 
@@ -61,6 +73,18 @@ resample_data = function(data, N, ID_labels=NULL) {
       stop(
         "If you provide more than one ID_labels to resample data for multilevel data, please provide a vector for N of the same length representing the number to resample at each level."
       )
+    }
+
+    # Some of the names provided for N are null
+    if (!is.null(names(N)) && any(is.na(names(N)) | names(N) == "")) {
+      stop(
+        "If you provide names of levels to resample through the N argument, you must provide a name for every level"
+      )
+    }
+
+    # Copy names from N to ID_labels
+    if(!is.null(names(N))) {
+      ID_labels = names(N)
     }
 
     # ID_labels looking for some columns we don't have
@@ -73,16 +97,16 @@ resample_data = function(data, N, ID_labels=NULL) {
     # Excessive recursion depth
     if(length(N) > 10) {
       stop(
-        "Multi-level bootstrap with more than 10 levels is not advised."
+        "Multi-level resampling with more than 10 levels is not advised."
       )
     }
   }
 
-  # Single level bootstrap with explicit bootstrapping on a particular cluster variable
+  # Single level resampling with explicit resampling on a particular cluster variable
   # this is the inner-most recursion
   if(length(N)==1)
   {
-    return(bootstrap_single_level(data,
+    return(resample_single_level(data,
                                   N[1],
                                   ID_label=ID_labels[1]))
   }
@@ -90,26 +114,26 @@ resample_data = function(data, N, ID_labels=NULL) {
   # OK, if not, we need to recurse
 
   # Split indices of data frame by the thing we're strapping on
-  split_data_on_boot_id = split(seq_len(dim(data)[1]), data[[ID_labels[1]]])
+  split_data_on_resample_id = split(seq_len(dim(data)[1]), data[[ID_labels[1]]])
 
-  # Do the current bootstrap level
-  if(!is.null(names(N[1])) && names(N[1]) == "ALL_UNITS") {
+  # Do the current resample level
+  if(N[1] == ALL) {
     # Take each level once -- seq_len should be marginally faster than 1:length(.)
-    sampled_boot_values = seq_len(length(split_data_on_boot_id))
+    sampled_resample_values = seq_len(length(split_data_on_resample_id))
   } else {
     # sample.int is faster than sample(1:length(.)) or sample(seq.len(length(.))
-    sampled_boot_values = sample.int(length(split_data_on_boot_id), N[1], replace=TRUE)
+    sampled_resample_values = sample.int(length(split_data_on_resample_id), N[1], replace=TRUE)
   }
 
   # Iterate over each thing chosen at the current level
-  results_all = lapply(sampled_boot_values, function(i) {
-    # Get rowids from current bootstrap index, subset based on that
+  results_all = lapply(sampled_resample_values, function(i) {
+    # Get rowids from current resample index, subset based on that
     # pass through the recursed Ns and labels, and remind the inner
     # layer that it doesn't need to sanity check and we already know
     # if data.table is around.
     # The list subset on the split is faster than unlisting
     .resample_data_internal(
-      data[split_data_on_boot_id[i][[1]], ],
+      data[split_data_on_resample_id[i][[1]], ],
       N=N[2:length(N)],
       ID_labels=ID_labels[2:length(ID_labels)],
       outer_level=0,
@@ -136,39 +160,42 @@ resample_data = function(data, N, ID_labels=NULL) {
   return(res)
 }
 
-bootstrap_single_level <- function(data, ID_label = NULL, N) {
+resample_single_level <- function(data, ID_label = NULL, N) {
   # dim slightly faster than nrow
   if(dim(data)[1] == 0) {
-    stop("Data being bootstrapped has no rows.")
+    stop("Data being resampled has no rows.")
   }
 
   if (is.null(ID_label)) {
     # Simple bootstrap
     return(data[sample(seq_len(dim(data)[1]), N, replace = TRUE), , drop = F])
   } else if(!ID_label %in% colnames(data)) {
-    stop("ID label provided is not a column in the data being bootstrapped.")
+    stop("ID label provided (", ID_label, ") is not a column in the data being resampled.")
   }
 
-  if(length(N) > 1 | !is.numeric(N) | N%%1 | N<=0) {
-    stop("For a single bootstrap level, N should be a single positive integer.")
+  if(length(N) > 1 | !is.numeric(N) | N%%1 | (N<=0 & N!=ALL)) {
+    stop("For a single resample level, N should be a single positive integer. N was ", N)
   }
 
   # Split data by cluster ID, storing all row indices associated with that cluster ID
   # nrow passes through transparently to dim, so this is slightly faster
   indices_split = split(seq_len(dim(data)[1]), data[[ID_label]])
+
   # Get cluster IDs (not the actual cluster values, the indices of the clusters)
-  if(!is.null(names(N)) && names(N) == "ALL_UNITS") {
+  if(N == ALL) {
+    # User wants passthrough resampling
     # seq_len should be a little faster than 1:length(.)
-    boot_ids = seq_len(length(indices_split))
-    warning("You do not need to specify ALL_UNITS for the final level of your resampling plan. By default any excluded levels implicitly keep ALL_UNITS.")
+    resample_ids = seq_len(length(indices_split))
+    warning("You do not need to specify ALL for the final level of your resampling plan. By default any excluded levels implicitly keep all units at this level.")
   } else {
     # sample.int is slightly faster than sample(1:length(.)) or sample(seq_len(length(.))
-    boot_ids = sample.int(length(indices_split), size=N, replace=TRUE)
+    resample_ids = sample.int(length(indices_split), size=N, replace=TRUE)
   }
+
   # Get all row indices associated with every cluster ID combined
-  boot_indices = unlist(indices_split[boot_ids], recursive=F, use.names=F)
+  resample_indices = unlist(indices_split[resample_ids], recursive=F, use.names=F)
   # Only take the indices we want (repeats will be handled properly)
-  return(data[boot_indices, , drop=F])
+  return(data[resample_indices, , drop=F])
 }
 
 

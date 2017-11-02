@@ -27,7 +27,7 @@ baseline_survey <- fabricate(N = 5, Y_pre = rnorm(N))
 bootsrapped_data <- resample_data(baseline_survey, N = 10)
 bootsrapped_data
 
-# Bootstrap a hierarchical dataset
+# Resample a hierarchical dataset
 
 my_data <-
 fabricate(

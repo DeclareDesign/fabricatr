@@ -1,6 +1,6 @@
-context("Bootstrap")
+context("Resampling")
 
-test_that("Bootstrap", {
+test_that("Resampling", {
   two_levels <- fabricate(
     regions = level(N = 5, gdp = rnorm(N)),
     cities = level(N = 5, subways = rnorm(N, mean = gdp))
@@ -22,7 +22,7 @@ test_that("Bootstrap", {
   expect_equal(nrow(resampled_two_levels), 5)
 })
 
-test_that("Error handling of Bootstrap", {
+test_that("Error handling of Resampling", {
   two_levels <- fabricate(
     regions = level(N = 5, gdp = rnorm(N)),
     cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp))
@@ -40,19 +40,19 @@ test_that("Error handling of Bootstrap", {
   expect_error(resample_data(two_levels, c("hello world"), ID_labels = c("regions")))
 })
 
-test_that("Direct bootstrap_single_level", {
+test_that("Direct resample_single_level", {
   two_levels <- fabricate(
     regions = level(N = 5, gdp = rnorm(N)),
     cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
   null_data = two_levels[two_levels$gdp > 100, ]
-  # Trying to bootstrap null data
+  # Trying to resample null data
   expect_equal(dim(null_data)[1], 0)
-  expect_error(bootstrap_single_level(null_data, ID_label="regions", N=10))
+  expect_error(resample_single_level(null_data, ID_label="regions", N=10))
 
-  # Trying to bootstrap single level with an invalid ID.
-  expect_error(bootstrap_single_level(two_levels, ID_label="invalid-id", N=10))
+  # Trying to resample single level with an invalid ID.
+  expect_error(resample_single_level(two_levels, ID_label="invalid-id", N=10))
 })
 
 test_that("Extremely high volume data creation.", {
@@ -69,4 +69,34 @@ test_that("Extremely high volume data creation.", {
   test_resample = resample_data(deep_dive_data,
                                 ID_labels=c("countries", "states", "cities"),
                                 N=c(100, 50, 50))
+})
+
+test_that("Providing ID_labels through names of N.", {
+  two_levels <- fabricate(
+    regions = level(N = 5, gdp = rnorm(N)),
+    cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp))
+  )
+
+  resample_data(two_levels, N=c(regions=3, cities=5))
+  expect_error(resample_data(two_levels,
+                             N=c(3, cities=5),
+                             ID_labels=c("regions", "cities")))
+
+  expect_error(resample_data(two_levels,
+                             N=c(invalidid=3, cities=5)))
+
+  expect_error(resample_data(two_levels,
+                             N=c(3, 5)))
+})
+
+test_that("Passthrough resampling.", {
+  two_levels <- fabricate(
+    regions = level(N = 5, gdp = rnorm(N)),
+    cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp))
+  )
+
+  resample_data(two_levels, N=c(regions=ALL, cities=3))
+
+  # Warning when final level resampled has passthrough -- this is superfluous
+  expect_warning(resample_data(two_levels, N=c(regions=ALL, cities=ALL)))
 })
