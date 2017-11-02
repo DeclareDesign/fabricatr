@@ -9,7 +9,7 @@ resample_data(data, N, ID_labels = NULL)
 \arguments{
 \item{data}{A data.frame, usually provided by the user.}
 
-\item{N}{The number of sample N to return. If N is a single scalar and no labels are provided, N will specify the number of unit observations to resample. If N is named, or if the ID_labels argument is specified (in which case, both should be the same length), then the units resampled will be values of the levels resampled (this is useful for, e.g., cluster resampling). If N is the value ALL for any level, all units of this level will be transparently passed through to the next level of resampling.}
+\item{N}{The number of sample N to return. If N is a single scalar and no labels are provided, N will specify the number of unit observations to resample. If N is named, or if the ID_labels argument is specified (in which case, both N and ID_labels should be the same length), then the units resampled will be values of the levels resampled (this is useful for, e.g., cluster resampling). If N is the constant ALL for any level, all units of this level will be transparently passed through to the next level of resampling.}
 
 \item{ID_labels}{A character vector of the variables that indicate the data hierarchy, from highest to lowest (i.e., from cities to citizens).}
 }
