@@ -10,7 +10,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-`fabricatr` is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, `fabricatr` is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine **correlated** data and **heirarchical** data.
+`fabricatr` is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, `fabricatr` is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine **correlated** data and **hierarchical** data.
 
 
 `fabricatr` is a member of the `DeclareDesign` software suite that includes the `r` packages [randomizr](randomizr.declaredesign.org), [estimatr](estimatr.declaredesign.org), and [Declare Design](declaredesign.org). `fabricatr` plays well with the [tidyverse](https://www.tidyverse.org/). 
@@ -143,7 +143,7 @@ bootstrapped_data <- resample_data(baseline_survey, N = 10)
 bootstrapped_data
 ```
 
-The real utility of this function comes when bootstrapping from hierarchical data.  The example below takes a dataset that contains 2 cities, each with 3 citizens, then bootstraps to 3 cities, each with 5 citizens.
+The real utility of this function comes when resampling from hierarchical data.  The example below takes a dataset that contains 2 cities, each with 3 citizens, then resamples to 3 cities, each with 5 citizens.
 
 ```{r}
 my_data <-
@@ -154,8 +154,31 @@ my_data <-
 
 my_data_2 <- resample_data(my_data, N = c(3, 5), ID_labels = c("cities", "citizens"))
 my_data_2
+
 ```
 
+When resampling, level names can also be specified in an alternative manner:
+
+```{r}
+my_data_2 <- resample_data(my_data, N = c(cities=3, citizens=5))
+my_data_2
+```
+
+This example also resamples our dataset of 2 cities with 3 citizens to a dataset of 3 cities (each original city may be used zero or more times in the new sample) each with 5 citizens.
+
+When resampling across multiple levels, it may be useful to transparently pass through all units of a particular level. For example, considering data with a clustered design, it may be useful to resample some number of individual observations from each original cluster.
+
+```{r}
+clustered_survey <- fabricate(
+  clusters = level(N=25),
+  cities = level(N=10, population=runif(n = N, min=50000, max=1000000))
+)
+
+cluster_resample <- resample_data(clustered_survey, N = c(clusters=ALL, cities=5))
+cluster_resample
+```
+
+This example begins with a dataset of 25 clusters each containing 10 cities and resamples to a dataset of the same 25 clusters, each containing 5 cities (the original cities may each be used zero or more times in the resampling process).
 
 # Advanced Features
 
