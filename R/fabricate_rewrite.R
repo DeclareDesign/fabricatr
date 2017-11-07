@@ -1,6 +1,6 @@
 #' Fabricate data
 #'
-#' \code{fabricate} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_discrete}}.
+#' \code{fabricate_revised} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_discrete}}.
 #'
 #' @param data (optional) user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
 #' @param N (optional) number of units to draw. If provided as \code{fabricate(N = 5)}, this determines the number of units in the single-level data. If provided in \code{level}, i.e. \code{fabricate(cities = level(N = 5))}, \code{N} determines the number of units in a specific level of a hierarchical dataset.
@@ -12,41 +12,41 @@
 #' @examples
 #'
 #' # Draw a single-level dataset with no covariates
-#' df <- fabricate(N = 100)
+#' df <- fabricate_revised(N = 100)
 #' head(df)
 #'
 #' # Draw a single-level dataset with a covariate
-#' df <- fabricate(
+#' df <- fabricate_revised(
 #'   N = 100,
 #'   height_ft = runif(N, 3.5, 8)
 #' )
 #' head(df)
 #'
 #' # Start with existing data
-#' df <- fabricate(
+#' df <- fabricate_revised(
 #'   data = df,
 #'   new_variable = rnorm(N)
 #' )
 #'
 #' # Draw a two-level hierarchical dataset
 #' # containing cities within regions
-#' df <- fabricate(
-#'  regions = level(N = 5),
-#'  cities = level(N = 2, pollution = rnorm(N, mean = 5)))
+#' df <- fabricate_revised(
+#'  regions = add_level_new(N = 5),
+#'  cities = nest_level_new(N = 2, pollution = rnorm(N, mean = 5)))
 #' head(df)
 #'
 #' # Start with existing data and add variables to hierarchical data
 #' # note: do not provide N when adding variables to an existing level
-#' df <- fabricate(
+#' df <- fabricate_revised(
 #'   data = df,
-#'   regions = level(watershed = sample(c(0, 1), N, replace = TRUE)),
-#'   cities = level(runoff = rnorm(N))
+#'   regions = modify_level_new(watershed = sample(c(0, 1), N, replace = TRUE)),
+#'   cities = modify_level_new(runoff = rnorm(N))
 #' )
 #'
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args is_lang get_expr
 #'
 #' @export
-fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
+fabricate_revised <- function(data = NULL, N = NULL, ID_label = NULL, ...)
 {
   # Store all data generation arguments in a quosure for future evaluation
   # A quosure contains unevaluated formulae and function calls.
@@ -56,7 +56,7 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
   # or a series of level calls. You can't mix and match.
   # This helper function will be TRUE if calls are all levels, FALSE
   # if there are no calls or they are not levels.
-  all_levels = check_all_levels(data_arguments)
+  all_levels = check_all_levels_new(data_arguments)
 
   # User must provide exactly one of:
   # 1) One or more level calls (with or without importing their own data)
@@ -98,43 +98,47 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
       working_environment = eval_tidy(data_arguments[[i]])
     }
 
-    print(working_environment)
-
     # Return the results from the working environment
     return(report_results(working_environment))
   }
 
-  # Single level
+  # Single level -- maybe the user provided an ID_label, maybe they didn't.
   # Sanity check and/or construct an ID label for the new data.
   ID_label = handle_id(ID_label, data)
 
-  # User passed N, not data.
+  # User did not pass data -- they passed N
   if(is.null(data) | missing(data)) {
     # Is the N argument passed here sane? Let's check
     handle_n(N, add_level = TRUE)
 
-    # Creating a working environment
+    # Creating a working environment that's empty (user passed no data)
     data_arguments[["working_environment_"]] = list()
 
+    # Run the level adder, report the results, and return
     return(
       report_results(
-        add_level(N = N, ID_label = ID_label, data_arguments = data_arguments)
+        add_level_new(N = N, ID_label = ID_label, data_arguments = data_arguments)
       )
     )
   }
 
-  # User passed data
+  # User passed data, not N
+  # First, let's dynamically get N from the number of rows
   N = nrow(data)
+
+  # Now, let's load the data into our working environment
   data_arguments[["working_environment_"]] = list(imported_data_ = data)
 
+  # Run the level adder, report the results, and return
   return(
     report_results(
-      add_level(N = N, ID_label = ID_label, data_arguments = data_arguments)
+      add_level_new(N = N, ID_label = ID_label, data_arguments = data_arguments)
     )
   )
 }
 
-add_level = function(N = NULL, ID_label = NULL,
+#' @export
+add_level_new = function(N = NULL, ID_label = NULL,
                      working_environment_ = NULL,
                      ...,
                      data_arguments=quos(...)) {
@@ -154,7 +158,6 @@ add_level = function(N = NULL, ID_label = NULL,
   # Check to make sure the N here is sane
   handle_n(N, add_level=TRUE)
 
-
   # User is adding a new level, but already has a working data frame.
   # Shelf the working data frame and move on
   if("data_frame_output_" %in% names(working_environment_)) {
@@ -168,7 +171,7 @@ add_level = function(N = NULL, ID_label = NULL,
       working_environment_[["shelved_df"]] = append(working_environment_[["shelved_df"]], package_df)
     } else {
       # Create a shelf just for this
-      working_environment_[["shelved_df"]][[1]] = package_df
+      working_environment_[["shelved_df"]] = list(package_df)
     }
 
     # Clear the current work-space.
@@ -180,8 +183,12 @@ add_level = function(N = NULL, ID_label = NULL,
   # User is adding a new level, but we need to sneak in the imported data first.
   # When this is done, trash the imported data, because the working data frame contains it.
   if("imported_data_" %in% names(working_environment_)) {
+    num_obs_imported = nrow(working_environment_[["imported_data_"]])
     working_data_list = as.list(working_environment_[["imported_data_"]])
     working_environment_[["imported_data_"]] = NULL
+    if(is.null(N)) {
+      N = num_obs_imported
+    }
   } else {
     working_data_list = list()
   }
@@ -192,11 +199,8 @@ add_level = function(N = NULL, ID_label = NULL,
     working_data_list[[ID_label]] = generate_id_pad(N)
 
     # Next, add the ID_label to the level ids tracker
-    if("level_ids_" %in% names(working_environment_)) {
-      working_environment_[["level_ids_"]] = append(working_environment_[["level_ids_"]], ID_label)
-    } else {
-      working_environment_[["level_ids_"]][1] = ID_label
-    }
+    working_environment_ = add_level_id(working_environment_, ID_label)
+    working_environment_ = add_variable_name(working_environment_, ID_label)
   }
 
   # Loop through each of the variable generating arguments
@@ -204,15 +208,12 @@ add_level = function(N = NULL, ID_label = NULL,
     # Evaluate the formula in an environment consisting of:
     # 1) The current working data list
     # 2) A list that tells everyone what N means in this context.
+    print(N)
     working_data_list[[i]] = eval_tidy(data_arguments[[i]],
                                        append(working_data_list, list(N=N)))
 
     # Write the variable name to the list of variable names
-    if("variable_names_" %in% names(working_environment_)) {
-      working_environment_[["variable_names_"]] = append(working_environment_[["variable_names_"]], i)
-    } else {
-      working_environment_[["variable_names_"]][1] = i
-    }
+    working_environment_ = add_variable_name(working_environment_, i)
 
     # Nuke the current data argument -- if we have the same variable name created twice,
     # this is OK, because it'll only nuke the current one.
@@ -220,15 +221,7 @@ add_level = function(N = NULL, ID_label = NULL,
   }
 
   # Before handing back data, ensure it's actually rectangular
-  for(i in seq_along(working_data_list)) {
-    if(length(working_data_list[[i]]) == 1) {
-      # Variable is a constant -- repeat it N times
-      working_data_list[[i]] = rep(working_data_list[[i]], N)
-    } else if(length(working_data_list[[i]]) != N) {
-      # Variable is not of length N. Oops.
-      stop("Variable lengths must all be equal to N.")
-    }
-  }
+  working_data_list = check_rectangular(working_data_list, N)
 
   working_environment_[["data_frame_output_"]] = data.frame(working_data_list,
                                                             stringsAsFactors=FALSE,
@@ -237,7 +230,8 @@ add_level = function(N = NULL, ID_label = NULL,
   return(working_environment_)
 }
 
-nest_level = function(N = NULL, ID_label = NULL,
+#' @export
+nest_level_new = function(N = NULL, ID_label = NULL,
                       working_environment_ = NULL,
                       ...,
                       data_arguments=quos(...)) {
@@ -254,18 +248,114 @@ nest_level = function(N = NULL, ID_label = NULL,
     data_arguments[["ID_label"]] = NULL
   }
 
+  # Check to make sure we have a data frame to nest on.
+  if(is.null(dim(working_environment_[["data_frame_output_"]]))) {
+    stop("You can't nest a level if there is no level to nest inside")
+  }
+
   # Check to make sure the N here is sane
-  handle_n(N, add_level=TRUE)
+  # Pass the working environment because N might not be a singleton here
+  handle_n(N, add_level=FALSE, working_environment = working_environment_)
 
+  # We need to expand the size of the current working data frame by copying it
+  # Let's start by getting the size of the current working data frame
+  past_level_N = nrow(working_environment_[["data_frame_output_"]])
+  # And now make an index set 1:past_level_N
+  indices = seq_len(past_level_N)
+
+  # We're now going to modify the index set to take into account the expansion
+  # If N is a single number, then we repeat each index N times
+  # If N is of length past_level_N, then we repeat each index N_i times.
+  # For r's rep, the each / times arguments have odd behaviour that necessitates this approach
+  if(length(N)==1) rep_indices = rep(indices, each=N)
+  else rep_indices = rep(indices, times=N)
+
+  # current_N = N # This would store the intended N value for the level
+  # Update N to the new length.
+  N = length(rep_indices)
+
+  # Expand the data frame by duplicating the indices and then coerce the data frame
+  # to a list -- we do this to basically make variables accessible in the namespace.
+  working_data_list = as.list(working_environment_[["data_frame_output_"]][rep_indices, , drop=FALSE])
+
+  ### Everything after here is non-unique to nest_level versus add_level -- need to think about how to
+  ### refactor this out.
+
+  # Staple in an ID column onto the data list.
+  if(!is.null(ID_label) && (is.null(names(working_data_list)) || !ID_label %in% names(working_data_list))) {
+    # First, add the column to the working data frame
+    working_data_list[[ID_label]] = generate_id_pad(N)
+
+    working_environment_ = add_level_id(working_environment_, ID_label)
+    working_environment_ = add_variable_name(working_environment_, ID_label)
+  }
+
+  # Loop through each of the variable generating arguments
+  for(i in names(data_arguments)) {
+    # Evaluate the formula in an environment consisting of:
+    # 1) The current working data list
+    # 2) A list that tells everyone what N means in this context.
+    working_data_list[[i]] = eval_tidy(data_arguments[[i]],
+                                       append(working_data_list, list(N=N)))
+
+    # Write the variable name to the list of variable names
+    working_environment_ = add_variable_name(working_environment_, i)
+
+    # Nuke the current data argument -- if we have the same variable name created twice,
+    # this is OK, because it'll only nuke the current one.
+    data_arguments[[i]] = NULL
+  }
+
+  # Before handing back data, ensure it's actually rectangular
+  working_data_list = check_rectangular(working_data_list, N)
+
+  # Overwrite the working data frame.
+  working_environment_[["data_frame_output_"]] = data.frame(working_data_list,
+                                                            stringsAsFactors=FALSE,
+                                                            row.names=NULL)
+
+  return(working_environment_)
 }
 
-modify_level = function(N = NULL, ID_label = NULL, ...) {
+#' @export
+modify_level_new = function(N = NULL,
+                            ID_label = NULL,
+                            ...,
+                            data_arguments=quos(...)) {
+  # Copy the working environment out of the data_arguments quosure and into the root.
+  if("working_environment_" %in% names(data_arguments)) {
+    working_environment_ = data_arguments[["working_environment_"]]
+    data_arguments[["working_environment_"]] = NULL
+  }
+
+  # Copy ID_label out of the data_arguments quosure and into the root
+  if("ID_label" %in% names(data_arguments)) {
+    ID_label = data_arguments[["ID_label_"]]
+    data_arguments[["ID_label"]] = NULL
+  }
+
+  # Need to supply an ID_label, otherwise we have no idea what to modify.
+  if(is.null(ID_label)) {
+    stop("You can't modify a level without a known level ID variable.")
+  }
+
+  # Error handling -- what if the user doesn't provide a level to modify?
+  if(!ID_label %in% working_environment_[["level_ids_"]]) {
+    # Stopping because right now we don't actually know what the levels are,
+    # since user could provide data instead of building it.
+    # stop("Level you're modifying is not a level in the working environment.")
+  }
+
+  # Stub, this doesn't do anything yet
+  return(working_environment_)
 }
 
-level = function(N = NULL, ID_label = NULL, ...) {
-
+# Overload the level command
+level_new = function(N = NULL, ID_label = NULL, ...) {
+  # Stub, this doesn't do anything yet
 }
 
+# Dummy helper function that just extracts the working data frame from the environment.
 report_results = function(working_environment) {
   return(working_environment[["data_frame_output_"]])
 }

@@ -1,3 +1,5 @@
+# Checks if an ID label is sane, warns or errors if not.
+# Generates an ID label if there isn't one provided.
 handle_id = function(ID_label, data=NULL) {
   # User passed a non-symbol non-null ID_label
   if(!is.null(ID_label)) {
@@ -53,7 +55,8 @@ handle_id = function(ID_label, data=NULL) {
   return(ID_label)
 }
 
-handle_n = function(N, add_level=TRUE) {
+# Checks if a supplied N is sane for the context it's in
+handle_n = function(N, add_level=TRUE, working_environment=NULL) {
   # Error handling for user-supplied N
 
   # If they provided an N
@@ -66,7 +69,31 @@ handle_n = function(N, add_level=TRUE) {
         )
       }
     } else {
+      if(length(N) > 1) {
+        # User specified more than one N; presumably this is one N for each level of the
+        # last level variable
+
+        # What's the last level variable?
+        name_of_last_level = working_environment[["level_ids_"]][length(
+          working_environment[["level_ids_"]])]
+
+        # What are the unique values?
+        unique_values_of_last_level = unique(
+          working_environment[["data_frame_output_"]][[name_of_last_level]]
+        )
+
+        if(length(N) != length(unique_values_of_last_level)) {
+          stop(
+            "N must be either a single number or a vector of length ",
+            length(unique_values_of_last_level),
+            " (one value for each possible level of ",
+            name_of_last_level,
+            ")"
+          )
+        }
+      }
       # If this is not an add_level operation, there are other options
+
     }
 
     # If any N is non-numeric or non-integer or negative or zero, fail.
@@ -89,6 +116,8 @@ handle_n = function(N, add_level=TRUE) {
   }
 }
 
+# Checks if the user-provided data is sane
+# errors if not.
 handle_data = function(data) {
   if(!is.null(data) & !missing(data) & !"data.frame" %in% class(data)) {
     # User provided data, but it's not 2D
@@ -121,7 +150,9 @@ handle_data = function(data) {
   return(data)
 }
 
-check_all_levels <- function(options){
+# Function to check if every argument in a quosure options
+# is a level call.
+check_all_levels_new <- function(options){
   # Passing the options quosures
   # There were no levels, or indeed arguments, at all
   if (length(options) == 0)  return(FALSE)
@@ -136,7 +167,10 @@ check_all_levels <- function(options){
   func_names = sapply(options[is_function], lang_name)
 
   # Check to see if the function names are one of the valid level operations
-  is_level = sapply(func_names, function(i) { i %in% c("level", "add_level", "nest_level", "modify_level") })
+  is_level = sapply(func_names, function(i) { i %in% c("level",
+                                                       "add_level_new",
+                                                       "nest_level_new",
+                                                       "modify_level_new") })
 
   # Return false if we have no level calls
   if(length(is_level) == 0) return(FALSE)
@@ -144,7 +178,7 @@ check_all_levels <- function(options){
   # If some calls are levels and some aren't, we're unhappy
   if (any(is_level) != all(is_level)) {
     stop(
-      "Arguments passed to ... must either all be calls to level() or have no calls to level()."
+      "Arguments passed to ... must either all be calls to create or modify levels, or else none of them must be."
     )
   }
 
@@ -153,10 +187,50 @@ check_all_levels <- function(options){
 }
 
 
+# Generates IDs from 1:N with zero left padding for visual display.
 generate_id_pad <- function(N){
   # Left-Pad ID variable with zeroes
   format_left_padded <- paste0("%0", nchar(N), "d")
 
   # Add it to the data frame.
   return(sprintf(format_left_padded, 1:N))
+}
+
+# Try to overwrite R's recycling of vector operations to ensure the initial
+# data is rectangular -- needs an N to ensure that constants do get recycled.
+check_rectangular = function(working_data_list, N) {
+  for(i in seq_along(working_data_list)) {
+    if(length(working_data_list[[i]]) == 1) {
+      # Variable is a constant -- repeat it N times
+      working_data_list[[i]] = rep(working_data_list[[i]], N)
+    } else if(length(working_data_list[[i]]) != N) {
+      # Variable is not of length N. Oops.
+      stop("Variable lengths must all be equal to N.")
+    }
+  }
+  return(working_data_list)
+}
+
+# Add a level ID to a working environment
+add_level_id = function(working_environment_, ID_label) {
+  # Add or create level ID list
+  if("level_ids_" %in% names(working_environment_)) {
+    working_environment_[["level_ids_"]] = append(working_environment_[["level_ids_"]], ID_label)
+  } else {
+    working_environment_[["level_ids_"]] = c(ID_label)
+  }
+
+  return(working_environment_)
+}
+
+# Add a variable name to a working environment
+add_variable_name = function(working_environment_, variable_name) {
+  # Add or create variable name list.
+  if("variable_names_" %in% names(working_environment_)) {
+    working_environment_[["variable_names_"]] = append(working_environment_[["variable_names_"]], variable_name)
+  } else {
+    working_environment_[["variable_names_"]] = c(variable_name)
+  }
+
+  return(working_environment_)
 }
