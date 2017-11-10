@@ -55,14 +55,24 @@ level <-
       } else {
         # The level already exists, we are adding variables to it.
 
+        # Which variables could we possibly care about in this level call?
+        unique_variables_to_write_to  = unname(unlist(get_symbols_from_quosure(dots)))
+
         # Subset the working data frame to data that matters by the level we care about
+        # based on the level call we have.
         level_variables <-
-          get_unique_variables_by_level(data = data_internal_, ID_label = ID_label)
+          get_unique_variables_by_level(data = data_internal_,
+                                        ID_label = ID_label,
+                                        superset=unique_variables_to_write_to)
+
+        merged_set = unique(c(ID_label, level_variables))
+
         data <-
-          unique(data_internal_[, unique(c(ID_label, level_variables)),
+          unique(data_internal_[, merged_set[merged_set != ""],
                                 drop = FALSE])
 
         # Now, fabricate the new variables at this level
+
         data <- fabricate_data_single_level(data, NULL, ID_label, existing_ID = TRUE, options=dots)
 
         # Now, merge the new data frame into the old one to recover the variables we previously dropped
