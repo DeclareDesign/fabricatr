@@ -1,3 +1,6 @@
+#'
+#' @importFrom rlang quos lang_args
+#'
 get_symbols_from_expression = function(l_arg) {
   # We have some sort of language expression in R, let's extract
   # the symbols it's going to refer to
@@ -11,7 +14,7 @@ get_symbols_from_expression = function(l_arg) {
     recurse = lang_args(l_arg)
     # Iterate through each part of the language, recursively calling this function
     # Results are a list, so unlist and unname to flatten
-    temp = unname(unlist(lapply(recurse, function(i) { process_lang_args(i) })))
+    temp = unname(unlist(lapply(recurse, function(i) { get_symbols_from_expression(i) })))
     return(temp)
   } else {
     # It's something else? This might happen if the base level call
@@ -19,6 +22,9 @@ get_symbols_from_expression = function(l_arg) {
   }
 }
 
+#'
+#' @importFrom rlang quos lang_args get_expr
+#'
 get_symbols_from_quosure = function(quosure) {
   # Given a quosure, what symbols will that quosure attempt to read when it
   # is evaluated?

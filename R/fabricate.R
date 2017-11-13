@@ -245,19 +245,7 @@ fab <- function(data, args) {
     stop("All variables specified at this level should have names.")
   }
 
-  # Apparently we allow overwriting the data?
-  #if(any(duplicated(names(args)))) {
-  #  stop("All variables specified at this level should be unique.")
-  #}
-
-  print("Begin fab")
-  print(args)
-
   for (i in names(args)) {
-    # Debug to get a grip on what's going on here
-    print(paste0("Generating data named ", i))
-    print(args[[i]])
-
     # i is the variable name
     # args[[i]] is the formula for this variable
     # data_list contains the current working environment
@@ -280,8 +268,6 @@ fab <- function(data, args) {
 
 
 check_all_levels <- function(options){
-  print(options)
-
   # Passing the options quosures
   # There were no levels at all
   if (length(options) == 0)  return(FALSE)

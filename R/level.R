@@ -56,7 +56,10 @@ level <-
         # The level already exists, we are adding variables to it.
 
         # Which variables could we possibly care about in this level call?
-        unique_variables_to_write_to  = unname(unlist(get_symbols_from_quosure(dots)))
+        unique_variables_to_write_to = unname(unlist(get_symbols_from_quosure(dots)))
+        # Remove the level variable from consideration -- we know this unique
+        # conditional on itself by definition
+        unique_variables_to_write_to = setdiff(unique_variables_to_write_to, ID_label)
 
         # Subset the working data frame to data that matters by the level we care about
         # based on the level call we have.
@@ -77,8 +80,9 @@ level <-
 
         # Now, merge the new data frame into the old one to recover the variables we previously dropped
         return(merge(
-          data_internal_[, colnames(data_internal_)[!(colnames(data_internal_) %in%
-                                                        level_variables)], drop = FALSE],
+          data_internal_[,
+                         !(colnames(data_internal_) %in% level_variables),
+                         drop = FALSE],
           data,
           by = ID_label,
           all = TRUE,
