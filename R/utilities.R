@@ -1,4 +1,4 @@
-#'
+#' Helper function (NOTE: THIS FILE IS DEPRECATED!!!!!!)
 #' @importFrom rlang quos lang_args
 #'
 get_symbols_from_expression = function(l_arg) {

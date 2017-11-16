@@ -70,6 +70,9 @@ fabricate_revised <- function(data = NULL, N = NULL, ID_label = NULL, ...)
       )
   }
 
+  # Create a blank working environment.
+  working_environment = new.env()
+
   # User provided level calls
   if(all_levels) {
     # Ensure the user provided a name for each level call.
@@ -77,12 +80,9 @@ fabricate_revised <- function(data = NULL, N = NULL, ID_label = NULL, ...)
       stop("You must provide a name for each level you create.")
     }
 
-    # Create a blank working environment.
-    working_environment = list()
-
     # User provided data, if any, should be preloaded into working environment
     if(!is.null(data) & !missing(data)) {
-      working_environment[["imported_data_"]] = data
+      working_environment$imported_data_ = data
     }
 
     # Each of data_arguments is a level call
@@ -112,7 +112,7 @@ fabricate_revised <- function(data = NULL, N = NULL, ID_label = NULL, ...)
     handle_n(N, add_level = TRUE)
 
     # Creating a working environment that's empty (user passed no data)
-    data_arguments[["working_environment_"]] = list()
+    data_arguments[["working_environment_"]] = working_environment
 
     # Run the level adder, report the results, and return
     return(
@@ -127,7 +127,8 @@ fabricate_revised <- function(data = NULL, N = NULL, ID_label = NULL, ...)
   N = nrow(data)
 
   # Now, let's load the data into our working environment
-  data_arguments[["working_environment_"]] = list(imported_data_ = data)
+  working_environment$imported_data_ = data
+  data_arguments[["working_environment_"]] = working_environment
 
   # Run the level adder, report the results, and return
   return(
@@ -137,6 +138,7 @@ fabricate_revised <- function(data = NULL, N = NULL, ID_label = NULL, ...)
   )
 }
 
+#' @rdname fabricate_revised
 #' @export
 add_level_new = function(N = NULL, ID_label = NULL,
                      working_environment_ = NULL,
@@ -162,31 +164,31 @@ add_level_new = function(N = NULL, ID_label = NULL,
   # Shelf the working data frame and move on
   if("data_frame_output_" %in% names(working_environment_)) {
     # Construct the shelved version
-    package_df = list(data_frame_output_ = working_environment_[["data_frame_output_"]],
-                      level_ids_ = working_environment_[["level_ids_"]],
-                      variable_names_ = names(working_environment_[["data_frame_output_"]]))
+    package_df = list(data_frame_output_ = working_environment_$data_frame_output_,
+                      level_ids_ = working_environment_$level_ids_,
+                      variable_names_ = names(working_environment_$data_frame_output_))
 
     # Append it to the existing shelf
     if("shelved_df" %in% names(working_environment_)) {
-      working_environment_[["shelved_df"]] = append(working_environment_[["shelved_df"]], package_df)
+      working_environment_$shelved_df = append(working_environment_$shelved_df, package_df)
     } else {
       # Create a shelf just for this
-      working_environment_[["shelved_df"]] = list(package_df)
+      working_environment_$shelved_df = list(package_df)
     }
 
     # Clear the current work-space.
-    working_environment_[["data_frame_output_"]] =
-      working_environment_[["level_ids_"]] =
-      working_environment_[["variable_names_"]] = NULL
+    working_environment_$data_frame_output_ =
+      working_environment_$level_ids_ =
+      working_environment_$variable_names_ = NULL
   }
 
   # User is adding a new level, but we need to sneak in the imported data first.
   # When this is done, trash the imported data, because the working data frame contains it.
   if("imported_data_" %in% names(working_environment_)) {
-    num_obs_imported = nrow(working_environment_[["imported_data_"]])
-    working_data_list = as.list(working_environment_[["imported_data_"]])
-    working_environment_[["variable_names_"]] = names(working_environment_[["imported_data_"]])
-    working_environment_[["imported_data_"]] = NULL
+    num_obs_imported = nrow(working_environment_$imported_data_)
+    working_data_list = as.list(working_environment_$imported_data_)
+    working_environment_$variable_names_ = names(working_environment_$imported_data_)
+    working_environment_$imported_data_ = NULL
     # User didn't specify an N, so get it from the current data.
     if(is.null(N)) {
       N = num_obs_imported
@@ -202,11 +204,12 @@ add_level_new = function(N = NULL, ID_label = NULL,
       working_data_list[[ID_label]] = generate_id_pad(N)
 
       # Next, add the ID_label to the level ids tracker
-      working_environment_ = add_level_id(working_environment_, ID_label)
-      working_environment_ = add_variable_name(working_environment_, ID_label)
+      # Why does this not need to return? Because environments are passed by reference
+      add_level_id(working_environment_, ID_label)
+      add_variable_name(working_environment_, ID_label)
     } else {
       # If the ID label was specified but already exists;
-      working_environment_ = add_level_id(working_environment_, ID_label)
+      add_level_id(working_environment_, ID_label)
     }
   }
 
@@ -219,7 +222,7 @@ add_level_new = function(N = NULL, ID_label = NULL,
                                        append(working_data_list, list(N=N)))
 
     # Write the variable name to the list of variable names
-    working_environment_ = add_variable_name(working_environment_, i)
+    add_variable_name(working_environment_, i)
 
     # Nuke the current data argument -- if we have the same variable name created twice,
     # this is OK, because it'll only nuke the current one.
@@ -229,13 +232,14 @@ add_level_new = function(N = NULL, ID_label = NULL,
   # Before handing back data, ensure it's actually rectangular
   working_data_list = check_rectangular(working_data_list, N)
 
-  working_environment_[["data_frame_output_"]] = data.frame(working_data_list,
-                                                            stringsAsFactors=FALSE,
-                                                            row.names=NULL)
+  working_environment_$data_frame_output_ = data.frame(working_data_list,
+                                                       stringsAsFactors=FALSE,
+                                                       row.names=NULL)
 
   return(working_environment_)
 }
 
+#' @rdname fabricate_revised
 #' @export
 nest_level_new = function(N = NULL, ID_label = NULL,
                       working_environment_ = NULL,
@@ -255,11 +259,11 @@ nest_level_new = function(N = NULL, ID_label = NULL,
   }
 
   # Check to make sure we have a data frame to nest on.
-  if(is.null(dim(working_environment_[["data_frame_output_"]]))) {
+  if(is.null(dim(working_environment_$data_frame_output_))) {
     if("imported_data_" %in% names(working_environment_)) {
-      working_environment_[["data_frame_output_"]] = working_environment_[["imported_data_"]]
-      working_environment_[["variable_names_"]] = names(working_environment_[["imported_data_"]])
-      working_environment_[["imported_data_"]] = NULL
+      working_environment_$data_frame_output_ = working_environment_$imported_data_
+      working_environment_$variable_names_ = names(working_environment_$imported_data_)
+      working_environment_$imported_data_ = NULL
     } else {
       stop("You can't nest a level if there is no level to nest inside")
     }
@@ -272,7 +276,7 @@ nest_level_new = function(N = NULL, ID_label = NULL,
 
   # We need to expand the size of the current working data frame by copying it
   # Let's start by getting the size of the current working data frame
-  past_level_N = nrow(working_environment_[["data_frame_output_"]])
+  past_level_N = nrow(working_environment_$data_frame_output_)
   # And now make an index set 1:past_level_N
   indices = seq_len(past_level_N)
 
@@ -289,7 +293,7 @@ nest_level_new = function(N = NULL, ID_label = NULL,
 
   # Expand the data frame by duplicating the indices and then coerce the data frame
   # to a list -- we do this to basically make variables accessible in the namespace.
-  working_data_list = as.list(working_environment_[["data_frame_output_"]][rep_indices, , drop=FALSE])
+  working_data_list = as.list(working_environment_$data_frame_output_[rep_indices, , drop=FALSE])
 
   ### Everything after here is non-unique to nest_level versus add_level -- need to think about how to
   ### refactor this out.
@@ -299,8 +303,8 @@ nest_level_new = function(N = NULL, ID_label = NULL,
     # First, add the column to the working data frame
     working_data_list[[ID_label]] = generate_id_pad(N)
 
-    working_environment_ = add_level_id(working_environment_, ID_label)
-    working_environment_ = add_variable_name(working_environment_, ID_label)
+    add_level_id(working_environment_, ID_label)
+    add_variable_name(working_environment_, ID_label)
   }
 
   # Loop through each of the variable generating arguments
@@ -312,7 +316,7 @@ nest_level_new = function(N = NULL, ID_label = NULL,
                                        append(working_data_list, list(N=N)))
 
     # Write the variable name to the list of variable names
-    working_environment_ = add_variable_name(working_environment_, i)
+    add_variable_name(working_environment_, i)
 
     # Nuke the current data argument -- if we have the same variable name created twice,
     # this is OK, because it'll only nuke the current one.
@@ -330,6 +334,7 @@ nest_level_new = function(N = NULL, ID_label = NULL,
   return(working_environment_)
 }
 
+#' @rdname fabricate_revised
 #' @export
 #'
 modify_level_new = function(N = NULL,
@@ -357,11 +362,11 @@ modify_level_new = function(N = NULL,
   }
 
   # First, establish that if we have no working data frame, we can't continue
-  if(is.null(dim(working_environment_[["data_frame_output_"]]))) {
+  if(is.null(dim(working_environment_$data_frame_output_))) {
     if("imported_data_" %in% names(working_environment_)) {
-      working_environment_[["data_frame_output_"]] = working_environment_[["imported_data_"]]
-      working_environment_[["variable_names_"]] = names(working_environment_[["imported_data_"]])
-      working_environment_[["imported_data_"]] = NULL
+      working_environment_$data_frame_output_ = working_environment_$imported_data_
+      working_environment_$variable_names_ = names(working_environment_$imported_data_)
+      working_environment_$imported_data_ = NULL
     } else {
       stop("You can't modify a level if there is no working data frame to modify: you must either load pre-existing data or generate some data before modifying.")
     }
@@ -370,12 +375,12 @@ modify_level_new = function(N = NULL,
   # There are two possibilities. One is that we are modifying the lowest level of data.
   # In which case, we simply add variables, like if someone called add_level with a dataset.
   # To check if that's the world we're in, check if we have any duplicates in the ID label:
-  if(!anyDuplicated(working_environment_[["data_frame_output_"]][[ID_label]])) {
+  if(!anyDuplicated(working_environment_$data_frame_output_[[ID_label]])) {
     # There is no subsetting going on, but modify_level was used anyway.
-    N = nrow(working_environment_[["data_frame_output_"]])
+    N = nrow(working_environment_$data_frame_output_)
 
     # Coerce the working data frame into a list
-    working_data_list = as.list(working_environment_[["data_frame_output_"]])
+    working_data_list = as.list(working_environment_$data_frame_output_)
 
     # Now loop over the variable creation.
     for(i in names(data_arguments)) {
@@ -387,7 +392,7 @@ modify_level_new = function(N = NULL,
                                          append(working_data_list, list(N=N)))
 
       # Write the variable name to the list of variable names
-      working_environment_ = add_variable_name(working_environment_, i)
+      add_variable_name(working_environment_, i)
 
       # Nuke the current data argument -- if we have the same variable name created twice,
       # this is OK, because it'll only nuke the current one.
@@ -410,15 +415,15 @@ modify_level_new = function(N = NULL,
   # first, subset to unique observations, then generate new data, then re-expand.
   # To do this, we need a mapping between observations and unique observations.
   # First, get the unique values of the level:
-  unique_values_of_level = unique(working_environment_[["data_frame_output_"]][[ID_label]])
+  unique_values_of_level = unique(working_environment_$data_frame_output_[[ID_label]])
 
   # Pre-allocate the mapping vector
-  index_maps = numeric(length(working_environment_[["data_frame_output_"]][[ID_label]]))
+  index_maps = numeric(length(working_environment_$data_frame_output_[[ID_label]]))
   # Iterate along the unique values of the level
   for(i in seq_along(unique_values_of_level)) {
     # Any obs that matches the level matching this i will be a duplicate of this i.
     index_maps[
-      working_environment_[["data_frame_output_"]][[ID_label]] == unique_values_of_level[i]
+      working_environment_$data_frame_output_[[ID_label]] == unique_values_of_level[i]
       ] = i
   }
 
@@ -427,11 +432,11 @@ modify_level_new = function(N = NULL,
   # Remove the ID label from the variables we are going to write to.
   write_variables = setdiff(write_variables, ID_label)
   # Let's also remove anything that doesn't seem to be a valid variable
-  write_variables = write_variables[write_variables %in% names(working_environment_[["data_frame_output_"]])]
+  write_variables = write_variables[write_variables %in% names(working_environment_$data_frame_output_)]
 
   # Level unique variables:
   level_unique_variables = get_unique_variables_by_level(
-    data = working_environment_[["data_frame_output_"]],
+    data = working_environment_$data_frame_output_,
     ID_label = ID_label,
     superset=write_variables)
 
@@ -451,21 +456,21 @@ modify_level_new = function(N = NULL,
   merged_set = unique(c(ID_label, setdiff(level_unique_variables, "")))
 
   # And these rows:
-  row_indices_keep = !duplicated(working_environment_[["data_frame_output_"]][[ID_label]])
+  row_indices_keep = !duplicated(working_environment_$data_frame_output_[[ID_label]])
 
   # Now subset it:
-  working_subset = working_environment_[["data_frame_output_"]][row_indices_keep,
-                                                                merged_set,
-                                                                drop=FALSE]
+  working_subset = working_environment_$data_frame_output_[row_indices_keep,
+                                                           merged_set,
+                                                           drop=FALSE]
 
   # Set the N variable correctly moving forward:
-  super_N = nrow(working_environment_[["data_frame_output_"]])
+  super_N = nrow(working_environment_$data_frame_output_)
   N = nrow(working_subset)
 
   # Get the subset into a list:
   working_data_list = as.list(working_subset)
   # And our original working data frame:
-  super_working_data_list = as.list(working_environment_[["data_frame_output_"]])
+  super_working_data_list = as.list(working_environment_$data_frame_output_)
 
   # Now loop
   for(i in names(data_arguments)) {
@@ -477,7 +482,7 @@ modify_level_new = function(N = NULL,
                                        append(working_data_list, list(N=N)))
 
     # Write the variable name to the list of variable names
-    working_environment_ = add_variable_name(working_environment_, i)
+    add_variable_name(working_environment_, i)
 
     # Expand the variable and store it in the actual, expanded environment
     super_working_data_list[[i]] = working_data_list[[i]][index_maps]
@@ -491,7 +496,7 @@ modify_level_new = function(N = NULL,
   super_working_data_list = check_rectangular(super_working_data_list, super_N)
 
   # Overwrite the working data frame.
-  working_environment_[["data_frame_output_"]] = data.frame(super_working_data_list,
+  working_environment_$data_frame_output_ = data.frame(super_working_data_list,
                                                             stringsAsFactors=FALSE,
                                                             row.names=NULL)
 
@@ -506,5 +511,5 @@ level_new = function(N = NULL, ID_label = NULL, ...) {
 
 # Dummy helper function that just extracts the working data frame from the environment.
 report_results = function(working_environment) {
-  return(working_environment[["data_frame_output_"]])
+  return(working_environment$data_frame_output_)
 }

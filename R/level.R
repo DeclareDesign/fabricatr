@@ -1,5 +1,5 @@
 
-#' Fabricate a Level of Data for Hierarchical Data
+#' Fabricate a Level of Data for Hierarchical Data (NOTE: THIS FILE IS DEPRECATED!!!!!!)
 #'
 #' @importFrom rlang quos eval_tidy quo lang_modify
 #'
