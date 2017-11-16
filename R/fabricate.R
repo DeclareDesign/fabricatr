@@ -1,6 +1,6 @@
 #' Fabricate data
 #'
-#' \code{fabricate_revised} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_discrete}}.
+#' \code{fabricate} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_discrete}}.
 #'
 #' @param data (optional) user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
 #' @param N (optional) number of units to draw. If provided as \code{fabricate(N = 5)}, this determines the number of units in the single-level data. If provided in \code{level}, i.e. \code{fabricate(cities = level(N = 5))}, \code{N} determines the number of units in a specific level of a hierarchical dataset.
@@ -12,41 +12,41 @@
 #' @examples
 #'
 #' # Draw a single-level dataset with no covariates
-#' df <- fabricate_revised(N = 100)
+#' df <- fabricate(N = 100)
 #' head(df)
 #'
 #' # Draw a single-level dataset with a covariate
-#' df <- fabricate_revised(
+#' df <- fabricate(
 #'   N = 100,
 #'   height_ft = runif(N, 3.5, 8)
 #' )
 #' head(df)
 #'
 #' # Start with existing data
-#' df <- fabricate_revised(
+#' df <- fabricate(
 #'   data = df,
 #'   new_variable = rnorm(N)
 #' )
 #'
 #' # Draw a two-level hierarchical dataset
 #' # containing cities within regions
-#' df <- fabricate_revised(
-#'  regions = add_level_new(N = 5),
-#'  cities = nest_level_new(N = 2, pollution = rnorm(N, mean = 5)))
+#' df <- fabricate(
+#'  regions = add_level(N = 5),
+#'  cities = nest_level(N = 2, pollution = rnorm(N, mean = 5)))
 #' head(df)
 #'
 #' # Start with existing data and add variables to hierarchical data
 #' # note: do not provide N when adding variables to an existing level
-#' df <- fabricate_revised(
+#' df <- fabricate(
 #'   data = df,
-#'   regions = modify_level_new(watershed = sample(c(0, 1), N, replace = TRUE)),
-#'   cities = modify_level_new(runoff = rnorm(N))
+#'   regions = modify_level(watershed = sample(c(0, 1), N, replace = TRUE)),
+#'   cities = modify_level(runoff = rnorm(N))
 #' )
 #'
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args is_lang get_expr
 #'
 #' @export
-fabricate_revised <- function(data = NULL, N = NULL, ID_label = NULL, ...)
+fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
 {
   # Store all data generation arguments in a quosure for future evaluation
   # A quosure contains unevaluated formulae and function calls.
@@ -117,7 +117,7 @@ fabricate_revised <- function(data = NULL, N = NULL, ID_label = NULL, ...)
     # Run the level adder, report the results, and return
     return(
       report_results(
-        add_level_new(N = N, ID_label = ID_label, data_arguments = data_arguments)
+        add_level(N = N, ID_label = ID_label, data_arguments = data_arguments)
       )
     )
   }
@@ -133,14 +133,14 @@ fabricate_revised <- function(data = NULL, N = NULL, ID_label = NULL, ...)
   # Run the level adder, report the results, and return
   return(
     report_results(
-      add_level_new(N = N, ID_label = ID_label, data_arguments = data_arguments)
+      add_level(N = N, ID_label = ID_label, data_arguments = data_arguments)
     )
   )
 }
 
-#' @rdname fabricate_revised
+#' @rdname fabricate
 #' @export
-add_level_new = function(N = NULL, ID_label = NULL,
+add_level = function(N = NULL, ID_label = NULL,
                      working_environment_ = NULL,
                      ...,
                      data_arguments=quos(...)) {
@@ -239,9 +239,9 @@ add_level_new = function(N = NULL, ID_label = NULL,
   return(working_environment_)
 }
 
-#' @rdname fabricate_revised
+#' @rdname fabricate
 #' @export
-nest_level_new = function(N = NULL, ID_label = NULL,
+nest_level = function(N = NULL, ID_label = NULL,
                       working_environment_ = NULL,
                       ...,
                       data_arguments=quos(...)) {
@@ -334,10 +334,10 @@ nest_level_new = function(N = NULL, ID_label = NULL,
   return(working_environment_)
 }
 
-#' @rdname fabricate_revised
+#' @rdname fabricate
 #' @export
 #'
-modify_level_new = function(N = NULL,
+modify_level = function(N = NULL,
                             ID_label = NULL,
                             working_environment_ = NULL,
                             ...,

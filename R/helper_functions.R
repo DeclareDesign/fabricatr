@@ -258,9 +258,9 @@ check_all_levels_new <- function(options){
 
   # Check to see if the function names are one of the valid level operations
   is_level = sapply(func_names, function(i) { i %in% c("level",
-                                                       "add_level_new",
-                                                       "nest_level_new",
-                                                       "modify_level_new") })
+                                                       "add_level",
+                                                       "nest_level",
+                                                       "modify_level") })
 
   # Return false if we have no level calls
   if(length(is_level) == 0) return(FALSE)
