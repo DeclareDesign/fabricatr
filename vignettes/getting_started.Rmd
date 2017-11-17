@@ -40,7 +40,7 @@ There are three things to notice about this example:
 my_data <-
   fabricate(
     cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = nest_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+    citizens = add_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
   )
 my_data
 ```
@@ -160,7 +160,7 @@ The real utility of this function comes when resampling from hierarchical data. 
 my_data <-
   fabricate(
     cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = nest_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+    citizens = add_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
   )
 
 my_data_2 <- resample_data(my_data, N = c(3, 5), ID_labels = c("cities", "citizens"))
@@ -182,7 +182,7 @@ When resampling across multiple levels, it may be useful to transparently pass t
 ```{r}
 clustered_survey <- fabricate(
   clusters = add_level(N=25),
-  cities = nest_level(N=10, population=runif(n = N, min=50000, max=1000000))
+  cities = add_level(N=10, population=runif(n = N, min=50000, max=1000000))
 )
 
 cluster_resample <- resample_data(clustered_survey, N = c(clusters=ALL, cities=5))
@@ -200,7 +200,7 @@ You may want to include the mean value of a variable within a group defined by a
 ```{r}
 fabricate(
     cities = add_level(N = 2),
-    citizens = nest_level(
+    citizens = add_level(
       N = 1:2, income = rnorm(N), income_mean_city = ave(income, cities))
   ) 
 ```
@@ -213,7 +213,7 @@ When making hierarchical data, you may not want to have the same number of units
 my_data <-
   fabricate(
     cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = nest_level(N = c(2, 4), income = round(elevation * rnorm(n = N, mean = 5)))
+    citizens = add_level(N = c(2, 4), income = round(elevation * rnorm(n = N, mean = 5)))
   )
 my_data
 ```
@@ -224,7 +224,7 @@ You can even have Ns that are determined by a function, enabling a *random* numb
 my_data <-
   fabricate(
     cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = nest_level(N = sample(1:6, size = 2, replace = TRUE), income = round(elevation * rnorm(n = N, mean = 5)))
+    citizens = add_level(N = sample(1:6, size = 2, replace = TRUE), income = round(elevation * rnorm(n = N, mean = 5)))
   )
 my_data
 ```
@@ -239,7 +239,7 @@ Suppose you had existing hierarchical data, and you wanted to add variables that
 my_baseline_data <-
   fabricate(
     cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = nest_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+    citizens = add_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
   )
 
 # add new variables at each level
@@ -264,7 +264,7 @@ library(dplyr)
 my_data <- 
 fabricate(
     cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = nest_level(N = c(2, 3), income = round(elevation * rnorm(n = N, mean = 5)))
+    citizens = add_level(N = c(2, 3), income = round(elevation * rnorm(n = N, mean = 5)))
   ) %>%
   group_by(cities) %>%
   mutate(pop = n())
@@ -273,6 +273,6 @@ my_data
 
 my_data <- 
 data_frame(Y = sample(1:10, 2)) %>%
-  fabricate(lower_level = nest_level(N = 3, Y2 = Y + rnorm(N)))
+  fabricate(lower_level = add_level(N = 3, Y2 = Y + rnorm(N)))
 my_data
 ```

@@ -4,12 +4,12 @@ test_that("hierarchical data is created correctly when you have a vector variabl
 
   hierarchy <- fabricate(
     regions = add_level(N = 3, gdp = rnorm(N)),
-    districts = nest_level(
+    districts = add_level(
       N = 2,
       var1 = c("recent", "ancient"),
       var2 = ifelse(var1 == "recent", gdp, 5)
     ),
-    cities = nest_level(N = 2, subways = rnorm(N, mean = gdp))
+    cities = add_level(N = 2, subways = rnorm(N, mean = gdp))
   )
 
 df_2 <- unique(hierarchy[,c("regions", "var2")])
@@ -29,13 +29,13 @@ test_that("creating variables", {
       N = 5,
       block_effect = rnorm(N)
     ),
-    individuals = nest_level(N = 2, noise = rnorm(N))
+    individuals = add_level(N = 2, noise = rnorm(N))
   )
 
   expect_error(fabricate(
     N = 10,
     noise = rnorm(N),
-    block = nest_level(
+    block = add_level(
       N = 5,
       block_effect = rnorm(N)
     )

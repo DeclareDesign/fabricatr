@@ -1,13 +1,14 @@
 #' Fabricate data
 #'
-#' \code{fabricate} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_discrete}}.
+#' \code{fabricate} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{add_level()} or modify existing hierarchical data using \code{modify_level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_discrete}}.
 #'
 #' @param data (optional) user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).
 #' @param N (optional) number of units to draw. If provided as \code{fabricate(N = 5)}, this determines the number of units in the single-level data. If provided in \code{level}, i.e. \code{fabricate(cities = level(N = 5))}, \code{N} determines the number of units in a specific level of a hierarchical dataset.
 #' @param ID_label (optional) variable name for ID variable, i.e. citizen_ID
-#' @param ... Variable or level-generating arguments, such as \code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass \code{level()} arguments, which define a level of a multi-level dataset. See examples.
-#' @param working_environment_ For internal use only, users should not supply this argument.
-#' @param data_arguments For internal use only, users should not supply this argument.
+#' @param ... Variable or level-generating arguments, such as \code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass \code{add_level()} or \code{modify_level()} arguments, which define a level of a multi-level dataset. See examples.
+#' @param new_hierarchy Reserved argument for future functionality to add cross-classified data. Not yet implemented.
+#' @param working_environment_ Internal argument, not intended for end-user use.
+#' @param data_arguments Internal argument, not intended for end-user use.
 #'
 #' @return data.frame
 #'
@@ -34,11 +35,12 @@
 #' # containing cities within regions
 #' df <- fabricate(
 #'  regions = add_level(N = 5),
-#'  cities = nest_level(N = 2, pollution = rnorm(N, mean = 5)))
+#'  cities = add_level(N = 2, pollution = rnorm(N, mean = 5)))
 #' head(df)
 #'
 #' # Start with existing data and add variables to hierarchical data
-#' # note: do not provide N when adding variables to an existing level
+#' # at levels which are already present in the existing data.
+#' # Note: do not provide N when adding variables to an existing level
 #' df <- fabricate(
 #'   data = df,
 #'   regions = modify_level(watershed = sample(c(0, 1), N, replace = TRUE)),
@@ -92,6 +94,7 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
       # Add two variables to the argument of the current level call
       # one to pass the working environment so far
       # one to pass the ID_label the user intends for the level
+
       data_arguments[[i]] = lang_modify(data_arguments[[i]],
                                         working_environment_ = working_environment,
                                         ID_label = names(data_arguments)[i])
@@ -124,6 +127,13 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
     )
   }
 
+  # Confirm data can be a data frame
+  tryCatch({
+    data = data.frame(data)
+  }, error=function(e) {
+    stop("User supplied data must be convertible into a data frame.")
+  })
+
   # User passed data, not N
   # First, let's dynamically get N from the number of rows
   N = nrow(data)
@@ -140,8 +150,6 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
   )
 }
 
-#' Fabricate the Top Level of Data For Hierarchical Data
-#'
 #' @importFrom rlang quos eval_tidy quo lang_modify
 #'
 #' @rdname fabricate
@@ -149,7 +157,8 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
 add_level = function(N = NULL, ID_label = NULL,
                      working_environment_ = NULL,
                      ...,
-                     data_arguments=quos(...)) {
+                     data_arguments=quos(...),
+                     new_hierarchy = FALSE) {
 
   # Copy the working environment out of the data_arguments quosure and into the root.
   if("working_environment_" %in% names(data_arguments)) {
@@ -161,6 +170,17 @@ add_level = function(N = NULL, ID_label = NULL,
   if("ID_label" %in% names(data_arguments)) {
     ID_label = data_arguments[["ID_label_"]]
     data_arguments[["ID_label"]] = NULL
+  }
+
+  # Pass-through mapper to nest_level.
+  # This needs to be done after we read the working environment and
+  # before we check N or do the shelving procedure.
+  if(!new_hierarchy &
+     ("data_frame_output_" %in% names(working_environment_) |
+     "imported_data_" %in% names(working_environment_))) {
+    return(nest_level(N=N, ID_label=ID_label,
+                      working_environment_=working_environment_,
+                      data_arguments=data_arguments))
   }
 
   # Check to make sure the N here is sane
@@ -191,10 +211,14 @@ add_level = function(N = NULL, ID_label = NULL,
   # User is adding a new level, but we need to sneak in the imported data first.
   # When this is done, trash the imported data, because the working data frame contains it.
   if("imported_data_" %in% names(working_environment_)) {
-    num_obs_imported = nrow(working_environment_$imported_data_)
-    working_data_list = as.list(working_environment_$imported_data_)
-    working_environment_$variable_names_ = names(working_environment_$imported_data_)
-    working_environment_$imported_data_ = NULL
+    tryCatch({
+      num_obs_imported = nrow(working_environment_$imported_data_)
+      working_data_list = as.list(working_environment_$imported_data_)
+      working_environment_$variable_names_ = names(working_environment_$imported_data_)
+      working_environment_$imported_data_ = NULL
+    }, error = function(e) {
+        stop("User supplied data must be convertible into a data frame.")
+    })
     # User didn't specify an N, so get it from the current data.
     if(is.null(N)) {
       N = num_obs_imported
@@ -249,12 +273,9 @@ add_level = function(N = NULL, ID_label = NULL,
   return(working_environment_)
 }
 
-#' Fabricate a Level of Hierarchical Data Within Existing Data
 #'
 #' @importFrom rlang quos eval_tidy quo lang_modify
 #'
-#' @rdname fabricate
-#' @export
 nest_level = function(N = NULL, ID_label = NULL,
                       working_environment_ = NULL,
                       ...,
@@ -275,9 +296,14 @@ nest_level = function(N = NULL, ID_label = NULL,
   # Check to make sure we have a data frame to nest on.
   if(is.null(dim(working_environment_$data_frame_output_))) {
     if("imported_data_" %in% names(working_environment_)) {
-      working_environment_$data_frame_output_ = working_environment_$imported_data_
-      working_environment_$variable_names_ = names(working_environment_$imported_data_)
-      working_environment_$imported_data_ = NULL
+      tryCatch({
+        working_environment_$data_frame_output_ = data.frame(working_environment_$imported_data_)
+        working_environment_$variable_names_ = names(working_environment_$imported_data_)
+        working_environment_$imported_data_ = NULL
+      }, error = function(e) {
+        stop("User supplied data must be convertible into a data frame.")
+      })
+
     } else {
       stop("You can't nest a level if there is no level to nest inside")
     }
@@ -285,7 +311,9 @@ nest_level = function(N = NULL, ID_label = NULL,
 
   # Check to make sure the N here is sane
   # Pass the working environment because N might not be a singleton here
-  N = handle_n(N, add_level=FALSE, working_environment = working_environment_)
+  N = handle_n(N, add_level=FALSE,
+               working_environment = working_environment_,
+               parent_frame_levels=2)
 
   # We need to expand the size of the current working data frame by copying it
   # Let's start by getting the size of the current working data frame
@@ -363,8 +391,6 @@ nest_level = function(N = NULL, ID_label = NULL,
   return(working_environment_)
 }
 
-#' Modify Existing Hierarchical Data To Add Data At Higher Levels
-#'
 #' @importFrom rlang quos eval_tidy quo lang_modify
 #'
 #' @rdname fabricate
@@ -396,9 +422,13 @@ modify_level = function(N = NULL,
   # First, establish that if we have no working data frame, we can't continue
   if(is.null(dim(working_environment_$data_frame_output_))) {
     if("imported_data_" %in% names(working_environment_)) {
-      working_environment_$data_frame_output_ = working_environment_$imported_data_
-      working_environment_$variable_names_ = names(working_environment_$imported_data_)
-      working_environment_$imported_data_ = NULL
+      tryCatch({
+        working_environment_$data_frame_output_ = data.frame(working_environment_$imported_data_)
+        working_environment_$variable_names_ = names(working_environment_$imported_data_)
+        working_environment_$imported_data_ = NULL
+      }, error=function(e) {
+        stop("User supplied data must be convertible into a data frame.")
+      })
     } else {
       stop("You can't modify a level if there is no working data frame to modify: you must either load pre-existing data or generate some data before modifying.")
     }
@@ -538,11 +568,11 @@ modify_level = function(N = NULL,
   return(working_environment_)
 }
 
-#'
-#' @rdname fabricate
+#' Deprecated level call function maintained to provide useful error for previous fabricatr code.
+#' @keywords internal
 #' @export
 level = function(N = NULL, ID_label = NULL, ...) {
-  stop("Level calls are currently deprecated; use add_level, nest_level, and modify_level")
+  stop("Level calls are currently deprecated; use add_level and modify_level")
   # Stub, this doesn't do anything yet -- may in the future dispatch to the relevant
   # levels.
 }

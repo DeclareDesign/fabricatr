@@ -11,7 +11,7 @@ test_that("Start with existing multi-level data and add variables",{
   user_data <-
     fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),
-    cities = nest_level(N = sample(1:5), subways = rnorm(N, mean = gdp)))
+    cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp)))
 
   expect_equal(dim(user_data), c(15, 4))
 
@@ -41,7 +41,7 @@ test_that("Start with existing multi-level data and add variables",{
   fabricate(data = user_data,
                  regions = modify_level(rob = paste0(regions, "r")),
                  cities = modify_level(bob = paste0(cities, "c")),
-                 neighborhoods = nest_level(N = 10, tmp = rnorm(N)))
+                 neighborhoods = add_level(N = 10, tmp = rnorm(N)))
 
   expect_equal(dim(user_data_5), c(150, 8))
 

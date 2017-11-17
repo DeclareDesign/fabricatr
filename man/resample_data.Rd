@@ -32,7 +32,7 @@ bootsrapped_data
 
 clustered_survey <- fabricate(
   clusters = add_level(N=25),
-  cities = nest_level(N=round(runif(25, 1, 5)), population=runif(n = N, min=50000, max=1000000))
+  cities = add_level(N=round(runif(25, 1, 5)), population=runif(n = N, min=50000, max=1000000))
 )
 
 # Specify the name of the cluster variable one of two ways
@@ -48,7 +48,7 @@ cluster_resample_2
 my_data <-
 fabricate(
   cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-  citizens = nest_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+  citizens = add_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
 )
 
 # Specify the levels you wish to resample one of two ways:

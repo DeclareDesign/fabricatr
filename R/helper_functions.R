@@ -1,6 +1,3 @@
-#'
-#' @importFrom rlang quos lang_args get_expr
-#'
 get_symbols_from_expression = function(l_arg) {
   # We have some sort of language expression in R, let's extract
   # the symbols it's going to refer to
@@ -22,9 +19,6 @@ get_symbols_from_expression = function(l_arg) {
   }
 }
 
-#'
-#' @importFrom rlang quos lang_args get_expr
-#'
 get_symbols_from_quosure = function(quosure) {
   # Given a quosure, what symbols will that quosure attempt to read when it
   # is evaluated?
@@ -154,7 +148,8 @@ handle_id = function(ID_label, data=NULL) {
 }
 
 # Checks if a supplied N is sane for the context it's in
-handle_n = function(N, add_level=TRUE, working_environment=NULL) {
+handle_n = function(N, add_level=TRUE, working_environment=NULL,
+                    parent_frame_levels=1) {
   # Error handling for user-supplied N
 
   # First, evaluate the N in the context of the working environment's working data frame
@@ -163,7 +158,7 @@ handle_n = function(N, add_level=TRUE, working_environment=NULL) {
     # Why do we substitute N in parent.frame()? Because if we substitute in the current
     # frame, we just get the symbol used for N from the outside functions, which would just be N
     # This ensures we get the expression passed to N in the outer function call.
-    temp_N_expr = substitute(N, parent.frame())
+    temp_N_expr = substitute(N, parent.frame(parent_frame_levels))
     N = eval_tidy(temp_N_expr, data=working_environment$data_frame_output_)
   }
 
@@ -251,7 +246,7 @@ handle_data = function(data) {
 
     # Convert user data to a data frame
     tryCatch({
-      data = as.data.frame(data)
+      data = data.frame(data)
     }, error=function(e) {
       # We can't make it a data frame -- this should probably never happen,
       # since it relies on something with a dim attribute not converting to

@@ -3,7 +3,7 @@ context("Resampling")
 test_that("Resampling", {
   two_levels <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),
-    cities = nest_level(N = 5, subways = rnorm(N, mean = gdp))
+    cities = add_level(N = 5, subways = rnorm(N, mean = gdp))
   )
 
   # Example with data.table codepath
@@ -25,7 +25,7 @@ test_that("Resampling", {
 test_that("Error handling of Resampling", {
   two_levels <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),
-    cities = nest_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
+    cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
   resampled_two_levels <- resample_data(two_levels) # Missing N
@@ -43,7 +43,7 @@ test_that("Error handling of Resampling", {
 test_that("Direct resample_single_level", {
   two_levels <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),
-    cities = nest_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
+    cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
   null_data = two_levels[two_levels$gdp > 100, ]
@@ -59,11 +59,11 @@ test_that("Extremely high volume data creation.", {
   skip("Slows build substantially.")
   deep_dive_data = fabricate(
     countries = add_level(N = 100, gdp = rlnorm(N)),
-    states = nest_level(N = 50, population = rlnorm(N)),
-    cities = nest_level(N = 50, holiday = runif(N, 1, 365)),
-    neighborhoods = nest_level(N = 5, stoplights = draw_binary(x=0.5, N)),
-    houses = nest_level(N = 5, population = runif(N, 1, 5)),
-    people = nest_level(N = population, sex = ifelse(draw_binary(x=0.5, N), "M", "F"))
+    states = add_level(N = 50, population = rlnorm(N)),
+    cities = add_level(N = 50, holiday = runif(N, 1, 365)),
+    neighborhoods = add_level(N = 5, stoplights = draw_binary(x=0.5, N)),
+    houses = add_level(N = 5, population = runif(N, 1, 5)),
+    people = add_level(N = population, sex = ifelse(draw_binary(x=0.5, N), "M", "F"))
   )
 
   test_resample = resample_data(deep_dive_data,
@@ -74,7 +74,7 @@ test_that("Extremely high volume data creation.", {
 test_that("Providing ID_labels through names of N.", {
   two_levels <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),
-    cities = nest_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
+    cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
   resample_data(two_levels, N=c(regions=3, cities=5))
@@ -92,7 +92,7 @@ test_that("Providing ID_labels through names of N.", {
 test_that("Passthrough resampling.", {
   two_levels <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),
-    cities = nest_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
+    cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
   resample_data(two_levels, N=c(regions=ALL, cities=3))
