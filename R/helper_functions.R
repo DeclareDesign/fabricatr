@@ -92,6 +92,13 @@ get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
 # Checks if an ID label is sane, warns or errors if not.
 # Generates an ID label if there isn't one provided.
 handle_id = function(ID_label, data=NULL) {
+  # If the user passed a symbol, we should evaluate the symbol forcibly and error if
+  # they were assuming NSE substitution of an undefined symbol.
+  tryCatch(force(ID_label),
+           error = function(e) {
+             stop("The ID_label provided is a reference to an undefined variable. Please enclose ID_label in quotation marks if you intended to provide ID_label as a character vector.")
+           })
+
   # User passed a non-symbol non-null ID_label
   if(!is.null(ID_label)) {
     if(is.vector(ID_label) & length(ID_label) > 1) {
@@ -150,6 +157,21 @@ handle_id = function(ID_label, data=NULL) {
 handle_n = function(N, add_level=TRUE, working_environment=NULL) {
   # Error handling for user-supplied N
 
+  # First, evaluate the N in the context of the working environment's working data frame
+  # Why do we need to do this? Because N could be a function of variables.
+  if(!is.null(working_environment) & "data_frame_output_" %in% names(working_environment)) {
+    # Why do we substitute N in parent.frame()? Because if we substitute in the current
+    # frame, we just get the symbol used for N from the outside functions, which would just be N
+    # This ensures we get the expression passed to N in the outer function call.
+    temp_N_expr = substitute(N, parent.frame())
+    N = eval_tidy(temp_N_expr, data=working_environment$data_frame_output_)
+  }
+
+  # User provided an unevaluated function
+  if(typeof(N) == "closure") {
+    stop("If you use a function to define N, you must evaluate that function rather than passing it in closure form.")
+  }
+
   # If they provided an N
   if(!is.null(N)) {
     # If this is an add_level operation, N must be a single number
@@ -204,6 +226,8 @@ handle_n = function(N, add_level=TRUE, working_environment=NULL) {
       })
     }
   }
+
+  return(N)
 }
 
 # Checks if the user-provided data is sane
@@ -242,7 +266,7 @@ handle_data = function(data) {
 
 # Function to check if every argument in a quosure options
 # is a level call.
-check_all_levels_new <- function(options){
+check_all_levels <- function(options){
   # Passing the options quosures
   # There were no levels, or indeed arguments, at all
   if (length(options) == 0)  return(FALSE)

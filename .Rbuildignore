@@ -11,4 +11,3 @@ _pkgdown.yml
 cran-comments.md
 ^NEWS\.md$
 ^_pkgdown\.yml$
-R/old-*

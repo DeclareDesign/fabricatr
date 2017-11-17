@@ -2,14 +2,14 @@ context("Variable functions")
 
 test_that("Variable functions", {
   # Single-level data, logit link, inherit or implicit N
-  fabricate(my_level = level(
+  fabricate(my_level = add_level(
     N = 10,
     Y1 = rnorm(N),
     Y2 = draw_binary(Y1, link = "logit")
   ))
 
   # Single level, count, inherit or implicit N
-  fabricate(my_level = level(
+  fabricate(my_level = add_level(
     N = 10,
     Y1 = rnorm(N, 5),
     Y2 = draw_discrete(Y1, type = "count", k = 3)
