@@ -57,7 +57,9 @@
 
 resample_data = function(data, N, ID_labels=NULL) {
   # Mask internal outer_level and use_dt arguments from view.
-  .resample_data_internal(data, N, ID_labels)
+  df = .resample_data_internal(data, N, ID_labels)
+  rownames(df) = NULL
+  return(df)
 }
 
 #' Magic number constant to allow users to specify "ALL" for passthrough resampling

@@ -145,7 +145,7 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
   # Run the level adder, report the results, and return
   return(
     report_results(
-      add_level(N = N, ID_label = ID_label, data_arguments = data_arguments)
+      add_level(N = N, ID_label = ID_label, data_arguments = data_arguments, new_hierarchy=TRUE)
     )
   )
 }
