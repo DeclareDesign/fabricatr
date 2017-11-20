@@ -23,7 +23,8 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-
+  
+  
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -107,10 +108,16 @@
     </div>
 
     
-    <p><code>fabricate</code> helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing <code>data</code> to <code>fabricate()</code>) or start from scratch by defining <code>N</code>. Create hierarchical data with multiple levels of data such as citizens within cities within states using <code>level()</code>. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, <code><a href='draw_binary.html'>draw_binary</a></code> and <code><a href='draw_count.html'>draw_count</a></code>.</p>
+    <p><code>fabricate</code> helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing <code>data</code> to <code>fabricate()</code>) or start from scratch by defining <code>N</code>. Create hierarchical data with multiple levels of data such as citizens within cities within states using <code>add_level()</code> or modify existing hierarchical data using <code>modify_level()</code>. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, <code><a href='draw_discrete.html'>draw_binary</a></code> and <code><a href='draw_discrete.html'>draw_discrete</a></code>.</p>
     
 
-    <pre class="usage"><span class='fu'>fabricate</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>fabricate</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+
+<span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>working_environment_</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>,
+  <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>), <span class='kw'>new_hierarchy</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='fu'>modify_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>working_environment_</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>,
+  <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>))</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -121,7 +128,7 @@
     </tr>
     <tr>
       <th>N</th>
-      <td><p>(optional) number of units to draw, if drawing a single level of data (i.e. not hierarchical data)</p></td>
+      <td><p>(optional) number of units to draw. If provided as <code>fabricate(N = 5)</code>, this determines the number of units in the single-level data. If provided in <code>level</code>, i.e. <code>fabricate(cities = level(N = 5))</code>, <code>N</code> determines the number of units in a specific level of a hierarchical dataset.</p></td>
     </tr>
     <tr>
       <th>ID_label</th>
@@ -129,7 +136,19 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Variable or level-generating arguments, such as <code>my_var = rnorm(N)</code>. You may also pass <code>level()</code> arguments, which define a level of a multi-level dataset. For example, you could send to <code>...</code> <code>my_level = level(N = 5, var = rnorm)</code>. See examples.</p></td>
+      <td><p>Variable or level-generating arguments, such as <code>my_var = rnorm(N)</code>. For <code>fabricate</code>, you may also pass <code>add_level()</code> or <code>modify_level()</code> arguments, which define a level of a multi-level dataset. See examples.</p></td>
+    </tr>
+    <tr>
+      <th>working_environment_</th>
+      <td><p>Internal argument, not intended for end-user use.</p></td>
+    </tr>
+    <tr>
+      <th>data_arguments</th>
+      <td><p>Internal argument, not intended for end-user use.</p></td>
+    </tr>
+    <tr>
+      <th>new_hierarchy</th>
+      <td><p>Reserved argument for future functionality to add cross-classified data. Not yet implemented.</p></td>
     </tr>
     </table>
     
@@ -155,12 +174,12 @@
   <span class='kw'>height_ft</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>3.5</span>, <span class='fl'>8</span>)
 )
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;    ID height_ft
-#&gt; 1 001  5.867480
-#&gt; 2 002  7.298735
-#&gt; 3 003  4.111960
-#&gt; 4 004  5.194103
-#&gt; 5 005  4.684889
-#&gt; 6 006  5.740338</div><div class='input'>
+#&gt; 1 001  6.945201
+#&gt; 2 002  6.963537
+#&gt; 3 003  7.958205
+#&gt; 4 004  7.867344
+#&gt; 5 005  5.251322
+#&gt; 6 006  5.575339</div><div class='input'>
 <span class='co'># Start with existing data</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>df</span>,
@@ -170,21 +189,22 @@
 <span class='co'># Draw a two-level hierarchical dataset</span>
 <span class='co'># containing cities within regions</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
- <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'><a href='level.html'>level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
- <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'><a href='level.html'>level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
+ <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
+ <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   regions cities pollution
-#&gt; 1       1     01  6.518193
-#&gt; 2       1     02  4.615993
-#&gt; 3       2     03  6.827125
-#&gt; 4       2     04  4.448508
-#&gt; 5       3     05  4.134246
-#&gt; 6       3     06  4.656169</div><div class='input'>
+#&gt; 1       1     01  5.239065
+#&gt; 2       1     02  5.236321
+#&gt; 3       2     03  4.740881
+#&gt; 4       2     04  5.649046
+#&gt; 5       3     05  3.782359
+#&gt; 6       3     06  5.841970</div><div class='input'>
 <span class='co'># Start with existing data and add variables to hierarchical data</span>
-<span class='co'># note: do not provide N when adding variables to an existing level</span>
+<span class='co'># at levels which are already present in the existing data.</span>
+<span class='co'># Note: do not provide N when adding variables to an existing level</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>df</span>,
-  <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'><a href='level.html'>level</a></span>(<span class='kw'>watershed</span> <span class='kw'>=</span> <span class='fu'>sample</span>(<span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>1</span>), <span class='no'>N</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)),
-  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'><a href='level.html'>level</a></span>(<span class='kw'>runoff</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>))
+  <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>modify_level</span>(<span class='kw'>watershed</span> <span class='kw'>=</span> <span class='fu'>sample</span>(<span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>1</span>), <span class='no'>N</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)),
+  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>modify_level</span>(<span class='kw'>runoff</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>))
 )</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

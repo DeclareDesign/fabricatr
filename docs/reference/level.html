@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fabricate a Level of Data for Hierarchical Data — level • fabricatr</title>
+<title>Deprecated level call function maintained to provide useful error for previous fabricatr code. — level • fabricatr</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -23,7 +23,8 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-
+  
+  
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -103,52 +104,21 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fabricate a Level of Data for Hierarchical Data</h1>
+    <h1>Deprecated level call function maintained to provide useful error for previous fabricatr code.</h1>
     </div>
 
     
-    <p>Fabricate a Level of Data for Hierarchical Data</p>
+    <p>Deprecated level call function maintained to provide useful error for previous fabricatr code.</p>
     
 
-    <pre class="usage"><span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
-    
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>N</th>
-      <td><p>number of units to draw in the level</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Data generating arguments, such as <code>my_var = rnorm(N)</code>. You may also pass <code>level()</code> arguments, which define a level of a multi-level dataset. For example, you could send to <code>...</code> <code>level(my_level, var = rnorm)</code>. See examples.</p></td>
-    </tr>
-    </table>
-    
+    <pre class="usage"><span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+        
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='co'># Draw a two-level hierarchical dataset</span>
-<span class='co'># containing cities within regions</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
- <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
- <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
-<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   regions cities pollution
-#&gt; 1       1     01  5.313530
-#&gt; 2       1     02  5.548406
-#&gt; 3       1     03  3.742612
-#&gt; 4       1     04  6.000885
-#&gt; 5       1     05  5.313166
-#&gt; 6       1     06  4.019470</div><div class='input'>
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-            
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+                </ul>
 
   </div>
 </div>

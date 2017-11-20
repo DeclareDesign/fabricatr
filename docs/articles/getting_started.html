@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Getting Started with Fabricatr • fabricatr</title>
+<title>Getting Started with Fabricatr and Imagining Your Data Before You Collect It • fabricatr</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -81,183 +81,611 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>Getting Started with Fabricatr</h1>
-                        <h4 class="author">Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys</h4>
+      <h1>Getting Started with Fabricatr and Imagining Your Data Before You Collect It</h1>
+                        <h4 class="author">Aaron Rudkin</h4>
             
-            <h4 class="date">2017-08-25</h4>
+            <h4 class="date">2017-11-20</h4>
           </div>
 
     
     
 <div class="contents">
-<p><code>fabricatr</code> is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, <code>fabricatr</code> is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine <strong>correlated</strong> data and <strong>heirarchical</strong> data.</p>
-<p><code>fabricatr</code> is a member of the <code>DeclareDesign</code> software suite that includes the <code>r</code> packages <a href="randomizr.declaredesign.org">randomizr</a>, <a href="estimatr.declaredesign.org">estimatr</a>, and <a href="declaredesign.org">Declare Design</a>. <code>fabricatr</code> plays well with the <a href="https://www.tidyverse.org/">tidyverse</a>.</p>
+<p><code>fabricatr</code> is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, <code>fabricatr</code> is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine <strong>correlated</strong> data and <strong>hierarchical</strong> data. <code>fabricatr</code> is designed to integrate into a <a href="https://www.tidyverse.org/">tidyverse</a> workflow, and to allow users to imagine data from scratch or by modifying existing data.</p>
+<p><code>fabricatr</code> is a member of the <code>DeclareDesign</code> software suite that also includes the <code>r</code> packages <a href="randomizr.declaredesign.org">randomizr</a>, <a href="estimatr.declaredesign.org">estimatr</a>, and <a href="declaredesign.org">Declare Design</a>.</p>
 <div id="basics" class="section level1">
 <h1 class="hasAnchor">
 <a href="#basics" class="anchor"></a>Basics</h1>
-<p>The workhorse function is <code>fabricate</code>. You provide a number to <code>N</code>, then a series of named functions. A nice feature is that you can use <code>N</code> as an argument to any of the functions you supply. Later functions can depend on values defined earlier, making the creation of correlated data easy</p>
+<p>Using <code>fabricatr</code> begins by making a call to the function <code>fabricate</code>. <code>fabricate</code> can be used to create single-level of hierarchical data. There are three main ways to call <code>fabricate</code>: making a single-level dataset by specifying how many observations you would like; making a single-level dataset by importing data and optionally modifying it by creating new variables; and making a hierarchical dataset.</p>
+</div>
+<div id="single-level-datasets-from-scratch" class="section level1">
+<h1 class="hasAnchor">
+<a href="#single-level-datasets-from-scratch" class="anchor"></a>Single-level datasets from scratch</h1>
+<p>Making a single-level dataset begins with providing the argument <code>N</code>, a number representing the number of observations you wish to create, followed by a series of variable definitions. Variables can be defined using any function you have access to in R. <code>fabricatr</code> provides several simple functions for generating common types of data. These are covered below. Functions that create subsequent variables can rely on previously created variables, which ensures that variables can be correlated with one another:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
-my_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">Y =</span> <span class="kw">runif</span>(N), <span class="dt">Y2 =</span> Y*<span class="dv">5</span>)
+my_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">Y =</span> <span class="kw">runif</span>(N), <span class="dt">Y2 =</span> Y<span class="op">*</span><span class="dv">5</span>)
 my_data</code></pre></div>
-<pre><code>##   ID          Y        Y2
-## 1  1 0.41562700 2.0781350
-## 2  2 0.24783623 1.2391812
-## 3  3 0.26713051 1.3356526
-## 4  4 0.74410844 3.7205422
-## 5  5 0.06653615 0.3326807</code></pre>
+<pre><code>##   ID         Y        Y2
+## 1  1 0.1291384 0.6456918
+## 2  2 0.7423025 3.7115125
+## 3  3 0.8410359 4.2051793
+## 4  4 0.1647554 0.8237770
+## 5  5 0.7022387 3.5111935</code></pre>
+</div>
+<div id="single-level-datasets-using-existing-data" class="section level1">
+<h1 class="hasAnchor">
+<a href="#single-level-datasets-using-existing-data" class="anchor"></a>Single-level datasets using existing data</h1>
+<p>Instead of specifying the argument <code>N</code>, users can specify the argument <code>data</code> to import existing datasets. Once a dataset is imported, subsequent variables have access to <code>N</code>, representing the number of observations in the imported data. This makes it easy to augment existing data with simulations based on that data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># This example makes use of the "quakes" dataset, built into R</span>
+<span class="co"># which describes earthquakes off the coast of Fiji. The "mag"</span>
+<span class="co"># variable contains the richter magnitude of the earthquakes.</span>
+
+simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">data=</span>quakes,
+                                 <span class="dt">fatalities =</span> <span class="kw">round</span>(<span class="kw">pmax</span>(<span class="dv">0</span>, <span class="kw">rnorm</span>(N, <span class="dt">mean=</span>mag)) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>),
+                                 <span class="dt">insurance_cost =</span> fatalities <span class="op">*</span><span class="st"> </span><span class="kw">runif</span>(N, <span class="dv">1000000</span>, <span class="dv">2000000</span>))
+<span class="kw">head</span>(simulated_quake_data)</code></pre></div>
+<pre><code>##      lat   long depth mag stations   ID fatalities insurance_cost
+## 1 -20.42 181.62   562 4.8       41 0001        416      530170542
+## 2 -20.62 181.03   650 4.2       15 0002        363      529439136
+## 3 -26.00 184.10    42 5.4       43 0003        525      972072282
+## 4 -17.97 181.66   626 4.1       19 0004        493      583348679
+## 5 -20.42 181.96   649 4.0       11 0005        532      919442480
+## 6 -19.68 184.31   195 4.0       12 0006        682     1068364654</code></pre>
+<p>Notice that variable creation calls are able to make reference to both the variables in the imported data set, and newly created variables. Also, function calls can be arbitrarily nested – the variable fatalities uses several nested function calls.</p>
 </div>
 <div id="hierarchical-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#hierarchical-data" class="anchor"></a>Hierarchical data</h1>
-<p>We can create hierarchical data through use of the <code>level</code> function. In the example below, we create 2 cities, each with an elevation. We then create 3 citizens per city, each with an income.</p>
-<p>There are three things to notice about this example:</p>
-<ol style="list-style-type: decimal">
-<li>The meaning of <code>N</code> changes. In the <code>cities</code> line, <code>N</code> means 2, the number of cities. In the <code>citizens</code> line, <code>N</code> means 3, the number of citizens.</li>
-<li>The data created at the cities level is <strong>constant</strong> within cities. Each city has its own elevation. The data created at the citizens level is <strong>not</strong> constant within cities.</li>
-<li>Variables created at a lower level can depend on variables created at a higher level. Citizen’s income depends on the elevation of cities.</li>
-</ol>
+<p>The most powerful use of <code>fabricatr</code> is to create hierarchical (“nested”) data. In the example below, we create 5 countries, each of which has 10 provinces:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">country_data &lt;-
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+    <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, 
+                          <span class="dt">gdp_per_capita =</span> <span class="kw">runif</span>(N, <span class="dt">min=</span><span class="dv">10000</span>, <span class="dt">max=</span><span class="dv">50000</span>),
+                          <span class="dt">life_expectancy =</span> <span class="dv">50</span> <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(N, <span class="dv">10</span>, <span class="dv">20</span>) <span class="op">+</span><span class="st"> </span>((gdp_per_capita <span class="op">&gt;</span><span class="st"> </span><span class="dv">30000</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>)),
+    <span class="dt">provinces =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">10</span>,
+                          <span class="dt">has_natural_resources =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">x=</span><span class="fl">0.3</span>, <span class="dt">N=</span>N, <span class="dt">type=</span><span class="st">"bernoulli"</span>),
+                          <span class="dt">has_manufacturing =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">x=</span><span class="fl">0.7</span>, <span class="dt">N=</span>N, <span class="dt">type=</span><span class="st">"bernoulli"</span>))
+  )
+<span class="kw">head</span>(country_data)</code></pre></div>
+<pre><code>##   countries gdp_per_capita life_expectancy provinces has_natural_resources
+## 1         1       12037.43        62.16561        01                     0
+## 2         1       12037.43        62.16561        02                     1
+## 3         1       12037.43        62.16561        03                     1
+## 4         1       12037.43        62.16561        04                     1
+## 5         1       12037.43        62.16561        05                     1
+## 6         1       12037.43        62.16561        06                     1
+##   has_manufacturing
+## 1                 1
+## 2                 1
+## 3                 1
+## 4                 1
+## 5                 0
+## 6                 1</code></pre>
+<p>Several things can be observed in this example. First, fabricate knows that your second <code>add_level</code> command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable “N” changes. During the <code>add_level</code> call for countries, N is 5. During the <code>add_level</code> call for provinces, N is 10. And the resulting data, of course, has 50 observations.</p>
+<p>Finally, the province-level variables are created using the <code>draw_discrete</code> function. This is a function provided by <code>fabricatr</code> to make simulating discrete random variables simple. When you simulate your own data, you can use <code>fabricatr</code>’s functions, R’s built-ins, or any custom functions you wish. We continue our exploration of <code>draw_discrete</code> below.</p>
+</div>
+<div id="adding-hierarchy-to-existing-data" class="section level1">
+<h1 class="hasAnchor">
+<a href="#adding-hierarchy-to-existing-data" class="anchor"></a>Adding hierarchy to existing data</h1>
+<p><code>fabricatr</code> is also able to import existing data and nest hierarchical data under it. This maybe be useful if, for example, you have existing country-level data but wish to simulate data at lower geographical levels for the purposes of an experiment you plan to conduct.</p>
+<p>Imagine importing the country-province data simulated in the previous example. Because <code>fabricate</code> returns a data frame, this simulated data can be re-imported into a subsequent fabricate call, just like external data can be.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">citizen_data &lt;-<span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+    <span class="dt">data =</span> country_data,
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N=</span><span class="dv">10</span>,
+                         <span class="dt">salary =</span> <span class="kw">rnorm</span>(N, 
+                                        <span class="dt">mean =</span> gdp_per_capita <span class="op">+</span><span class="st"> </span>
+<span class="st">                                          </span>has_natural_resources <span class="op">*</span><span class="st"> </span><span class="dv">5000</span> <span class="op">+</span><span class="st"> </span>
+<span class="st">                                          </span>has_manufacturing <span class="op">*</span><span class="st"> </span><span class="dv">5000</span>,
+                                        <span class="dt">sd =</span> <span class="dv">10000</span>)))
+<span class="kw">head</span>(citizen_data)</code></pre></div>
+<pre><code>##   countries gdp_per_capita life_expectancy provinces has_natural_resources
+## 1         1       12037.43        62.16561        01                     0
+## 2         1       12037.43        62.16561        01                     0
+## 3         1       12037.43        62.16561        01                     0
+## 4         1       12037.43        62.16561        01                     0
+## 5         1       12037.43        62.16561        01                     0
+## 6         1       12037.43        62.16561        01                     0
+##   has_manufacturing citizens   salary
+## 1                 1      001 27143.64
+## 2                 1      002 17583.17
+## 3                 1      003 14027.31
+## 4                 1      004 21023.94
+## 5                 1      005 18586.68
+## 6                 1      006 21803.78</code></pre>
+<p>In this example, we add a third level of data; for each of our 50 country-province observations, we now have 10 citizen-level observations. Citizen-level covariates like salary can draw from both the country-level covariate and the province-level covariate.</p>
+<p>Notice that the syntax for adding a new nested level to existing data is different than the syntax for adding new variables to the original dataset.</p>
+</div>
+<div id="more-complicated-level-creation-with-variable-numbers-of-observations" class="section level1">
+<h1 class="hasAnchor">
+<a href="#more-complicated-level-creation-with-variable-numbers-of-observations" class="anchor"></a>More complicated level creation with variable numbers of observations</h1>
+<p><code>add_level</code> can be used to create more complicated patterns of nesting. For example, when creating lower level data, it is possible to use a different <code>N</code> for each of the values of the higher level data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">variable_data &lt;-
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">4</span>), <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
+  )
+variable_data</code></pre></div>
+<pre><code>##   cities elevation citizens      age
+## 1      1  1442.832        1 69.93360
+## 2      1  1442.832        2 38.77904
+## 3      2  1384.504        3 36.61337
+## 4      2  1384.504        4 21.31266
+## 5      2  1384.504        5 61.21264
+## 6      2  1384.504        6 65.30241</code></pre>
+<p>Here, each city has a different number of citizens. And the value of <code>N</code> used to create the age variable automatically updates as needed. The result is a dataset with 6 citizens, 2 in the first city and 4 in the second. As long as N is either a number, or a vector of the same length of the current lowest level of the data, <code>add_level</code> will know what to do.</p>
+<p>It is also possible to provide a function to N, enabling a <em>random</em> number of citizens per city:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-    <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
+    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>, <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>), 
+                         <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   )
 my_data</code></pre></div>
-<pre><code>##   cities elevation citizens income
-## 1      1  1112.361        1   4874
-## 2      1  1112.361        2   4609
-## 3      1  1112.361        3   4354
-## 4      2  1736.349        4   8673
-## 5      2  1736.349        5   5764
-## 6      2  1736.349        6  10800</code></pre>
-</div>
-<div id="bringing-in-your-own-data" class="section level1">
-<h1 class="hasAnchor">
-<a href="#bringing-in-your-own-data" class="anchor"></a>Bringing in your own data</h1>
-<p>An essential part of imagining your data before you collect it is the ability to build on the data you all ready have.</p>
-<p>A second way you may wish to use existing data is bootstrap a new dataset from it, thereby preserving all the natural inter-correlations.</p>
-<div id="modifying-existing-data" class="section level2">
+<pre><code>##   cities elevation citizens      age
+## 1      1  1058.567        1 24.19390
+## 2      1  1058.567        2 25.98022
+## 3      1  1058.567        3 25.61961
+## 4      1  1058.567        4 18.42519
+## 5      1  1058.567        5 48.39007
+## 6      1  1058.567        6 30.93035
+## 7      2  1596.202        7 39.83990
+## 8      2  1596.202        8 19.96792
+## 9      2  1596.202        9 19.18428</code></pre>
+<p>Here, each city is given a random number of citizens between 1 and 6. Since the <code>sample</code> function returns a vector of length 2, this is like specifying 2 separate <code>N</code>s as in the example above.</p>
+<p>Finally, it is possible to define <code>N</code> on the basis of higher level variables themselves. Consider the following example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">population =</span> <span class="kw">runif</span>(N, <span class="dv">10</span>, <span class="dv">200</span>)),
+  <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="kw">round</span>(population <span class="op">*</span><span class="st"> </span><span class="fl">0.3</span>))
+)</code></pre></div>
+<pre><code>##     cities population citizens
+## 1        1   70.74874      001
+## 2        1   70.74874      002
+## 3        1   70.74874      003
+## 4        1   70.74874      004
+## 5        1   70.74874      005
+## 6        1   70.74874      006
+## 7        1   70.74874      007
+## 8        1   70.74874      008
+## 9        1   70.74874      009
+## 10       1   70.74874      010
+## 11       1   70.74874      011
+## 12       1   70.74874      012
+## 13       1   70.74874      013
+## 14       1   70.74874      014
+## 15       1   70.74874      015
+## 16       1   70.74874      016
+## 17       1   70.74874      017
+## 18       1   70.74874      018
+## 19       1   70.74874      019
+## 20       1   70.74874      020
+## 21       1   70.74874      021
+## 22       2  150.93382      022
+## 23       2  150.93382      023
+## 24       2  150.93382      024
+## 25       2  150.93382      025
+## 26       2  150.93382      026
+## 27       2  150.93382      027
+## 28       2  150.93382      028
+## 29       2  150.93382      029
+## 30       2  150.93382      030
+## 31       2  150.93382      031
+## 32       2  150.93382      032
+## 33       2  150.93382      033
+## 34       2  150.93382      034
+## 35       2  150.93382      035
+## 36       2  150.93382      036
+## 37       2  150.93382      037
+## 38       2  150.93382      038
+## 39       2  150.93382      039
+## 40       2  150.93382      040
+## 41       2  150.93382      041
+## 42       2  150.93382      042
+## 43       2  150.93382      043
+## 44       2  150.93382      044
+## 45       2  150.93382      045
+## 46       2  150.93382      046
+## 47       2  150.93382      047
+## 48       2  150.93382      048
+## 49       2  150.93382      049
+## 50       2  150.93382      050
+## 51       2  150.93382      051
+## 52       2  150.93382      052
+## 53       2  150.93382      053
+## 54       2  150.93382      054
+## 55       2  150.93382      055
+## 56       2  150.93382      056
+## 57       2  150.93382      057
+## 58       2  150.93382      058
+## 59       2  150.93382      059
+## 60       2  150.93382      060
+## 61       2  150.93382      061
+## 62       2  150.93382      062
+## 63       2  150.93382      063
+## 64       2  150.93382      064
+## 65       2  150.93382      065
+## 66       2  150.93382      066
+## 67       3  163.82068      067
+## 68       3  163.82068      068
+## 69       3  163.82068      069
+## 70       3  163.82068      070
+## 71       3  163.82068      071
+## 72       3  163.82068      072
+## 73       3  163.82068      073
+## 74       3  163.82068      074
+## 75       3  163.82068      075
+## 76       3  163.82068      076
+## 77       3  163.82068      077
+## 78       3  163.82068      078
+## 79       3  163.82068      079
+## 80       3  163.82068      080
+## 81       3  163.82068      081
+## 82       3  163.82068      082
+## 83       3  163.82068      083
+## 84       3  163.82068      084
+## 85       3  163.82068      085
+## 86       3  163.82068      086
+## 87       3  163.82068      087
+## 88       3  163.82068      088
+## 89       3  163.82068      089
+## 90       3  163.82068      090
+## 91       3  163.82068      091
+## 92       3  163.82068      092
+## 93       3  163.82068      093
+## 94       3  163.82068      094
+## 95       3  163.82068      095
+## 96       3  163.82068      096
+## 97       3  163.82068      097
+## 98       3  163.82068      098
+## 99       3  163.82068      099
+## 100      3  163.82068      100
+## 101      3  163.82068      101
+## 102      3  163.82068      102
+## 103      3  163.82068      103
+## 104      3  163.82068      104
+## 105      3  163.82068      105
+## 106      3  163.82068      106
+## 107      3  163.82068      107
+## 108      3  163.82068      108
+## 109      3  163.82068      109
+## 110      3  163.82068      110
+## 111      3  163.82068      111
+## 112      3  163.82068      112
+## 113      3  163.82068      113
+## 114      3  163.82068      114
+## 115      3  163.82068      115
+## 116      4   36.63802      116
+## 117      4   36.63802      117
+## 118      4   36.63802      118
+## 119      4   36.63802      119
+## 120      4   36.63802      120
+## 121      4   36.63802      121
+## 122      4   36.63802      122
+## 123      4   36.63802      123
+## 124      4   36.63802      124
+## 125      4   36.63802      125
+## 126      4   36.63802      126
+## 127      5   23.96353      127
+## 128      5   23.96353      128
+## 129      5   23.96353      129
+## 130      5   23.96353      130
+## 131      5   23.96353      131
+## 132      5   23.96353      132
+## 133      5   23.96353      133</code></pre>
+<p>Here, the city has a defined population, and the number of citizens in our simulated data reflects a sample of 30% of that population. Each city has a different population, so each city gets a different number of citizens in this example.</p>
+<div id="modifying-existing-levels" class="section level2">
 <h2 class="hasAnchor">
-<a href="#modifying-existing-data" class="anchor"></a>Modifying existing data</h2>
-<p>If you have already conducted a baseline survey, you may which to imagine how the endline may deviate from it. In this case, you will want to add new variables to your existing dataset. Notice that the meaning of <code>N</code> in the definition of <code>Y_post</code> automatically refers to the number of rows in the dataset provided to the <code>data</code> argument.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">baseline_survey &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">Y_pre =</span> <span class="kw">rnorm</span>(N))
+<a href="#modifying-existing-levels" class="anchor"></a>Modifying existing levels</h2>
+<p>Suppose you have hierarchical data, and wish to simulate variables at a higher level of aggregation. For example, imagine you import a dataset containing citizens within countries, but you wish to simulate additional country-level variables. In <code>fabricatr</code>, you can do this using the <code>modify_level</code> command.</p>
+<p>Let’s use our country-province data from earlier:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">new_country_data &lt;-
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+    <span class="dt">data =</span> country_data,
+    <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">average_temperature =</span> <span class="kw">runif</span>(N, <span class="dv">30</span>, <span class="dv">80</span>))
+  )
 
-my_endline &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">data =</span> baseline_survey, 
-                             <span class="dt">Y_post =</span> Y_pre +<span class="st"> </span><span class="kw">rnorm</span>(N))
-my_endline</code></pre></div>
-<pre><code>##   ID      Y_pre      Y_post
-## 1  1 -1.1493787 -1.85048959
-## 2  2  0.2465355  1.30343303
-## 3  3  0.2900489  0.18682424
-## 4  4 -0.5520475  0.09666843
-## 5  5  0.3632573  2.53695339</code></pre>
+<span class="kw">head</span>(new_country_data)</code></pre></div>
+<pre><code>##   countries gdp_per_capita life_expectancy provinces has_natural_resources
+## 1         1       12037.43        62.16561        01                     0
+## 2         1       12037.43        62.16561        02                     1
+## 3         1       12037.43        62.16561        03                     1
+## 4         1       12037.43        62.16561        04                     1
+## 5         1       12037.43        62.16561        05                     1
+## 6         1       12037.43        62.16561        06                     1
+##   has_manufacturing average_temperature
+## 1                 1            53.72762
+## 2                 1            53.72762
+## 3                 1            53.72762
+## 4                 1            53.72762
+## 5                 0            53.72762
+## 6                 1            53.72762</code></pre>
+<p>Two things are worth noting. First, observe that in the resulting data, the new variable is created at the level of aggregation you chose – countries. Second, although N is not specified anywhere, <code>modify_level</code> knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the <code>modify_level</code> command is correctly assigned to the level of interest.</p>
+<p>We can also modify more than one level. Recalling our country-province-citizen data from above, the following process is possible:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">new_citizen_data &lt;-
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+    <span class="dt">data =</span> citizen_data,
+    <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">average_temperature =</span> <span class="kw">runif</span>(N, <span class="dv">30</span>, <span class="dv">80</span>)),
+    <span class="dt">provinces =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">conflict_zone =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(N, 
+                                                           <span class="dt">x=</span><span class="fl">0.2</span> <span class="op">+</span><span class="st"> </span>has_natural_resources<span class="op">*</span><span class="fl">0.3</span>,
+                                                           <span class="dt">type=</span><span class="st">"binary"</span>),
+                             <span class="dt">infant_mortality =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">10</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">                               </span>conflict_zone<span class="op">*</span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span>
+<span class="st">                               </span>(average_temperature <span class="op">&gt;</span><span class="st"> </span><span class="dv">70</span>)<span class="op">*</span><span class="dv">10</span>),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">college_degree =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(N, <span class="dt">x=</span><span class="fl">0.4</span> <span class="op">-</span><span class="st"> </span>(<span class="fl">0.3</span><span class="op">*</span>conflict_zone), <span class="dt">type=</span><span class="st">"binary"</span>))
+  )</code></pre></div>
+<p>Before assessing what this tells us about <code>modify_level</code>, let’s consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on “resource curses”. The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizens access to education is also random, but depends on whether they live in a conflict area.</p>
+<p>There are a lot of things to learn from this example. First, it’s possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according – by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one <code>modify_level</code> call can be used in subsequent variables of the same call, or subsequent calls.</p>
+<p>Again, we see the use of <code>draw_discrete</code>. We will now discusss this function, which can be used to generate many common discrete data types.</p>
 </div>
+</div>
+<div id="fabricating-discrete-random-variables-" class="section level1">
+<h1 class="hasAnchor">
+<a href="#fabricating-discrete-random-variables-" class="anchor"></a>Fabricating discrete random variables.</h1>
+<div id="binary-and-binomial-outcomes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#binary-and-binomial-outcomes" class="anchor"></a>Binary and binomial outcomes</h2>
+<p>The simplest possible type of data, and <code>draw_discrete</code>’s default, is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter <code>x</code> which specifies the probability that outcomes drawn from this variable are equal to 1. By default, <code>draw_discrete</code> will generate <code>N = length(x)</code> draws. <code>N</code> can also be specified explicitly. Consider these examples:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">p =</span> <span class="kw">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>), 
+          <span class="dt">binary_1 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">x=</span>p),
+          <span class="dt">binary_2 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span><span class="dv">3</span>, <span class="dt">x=</span><span class="fl">0.5</span>))</code></pre></div>
+<pre><code>##   ID   p binary_1 binary_2
+## 1  1 0.0        0        1
+## 2  2 0.5        1        1
+## 3  3 1.0        1        1</code></pre>
+<p><code>draw_discrete</code> additionally takes an argument <code>type</code>, which specifies which type of random variable you wish to draw outcomes from. The default argument here is “binary” – other aliases include “bernoulli” or “binomial”. A simple alias to <code><a href="../reference/draw_discrete.html">draw_discrete(type="binary")</a></code> is <code>draw_binary</code>. All of the variables created here are equivalent:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
+          <span class="dt">binary_1 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="fl">0.5</span>, <span class="dt">type=</span><span class="st">"binary"</span>),
+          <span class="dt">binary_2 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="fl">0.5</span>, <span class="dt">type=</span><span class="st">"bernoulli"</span>),
+          <span class="dt">binary_3 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="fl">0.5</span>, <span class="dt">type=</span><span class="st">"binomial"</span>),
+          <span class="dt">binary_4 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="fl">0.5</span>)
+)</code></pre></div>
+<pre><code>##   ID binary_1 binary_2 binary_3 binary_4
+## 1  1        0        0        1        1
+## 2  2        1        1        0        1
+## 3  3        0        1        1        0</code></pre>
+<p>In addition to binary variables, <code>draw_discrete</code> supports repeated Bernoulli trials (“binomial” data). This requires specifying an argument <code>k</code>, equal to the number of trials.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
+          <span class="dt">freethrows =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="fl">0.5</span>, <span class="dt">k=</span><span class="dv">10</span>, <span class="dt">type=</span><span class="st">"binomial"</span>)
+)</code></pre></div>
+<pre><code>##   ID freethrows
+## 1  1          4
+## 2  2          5
+## 3  3          3</code></pre>
+<p>Some researchers may be interested in specifying probabilities through a “link function”. This can be done in <code>draw_discrete</code> through the <code>link</code> argument. The default link function is “identity”, but we also support “logit”, and “probit”. These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="dv">10</span><span class="op">*</span><span class="kw">rnorm</span>(N), 
+          <span class="dt">binary =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">x=</span>x, <span class="dt">type =</span> <span class="st">"bernoulli"</span>, <span class="dt">link =</span> <span class="st">"probit"</span>))</code></pre></div>
+<pre><code>##   ID          x binary
+## 1  1 -12.278118      0
+## 2  2   1.618084      1
+## 3  3   3.898883      1</code></pre>
+</div>
+<div id="ordered-outcomes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ordered-outcomes" class="anchor"></a>Ordered outcomes</h2>
+<p>Some researchers may be interested in generating ordered outcomes – for example, Likert scale outcomes. This can be done using the “ordered” type. Ordered variables require a vector of breakpoints, supplied as the argument <code>breaks</code> – points at which the underlying latent variable switches from category to category. The first break should always be below the lower bound of the data, while the final break should always be above the upper bound of the data.</p>
+<p>In the following example, each of three observations has a latent variable <code>x</code> which is continuous and unbounded. The variable <code>ordered</code> transforms <code>x</code> into three numeric categories: 1, 2, and 3. All values of <code>x</code> below -1 result in <code>ordered</code> 1; all values of <code>x</code> between -1 and 1 result in <code>ordered</code> 2; all values of <code>x</code> above 1 result in <code>ordered</code> 3:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="dv">5</span><span class="op">*</span><span class="kw">rnorm</span>(N), 
+          <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(x, <span class="dt">type =</span> <span class="st">"ordered"</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>)))</code></pre></div>
+<pre><code>##   ID          x ordered
+## 1  1  0.8198896       2
+## 2  2 -2.6797152       1
+## 3  3 -1.6753027       1</code></pre>
+<p>Ordered data also supports link functions including “logit” or “probit”:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="dv">5</span><span class="op">*</span><span class="kw">rnorm</span>(N), 
+          <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(x, <span class="dt">type =</span> <span class="st">"ordered"</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>), <span class="dt">link =</span> <span class="st">"probit"</span>))</code></pre></div>
+<pre><code>##   ID         x ordered
+## 1  1 -6.053177       1
+## 2  2 -2.822184       1
+## 3  3  5.189346       3</code></pre>
+</div>
+<div id="count-outcomes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#count-outcomes" class="anchor"></a>Count outcomes</h2>
+<p><code>draw_discrete</code> supports Poisson-distributed count outcomes. These require that the user specify the parameter <code>x</code>, equal to the Poisson distribution mean (often referred to as <code>lambda</code>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">100</span>), 
+          <span class="dt">count =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(x, <span class="dt">type =</span> <span class="st">"count"</span>))</code></pre></div>
+<pre><code>##   ID   x count
+## 1  1   0     0
+## 2  2   5     4
+## 3  3 100    98</code></pre>
+</div>
+<div id="categorical-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#categorical-data" class="anchor"></a>Categorical data</h2>
+<p><code>draw_discrete</code> can also generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities), as well as setting <code>type</code> to be “categorical”.</p>
+<p>If probabilities do not sum to exactly one, they will be normalized, but negative probabilities will cause an error.</p>
+<p>In the first example, each unit has a different set of probabilities and the probabilities are provided as a matrix:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">6</span>, 
+          <span class="dt">p1 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
+          <span class="dt">p2 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
+          <span class="dt">p3 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
+          <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="kw">cbind</span>(p1, p2, p3), <span class="dt">type =</span> <span class="st">"categorical"</span>))</code></pre></div>
+<pre><code>##   ID         p1         p2         p3 cat
+## 1  1 0.43906409 0.77561736 0.04425400   1
+## 2  2 0.64134518 0.33238301 0.62993696   2
+## 3  3 0.98392834 0.73681700 0.37052159   2
+## 4  4 0.90027964 0.46457251 0.96551519   1
+## 5  5 0.43760565 0.04529578 0.01551968   1
+## 6  6 0.08402019 0.22479164 0.29102408   2</code></pre>
+<p>In the second example, each unit has the same probability of getting a given category. <code>draw_discrete</code> will issue a warning to remind you that it is interpreting the vector in this way.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">6</span>, 
+          <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="kw">c</span>(<span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.4</span>), <span class="dt">type =</span> <span class="st">"categorical"</span>))</code></pre></div>
+<pre><code>## Warning in draw_discrete(N = N, x = c(0.2, 0.4, 0.4), type =
+## "categorical"): For a categorical (multinomial) distribution, a matrix of
+## probabilities should be provided. Data generated by interpreting vector of
+## category probabilities, identical for each observation.</code></pre>
+<pre><code>##   ID cat
+## 1  1   2
+## 2  2   2
+## 3  3   2
+## 4  4   3
+## 5  5   3
+## 6  6   3</code></pre>
+<p>“categorical” variables can also use link functions, for example to generate multinomial probit data.</p>
+</div>
+</div>
+<div id="simulation-resampling-from-existing-data-" class="section level1">
+<h1 class="hasAnchor">
+<a href="#simulation-resampling-from-existing-data-" class="anchor"></a>Simulation “resampling” from existing data.</h1>
+<p>One way to imagine new data is to take data you already have and resample it, ensuring that existing inter-correlations between variables are preserved, while generating new data or expanding the size of the dataset. <code>fabricatr</code> offers several options to simulate resampling.</p>
 <div id="bootstrapping" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bootstrapping" class="anchor"></a>Bootstrapping</h2>
-<p>Suppose you wanted to bootstrap from your baseline survey.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bootsrapped_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(baseline_survey, <span class="dt">N =</span> <span class="dv">10</span>)
-bootsrapped_data</code></pre></div>
-<pre><code>##    ID      Y_pre
-## 1   1 -1.1493787
-## 2   1 -1.1493787
-## 3   2  0.2465355
-## 4   3  0.2900489
-## 5   2  0.2465355
-## 6   2  0.2465355
-## 7   1 -1.1493787
-## 8   5  0.3632573
-## 9   1 -1.1493787
-## 10  3  0.2900489</code></pre>
-<p>The real utility of this function comes when bootstrapping from hierarchical data. The example below takes a dataset that contains 2 cities, each with 3 citizens, then bootstraps to 3 cities, each with 5 citizens.</p>
+<p>The simplest option in <code>fabricatr</code> is to “bootstrap” data. Taking data with N observations, the “bootstrap” resamples these observations with replacement and generates N new observations. Existing observations may be used zero times, once, or more than once. Bootstrapping is very simple with the <code>resample_data</code> function:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N=</span><span class="dv">10</span>, 
+                        <span class="dt">voted_republican =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="fl">0.5</span>))
+
+survey_data_new =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data)
+survey_data</code></pre></div>
+<pre><code>##    ID voted_republican
+## 1  01                0
+## 2  02                1
+## 3  03                1
+## 4  04                1
+## 5  05                1
+## 6  06                0
+## 7  07                0
+## 8  08                1
+## 9  09                0
+## 10 10                0</code></pre>
+<p>It is also possible to resample fewer or greater number of observations from your existing data. We can do this by specifying the argument <code>N</code> to <code>resample_data</code>. Consider expanding a small dataset to allow for better imagination of larger data to be collected later.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">large_survey_data =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data, <span class="dt">N=</span><span class="dv">100</span>)
+<span class="kw">nrow</span>(large_survey_data)</code></pre></div>
+<pre><code>## [1] 100</code></pre>
+</div>
+<div id="resampling-hierarchical-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#resampling-hierarchical-data" class="anchor"></a>Resampling hierarchical data</h2>
+<p>One of the most powerful features of all of <code>fabricatr</code> is the ability to resample from hierarchical data at any or all levels. Doing so requires specifying which levels you will want to resample with the <code>ID_labels</code> argument. Unless otherwise specified, all units from levels below the resampled level will be kept. In our earlier country-province-citizen dataset, resampling countries will lead to all provinces and citizens of the selected country being carried forward. You can resample at multiple levels simultaneously.</p>
+<p>Consider this example, which takes a dataset containing 2 cities of 3 citizens, and resamples it into a dataset of 3 cities, each containing 5 citizens.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-    <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
+    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   )
 
-my_data_2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">5</span>), <span class="dt">ID_labels =</span> <span class="kw">c</span>(<span class="st">"cities"</span>, <span class="st">"citizens"</span>))
-my_data_2</code></pre></div>
-<pre><code>##    cities elevation citizens income
-## 1       1  1941.207        3  12747
-## 2       1  1941.207        3  12747
-## 3       1  1941.207        3  12747
-## 4       1  1941.207        2   8524
-## 5       1  1941.207        2   8524
-## 6       1  1941.207        2   8524
-## 7       1  1941.207        2   8524
-## 8       1  1941.207        2   8524
-## 9       1  1941.207        2   8524
-## 10      1  1941.207        1   9949
-## 11      1  1941.207        1   9949
-## 12      1  1941.207        1   9949
-## 13      1  1941.207        1   9949
-## 14      1  1941.207        1   9949
-## 15      1  1941.207        1   9949</code></pre>
+my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, 
+                           <span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">5</span>), 
+                           <span class="dt">ID_labels =</span> <span class="kw">c</span>(<span class="st">"cities"</span>, <span class="st">"citizens"</span>))
+my_data_<span class="dv">2</span></code></pre></div>
+<pre><code>##    cities elevation citizens      age
+## 1       1  1230.508        1 34.58195
+## 2       1  1230.508        2 19.24518
+## 3       1  1230.508        2 19.24518
+## 4       1  1230.508        2 19.24518
+## 5       1  1230.508        2 19.24518
+## 6       1  1230.508        3 35.06960
+## 7       1  1230.508        2 19.24518
+## 8       1  1230.508        1 34.58195
+## 9       1  1230.508        3 35.06960
+## 10      1  1230.508        3 35.06960
+## 11      2  1407.014        6 32.61556
+## 12      2  1407.014        5 39.32759
+## 13      2  1407.014        5 39.32759
+## 14      2  1407.014        5 39.32759
+## 15      2  1407.014        4 45.59892</code></pre>
+<p><code>resample_data</code> will first select the cities to be resampled. Then, for each city, it will continue by selecting the citizens to be resampled. If a higher level unit is used more than once (for example, the same city being chosen twice), and a lower level is subsequently resampled, the choices of which units to keep for the lower level will differ for each copy of the higher level. In this example, if city 1 is chosen twice, then the sets of five citizens chosen for each copy of the city 1 will differ.</p>
+<p>Level names can also be specified within the vector for <code>N</code>, as follows:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dt">cities=</span><span class="dv">3</span>, <span class="dt">citizens=</span><span class="dv">5</span>))
+my_data_<span class="dv">2</span></code></pre></div>
+<pre><code>##    cities elevation citizens      age
+## 1       1  1230.508        2 19.24518
+## 2       1  1230.508        1 34.58195
+## 3       1  1230.508        2 19.24518
+## 4       1  1230.508        2 19.24518
+## 5       1  1230.508        1 34.58195
+## 6       2  1407.014        4 45.59892
+## 7       2  1407.014        5 39.32759
+## 8       2  1407.014        6 32.61556
+## 9       2  1407.014        5 39.32759
+## 10      2  1407.014        6 32.61556
+## 11      1  1230.508        3 35.06960
+## 12      1  1230.508        3 35.06960
+## 13      1  1230.508        1 34.58195
+## 14      1  1230.508        1 34.58195
+## 15      1  1230.508        3 35.06960</code></pre>
+</div>
+<div id="passing-through-levels-transparently-" class="section level2">
+<h2 class="hasAnchor">
+<a href="#passing-through-levels-transparently-" class="anchor"></a>Passing through levels transparently.</h2>
+<p>When resampling across multiple levels, it may be useful to transparently pass through all units of a particular level. For example, considering data with a clustered design, it may be useful to resample some number of individual observations from each original cluster. This is done by specifying the all-caps flag ALL for the number of units selected at a given level. Do not quote ALL, and ensure that it is written capitalized.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clustered_survey &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">clusters =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N=</span><span class="dv">25</span>),
+  <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N=</span><span class="dv">10</span>, <span class="dt">population=</span><span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min=</span><span class="dv">50000</span>, <span class="dt">max=</span><span class="dv">1000000</span>))
+)
+
+cluster_resample &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(clustered_survey, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dt">clusters=</span>ALL, <span class="dt">cities=</span><span class="dv">2</span>))
+cluster_resample</code></pre></div>
+<pre><code>##    clusters cities population
+## 1        01    003  198221.02
+## 2        01    006  239790.77
+## 3        02    012  814258.38
+## 4        02    012  814258.38
+## 5        03    023  461744.93
+## 6        03    027  501622.34
+## 7        04    037  230250.85
+## 8        04    036  278218.19
+## 9        05    041  257713.05
+## 10       05    050  726394.72
+## 11       06    051  318413.26
+## 12       06    055  385457.64
+## 13       07    064  396688.65
+## 14       07    065   85662.54
+## 15       08    073  832704.49
+## 16       08    079  836821.35
+## 17       09    082  571610.66
+## 18       09    086  702623.01
+## 19       10    099  885549.98
+## 20       10    096  909325.31
+## 21       11    107  729332.92
+## 22       11    106  817737.14
+## 23       12    120  771482.18
+## 24       12    119  205963.40
+## 25       13    121  282151.03
+## 26       13    125  128666.05
+## 27       14    138  862775.05
+## 28       14    138  862775.05
+## 29       15    148  823878.73
+## 30       15    150  285790.84
+## 31       16    156  451565.38
+## 32       16    154  523372.39
+## 33       17    167  470382.94
+## 34       17    170  697932.31
+## 35       18    173  827662.96
+## 36       18    173  827662.96
+## 37       19    183   70050.54
+## 38       19    184  868666.70
+## 39       20    200  644759.43
+## 40       20    199  611659.16
+## 41       21    210  142510.51
+## 42       21    202  833337.90
+## 43       22    219   54232.84
+## 44       22    217  935972.65
+## 45       23    227  912267.20
+## 46       23    225  789204.09
+## 47       24    237  170889.34
+## 48       24    232  472728.79
+## 49       25    249  773195.35
+## 50       25    243  911415.98</code></pre>
+<p>Recall that if you used <code>resample_data</code> only on <code>cities</code>, two cities would be chosen from the entire dataset; selecting to pass through ALL clusters ensures that within each cluster, 2 cities are chosen.</p>
+<p>This example begins with a dataset of 25 clusters each containing 10 cities and resamples to a dataset of the same 25 clusters, each containing 2 cities (the original cities may each be used zero or more times in the resampling process).</p>
 </div>
 </div>
 <div id="advanced-features" class="section level1">
 <h1 class="hasAnchor">
 <a href="#advanced-features" class="anchor"></a>Advanced Features</h1>
-<div id="ns-that-vary" class="section level2">
+<div id="averages-within-higher-levels-of-hierarchy" class="section level2">
 <h2 class="hasAnchor">
-<a href="#ns-that-vary" class="anchor"></a>Ns that vary</h2>
-<p>When making hierarchical data, you may not want to have the same number of units at each level of the hierarchy. For example, in the example below, we want one city to have 2 citizens and the other city to have four:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
-<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-    <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">4</span>), <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
-  )
-my_data</code></pre></div>
-<pre><code>##   cities elevation citizens income
-## 1      1  1268.314        1   6200
-## 2      1  1268.314        2   5622
-## 3      2  1561.877        3   8468
-## 4      2  1561.877        4   4951
-## 5      2  1561.877        5   6864
-## 6      2  1561.877        6   9126</code></pre>
-<p>You can even have Ns that are determined by a function, enabling a <em>random</em> number of citizens per city:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
-<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-    <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">6</span>, <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>), <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
-  )
-my_data</code></pre></div>
-<pre><code>##    cities elevation citizens income
-## 1       1  1989.295       01  13104
-## 2       1  1989.295       02   8905
-## 3       1  1989.295       03  15421
-## 4       1  1989.295       04  10432
-## 5       2  1068.203       05   5931
-## 6       2  1068.203       06   5902
-## 7       2  1068.203       07   4814
-## 8       2  1068.203       08   5204
-## 9       2  1068.203       09   6509
-## 10      2  1068.203       10   4036</code></pre>
-</div>
-<div id="bringing-in-your-own-hierarchical-data" class="section level2">
-<h2 class="hasAnchor">
-<a href="#bringing-in-your-own-hierarchical-data" class="anchor"></a>Bringing in your own hierarchical data</h2>
-<p>Suppose you had existing hierarchical data, and you wanted to add variables that respected the levels.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_baseline_data &lt;-
-<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-    <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
-  )
-
-<span class="co"># add new variables at each level</span>
-my_data &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">data =</span> my_baseline_data,
-                 <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">density =</span> elevation /<span class="st"> </span><span class="dv">2</span>),
-                 <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">wealth =</span> income -<span class="st"> </span><span class="dv">100</span>))
-
-my_data</code></pre></div>
-<pre><code>##   citizens cities income elevation  density wealth
-## 1        1      1   7303  1405.193 702.5966   7203
-## 2        2      1   6772  1405.193 702.5966   6672
-## 3        3      1   8510  1405.193 702.5966   8410
-## 4        4      2   5089  1138.607 569.3035   4989
-## 5        5      2   6965  1138.607 569.3035   6865
-## 6        6      2   6243  1138.607 569.3035   6143</code></pre>
+<a href="#averages-within-higher-levels-of-hierarchy" class="anchor"></a>Averages within higher levels of hierarchy</h2>
+<p>You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with <code>ave</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(
+      <span class="dt">N =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dt">income =</span> <span class="kw">rnorm</span>(N), <span class="dt">income_mean_city =</span> <span class="kw">ave</span>(income, cities))
+  ) </code></pre></div>
+<pre><code>##   cities citizens     income income_mean_city
+## 1      1        1 -1.8087539       -1.8087539
+## 2      2        2 -0.1011961       -0.2378592
+## 3      2        3 -0.3745223       -0.2378592</code></pre>
 </div>
 </div>
 <div id="tidyverse-integration" class="section level1">
@@ -270,40 +698,41 @@ my_data</code></pre></div>
 
 my_data &lt;-<span class="st"> </span>
 <span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-    <span class="dt">cities =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="dt">income =</span> <span class="kw">round</span>(elevation *<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> N, <span class="dt">mean =</span> <span class="dv">5</span>)))
-  ) %&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(cities) %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pop =</span> <span class="kw">n</span>())
+    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
+  ) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(cities) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">pop =</span> <span class="kw"><a href="http://dplyr.tidyverse.org/reference/n.html">n</a></span>())
 
 my_data</code></pre></div>
 <pre><code>## # A tibble: 5 x 5
 ## # Groups:   cities [2]
-##   cities elevation citizens income   pop
-##    &lt;chr&gt;     &lt;dbl&gt;    &lt;chr&gt;  &lt;dbl&gt; &lt;int&gt;
-## 1      1   1842.06        1   9577     2
-## 2      1   1842.06        2   7305     2
-## 3      2   1783.04        3  11146     3
-## 4      2   1783.04        4   9189     3
-## 5      2   1783.04        5   9696     3</code></pre>
+##   cities elevation citizens      age   pop
+##    &lt;chr&gt;     &lt;dbl&gt;    &lt;chr&gt;    &lt;dbl&gt; &lt;int&gt;
+## 1      1  1452.415        1 37.67678     2
+## 2      1  1452.415        2 27.20702     2
+## 3      2  1622.238        3 29.71764     3
+## 4      2  1622.238        4 41.08464     3
+## 5      2  1622.238        5 63.96128     3</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-<span class="st"> </span>
-<span class="kw">data_frame</span>(<span class="dt">Y =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">10</span>, <span class="dv">2</span>)) %&gt;%
-<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">lower_level =</span> <span class="kw"><a href="../reference/level.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">Y2 =</span> Y +<span class="st"> </span><span class="kw">rnorm</span>(N)))
+<span class="kw"><a href="http://dplyr.tidyverse.org/reference/reexports.html">data_frame</a></span>(<span class="dt">Y =</span> <span class="kw"><a href="http://dplyr.tidyverse.org/reference/sample.html">sample</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">2</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">lower_level =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">Y2 =</span> Y <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N)))
 my_data</code></pre></div>
 <pre><code>##    Y lower_level        Y2
-## 1 10           1 10.495408
-## 2 10           2  9.916366
-## 3 10           3  9.998652
-## 4  6           4  5.288414
-## 5  6           5  6.462447
-## 6  6           6  6.161634</code></pre>
+## 1 10           1 10.199651
+## 2 10           2  9.368964
+## 3 10           3 10.529248
+## 4  6           4  4.518861
+## 5  6           5  7.679272
+## 6  6           6  6.675161</code></pre>
 </div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
         <div id="tocnav">
-      <h2>Contents</h2>
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
       true
     </div>
       </div>
