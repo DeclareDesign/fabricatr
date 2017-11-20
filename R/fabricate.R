@@ -79,6 +79,7 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
 
   # User provided level calls
   if(all_levels) {
+
     # Ensure the user provided a name for each level call.
     if(is.null(names(data_arguments)) | any(names(data_arguments) == "")) {
       stop("You must provide a name for each level you create.")
@@ -133,6 +134,10 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
   }, error=function(e) {
     stop("User supplied data must be convertible into a data frame.")
   })
+
+  # Single level -- maybe the user provided an ID_label, maybe they didn't.
+  # Sanity check and/or construct an ID label for the new data.
+  ID_label = handle_id(ID_label, data)
 
   # User passed data, not N
   # First, let's dynamically get N from the number of rows
@@ -242,6 +247,8 @@ add_level = function(N = NULL, ID_label = NULL,
       # If the ID label was specified but already exists, we should still log it as a level ID
       add_level_id(working_environment_, ID_label)
     }
+  } else {
+    stop("Please specify a name for the level call you are creating.")
   }
 
   # Loop through each of the variable generating arguments

@@ -126,10 +126,7 @@ test_that("trigger errors", {
   expect_error(fabricate(N=10, 1:N))
 })
 
-test_that("regression broke this test", {
-  # same for a single level
-  skip("Regression broke this test -- add_level is being interpreted as a call to data")
-
+test_that("unusual pass of add_level call to single level generation as data matrix", {
   expect_error(fabricate(add_level(N = 5,
                                    gdp = rnorm(N))))
 })
