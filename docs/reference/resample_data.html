@@ -23,7 +23,8 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-
+  
+  
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -121,7 +122,7 @@
     </tr>
     <tr>
       <th>N</th>
-      <td><p>The number of sample N to return. If N is a single scalar and no labels are provided, N will specify the number of unit observations to resample. If N is named, or if the ID_labels argument is specified (in which case, both N and ID_labels should be the same length), then the units resampled will be values of the levels resampled (this is useful for, e.g., cluster resampling). If N is the constant ALL for any level, all units of this level will be transparently passed through to the next level of resampling.</p></td>
+      <td><p>The number of sample N to return. If multiple levels are defined in ID_labels, N should be a vector of length `length(ID_labels)`</p></td>
     </tr>
     <tr>
       <th>ID_labels</th>
@@ -136,7 +137,7 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='co'># Bootstrap a dataset without any hierarchy. N specifies a number of observations to return</span>
+<span class='co'># Bootstrap a dataset without any hierarchy</span>
 
 <span class='no'>baseline_survey</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>Y_pre</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>))
 <span class='no'>bootsrapped_data</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>baseline_survey</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>10</span>)
@@ -151,45 +152,7 @@
 #&gt; 2.4  2 0.3764993
 #&gt; 1    1 0.1329921
 #&gt; 2.5  2 0.3764993</div><div class='input'>
-<span class='co'># Resample by a single level of a hierarchical dataset (e.g. resampling clusters of observations)</span>
-<span class='co'># N specifies a number of clusters to return</span>
-
-<span class='no'>clustered_survey</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
-  <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>level</a></span>(<span class='kw'>N</span><span class='kw'>=</span><span class='fl'>25</span>),
-  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>level</a></span>(<span class='kw'>N</span><span class='kw'>=</span><span class='fu'>runif</span>(<span class='fl'>25</span>, <span class='fl'>1</span>, <span class='fl'>5</span>), <span class='kw'>population</span><span class='kw'>=</span><span class='fu'>runif</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>N</span>, <span class='kw'>min</span><span class='kw'>=</span><span class='fl'>50000</span>, <span class='kw'>max</span><span class='kw'>=</span><span class='fl'>1000000</span>))
-)
-
-<span class='co'># Specify the name of the cluster variable one of two ways</span>
-
-<span class='no'>cluster_resample</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>clustered_survey</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>ID_labels</span> <span class='kw'>=</span> <span class='st'>"clusters"</span>)
-<span class='no'>cluster_resample</span></div><div class='output co'>#&gt;    clusters cities population
-#&gt; 21       10     21  372291.19
-#&gt; 22       10     22  772723.08
-#&gt; 23       10     23   60328.84
-#&gt; 24       10     24  109980.47
-#&gt; 29       14     29  773192.59
-#&gt; 30       14     30  783853.01
-#&gt; 15       07     15  329063.25
-#&gt; 13       06     13  667030.88
-#&gt; 14       06     14  201083.08
-#&gt; 4        02     04  835365.36
-#&gt; 5        02     05  739475.76
-#&gt; 6        02     06  398962.57
-#&gt; 7        02     07  547257.00</div><div class='input'>
-<span class='no'>cluster_resample_2</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>clustered_survey</span>, <span class='kw'>N</span><span class='kw'>=</span><span class='fu'>c</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='fl'>5</span>))
-<span class='no'>cluster_resample_2</span></div><div class='output co'>#&gt;    clusters cities population
-#&gt; 16       08     16   896720.6
-#&gt; 60       25     60   495511.1
-#&gt; 61       25     61   892055.5
-#&gt; 62       25     62   687021.1
-#&gt; 8        03     08   496385.0
-#&gt; 38       18     38   239050.7
-#&gt; 39       18     39   662802.0
-#&gt; 40       18     40   762727.9
-#&gt; 41       18     41   307428.9
-#&gt; 13       06     13   667030.9
-#&gt; 14       06     14   201083.1</div><div class='input'>
-<span class='co'># Resample a hierarchical dataset on multiple levels</span>
+<span class='co'># Bootstrap a hierarchical dataset</span>
 
 <span class='no'>my_data</span> <span class='kw'>&lt;-</span>
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
@@ -197,50 +160,24 @@
   <span class='kw'>citizens</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>income</span> <span class='kw'>=</span> <span class='fu'>round</span>(<span class='no'>elevation</span> * <span class='fu'>rnorm</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
 )
 
-<span class='co'># Specify the levels you wish to resample one of two ways:</span>
 <span class='no'>my_data_2</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>3</span>, <span class='fl'>5</span>), <span class='kw'>ID_labels</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"cities"</span>, <span class='st'>"citizens"</span>))
 <span class='no'>my_data_2</span></div><div class='output co'>#&gt;    cities elevation citizens income
-#&gt; 1       2  1927.282        5  10398
-#&gt; 2       2  1927.282        4   7181
-#&gt; 3       2  1927.282        5  10398
-#&gt; 4       2  1927.282        5  10398
-#&gt; 5       2  1927.282        4   7181
-#&gt; 6       1  1133.349        1   7082
-#&gt; 7       1  1133.349        1   7082
-#&gt; 8       1  1133.349        3   5500
-#&gt; 9       1  1133.349        3   5500
-#&gt; 10      1  1133.349        2   4927
-#&gt; 11      1  1133.349        1   7082
-#&gt; 12      1  1133.349        1   7082
-#&gt; 13      1  1133.349        2   4927
-#&gt; 14      1  1133.349        2   4927
-#&gt; 15      1  1133.349        2   4927</div><div class='input'>
-<span class='no'>my_data_3</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='kw'>cities</span><span class='kw'>=</span><span class='fl'>3</span>, <span class='kw'>citizens</span><span class='kw'>=</span><span class='fl'>5</span>))
-<span class='no'>my_data_3</span></div><div class='output co'>#&gt;    cities elevation citizens income
-#&gt; 1       2  1927.282        4   7181
-#&gt; 2       2  1927.282        6   5911
-#&gt; 3       2  1927.282        5  10398
-#&gt; 4       2  1927.282        6   5911
-#&gt; 5       2  1927.282        5  10398
-#&gt; 6       2  1927.282        5  10398
-#&gt; 7       2  1927.282        5  10398
-#&gt; 8       2  1927.282        4   7181
-#&gt; 9       2  1927.282        6   5911
-#&gt; 10      2  1927.282        5  10398
-#&gt; 11      1  1133.349        3   5500
-#&gt; 12      1  1133.349        2   4927
-#&gt; 13      1  1133.349        3   5500
-#&gt; 14      1  1133.349        2   4927
-#&gt; 15      1  1133.349        3   5500</div><div class='input'>
-<span class='co'># Transparently pass through all units at a given level</span>
-<span class='co'># This example will resample 2 citizens at each of the cities:</span>
+#&gt; 1       2  1844.163        6   8593
+#&gt; 2       2  1844.163        6   8593
+#&gt; 3       2  1844.163        5   7094
+#&gt; 4       2  1844.163        5   7094
+#&gt; 5       2  1844.163        4  14106
+#&gt; 6       1  1526.107        3   4481
+#&gt; 7       1  1526.107        3   4481
+#&gt; 8       1  1526.107        2   6664
+#&gt; 9       1  1526.107        3   4481
+#&gt; 10      1  1526.107        1   5954
+#&gt; 11      1  1526.107        3   4481
+#&gt; 12      1  1526.107        3   4481
+#&gt; 13      1  1526.107        3   4481
+#&gt; 14      1  1526.107        2   6664
+#&gt; 15      1  1526.107        2   6664</div><div class='input'>
 
-<span class='no'>passthrough_resample_data</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='kw'>cities</span><span class='kw'>=</span><span class='no'>ALL</span>, <span class='kw'>citizens</span><span class='kw'>=</span><span class='fl'>2</span>))
-<span class='no'>passthrough_resample_data</span></div><div class='output co'>#&gt;   cities elevation citizens income
-#&gt; 1      1  1133.349        2   4927
-#&gt; 2      1  1133.349        2   4927
-#&gt; 3      2  1927.282        5  10398
-#&gt; 4      2  1927.282        6   5911</div><div class='input'>
 
 </div></pre>
   </div>
@@ -258,8 +195,9 @@
 </div>
 
       <footer>
-      <div class="copyright">
-  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys.</p>
+      <div class="copyright" style="flex:2;">
+  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin.</p>
+  <p>Code is licensed under <a href="https://opensource.org/licenses/mit-license.php">MIT</a> license.</p>
 </div>
 
 <div class="pkgdown">

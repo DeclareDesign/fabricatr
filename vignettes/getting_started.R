@@ -65,20 +65,6 @@ my_data <-
 my_data_2 <- resample_data(my_data, N = c(3, 5), ID_labels = c("cities", "citizens"))
 my_data_2
 
-
-## ------------------------------------------------------------------------
-my_data_2 <- resample_data(my_data, N = c(cities=3, citizens=5))
-my_data_2
-
-## ------------------------------------------------------------------------
-clustered_survey <- fabricate(
-  clusters = level(N=25),
-  cities = level(N=10, population=runif(n = N, min=50000, max=1000000))
-)
-
-cluster_resample <- resample_data(clustered_survey, N = c(clusters=ALL, cities=5))
-cluster_resample
-
 ## ------------------------------------------------------------------------
 fabricate(
     cities = level(N = 2),

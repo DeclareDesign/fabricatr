@@ -15,7 +15,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-home">
+    <div class="container template-vignette">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -79,50 +79,89 @@
 
       
       </header><div class="row">
-  <div class="contents col-md-9">
-    <div id="fabricatr-imagine-your-data-before-you-collect-it" class="section level1">
+  <div class="col-md-9">
+    
+
+    
+    
+<div class="contents">
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+<div id="fabricatr-imagine-your-data-before-you-collect-it" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#fabricatr-imagine-your-data-before-you-collect-it" class="anchor"></a>fabricatr: Imagine your data before you collect it</h1></div>
-
 <p>Making decisions about research design and analysis strategies is often difficult before data is collected, because it is hard to imagine the exact form data will take. Instead, researchers typically modify analysis strategies to fit the data. <code>fabricatr</code> helps researchers imagine what data will look like before they collect it. Researchers can evaluate alternative analysis strategies, find the best one given how the data will look, and precommit before looking at the realized data.</p>
-<p>This software is in alpha release.</p>
-<p>To install the latest development release of <strong>fabricatr</strong>, please ensure that you are running version 3.3 or later of R and run the following code:</p>
-<pre><code>install.packages("fabricatr", dependencies = TRUE,
-  repos = c("http://R.declaredesign.org", "https://cloud.r-project.org"))</code></pre>
+<p><em>This software is in not yet ready for general release. Please contact the authors before using in experiments or published work. Specifications, names, and arguments of functions are subject to change.</em></p>
+<div id="installing-fabricatr" class="section level3">
+<h3 class="hasAnchor">
+<a href="#installing-fabricatr" class="anchor"></a>Installing fabricatr</h3>
+<p>If you would like to use the current development release of <strong>fabricatr</strong>, please ensure that you are running version 3.3 or later of R and run the following code:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"fabricatr"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>,
+  <span class="dt">repos =</span> <span class="kw">c</span>(<span class="st">"http://R.declaredesign.org"</span>, <span class="st">"https://cloud.r-project.org"</span>))</code></pre></div>
+</div>
+<div id="getting-started" class="section level3">
+<h3 class="hasAnchor">
+<a href="#getting-started" class="anchor"></a>Getting started</h3>
+<p>Once the package is installed, it is easy to generate new data, or modify your own. The below example simulates the United States House of Representatives, where 435 members belong to two parties, and both parties and representatives have characteristics modeled in the data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
+
+house_candidates =<span class="st"> </span><span class="kw"><a href="reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">parties =</span> <span class="kw"><a href="reference/fabricate.html">level</a></span>(<span class="dt">N=</span><span class="dv">2</span>, 
+                      <span class="dt">party_ideology =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>), 
+                      <span class="dt">in_power =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), 
+                      <span class="dt">party_incumbents=</span><span class="kw">c</span>(<span class="dv">241</span>, <span class="dv">194</span>)),
+  <span class="dt">representatives =</span> <span class="kw"><a href="reference/fabricate.html">level</a></span>(<span class="dt">N=</span>party_incumbents, 
+                              <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology), 
+                              <span class="dt">terms_served=</span><span class="kw"><a href="reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="dv">3</span>, <span class="dt">type=</span><span class="st">"count"</span>),
+                              <span class="dt">female=</span><span class="kw"><a href="reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="fl">0.2</span>, <span class="dt">type=</span><span class="st">"bernoulli"</span>)))
+<span class="kw">head</span>(house_candidates)</code></pre></div>
+<pre><code>##   parties party_ideology in_power party_incumbents representatives
+## 1       1            0.5        1              241             001
+## 2       1            0.5        1              241             002
+## 3       1            0.5        1              241             003
+## 4       1            0.5        1              241             004
+## 5       1            0.5        1              241             005
+## 6       1            0.5        1              241             006
+##   member_ideology terms_served female
+## 1      1.26410289            2      0
+## 2      0.59186750            2      0
+## 3      0.04551557            2      1
+## 4      0.02327683            3      0
+## 5      1.53852440            6      0
+## 6     -0.49976146            4      0</code></pre>
+<p>For more information, use the command <code><a href="reference/fabricate.html">?fabricate</a></code> in R to explore our documentation or <a href="http://fabricatr.declaredesign.org/articles/getting_started.html">click here</a> to read our online tutorial.</p>
 <p>This project is generously supported by a grant from the <a href="http://www.arnoldfoundation.org">Laura and John Arnold Foundation</a> and seed funding from <a href="http://egap.org">EGAP</a>.</p>
-<p>(c) 2015 Graeme Blair, Jasper Cooper, Alexander Coppock, and Macartan Humphreys. All rights reserved.</p>
+</div>
+</div>
 </div>
   </div>
 
-  <div class="col-md-3" id="sidebar">
-    <h2>Links</h2>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2 class="hasAnchor">
+<a href="#sidebar" class="anchor"></a>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/DeclareDesign/fabricatr">https://​github.com/​DeclareDesign/​fabricatr</a>
+<li>
+<a href="https://github.com/DeclareDesign/fabricatr/issues">Report a bug</a><br>
 </li>
-<li>Report a bug at <br><a href="https://github.com/DeclareDesign/fabricatr/issues">https://​github.com/​DeclareDesign/​fabricatr/​issues</a>
+<li>
+<a href="https://github.com/DeclareDesign/fabricatr">Help develop fabricatr</a><br>
 </li>
 </ul>
-<h2>License</h2>
-<p><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE">LICENSE</a></p>
 <h2>Developers</h2>
 <ul class="list-unstyled">
 <li>Graeme Blair <br><small class="roles"> Author, maintainer </small> </li>
 <li>Jasper Cooper <br><small class="roles"> Author </small> </li>
 <li>Alexander Coppock <br><small class="roles"> Author </small> </li>
 <li>Macartan Humphreys <br><small class="roles"> Author </small> </li>
-</ul>
-<h2>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://travis-ci.org/DeclareDesign/fabricatr"><img src="https://travis-ci.org/DeclareDesign/fabricatr.svg?branch=master" alt="Travis-CI Build Status"></a></li>
-<li><a href="https://ci.appveyor.com/project/DeclareDesign/fabricatr"><img src="https://ci.appveyor.com/api/projects/status/github/DeclareDesign/fabricatr?branch=master&amp;svg=true" alt="AppVeyor Build Status"></a></li>
-<li><a href="https://coveralls.io/github/DeclareDesign/fabricatr?branch=master"><img src="https://coveralls.io/repos/github/DeclareDesign/fabricatr/badge.svg?branch=master" alt="Coverage Status"></a></li>
+<li>Aaron Rudkin <br><small class="roles"> Contributor </small> </li>
 </ul>
 </div>
+
 </div>
 
 
-      <footer><div class="copyright">
-  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys.</p>
+      <footer><div class="copyright" style="flex:2;">
+  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin.</p>
+  <p>Code is licensed under <a href="https://opensource.org/licenses/mit-license.php">MIT</a> license.</p>
 </div>
 
 <div class="pkgdown">
