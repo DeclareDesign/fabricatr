@@ -1,5 +1,8 @@
 ^\.travis\.yml$
+README.Rmd
 README.md
+index.Rmd
+index.md
 ^.*\.Rproj$
 ^\.Rproj\.user$
 appveyor.yml
@@ -7,6 +10,7 @@ appveyor.yml
 CONDUCT.md
 deploy.sh
 ^docs$
+^docs/templates/.*$
 _pkgdown.yml
 cran-comments.md
 ^NEWS\.md$
