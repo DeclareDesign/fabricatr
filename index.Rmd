@@ -15,6 +15,8 @@ Making decisions about research design and analysis strategies is often difficul
 
 *This software is in not yet ready for general release. Please contact the authors before using in experiments or published work. Specifications, names, and arguments of functions are subject to change.*
 
+### Installing fabricatr
+
 To install the latest development release of **fabricatr**, please ensure that you are running version 3.3 or later of R and run the following code:
 
 ```{r, eval=F}
