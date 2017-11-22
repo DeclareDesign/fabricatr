@@ -19,7 +19,7 @@ To install the latest development release of **fabricatr**, please ensure that y
 
 ```{r, eval=F}
 install.packages("fabricatr", dependencies = TRUE,
-  repos = c("http://R.declaredesign.org", "https://cloud.r-project.org"))
+                 repos = c("http://R.declaredesign.org", "https://cloud.r-project.org"))
 ```
 
 ### Getting started
@@ -30,14 +30,15 @@ Once the package is installed, it is easy to generate new data, or modify your o
 library(fabricatr)
 
 house_candidates = fabricate(
-  parties = level(N=2, 
-                      party_ideology = c(0.5, -0.5), 
-                      in_power = c(1, 0), 
-                      party_incumbents=c(241, 194)),
-  representatives = level(N=party_incumbents, 
-                              member_ideology = rnorm(N, party_ideology), 
-                              terms_served=draw_discrete(N=N, x=3, type="count"),
-                              female=draw_discrete(N=N, x=0.2, type="bernoulli")))
+  parties = level(N = 2, 
+                  party_ideology = c(0.5, -0.5), 
+                  in_power = c(1, 0), 
+                  party_incumbents = c(241, 194)),
+  representatives = level(N = party_incumbents, 
+                          member_ideology = rnorm(N, party_ideology),
+                          terms_served = draw_discrete(N = N, x = 3, type="count"),
+                          female = draw_discrete(N = N, x = 0.2, type="bernoulli"))
+  )
 head(house_candidates)
 ```
 

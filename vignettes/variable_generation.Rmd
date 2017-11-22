@@ -21,35 +21,38 @@ library(fabricatr)
 The simplest possible type of data, and `draw_discrete`'s default, is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `x` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, `draw_discrete` will generate `N = length(x)` draws. `N` can also be specified explicitly. Consider these examples:
 
 ```{r}
-draw_discrete_example = fabricate(N = 3, p = c(0, .5, 1), 
-          binary_1 = draw_discrete(x=p),
-          binary_2 = draw_discrete(N=3, x=0.5))
+draw_discrete_ex = fabricate(N = 3, p = c(0, .5, 1), 
+                             binary_1 = draw_discrete(x = p),
+                             binary_2 = draw_discrete(N = 3, x = 0.5))
 ```
 
 `draw_discrete` additionally takes an argument `type`, which specifies which type of random variable you wish to draw outcomes from. The default argument here is "binary" -- other aliases include "bernoulli" or "binomial". A simple alias to `draw_discrete(type="binary")` is `draw_binary`. All of the variables created here are equivalent:
 
 ```{r}
-binary_alias_example = fabricate(N = 3, 
-          binary_1 = draw_discrete(N=N, x=0.5, type="binary"),
-          binary_2 = draw_discrete(N=N, x=0.5, type="bernoulli"),
-          binary_3 = draw_discrete(N=N, x=0.5, type="binomial"),
-          binary_4 = draw_binary(N=N, x=0.5)
+binary_alias_ex = fabricate(N = 3, 
+                            binary_1 = draw_discrete(N = N, x = 0.5, type="binary"),
+                            binary_2 = draw_discrete(N = N, x = 0.5, type="bernoulli"),
+                            binary_3 = draw_discrete(N = N, x = 0.5, type="binomial"),
+                            binary_4 = draw_binary(N = N, x = 0.5)
 )
 ```
 
 In addition to binary variables, `draw_discrete` supports repeated Bernoulli trials ("binomial" data). This requires specifying an argument `k`, equal to the number of trials.
 
 ```{r}
-binomial_example = fabricate(N = 3, 
-          freethrows = draw_discrete(N=N, x=0.5, k=10, type="binomial")
-)
+binomial_ex = fabricate(N = 3, 
+                        freethrows = draw_discrete(N = N, 
+                                                   x = 0.5, 
+                                                   k = 10, 
+                                                   type = "binomial")
+                        )
 ```
 
 Some researchers may be interested in specifying probabilities through a "link function". This can be done in `draw_discrete` through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.
 
 ```{r}
 bernoulli_probit = fabricate(N = 3, x = 10*rnorm(N), 
-          binary = draw_discrete(x=x, type = "bernoulli", link = "probit"))
+                             binary = draw_discrete(x = x, type = "bernoulli", link = "probit"))
 ```
 
 # Ordered outcomes
@@ -59,15 +62,26 @@ Some researchers may be interested in generating ordered outcomes -- for example
 In the following example, each of three observations has a latent variable `x` which is continuous and unbounded. The variable `ordered` transforms `x` into three numeric categories: 1, 2, and 3. All values of `x` below -1 result in `ordered` 1; all values of `x` between -1 and 1 result in `ordered` 2; all values of `x` above 1 result in `ordered` 3:
 
 ```{r}
-ordered_example = fabricate(N = 3, x = 5*rnorm(N), 
-          ordered = draw_discrete(x, type = "ordered", breaks = c(-Inf, -1, 1, Inf)))
+ordered_example = fabricate(N = 3, 
+                            x = 5*rnorm(N), 
+                            ordered = draw_discrete(x, 
+                                                    type = "ordered", 
+                                                    breaks = c(-Inf, -1, 1, Inf)
+                                                    )
+                            )
 ```
 
 Ordered data also supports link functions including "logit" or "probit":
 
 ```{r}
-ordered_probit_example = fabricate(N = 3, x = 5*rnorm(N), 
-          ordered = draw_discrete(x, type = "ordered", breaks = c(-Inf, -1, 1, Inf), link = "probit"))
+ordered_probit_example = fabricate(N = 3, 
+                                   x = 5*rnorm(N), 
+                                   ordered = draw_discrete(x, 
+                                                           type = "ordered", 
+                                                           breaks = c(-Inf, -1, 1, Inf), 
+                                                           link = "probit"
+                                                           )
+                                   )
 ```
 
 # Count outcomes
@@ -75,8 +89,9 @@ ordered_probit_example = fabricate(N = 3, x = 5*rnorm(N),
 `draw_discrete` supports Poisson-distributed count outcomes. These require that the user specify the parameter `x`, equal to the Poisson distribution mean (often referred to as `lambda`).
 
 ```{r}
-count_outcome_example = fabricate(N = 3, x = c(0,5,100), 
-          count = draw_discrete(x, type = "count"))
+count_outcome_example = fabricate(N = 3, 
+                                  x = c(0, 5, 100), 
+                                  count = draw_discrete(x, type = "count"))
 ```
 
 # Categorical data
@@ -89,16 +104,22 @@ In the first example, each unit has a different set of probabilities and the pro
 
 ```{r}
 categorical_example = fabricate(N = 6, 
-          p1 = runif(N, 0, 1),
-          p2 = runif(N, 0, 1),
-          p3 = runif(N, 0, 1),
-          cat = draw_discrete(N=N, x=cbind(p1, p2, p3), type = "categorical"))
+                                p1 = runif(N, 0, 1),
+                                p2 = runif(N, 0, 1),
+                                p3 = runif(N, 0, 1),
+                                cat = draw_discrete(N = N, 
+                                                    x = cbind(p1, p2, p3), 
+                                                    type = "categorical")
+                                )
 ```
 
 In the second example, each unit has the same probability of getting a given category. `draw_discrete` will issue a warning to remind you that it is interpreting the vector in this way.
 ```{r}
 warn_draw_discrete_example = fabricate(N = 6, 
-          cat = draw_discrete(N=N, x=c(0.2, 0.4, 0.4), type = "categorical"))
+                                       cat = draw_discrete(N = N, 
+                                                           x = c(0.2, 0.4, 0.4), 
+                                                           type = "categorical")
+                                       )
 ```
 
 "categorical" variables can also use link functions, for example to generate multinomial probit data.

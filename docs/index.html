@@ -111,7 +111,7 @@
 <p><em>This software is in not yet ready for general release. Please contact the authors before using in experiments or published work. Specifications, names, and arguments of functions are subject to change.</em></p>
 <p>To install the latest development release of <strong>fabricatr</strong>, please ensure that you are running version 3.3 or later of R and run the following code:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"fabricatr"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>,
-  <span class="dt">repos =</span> <span class="kw">c</span>(<span class="st">"http://R.declaredesign.org"</span>, <span class="st">"https://cloud.r-project.org"</span>))</code></pre></div>
+                 <span class="dt">repos =</span> <span class="kw">c</span>(<span class="st">"http://R.declaredesign.org"</span>, <span class="st">"https://cloud.r-project.org"</span>))</code></pre></div>
 <div id="getting-started" class="section level3">
 <h3 class="hasAnchor">
 <a href="#getting-started" class="anchor"></a>Getting started</h3>
@@ -119,14 +119,15 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
 
 house_candidates =<span class="st"> </span><span class="kw"><a href="reference/fabricate.html">fabricate</a></span>(
-  <span class="dt">parties =</span> <span class="kw"><a href="reference/fabricate.html">level</a></span>(<span class="dt">N=</span><span class="dv">2</span>, 
-                      <span class="dt">party_ideology =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>), 
-                      <span class="dt">in_power =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), 
-                      <span class="dt">party_incumbents=</span><span class="kw">c</span>(<span class="dv">241</span>, <span class="dv">194</span>)),
-  <span class="dt">representatives =</span> <span class="kw"><a href="reference/fabricate.html">level</a></span>(<span class="dt">N=</span>party_incumbents, 
-                              <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology), 
-                              <span class="dt">terms_served=</span><span class="kw"><a href="reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="dv">3</span>, <span class="dt">type=</span><span class="st">"count"</span>),
-                              <span class="dt">female=</span><span class="kw"><a href="reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N=</span>N, <span class="dt">x=</span><span class="fl">0.2</span>, <span class="dt">type=</span><span class="st">"bernoulli"</span>)))
+  <span class="dt">parties =</span> <span class="kw"><a href="reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, 
+                  <span class="dt">party_ideology =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>), 
+                  <span class="dt">in_power =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), 
+                  <span class="dt">party_incumbents =</span> <span class="kw">c</span>(<span class="dv">241</span>, <span class="dv">194</span>)),
+  <span class="dt">representatives =</span> <span class="kw"><a href="reference/fabricate.html">level</a></span>(<span class="dt">N =</span> party_incumbents, 
+                          <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology),
+                          <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> N, <span class="dt">x =</span> <span class="dv">3</span>, <span class="dt">type=</span><span class="st">"count"</span>),
+                          <span class="dt">female =</span> <span class="kw"><a href="reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> N, <span class="dt">x =</span> <span class="fl">0.2</span>, <span class="dt">type=</span><span class="st">"bernoulli"</span>))
+  )
 <span class="kw">head</span>(house_candidates)</code></pre></div>
 <pre><code>##   parties party_ideology in_power party_incumbents representatives
 ## 1       1            0.5        1              241             001

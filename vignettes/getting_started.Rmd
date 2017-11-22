@@ -39,7 +39,7 @@ Instead of specifying the argument `N`, users can specify the argument `data` to
 # which describes earthquakes off the coast of Fiji. The "mag"
 # variable contains the richter magnitude of the earthquakes.
 
-simulated_quake_data = fabricate(data=quakes,
+simulated_quake_data = fabricate(data = quakes,
                                  fatalities = round(pmax(0, rnorm(N, mean=mag)) * 100),
                                  insurance_cost = fatalities * runif(N, 1000000, 2000000))
 head(simulated_quake_data)
@@ -55,11 +55,11 @@ The most powerful use of `fabricatr` is to create hierarchical ("nested") data. 
 country_data <-
   fabricate(
     countries = level(N = 5, 
-                          gdp_per_capita = runif(N, min=10000, max=50000),
-                          life_expectancy = 50 + runif(N, 10, 20) + ((gdp_per_capita > 30000) * 10)),
+                      gdp_per_capita = runif(N, min=10000, max=50000),
+                      life_expectancy = 50 + runif(N, 10, 20) + ((gdp_per_capita > 30000) * 10)),
     provinces = level(N = 10,
-                          has_natural_resources = draw_discrete(x=0.3, N=N, type="bernoulli"),
-                          has_manufacturing = draw_discrete(x=0.7, N=N, type="bernoulli"))
+                      has_natural_resources = draw_discrete(x=0.3, N=N, type="bernoulli"),
+                      has_manufacturing = draw_discrete(x=0.7, N=N, type="bernoulli"))
   )
 head(country_data)
 ```
@@ -79,11 +79,11 @@ citizen_data <-
   fabricate(
     data = country_data,
     citizens = level(N=10,
-                         salary = rnorm(N, 
-                                        mean = gdp_per_capita + 
-                                          has_natural_resources * 5000 + 
-                                          has_manufacturing * 5000,
-                                        sd = 10000)))
+                     salary = rnorm(N, 
+                                    mean = gdp_per_capita + 
+                                      has_natural_resources * 5000 + 
+                                      has_manufacturing * 5000,
+                                    sd = 10000)))
 head(citizen_data)
 ```
 
@@ -119,12 +119,14 @@ new_citizen_data <-
     data = citizen_data,
     countries = level(average_temperature = runif(N, 30, 80)),
     provinces = level(conflict_zone = draw_discrete(N, 
-                                                           x=0.2 + has_natural_resources*0.3,
-                                                           type="binary"),
-                             infant_mortality = runif(N, 0, 10) + 
-                               conflict_zone*10 + 
-                               (average_temperature > 70)*10),
-    citizens = level(college_degree = draw_discrete(N, x=0.4 - (0.3*conflict_zone), type="binary"))
+                                                    x=0.2 + has_natural_resources*0.3,
+                                                    type="binary"),
+                      infant_mortality = runif(N, 0, 10) + 
+                        conflict_zone*10 + 
+                        (average_temperature > 70)*10),
+    citizens = level(college_degree = draw_discrete(N, 
+                                                    x=0.4 - (0.3*conflict_zone), 
+                                                    type="binary"))
   )
 ```                        
 

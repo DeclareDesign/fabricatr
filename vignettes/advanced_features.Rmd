@@ -34,7 +34,7 @@ my_data <-
   fabricate(
     cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
     citizens = level(N = sample(1:6, size = 2, replace = TRUE), 
-                         age = runif(N, 18, 70))
+                     age = runif(N, 18, 70))
   )
 my_data
 ```
@@ -60,9 +60,10 @@ You may want to include the mean value of a variable within a group defined by a
 ```{r}
 fabricate(
     cities = level(N = 2),
-    citizens = level(
-      N = 1:2, income = rnorm(N), income_mean_city = ave(income, cities))
-  ) 
+    citizens = level(N = 1:2, 
+                     income = rnorm(N), 
+                     income_mean_city = ave(income, cities))
+    ) 
 ```
 
 # Tidyverse integration

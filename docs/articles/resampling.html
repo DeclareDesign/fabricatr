@@ -124,16 +124,16 @@
 survey_data_new =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data)
 survey_data</code></pre></div>
 <pre><code>##    ID voted_republican
-## 1  01                1
-## 2  02                0
-## 3  03                1
+## 1  01                0
+## 2  02                1
+## 3  03                0
 ## 4  04                0
 ## 5  05                0
 ## 6  06                0
-## 7  07                0
+## 7  07                1
 ## 8  08                1
-## 9  09                1
-## 10 10                1</code></pre>
+## 9  09                0
+## 10 10                0</code></pre>
 <p>It is also possible to resample fewer or greater number of observations from your existing data. We can do this by specifying the argument <code>N</code> to <code>resample_data</code>. Consider expanding a small dataset to allow for better imagination of larger data to be collected later.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">large_survey_data =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data, <span class="dt">N=</span><span class="dv">100</span>)
 <span class="kw">nrow</span>(large_survey_data)</code></pre></div>
@@ -155,21 +155,21 @@ my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"
                            <span class="dt">ID_labels =</span> <span class="kw">c</span>(<span class="st">"cities"</span>, <span class="st">"citizens"</span>))
 my_data_<span class="dv">2</span></code></pre></div>
 <pre><code>##    cities elevation citizens      age
-## 1       2  1023.911        4 33.08092
-## 2       2  1023.911        5 52.98267
-## 3       2  1023.911        5 52.98267
-## 4       2  1023.911        5 52.98267
-## 5       2  1023.911        6 54.92685
-## 6       1  1201.999        1 32.92980
-## 7       1  1201.999        3 56.16482
-## 8       1  1201.999        1 32.92980
-## 9       1  1201.999        2 47.22067
-## 10      1  1201.999        1 32.92980
-## 11      2  1023.911        4 33.08092
-## 12      2  1023.911        6 54.92685
-## 13      2  1023.911        6 54.92685
-## 14      2  1023.911        6 54.92685
-## 15      2  1023.911        4 33.08092</code></pre>
+## 1       2  1477.873        5 27.40680
+## 2       2  1477.873        6 26.16258
+## 3       2  1477.873        5 27.40680
+## 4       2  1477.873        5 27.40680
+## 5       2  1477.873        6 26.16258
+## 6       1  1856.385        3 37.79844
+## 7       1  1856.385        3 37.79844
+## 8       1  1856.385        2 65.66396
+## 9       1  1856.385        2 65.66396
+## 10      1  1856.385        2 65.66396
+## 11      1  1856.385        1 64.10956
+## 12      1  1856.385        1 64.10956
+## 13      1  1856.385        1 64.10956
+## 14      1  1856.385        3 37.79844
+## 15      1  1856.385        2 65.66396</code></pre>
 <p><code>resample_data</code> will first select the cities to be resampled. Then, for each city, it will continue by selecting the citizens to be resampled. If a higher level unit is used more than once (for example, the same city being chosen twice), and a lower level is subsequently resampled, the choices of which units to keep for the lower level will differ for each copy of the higher level. In this example, if city 1 is chosen twice, then the sets of five citizens chosen for each copy of the city 1 will differ.</p>
 </div>
 </div>
