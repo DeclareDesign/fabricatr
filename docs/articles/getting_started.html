@@ -28,8 +28,26 @@
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Getting Started
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
 <li>
-  <a href="../articles/getting_started.html">Getting Started</a>
+      <a href="../articles/getting_started.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/variable_generation.html">Generating Variables</a>
+    </li>
+    <li>
+      <a href="../articles/resampling.html">Resampling</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_features.html">Advanced Features</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../reference/">Reference</a>
@@ -103,12 +121,12 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
 my_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">Y =</span> <span class="kw">runif</span>(N), <span class="dt">Y2 =</span> Y<span class="op">*</span><span class="dv">5</span>)
 my_data</code></pre></div>
-<pre><code>##   ID          Y        Y2
-## 1  1 0.05860327 0.2930164
-## 2  2 0.75115392 3.7557696
-## 3  3 0.20947890 1.0473945
-## 4  4 0.44841246 2.2420623
-## 5  5 0.59430340 2.9715170</code></pre>
+<pre><code>##   ID         Y       Y2
+## 1  1 0.9757944 4.878972
+## 2  2 0.4930225 2.465113
+## 3  3 0.6264750 3.132375
+## 4  4 0.5984808 2.992404
+## 5  5 0.7431163 3.715581</code></pre>
 </div>
 <div id="single-level-datasets-using-existing-data" class="section level1">
 <h1 class="hasAnchor">
@@ -123,12 +141,12 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
                                  <span class="dt">insurance_cost =</span> fatalities <span class="op">*</span><span class="st"> </span><span class="kw">runif</span>(N, <span class="dv">1000000</span>, <span class="dv">2000000</span>))
 <span class="kw">head</span>(simulated_quake_data)</code></pre></div>
 <pre><code>##      lat   long depth mag stations fatalities insurance_cost
-## 1 -20.42 181.62   562 4.8       41        386      508236173
-## 2 -20.62 181.03   650 4.2       15        364      492517343
-## 3 -26.00 184.10    42 5.4       43        547      857045042
-## 4 -17.97 181.66   626 4.1       19        364      409585288
-## 5 -20.42 181.96   649 4.0       11        550      551905463
-## 6 -19.68 184.31   195 4.0       12        569      976609506</code></pre>
+## 1 -20.42 181.62   562 4.8       41        554      926886364
+## 2 -20.62 181.03   650 4.2       15        382      665819082
+## 3 -26.00 184.10    42 5.4       43        604     1091340097
+## 4 -17.97 181.66   626 4.1       19        362      545888833
+## 5 -20.42 181.96   649 4.0       11        271      344071553
+## 6 -19.68 184.31   195 4.0       12        336      377875681</code></pre>
 <p>Notice that variable creation calls are able to make reference to both the variables in the imported data set, and newly created variables. Also, function calls can be arbitrarily nested – the variable fatalities uses several nested function calls.</p>
 </div>
 <div id="hierarchical-data" class="section level1">
@@ -146,19 +164,19 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
   )
 <span class="kw">head</span>(country_data)</code></pre></div>
 <pre><code>##   countries gdp_per_capita life_expectancy provinces has_natural_resources
-## 1         1       15915.64        67.90995        01                     0
-## 2         1       15915.64        67.90995        02                     1
-## 3         1       15915.64        67.90995        03                     0
-## 4         1       15915.64        67.90995        04                     0
-## 5         1       15915.64        67.90995        05                     1
-## 6         1       15915.64        67.90995        06                     1
+## 1         1       38606.75        74.30935        01                     0
+## 2         1       38606.75        74.30935        02                     0
+## 3         1       38606.75        74.30935        03                     0
+## 4         1       38606.75        74.30935        04                     0
+## 5         1       38606.75        74.30935        05                     0
+## 6         1       38606.75        74.30935        06                     0
 ##   has_manufacturing
 ## 1                 1
-## 2                 0
+## 2                 1
 ## 3                 0
 ## 4                 1
-## 5                 0
-## 6                 0</code></pre>
+## 5                 1
+## 6                 1</code></pre>
 <p>Several things can be observed in this example. First, fabricate knows that your second <code>level</code> command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable “N” changes. During the <code>level</code> call for countries, N is 5. During the <code>level</code> call for provinces, N is 10. And the resulting data, of course, has 50 observations.</p>
 <p>Finally, the province-level variables are created using the <code>draw_discrete</code> function. This is a function provided by <code>fabricatr</code> to make simulating discrete random variables simple. When you simulate your own data, you can use <code>fabricatr</code>’s functions, R’s built-ins, or any custom functions you wish. <code>draw_discrete</code> is explained in <a href="variable_generation.html">our tutorial on variable generation using <strong>fabricatr</strong></a></p>
 </div>
@@ -178,19 +196,19 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
                                         <span class="dt">sd =</span> <span class="dv">10000</span>)))
 <span class="kw">head</span>(citizen_data)</code></pre></div>
 <pre><code>##   countries gdp_per_capita life_expectancy provinces has_natural_resources
-## 1         1       15915.64        67.90995        01                     0
-## 2         1       15915.64        67.90995        01                     0
-## 3         1       15915.64        67.90995        01                     0
-## 4         1       15915.64        67.90995        01                     0
-## 5         1       15915.64        67.90995        01                     0
-## 6         1       15915.64        67.90995        01                     0
+## 1         1       38606.75        74.30935        01                     0
+## 2         1       38606.75        74.30935        01                     0
+## 3         1       38606.75        74.30935        01                     0
+## 4         1       38606.75        74.30935        01                     0
+## 5         1       38606.75        74.30935        01                     0
+## 6         1       38606.75        74.30935        01                     0
 ##   has_manufacturing citizens   salary
-## 1                 1      001 21937.54
-## 2                 1      002 19318.37
-## 3                 1      003 41660.55
-## 4                 1      004  9404.08
-## 5                 1      005 13564.76
-## 6                 1      006 31673.28</code></pre>
+## 1                 1      001 52181.14
+## 2                 1      002 38961.67
+## 3                 1      003 40423.21
+## 4                 1      004 32710.15
+## 5                 1      005 39569.25
+## 6                 1      006 49300.04</code></pre>
 <p>In this example, we add a third level of data; for each of our 50 country-province observations, we now have 10 citizen-level observations. Citizen-level covariates like salary can draw from both the country-level covariate and the province-level covariate.</p>
 <p>Notice that the syntax for adding a new nested level to existing data is different than the syntax for adding new variables to the original dataset.</p>
 </div>
@@ -208,18 +226,18 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <span class="kw">head</span>(new_country_data)</code></pre></div>
 <pre><code>##   countries provinces has_natural_resources has_manufacturing
 ## 1         1        01                     0                 1
-## 2         1        02                     1                 0
+## 2         1        02                     0                 1
 ## 3         1        03                     0                 0
 ## 4         1        04                     0                 1
-## 5         1        05                     1                 0
-## 6         1        06                     1                 0
+## 5         1        05                     0                 1
+## 6         1        06                     0                 1
 ##   gdp_per_capita life_expectancy average_temperature
-## 1       15915.64        67.90995            63.58037
-## 2       15915.64        67.90995            63.58037
-## 3       15915.64        67.90995            63.58037
-## 4       15915.64        67.90995            63.58037
-## 5       15915.64        67.90995            63.58037
-## 6       15915.64        67.90995            63.58037</code></pre>
+## 1       38606.75        74.30935            62.53945
+## 2       38606.75        74.30935            62.53945
+## 3       38606.75        74.30935            62.53945
+## 4       38606.75        74.30935            62.53945
+## 5       38606.75        74.30935            62.53945
+## 6       38606.75        74.30935            62.53945</code></pre>
 <p>How does <code>level</code> know whether to modify your data or add a new level? <code>level</code> uses contextual information – if the name you provide to your <code>level</code> call is already a field that exists in your data set, <code>level</code> will treat this as a request to modify this level of data. If, on the other hand, you provide a name not used in the data set, <code>level</code> will assume you mean to add nested data under the existing data.</p>
 <p>We can observe that the new variable is created at the level of aggregation you chose – countries. Also, although N is not specified anywhere, <code>level</code> knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the <code>level</code> command is correctly assigned to the level of interest.</p>
 <p>We can also modify more than one level. Recalling our country-province-citizen data from above, the following process is possible:</p>

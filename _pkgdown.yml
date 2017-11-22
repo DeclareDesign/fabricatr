@@ -5,7 +5,15 @@ navbar:
   type: default
   left:
   - text: Getting Started
-    href: articles/getting_started.html
+    menu:
+      - text: Getting Started
+        href: articles/getting_started.html
+      - text: Generating Variables
+        href: articles/variable_generation.html
+      - text: Resampling
+        href: articles/resampling.html
+      - text: Advanced Features
+        href: articles/advanced_features.html
   - text: Reference
     href: reference/
   - text: "Packages"

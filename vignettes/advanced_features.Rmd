@@ -2,7 +2,6 @@
 title: "Getting Started with fabricatr: Advanced Features"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
-toc: true
 vignette: >
   %\VignetteIndexEntry{Getting Started with Fabricatr}
   %\VignetteEngine{knitr::rmarkdown}
