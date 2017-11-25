@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Getting Started with fabricatr: Advanced Features • fabricatr</title>
+<title>Advanced features • fabricatr</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -99,7 +99,7 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>Getting Started with fabricatr: Advanced Features</h1>
+      <h1>Advanced features</h1>
                         <h4 class="author">Aaron Rudkin</h4>
             
           </div>
@@ -110,21 +110,60 @@
 <div id="more-complicated-level-creation-with-variable-numbers-of-observations" class="section level1">
 <h1 class="hasAnchor">
 <a href="#more-complicated-level-creation-with-variable-numbers-of-observations" class="anchor"></a>More complicated level creation with variable numbers of observations</h1>
-<p><code>level</code> can be used to create more complicated patterns of nesting. For example, when creating lower level data, it is possible to use a different <code>N</code> for each of the values of the higher level data:</p>
+<p><a href="../reference/level.html"><code><a href="../reference/fabricate.html">level()</a></code></a> can be used to create more complicated patterns of nesting. For example, when creating lower level data, it is possible to use a different <code>N</code> for each of the values of the higher level data:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">variable_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
     <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">4</span>), <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   )
 variable_data</code></pre></div>
-<pre><code>##   cities elevation citizens      age
-## 1      1  1729.555        1 38.96117
-## 2      1  1729.555        2 26.44380
-## 3      2  1291.310        3 43.24424
-## 4      2  1291.310        4 23.56299
-## 5      2  1291.310        5 22.76127
-## 6      2  1291.310        6 42.64561</code></pre>
-<p>Here, each city has a different number of citizens. And the value of <code>N</code> used to create the age variable automatically updates as needed. The result is a dataset with 6 citizens, 2 in the first city and 4 in the second. As long as N is either a number, or a vector of the same length of the current lowest level of the data, <code>level</code> will know what to do.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">cities</th>
+<th align="right">elevation</th>
+<th align="left">citizens</th>
+<th align="right">age</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1778</td>
+<td align="left">1</td>
+<td align="right">46</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">1778</td>
+<td align="left">2</td>
+<td align="right">50</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1499</td>
+<td align="left">3</td>
+<td align="right">35</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1499</td>
+<td align="left">4</td>
+<td align="right">65</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1499</td>
+<td align="left">5</td>
+<td align="right">34</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1499</td>
+<td align="left">6</td>
+<td align="right">23</td>
+</tr>
+</tbody>
+</table>
+<p>Here, each city has a different number of citizens. And the value of <code>N</code> used to create the age variable automatically updates as needed. The result is a dataset with 6 citizens, 2 in the first city and 4 in the second. As long as N is either a number, or a vector of the same length of the current lowest level of the data, <a href="../reference/level.html"><code><a href="../reference/fabricate.html">level()</a></code></a> will know what to do.</p>
 <p>It is also possible to provide a function to N, enabling a <em>random</em> number of citizens per city:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
@@ -133,50 +172,151 @@ variable_data</code></pre></div>
                      <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   )
 my_data</code></pre></div>
-<pre><code>##   cities elevation citizens      age
-## 1      1  1150.299        1 48.01768
-## 2      1  1150.299        2 40.25216
-## 3      1  1150.299        3 41.77392
-## 4      1  1150.299        4 27.10786
-## 5      1  1150.299        5 57.10679
-## 6      1  1150.299        6 56.52710
-## 7      2  1898.125        7 19.35918
-## 8      2  1898.125        8 61.91265</code></pre>
-<p>Here, each city is given a random number of citizens between 1 and 6. Since the <code>sample</code> function returns a vector of length 2, this is like specifying 2 separate <code>N</code>s as in the example above.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">cities</th>
+<th align="right">elevation</th>
+<th align="left">citizens</th>
+<th align="right">age</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1850</td>
+<td align="left">1</td>
+<td align="right">53</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1128</td>
+<td align="left">2</td>
+<td align="right">55</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1128</td>
+<td align="left">3</td>
+<td align="right">45</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1128</td>
+<td align="left">4</td>
+<td align="right">42</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1128</td>
+<td align="left">5</td>
+<td align="right">47</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1128</td>
+<td align="left">6</td>
+<td align="right">69</td>
+</tr>
+</tbody>
+</table>
+<p>Here, each city is given a random number of citizens between 1 and 6. Since the <code><a href="http://dplyr.tidyverse.org/reference/sample.html">sample()</a></code> function returns a vector of length 2, this is like specifying 2 separate <code>N</code>s as in the example above.</p>
 <p>Finally, it is possible to define <code>N</code> on the basis of higher level variables themselves. Consider the following example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">variable_n_function =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">population =</span> <span class="kw">runif</span>(N, <span class="dv">10</span>, <span class="dv">200</span>)),
   <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="kw">round</span>(population <span class="op">*</span><span class="st"> </span><span class="fl">0.3</span>))
 )
 <span class="kw">head</span>(variable_n_function)</code></pre></div>
-<pre><code>##     cities population citizens
-## 1        1   53.81141      001
-## 1.1      1   53.81141      002
-## 1.2      1   53.81141      003
-## 1.3      1   53.81141      004
-## 1.4      1   53.81141      005
-## 1.5      1   53.81141      006</code></pre>
+<table class="table">
+<thead><tr class="header">
+<th></th>
+<th align="left">cities</th>
+<th align="right">population</th>
+<th align="left">citizens</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="left">1</td>
+<td align="right">90</td>
+<td align="left">001</td>
+</tr>
+<tr class="even">
+<td>1.1</td>
+<td align="left">1</td>
+<td align="right">90</td>
+<td align="left">002</td>
+</tr>
+<tr class="odd">
+<td>1.2</td>
+<td align="left">1</td>
+<td align="right">90</td>
+<td align="left">003</td>
+</tr>
+<tr class="even">
+<td>1.3</td>
+<td align="left">1</td>
+<td align="right">90</td>
+<td align="left">004</td>
+</tr>
+<tr class="odd">
+<td>1.4</td>
+<td align="left">1</td>
+<td align="right">90</td>
+<td align="left">005</td>
+</tr>
+<tr class="even">
+<td>1.5</td>
+<td align="left">1</td>
+<td align="right">90</td>
+<td align="left">006</td>
+</tr>
+</tbody>
+</table>
 <p>Here, the city has a defined population, and the number of citizens in our simulated data reflects a sample of 30% of that population. Each city has a different population, so each city gets a different number of citizens in this example.</p>
 </div>
 <div id="averages-within-higher-levels-of-hierarchy" class="section level1">
 <h1 class="hasAnchor">
 <a href="#averages-within-higher-levels-of-hierarchy" class="anchor"></a>Averages within higher levels of hierarchy</h1>
-<p>You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with <code>ave</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+<p>You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with <code>ave()</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ave_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>),
     <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, 
                      <span class="dt">income =</span> <span class="kw">rnorm</span>(N), 
                      <span class="dt">income_mean_city =</span> <span class="kw">ave</span>(income, cities))
-    ) </code></pre></div>
-<pre><code>##   cities citizens     income income_mean_city
-## 1      1        1  0.9477498        0.9477498
-## 2      2        2  1.5469827       -0.1080315
-## 3      2        3 -1.7630457       -0.1080315</code></pre>
+    ) 
+ave_example</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">cities</th>
+<th align="left">citizens</th>
+<th align="right">income</th>
+<th align="right">income_mean_city</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="right">-1.22</td>
+<td align="right">-1.2</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">2</td>
+<td align="right">-0.46</td>
+<td align="right">0.2</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="left">3</td>
+<td align="right">0.86</td>
+<td align="right">0.2</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="tidyverse-integration" class="section level1">
 <h1 class="hasAnchor">
 <a href="#tidyverse-integration" class="anchor"></a>Tidyverse integration</h1>
-<p>Because the functions in <code>fabricatr</code> take data and return data, they are easily slotted into a <code>tidyverse</code> workflow:</p>
+<p>Because the functions in <strong>fabricatr</strong> take data and return data, they are easily slotted into a <code>tidyverse</code> workflow:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
 
 <span class="co"># letting higher levels depend on lower levels</span>
@@ -190,26 +330,95 @@ my_data &lt;-<span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">pop =</span> <span class="kw"><a href="http://dplyr.tidyverse.org/reference/n.html">n</a></span>())
 
 my_data</code></pre></div>
-<pre><code>## # A tibble: 5 x 5
-## # Groups:   cities [2]
-##   cities elevation citizens      age   pop
-##    &lt;chr&gt;     &lt;dbl&gt;    &lt;chr&gt;    &lt;dbl&gt; &lt;int&gt;
-## 1      1  1418.960        1 58.77742     2
-## 2      1  1418.960        2 25.86496     2
-## 3      2  1535.144        3 69.75850     3
-## 4      2  1535.144        4 44.35938     3
-## 5      2  1535.144        5 30.04529     3</code></pre>
+<table class="table">
+<thead><tr class="header">
+<th align="left">cities</th>
+<th align="right">elevation</th>
+<th align="left">citizens</th>
+<th align="right">age</th>
+<th align="right">pop</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1715</td>
+<td align="left">1</td>
+<td align="right">45</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">1715</td>
+<td align="left">2</td>
+<td align="right">48</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1573</td>
+<td align="left">3</td>
+<td align="right">65</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1573</td>
+<td align="left">4</td>
+<td align="right">41</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1573</td>
+<td align="left">5</td>
+<td align="right">61</td>
+<td align="right">3</td>
+</tr>
+</tbody>
+</table>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-<span class="st"> </span>
 <span class="kw"><a href="http://dplyr.tidyverse.org/reference/reexports.html">data_frame</a></span>(<span class="dt">Y =</span> <span class="kw"><a href="http://dplyr.tidyverse.org/reference/sample.html">sample</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">2</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">lower_level =</span> <span class="kw"><a href="../reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">Y2 =</span> Y <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N)))
 my_data</code></pre></div>
-<pre><code>##   Y lower_level       Y2
-## 1 4           1 5.708354
-## 2 4           2 2.681539
-## 3 4           3 4.628571
-## 4 2           4 1.608366
-## 5 2           5 1.182273
-## 6 2           6 2.259208</code></pre>
+<table class="table">
+<thead><tr class="header">
+<th align="right">Y</th>
+<th align="left">lower_level</th>
+<th align="right">Y2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">6</td>
+<td align="left">1</td>
+<td align="right">6.6</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="left">2</td>
+<td align="right">5.5</td>
+</tr>
+<tr class="odd">
+<td align="right">6</td>
+<td align="left">3</td>
+<td align="right">5.3</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="left">4</td>
+<td align="right">7.8</td>
+</tr>
+<tr class="odd">
+<td align="right">8</td>
+<td align="left">5</td>
+<td align="right">8.6</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="left">6</td>
+<td align="right">8.0</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
   </div>

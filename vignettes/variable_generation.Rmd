@@ -1,24 +1,26 @@
 ---
-title: "Getting Started with fabricatr: Generating Discrete Random Variables"
+title: "Generating discrete random variables with fabricatr"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting Started with Fabricatr}
+  %\VignetteIndexEntry{Generating discrete random variables with fabricatr}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, echo=FALSE}
+options(digits=2)
+set.seed(19861108)
 library(fabricatr)
 ```
 
 # Fabricating discrete random variables.
 
-**fabricatr** provides a convenient helper function, `draw_discrete`, which you can use to generate discrete random variables far more easily than using R's built-in data generation mechanisms. Below, we introduce you to the types of data you can generate using `draw_discrete`.
+**fabricatr** provides a convenient helper function, [`draw_discrete()`](../reference/draw_discrete.html), which you can use to generate discrete random variables far more easily than using R's built-in data generation mechanisms. Below, we introduce you to the types of data you can generate using [`draw_discrete()`](../reference/draw_discrete.html).
 
 # Binary and binomial outcomes 
 
-The simplest possible type of data, and `draw_discrete`'s default, is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `x` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, `draw_discrete` will generate `N = length(x)` draws. `N` can also be specified explicitly. Consider these examples:
+The simplest possible type of data, and [`draw_discrete()`](../reference/draw_discrete.html)'s default, is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `x` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, [`draw_discrete()`](../reference/draw_discrete.html) will generate `N = length(x)` draws. `N` can also be specified explicitly. Consider these examples:
 
 ```{r}
 draw_discrete_ex = fabricate(N = 3, p = c(0, .5, 1), 
@@ -26,7 +28,7 @@ draw_discrete_ex = fabricate(N = 3, p = c(0, .5, 1),
                              binary_2 = draw_discrete(N = 3, x = 0.5))
 ```
 
-`draw_discrete` additionally takes an argument `type`, which specifies which type of random variable you wish to draw outcomes from. The default argument here is "binary" -- other aliases include "bernoulli" or "binomial". A simple alias to `draw_discrete(type="binary")` is `draw_binary`. All of the variables created here are equivalent:
+[`draw_discrete()`](../reference/draw_discrete.html) additionally takes an argument `type`, which specifies which type of random variable you wish to draw outcomes from. The default argument here is "binary" -- other aliases include "bernoulli" or "binomial". A simple alias to `draw_discrete(type="binary")` is [`draw_binary)`](../reference/draw_binary.html). All of the variables created here are equivalent:
 
 ```{r}
 binary_alias_ex = fabricate(N = 3, 
@@ -37,7 +39,7 @@ binary_alias_ex = fabricate(N = 3,
 )
 ```
 
-In addition to binary variables, `draw_discrete` supports repeated Bernoulli trials ("binomial" data). This requires specifying an argument `k`, equal to the number of trials.
+In addition to binary variables, [`draw_discrete()`](../reference/draw_discrete.html) supports repeated Bernoulli trials ("binomial" data). This requires specifying an argument `k`, equal to the number of trials.
 
 ```{r}
 binomial_ex = fabricate(N = 3, 
@@ -48,11 +50,13 @@ binomial_ex = fabricate(N = 3,
                         )
 ```
 
-Some researchers may be interested in specifying probabilities through a "link function". This can be done in `draw_discrete` through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.
+Some researchers may be interested in specifying probabilities through a "link function". This can be done in [`draw_discrete()`](../reference/draw_discrete.html) through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.
 
 ```{r}
 bernoulli_probit = fabricate(N = 3, x = 10*rnorm(N), 
-                             binary = draw_discrete(x = x, type = "bernoulli", link = "probit"))
+                             binary = draw_discrete(x = x, 
+                                                    type = "bernoulli", 
+                                                    link = "probit"))
 ```
 
 # Ordered outcomes
@@ -63,7 +67,7 @@ In the following example, each of three observations has a latent variable `x` w
 
 ```{r}
 ordered_example = fabricate(N = 3, 
-                            x = 5*rnorm(N), 
+                            x = 5 * rnorm(N), 
                             ordered = draw_discrete(x, 
                                                     type = "ordered", 
                                                     breaks = c(-Inf, -1, 1, Inf)
@@ -75,7 +79,7 @@ Ordered data also supports link functions including "logit" or "probit":
 
 ```{r}
 ordered_probit_example = fabricate(N = 3, 
-                                   x = 5*rnorm(N), 
+                                   x = 5 * rnorm(N), 
                                    ordered = draw_discrete(x, 
                                                            type = "ordered", 
                                                            breaks = c(-Inf, -1, 1, Inf), 
@@ -86,7 +90,7 @@ ordered_probit_example = fabricate(N = 3,
 
 # Count outcomes
 
-`draw_discrete` supports Poisson-distributed count outcomes. These require that the user specify the parameter `x`, equal to the Poisson distribution mean (often referred to as `lambda`).
+[`draw_discrete()`](../reference/draw_discrete.html) supports Poisson-distributed count outcomes. These require that the user specify the parameter `x`, equal to the Poisson distribution mean (often referred to as `lambda`).
 
 ```{r}
 count_outcome_example = fabricate(N = 3, 
@@ -96,7 +100,7 @@ count_outcome_example = fabricate(N = 3,
 
 # Categorical data
 
-`draw_discrete` can also generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities), as well as setting `type` to be "categorical".
+[`draw_discrete()`](../reference/draw_discrete.html) can also generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities), as well as setting `type` to be "categorical".
 
 If probabilities do not sum to exactly one, they will be normalized, but negative probabilities will cause an error.
 
@@ -113,7 +117,7 @@ categorical_example = fabricate(N = 6,
                                 )
 ```
 
-In the second example, each unit has the same probability of getting a given category. `draw_discrete` will issue a warning to remind you that it is interpreting the vector in this way.
+In the second example, each unit has the same probability of getting a given category. [`draw_discrete()`](../reference/draw_discrete.html) will issue a warning to remind you that it is interpreting the vector in this way.
 ```{r}
 warn_draw_discrete_example = fabricate(N = 6, 
                                        cat = draw_discrete(N = N, 

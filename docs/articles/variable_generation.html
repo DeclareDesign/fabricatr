@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Getting Started with fabricatr: Generating Discrete Random Variables • fabricatr</title>
+<title>Generating discrete random variables with fabricatr • fabricatr</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -99,7 +99,7 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>Getting Started with fabricatr: Generating Discrete Random Variables</h1>
+      <h1>Generating discrete random variables with fabricatr</h1>
                         <h4 class="author">Aaron Rudkin</h4>
             
           </div>
@@ -110,32 +110,34 @@
 <div id="fabricating-discrete-random-variables-" class="section level1">
 <h1 class="hasAnchor">
 <a href="#fabricating-discrete-random-variables-" class="anchor"></a>Fabricating discrete random variables.</h1>
-<p><strong>fabricatr</strong> provides a convenient helper function, <code>draw_discrete</code>, which you can use to generate discrete random variables far more easily than using R’s built-in data generation mechanisms. Below, we introduce you to the types of data you can generate using <code>draw_discrete</code>.</p>
+<p><strong>fabricatr</strong> provides a convenient helper function, <a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a>, which you can use to generate discrete random variables far more easily than using R’s built-in data generation mechanisms. Below, we introduce you to the types of data you can generate using <a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a>.</p>
 </div>
 <div id="binary-and-binomial-outcomes" class="section level1">
 <h1 class="hasAnchor">
 <a href="#binary-and-binomial-outcomes" class="anchor"></a>Binary and binomial outcomes</h1>
-<p>The simplest possible type of data, and <code>draw_discrete</code>’s default, is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter <code>x</code> which specifies the probability that outcomes drawn from this variable are equal to 1. By default, <code>draw_discrete</code> will generate <code>N = length(x)</code> draws. <code>N</code> can also be specified explicitly. Consider these examples:</p>
+<p>The simplest possible type of data, and <a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a>’s default, is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter <code>x</code> which specifies the probability that outcomes drawn from this variable are equal to 1. By default, <a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a> will generate <code>N = length(x)</code> draws. <code>N</code> can also be specified explicitly. Consider these examples:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draw_discrete_ex =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">p =</span> <span class="kw">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>), 
                              <span class="dt">binary_1 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">x =</span> p),
                              <span class="dt">binary_2 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="fl">0.5</span>))</code></pre></div>
-<p><code>draw_discrete</code> additionally takes an argument <code>type</code>, which specifies which type of random variable you wish to draw outcomes from. The default argument here is “binary” – other aliases include “bernoulli” or “binomial”. A simple alias to <code><a href="../reference/draw_discrete.html">draw_discrete(type="binary")</a></code> is <code>draw_binary</code>. All of the variables created here are equivalent:</p>
+<p><a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a> additionally takes an argument <code>type</code>, which specifies which type of random variable you wish to draw outcomes from. The default argument here is “binary” – other aliases include “bernoulli” or “binomial”. A simple alias to <code><a href="../reference/draw_discrete.html">draw_discrete(type="binary")</a></code> is <a href="../reference/draw_binary.html"><code>draw_binary)</code></a>. All of the variables created here are equivalent:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">binary_alias_ex =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
                             <span class="dt">binary_1 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> N, <span class="dt">x =</span> <span class="fl">0.5</span>, <span class="dt">type=</span><span class="st">"binary"</span>),
                             <span class="dt">binary_2 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> N, <span class="dt">x =</span> <span class="fl">0.5</span>, <span class="dt">type=</span><span class="st">"bernoulli"</span>),
                             <span class="dt">binary_3 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> N, <span class="dt">x =</span> <span class="fl">0.5</span>, <span class="dt">type=</span><span class="st">"binomial"</span>),
                             <span class="dt">binary_4 =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">x =</span> <span class="fl">0.5</span>)
 )</code></pre></div>
-<p>In addition to binary variables, <code>draw_discrete</code> supports repeated Bernoulli trials (“binomial” data). This requires specifying an argument <code>k</code>, equal to the number of trials.</p>
+<p>In addition to binary variables, <a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a> supports repeated Bernoulli trials (“binomial” data). This requires specifying an argument <code>k</code>, equal to the number of trials.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">binomial_ex =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
                         <span class="dt">freethrows =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> N, 
                                                    <span class="dt">x =</span> <span class="fl">0.5</span>, 
                                                    <span class="dt">k =</span> <span class="dv">10</span>, 
                                                    <span class="dt">type =</span> <span class="st">"binomial"</span>)
                         )</code></pre></div>
-<p>Some researchers may be interested in specifying probabilities through a “link function”. This can be done in <code>draw_discrete</code> through the <code>link</code> argument. The default link function is “identity”, but we also support “logit”, and “probit”. These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.</p>
+<p>Some researchers may be interested in specifying probabilities through a “link function”. This can be done in <a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a> through the <code>link</code> argument. The default link function is “identity”, but we also support “logit”, and “probit”. These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bernoulli_probit =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="dv">10</span><span class="op">*</span><span class="kw">rnorm</span>(N), 
-                             <span class="dt">binary =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">x =</span> x, <span class="dt">type =</span> <span class="st">"bernoulli"</span>, <span class="dt">link =</span> <span class="st">"probit"</span>))</code></pre></div>
+                             <span class="dt">binary =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">x =</span> x, 
+                                                    <span class="dt">type =</span> <span class="st">"bernoulli"</span>, 
+                                                    <span class="dt">link =</span> <span class="st">"probit"</span>))</code></pre></div>
 </div>
 <div id="ordered-outcomes" class="section level1">
 <h1 class="hasAnchor">
@@ -143,7 +145,7 @@
 <p>Some researchers may be interested in generating ordered outcomes – for example, Likert scale outcomes. This can be done using the “ordered” type. Ordered variables require a vector of breakpoints, supplied as the argument <code>breaks</code> – points at which the underlying latent variable switches from category to category. The first break should always be below the lower bound of the data, while the final break should always be above the upper bound of the data.</p>
 <p>In the following example, each of three observations has a latent variable <code>x</code> which is continuous and unbounded. The variable <code>ordered</code> transforms <code>x</code> into three numeric categories: 1, 2, and 3. All values of <code>x</code> below -1 result in <code>ordered</code> 1; all values of <code>x</code> between -1 and 1 result in <code>ordered</code> 2; all values of <code>x</code> above 1 result in <code>ordered</code> 3:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
-                            <span class="dt">x =</span> <span class="dv">5</span><span class="op">*</span><span class="kw">rnorm</span>(N), 
+                            <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N), 
                             <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(x, 
                                                     <span class="dt">type =</span> <span class="st">"ordered"</span>, 
                                                     <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>)
@@ -151,7 +153,7 @@
                             )</code></pre></div>
 <p>Ordered data also supports link functions including “logit” or “probit”:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_probit_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
-                                   <span class="dt">x =</span> <span class="dv">5</span><span class="op">*</span><span class="kw">rnorm</span>(N), 
+                                   <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N), 
                                    <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(x, 
                                                            <span class="dt">type =</span> <span class="st">"ordered"</span>, 
                                                            <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>), 
@@ -162,7 +164,7 @@
 <div id="count-outcomes" class="section level1">
 <h1 class="hasAnchor">
 <a href="#count-outcomes" class="anchor"></a>Count outcomes</h1>
-<p><code>draw_discrete</code> supports Poisson-distributed count outcomes. These require that the user specify the parameter <code>x</code>, equal to the Poisson distribution mean (often referred to as <code>lambda</code>).</p>
+<p><a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a> supports Poisson-distributed count outcomes. These require that the user specify the parameter <code>x</code>, equal to the Poisson distribution mean (often referred to as <code>lambda</code>).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">count_outcome_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
                                   <span class="dt">x =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">100</span>), 
                                   <span class="dt">count =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(x, <span class="dt">type =</span> <span class="st">"count"</span>))</code></pre></div>
@@ -170,7 +172,7 @@
 <div id="categorical-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#categorical-data" class="anchor"></a>Categorical data</h1>
-<p><code>draw_discrete</code> can also generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities), as well as setting <code>type</code> to be “categorical”.</p>
+<p><a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a> can also generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities), as well as setting <code>type</code> to be “categorical”.</p>
 <p>If probabilities do not sum to exactly one, they will be normalized, but negative probabilities will cause an error.</p>
 <p>In the first example, each unit has a different set of probabilities and the probabilities are provided as a matrix:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">categorical_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">6</span>, 
@@ -181,7 +183,7 @@
                                                     <span class="dt">x =</span> <span class="kw">cbind</span>(p1, p2, p3), 
                                                     <span class="dt">type =</span> <span class="st">"categorical"</span>)
                                 )</code></pre></div>
-<p>In the second example, each unit has the same probability of getting a given category. <code>draw_discrete</code> will issue a warning to remind you that it is interpreting the vector in this way.</p>
+<p>In the second example, each unit has the same probability of getting a given category. <a href="../reference/draw_discrete.html"><code><a href="../reference/draw_discrete.html">draw_discrete()</a></code></a> will issue a warning to remind you that it is interpreting the vector in this way.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">warn_draw_discrete_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">6</span>, 
                                        <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> N, 
                                                            <span class="dt">x =</span> <span class="kw">c</span>(<span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.4</span>), 

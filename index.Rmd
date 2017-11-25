@@ -6,14 +6,15 @@ output:
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, echo = FALSE}
+options(digits=2)
 set.seed(19861108)
 ```
 
 # fabricatr: Imagine your data before you collect it
 
-Making decisions about research design and analysis strategies is often difficult before data is collected, because it is hard to imagine the exact form data will take. Instead, researchers typically modify analysis strategies to fit the data. `fabricatr` helps researchers imagine what data will look like before they collect it. Researchers can evaluate alternative analysis strategies, find the best one given how the data will look, and precommit before looking at the realized data.
+Making decisions about research design and analysis strategies is often difficult before data is collected, because it is hard to imagine the exact form data will take. Instead, researchers typically modify analysis strategies to fit the data. **fabricatr** helps researchers imagine what data will look like before they collect it. Researchers can evaluate alternative analysis strategies, find the best one given how the data will look, and precommit before looking at the realized data.
 
-*This software is in not yet ready for general release. Please contact the authors before using in experiments or published work. Specifications, names, and arguments of functions are subject to change.*
+*This software is not yet ready for general release. Please contact the authors before using in experiments or published work. Specifications, names, and arguments of functions are subject to change.*
 
 ### Installing fabricatr
 
@@ -28,7 +29,7 @@ install.packages("fabricatr", dependencies = TRUE,
 
 Once the package is installed, it is easy to generate new data, or modify your own. The below example simulates the United States House of Representatives, where 435 members belong to two parties, and both parties and representatives have characteristics modeled in the data:
 
-```{r}
+```{r echo=TRUE, results="hide"}
 library(fabricatr)
 
 house_candidates = fabricate(
@@ -42,6 +43,9 @@ house_candidates = fabricate(
                           female = draw_discrete(N = N, x = 0.2, type="bernoulli"))
   )
 head(house_candidates)
+```
+```{r echo=FALSE}
+knitr::kable(head(house_candidates))
 ```
 
 For more information, use the command `?fabricate` in R to explore our documentation or [click here](http://fabricatr.declaredesign.org/articles/getting_started.html) to read our online tutorial.

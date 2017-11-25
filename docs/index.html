@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Imagine Your Data Before You Collect It  • fabricatr</title>
+<title>fabricatr: Imagine your data before you collect it  • fabricatr</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
@@ -107,8 +107,8 @@
 <div id="fabricatr-imagine-your-data-before-you-collect-it" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#fabricatr-imagine-your-data-before-you-collect-it" class="anchor"></a>fabricatr: Imagine your data before you collect it</h1></div>
-<p>Making decisions about research design and analysis strategies is often difficult before data is collected, because it is hard to imagine the exact form data will take. Instead, researchers typically modify analysis strategies to fit the data. <code>fabricatr</code> helps researchers imagine what data will look like before they collect it. Researchers can evaluate alternative analysis strategies, find the best one given how the data will look, and precommit before looking at the realized data.</p>
-<p><em>This software is in not yet ready for general release. Please contact the authors before using in experiments or published work. Specifications, names, and arguments of functions are subject to change.</em></p>
+<p>Making decisions about research design and analysis strategies is often difficult before data is collected, because it is hard to imagine the exact form data will take. Instead, researchers typically modify analysis strategies to fit the data. <strong>fabricatr</strong> helps researchers imagine what data will look like before they collect it. Researchers can evaluate alternative analysis strategies, find the best one given how the data will look, and precommit before looking at the realized data.</p>
+<p><em>This software is not yet ready for general release. Please contact the authors before using in experiments or published work. Specifications, names, and arguments of functions are subject to change.</em></p>
 <div id="installing-fabricatr" class="section level3">
 <h3 class="hasAnchor">
 <a href="#installing-fabricatr" class="anchor"></a>Installing fabricatr</h3>
@@ -133,20 +133,80 @@ house_candidates =<span class="st"> </span><span class="kw"><a href="reference/f
                           <span class="dt">female =</span> <span class="kw"><a href="reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> N, <span class="dt">x =</span> <span class="fl">0.2</span>, <span class="dt">type=</span><span class="st">"bernoulli"</span>))
   )
 <span class="kw">head</span>(house_candidates)</code></pre></div>
-<pre><code>##   parties party_ideology in_power party_incumbents representatives
-## 1       1            0.5        1              241             001
-## 2       1            0.5        1              241             002
-## 3       1            0.5        1              241             003
-## 4       1            0.5        1              241             004
-## 5       1            0.5        1              241             005
-## 6       1            0.5        1              241             006
-##   member_ideology terms_served female
-## 1      1.26410289            2      0
-## 2      0.59186750            2      0
-## 3      0.04551557            2      1
-## 4      0.02327683            3      0
-## 5      1.53852440            6      0
-## 6     -0.49976146            4      0</code></pre>
+<table class="table">
+<thead><tr class="header">
+<th align="left">parties</th>
+<th align="right">party_ideology</th>
+<th align="right">in_power</th>
+<th align="right">party_incumbents</th>
+<th align="left">representatives</th>
+<th align="right">member_ideology</th>
+<th align="right">terms_served</th>
+<th align="right">female</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">241</td>
+<td align="left">001</td>
+<td align="right">1.26</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">241</td>
+<td align="left">002</td>
+<td align="right">0.59</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">241</td>
+<td align="left">003</td>
+<td align="right">0.05</td>
+<td align="right">2</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">241</td>
+<td align="left">004</td>
+<td align="right">0.02</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">241</td>
+<td align="left">005</td>
+<td align="right">1.54</td>
+<td align="right">6</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">241</td>
+<td align="left">006</td>
+<td align="right">-0.50</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
 <p>For more information, use the command <code><a href="reference/fabricate.html">?fabricate</a></code> in R to explore our documentation or <a href="http://fabricatr.declaredesign.org/articles/getting_started.html">click here</a> to read our online tutorial.</p>
 <p>This project is generously supported by a grant from the <a href="http://www.arnoldfoundation.org">Laura and John Arnold Foundation</a> and seed funding from <a href="http://egap.org">EGAP</a>.</p>
 </div>
