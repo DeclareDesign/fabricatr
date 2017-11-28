@@ -47,8 +47,8 @@ draw_binary_icc = function(x = 0.5, N = NULL, cluster_ids, rho = 0.5) {
     stop("If you provide an N, it must be numeric.")
   }
   if(!is.null(N) && N != length(cluster_ids)) {
-    stop("If you provide an N, it must be equal to the length of provided
-         cluster ids")
+    stop("If you provide an N, it must be equal to the length of provided ",
+         "cluster ids")
   }
   if(!is.vector(x)) {
     stop("x must be a number or vector of numbers.")

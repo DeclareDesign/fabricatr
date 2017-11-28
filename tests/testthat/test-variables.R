@@ -197,3 +197,26 @@ test_that("Binary ICCs", {
   # N provided but doesn't match
   expect_error(draw_binary_icc(cluster_ids = cluster_ids, N = 20))
 })
+
+test_that("Likert data example", {
+  set.seed(19861108)
+  latent = rnorm(n=100, mean=3, sd=10)
+  cutpoints = c(-15, -7, -3, 3, 7, 15)
+  likert = draw_discrete(x=latent,
+                         type="ordered",
+                         breaks = cutpoints)
+  expect(length(unique(likert)) == 7)
+  expect(max(likert) == 7)
+  expect(min(likert) == 1)
+
+  draw_discrete(x=latent,
+                type="ordered",
+                breaks = cutpoints,
+                break_labels = c("Strongly Disagree",
+                                 "Disagree",
+                                 "Lean Disagree",
+                                 "No Opinion",
+                                 "Lean Agree",
+                                 "Agree",
+                                 "Strongly Agree"))
+})
