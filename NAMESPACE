@@ -3,6 +3,7 @@
 export(ALL)
 export(add_level)
 export(draw_binary)
+export(draw_binary_icc)
 export(draw_discrete)
 export(fabricate)
 export(level)

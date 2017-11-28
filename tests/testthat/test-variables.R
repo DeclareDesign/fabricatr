@@ -170,3 +170,30 @@ test_that("Ordered data valid tests", {
                 break_labels = c("A", "B"),
                 link="probit")
 })
+
+test_that("Binary ICCs", {
+  cluster_ids = rep(1:5, 10)
+  # Single probability
+  draw_binary_icc(cluster_ids = cluster_ids)
+  # Probability = length(cluster ids)
+  draw_binary_icc(x = c(0.3, 0.5, 0.7, 0.8, 0.9), cluster_ids = cluster_ids)
+
+  # Invalid cluster IDs
+  expect_error(draw_binary_icc(cluster_ids = data.frame(X=1:10, Y=1:10)))
+  # X doesn't match cluster IDs
+  expect_error(draw_binary_icc(x = c(0.5, 0.8), cluster_ids = cluster_ids))
+  # X isn't numeric
+  expect_error(draw_binary_icc(x = "hello", cluster_ids = cluster_ids))
+  # X isn't a probability
+  expect_error(draw_binary_icc(x = -0.5, cluster_ids = cluster_ids))
+  # rho isn't a single number
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, rho = c(0.5, 0.8)))
+  # rho isn't a probability
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, rho = 2))
+  # rho isn't a number
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, rho = "hello"))
+  # Non-numeric N
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, N = "hello"))
+  # N provided but doesn't match
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, N = 20))
+})

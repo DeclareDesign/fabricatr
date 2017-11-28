@@ -15,25 +15,44 @@ modify_level(N = NULL, ID_label = NULL, working_environment_ = NULL, ...,
   data_arguments = quos(...))
 }
 \arguments{
-\item{data}{(optional) user-provided data that forms the basis of the fabrication, i.e. you can add variables to existing data. Provide either \code{N} or \code{data} (\code{N} is the number of rows of the data if \code{data} is provided).}
+\item{data}{(optional) user-provided data that forms the basis of the
+fabrication, i.e. you can add variables to existing data. Provide either
+\code{N} or \code{data} (\code{N} is the number of rows of the data if
+\code{data} is provided).}
 
-\item{N}{(optional) number of units to draw. If provided as \code{fabricate(N = 5)}, this determines the number of units in the single-level data. If provided in \code{level}, i.e. \code{fabricate(cities = level(N = 5))}, \code{N} determines the number of units in a specific level of a hierarchical dataset.}
+\item{N}{(optional) number of units to draw. If provided as
+\code{fabricate(N = 5)}, this determines the number of units in the
+single-level data. If provided in \code{add_level}, i.e.
+\code{fabricate(cities = add_level(N = 5))}, \code{N} determines the number
+of units in a specific level of a hierarchical dataset.}
 
 \item{ID_label}{(optional) variable name for ID variable, i.e. citizen_ID}
 
-\item{...}{Variable or level-generating arguments, such as \code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass \code{add_level()} or \code{modify_level()} arguments, which define a level of a multi-level dataset. See examples.}
+\item{...}{Variable or level-generating arguments, such as
+\code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass
+\code{add_level()} or \code{modify_level()} arguments, which define a level
+of a multi-level dataset. See examples.}
 
 \item{working_environment_}{Internal argument, not intended for end-user use.}
 
 \item{data_arguments}{Internal argument, not intended for end-user use.}
 
-\item{new_hierarchy}{Reserved argument for future functionality to add cross-classified data. Not yet implemented.}
+\item{new_hierarchy}{Reserved argument for future functionality to add
+cross-classified data. Not yet implemented.}
 }
 \value{
 data.frame
 }
 \description{
-\code{fabricate} helps you simulate a dataset before you collect it. You can either start with your own data and add simulated variables to it (by passing \code{data} to \code{fabricate()}) or start from scratch by defining \code{N}. Create hierarchical data with multiple levels of data such as citizens within cities within states using \code{add_level()} or modify existing hierarchical data using \code{modify_level()}. You can use any R function to create each variable. We provide several built-in options to easily draw from binary and count outcomes, \code{\link{draw_binary}} and \code{\link{draw_discrete}}.
+\code{fabricate} helps you simulate a dataset before you collect it. You can
+either start with your own data and add simulated variables to it (by passing
+\code{data} to \code{fabricate()}) or start from scratch by defining
+\code{N}. Create hierarchical data with multiple levels of data such as
+citizens within cities within states using \code{add_level()} or modify
+existing hierarchical data using \code{modify_level()}. You can use any R
+function to create each variable. We provide several built-in options to
+easily draw from binary and count outcomes, \code{\link{draw_binary}},
+\code{\link{draw_binary_icc}}, and \code{\link{draw_discrete}}.
 }
 \examples{
 

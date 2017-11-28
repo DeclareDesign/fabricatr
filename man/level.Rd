@@ -2,11 +2,13 @@
 % Please edit documentation in R/fabricate.R
 \name{level}
 \alias{level}
-\title{Deprecated level call function maintained to provide useful error for previous fabricatr code.}
+\title{Deprecated level call function maintained to provide useful error for
+previous fabricatr code.}
 \usage{
 level(N = NULL, ID_label = NULL, ...)
 }
 \description{
-Deprecated level call function maintained to provide useful error for previous fabricatr code.
+Deprecated level call function maintained to provide useful error for
+previous fabricatr code.
 }
 \keyword{internal}
