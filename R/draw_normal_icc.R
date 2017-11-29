@@ -1,17 +1,10 @@
 #' Draw normal data with fixed intra-cluster correlation.
 #'
-#' Data is generated according to the following algorithm, where \eqn{i} is
-#' the index of a cluster and \eqn{j} is the index of a unit:
-#'
-#' \deqn{\sigma^2_{\alpha}(i) = (\rho \sigma^2_{\epsilon}(i)) / (1 - \rho) \cr
-#' \mu_{ij} ~ \mathcall{N}(\mu_i, \sigma_{\epsilon}(i))
-#' \alpha_{i} ~ \mathcal{N}(0, \sigma_{\alpha}(i)) \cr
-#' x_{ij} = \mu_{ij} + \alpha_{i}}
-#'
-#' This system of equations ensures inter-cluster correlation 0, intra-cluster
-#' correlation in expectation \eqn{\rho}. Algorithm discussed at
+#' Data is generated to ensure inter-cluster correlation 0, intra-cluster
+#' correlation in expectation \eqn{\rho}{rho}. The data generating process
+#' used in this function is specified at the following URL:
 #' \url{https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc}
-#'
+#' 
 #' @param x A number or vector of numbers, one mean per cluster.
 #' @param N (Optional) A number indicating the number of observations to be
 #' generated. Must be equal to length(cluster_ids) if provided.
