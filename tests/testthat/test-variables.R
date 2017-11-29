@@ -144,13 +144,7 @@ test_that("Ordered data invalid tests", {
   expect_error(draw_discrete(x=rnorm(5), type="ordered",
                              breaks=c("invalid", "break", "test"), break_labels=NA)) # Non-numeric breaks
   expect_error(draw_discrete(x=rnorm(5), type="ordered",
-                             breaks=c(1, 2), break_labels=NA)) # Insufficient number of breaks
-  expect_error(draw_discrete(x=rnorm(5), type="ordered",
                              breaks=c(1, 3, 2), break_labels=NA)) # Breaks out of order
-  expect_error(draw_discrete(x=rnorm(5), type="ordered",
-                             breaks=c(10, 20, 30), break_labels=NA)) # Break endpoints above data
-  expect_error(draw_discrete(x=rnorm(5), type="ordered",
-                             breaks=c(-50, -40, -30), break_labels=NA)) # Break endpoints below data
   expect_error(draw_discrete(x=rnorm(5), type="ordered",
                              breaks=matrix(rep(c(0, 1, 2), 3), byrow=TRUE, ncol=3, nrow=3))) # Non-vector breaks
   expect_error(draw_discrete(x=rnorm(5), type="ordered",
@@ -205,9 +199,9 @@ test_that("Likert data example", {
   likert = draw_discrete(x=latent,
                          type="ordered",
                          breaks = cutpoints)
-  expect(length(unique(likert)) == 7)
-  expect(max(likert) == 7)
-  expect(min(likert) == 1)
+  expect_equal(length(unique(likert)), 7)
+  expect_equal(max(likert), 7)
+  expect_equal(min(likert), 1)
 
   draw_discrete(x=latent,
                 type="ordered",
@@ -219,4 +213,36 @@ test_that("Likert data example", {
                                  "Lean Agree",
                                  "Agree",
                                  "Strongly Agree"))
+})
+
+test_that("Normal ICC", {
+  cluster_ids = rep(1:5, 10)
+  # Single mean
+  draw_normal_icc(cluster_ids = cluster_ids)
+  # Means = length(cluster ids)
+  draw_normal_icc(x = c(-1, -0.5, 0, 0.5, 1), cluster_ids = cluster_ids)
+
+  # Invalid cluster IDs
+  expect_error(draw_normal_icc(cluster_ids = data.frame(X=1:10, Y=1:10)))
+  # X doesn't match cluster IDs
+  expect_error(draw_normal_icc(x = c(0.5, 0.8), cluster_ids = cluster_ids))
+  # X isn't numeric
+  expect_error(draw_binary_icc(x = "hello", cluster_ids = cluster_ids))
+  # rho isn't a single number
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, rho = c(0.5, 0.8)))
+  # rho isn't a probability
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, rho = 2))
+  # rho isn't a number
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, rho = "hello"))
+  # Non-numeric N
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, N = "hello"))
+  # N provided but doesn't match
+  expect_error(draw_binary_icc(cluster_ids = cluster_ids, N = 20))
+  # SD is wrong length
+  expect_error(draw_normal_icc(cluster_ids = cluster_ids, sd = c(1, 2)))
+  # SD is non-numeric
+  expect_error(draw_normal_icc(cluster_ids = cluster_ids, sd = "hello"))
+  # SD is not a vector
+  expect_error(draw_normal_icc(cluster_ids = cluster_ids, sd = data.frame(X=1:10, Y=1:10)))
+
 })

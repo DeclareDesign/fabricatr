@@ -39,16 +39,17 @@ draw_binary_icc = function(x = 0.5, N = NULL, cluster_ids, rho = 0.5) {
   })
   number_of_clusters = length(unique(cluster_ids))
 
-  # Sanity check x
-  if(!length(x) %in% c(1, number_of_clusters)) {
-    stop("x must be either one number or one number per cluster.")
-  }
+  # Sanity check N
   if(!is.null(N) && !is.numeric(N)) {
     stop("If you provide an N, it must be numeric.")
   }
   if(!is.null(N) && N != length(cluster_ids)) {
     stop("If you provide an N, it must be equal to the length of provided ",
          "cluster ids")
+  }
+  # Sanity check x
+  if(!length(x) %in% c(1, number_of_clusters)) {
+    stop("x must be either one number or one number per cluster.")
   }
   if(!is.vector(x)) {
     stop("x must be a number or vector of numbers.")

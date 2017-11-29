@@ -7,7 +7,7 @@
 ordered, and categorical}
 \usage{
 draw_discrete(x, N = length(x), type = "binary", link = "identity",
-  breaks = c(-Inf, 0, Inf), break_labels = FALSE, k = 1)
+  breaks = c(-Inf, 0, Inf), break_labels = NULL, k = 1)
 
 draw_binary(x, N = length(x), link = "identity")
 }
