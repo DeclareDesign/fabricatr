@@ -45,3 +45,5 @@ navbar:
         href: http://estimatr.declaredesign.org
   - text: "DeclareDesign home"
     href: http://declaredesign.org
+  right:
+  - text: 
