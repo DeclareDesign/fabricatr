@@ -176,6 +176,8 @@ test_that("Binary ICCs", {
   expect_error(draw_binary_icc(cluster_ids = data.frame(X=1:10, Y=1:10)))
   # X doesn't match cluster IDs
   expect_error(draw_binary_icc(x = c(0.5, 0.8), cluster_ids = cluster_ids))
+  # X isn't a vector
+  expect_error(draw_binary_icc(x = data.frame(j = c(0.5, 0.8), k = c(0.2, 0.4)), cluster_ids = cluster_ids))
   # X isn't numeric
   expect_error(draw_binary_icc(x = "hello", cluster_ids = cluster_ids))
   # X isn't a probability
@@ -226,18 +228,20 @@ test_that("Normal ICC", {
   expect_error(draw_normal_icc(cluster_ids = data.frame(X=1:10, Y=1:10)))
   # X doesn't match cluster IDs
   expect_error(draw_normal_icc(x = c(0.5, 0.8), cluster_ids = cluster_ids))
+  # X isn't a vector
+  expect_error(draw_normal_icc(x = data.frame(j = c(2, 3), k = c(2, 4)), cluster_ids = cluster_ids))
   # X isn't numeric
-  expect_error(draw_binary_icc(x = "hello", cluster_ids = cluster_ids))
+  expect_error(draw_normal_icc(x = "hello", cluster_ids = cluster_ids))
   # rho isn't a single number
-  expect_error(draw_binary_icc(cluster_ids = cluster_ids, rho = c(0.5, 0.8)))
+  expect_error(draw_normal_icc(cluster_ids = cluster_ids, rho = c(0.5, 0.8)))
   # rho isn't a probability
-  expect_error(draw_binary_icc(cluster_ids = cluster_ids, rho = 2))
+  expect_error(draw_normal_icc(cluster_ids = cluster_ids, rho = 2))
   # rho isn't a number
-  expect_error(draw_binary_icc(cluster_ids = cluster_ids, rho = "hello"))
+  expect_error(draw_normal_icc(cluster_ids = cluster_ids, rho = "hello"))
   # Non-numeric N
-  expect_error(draw_binary_icc(cluster_ids = cluster_ids, N = "hello"))
+  expect_error(draw_normal_icc(cluster_ids = cluster_ids, N = "hello"))
   # N provided but doesn't match
-  expect_error(draw_binary_icc(cluster_ids = cluster_ids, N = 20))
+  expect_error(draw_normal_icc(cluster_ids = cluster_ids, N = 20))
   # SD is wrong length
   expect_error(draw_normal_icc(cluster_ids = cluster_ids, sd = c(1, 2)))
   # SD is non-numeric
