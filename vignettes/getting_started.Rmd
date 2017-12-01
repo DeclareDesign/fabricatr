@@ -1,367 +1,165 @@
 ---
-title: "Getting Started with Fabricatr and Imagining Your Data Before You Collect It"
+title: "Getting started with fabricatr"
 author: "Aaron Rudkin"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-toc: true
 vignette: >
-  %\VignetteIndexEntry{Getting Started with Fabricatr}
+  %\VignetteIndexEntry{Getting Started with fabricatr}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-`fabricatr` is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, `fabricatr` is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine **correlated** data and **hierarchical** data. `fabricatr` is designed to integrate into a [tidyverse](https://www.tidyverse.org/) workflow, and to allow users to imagine data from scratch or by modifying existing data.
+```{r, echo=FALSE}
+options(digits=2)
+knitr::knit_hooks$set(inline = function(x) {
+  prettyNum(x, decimal.mark=".", big.mark=",")
+})
+set.seed(19861108)
+library(fabricatr)
+```
 
-`fabricatr` is a member of the `DeclareDesign` software suite that also includes the `r` packages [randomizr](randomizr.declaredesign.org), [estimatr](estimatr.declaredesign.org), and [Declare Design](declaredesign.org). 
+**fabricatr** is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, **fabricatr** is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine **correlated** data and **hierarchical** data. **fabricatr** is designed to integrate into a [tidyverse](https://www.tidyverse.org/) workflow, and to allow users to imagine data from scratch or by modifying existing data.
+
+**fabricatr** is a member of the **DeclareDesign** software suite that also includes the `r` packages [randomizr](randomizr.declaredesign.org), [estimatr](estimatr.declaredesign.org), and [DeclareDesign](declaredesign.org). 
 
 # Basics
 
-Using `fabricatr` begins by making a call to the function `fabricate`. `fabricate` can be used to create single-level of hierarchical data. There are three main ways to call `fabricate`: making a single-level dataset by specifying how many observations you would like; making a single-level dataset by importing data and optionally modifying it by creating new variables; and making a hierarchical dataset.
+Using **fabricatr** begins by making a call to the function [`fabricate()`](../reference/fabricate.html). [`fabricate()`](../reference/fabricate.html) can be used to create single-level of hierarchical data. There are three main ways to call [`fabricate()`](../reference/fabricate.html): making a single-level dataset by specifying how many observations you would like; making a single-level dataset by importing data and optionally modifying it by creating new variables; and making a hierarchical dataset.
 
 # Single-level datasets from scratch
 
-Making a single-level dataset begins with providing the argument `N`, a number representing the number of observations you wish to create, followed by a series of variable definitions. Variables can be defined using any function you have access to in R. `fabricatr` provides several simple functions for generating common types of data. These are covered below. Functions that create subsequent variables can rely on previously created variables, which ensures that variables can be correlated with one another:
+Making a single-level dataset begins with providing the argument `N`, a number representing the number of observations you wish to create, followed by a series of variable definitions. Variables can be defined using any function you have access to in R. **fabricatr** provides several simple functions for generating common types of data. These are covered below. Functions that create subsequent variables can rely on previously created variables, which ensures that variables can be correlated with one another:
 
-```{r}
+```{r echo=TRUE, results="hide"}
 library(fabricatr)
 my_data <- fabricate(N = 5, Y = runif(N), Y2 = Y*5)
 my_data
+```
+```{r echo=FALSE}
+knitr::kable(my_data)
 ```
 
 # Single-level datasets using existing data
 
 Instead of specifying the argument `N`, users can specify the argument `data` to import existing datasets. Once a dataset is imported, subsequent variables have access to `N`, representing the number of observations in the imported data. This makes it easy to augment existing data with simulations based on that data:
 
-```{r}
+```{r echo=TRUE, results="hide"}
 # This example makes use of the "quakes" dataset, built into R
 # which describes earthquakes off the coast of Fiji. The "mag"
 # variable contains the richter magnitude of the earthquakes.
 
-simulated_quake_data = fabricate(data=quakes,
+simulated_quake_data = fabricate(data = quakes,
                                  fatalities = round(pmax(0, rnorm(N, mean=mag)) * 100),
                                  insurance_cost = fatalities * runif(N, 1000000, 2000000))
 head(simulated_quake_data)
 ```
+```{r echo=FALSE}
+knitr::kable(head(simulated_quake_data))
+```
+
 
 Notice that variable creation calls are able to make reference to both the variables in the imported data set, and newly created variables. Also, function calls can be arbitrarily nested -- the variable fatalities uses several nested function calls.
 
 # Hierarchical data
 
-The most powerful use of `fabricatr` is to create hierarchical ("nested") data. In the example below, we create 5 countries, each of which has 10 provinces:
+The most powerful use of **fabricatr** is to create hierarchical ("nested") data. In the example below, we create 5 countries, each of which has 10 provinces:
 
-```{r}
+```{r echo=TRUE, results="hide"}
 country_data <-
   fabricate(
-    countries = add_level(N = 5, 
-                          gdp_per_capita = runif(N, min=10000, max=50000),
-                          life_expectancy = 50 + runif(N, 10, 20) + ((gdp_per_capita > 30000) * 10)),
-    provinces = add_level(N = 10,
-                          has_natural_resources = draw_discrete(x=0.3, N=N, type="bernoulli"),
-                          has_manufacturing = draw_discrete(x=0.7, N=N, type="bernoulli"))
+    countries = level(N = 5, 
+                      gdp_per_capita = runif(N, min=10000, max=50000),
+                      life_expectancy = 50 + runif(N, 10, 20) + ((gdp_per_capita > 30000) * 10)),
+    provinces = level(N = 10,
+                      has_nat_resources = draw_discrete(x=0.3, N=N, type="bernoulli"),
+                      has_manufacturing = draw_discrete(x=0.7, N=N, type="bernoulli"))
   )
 head(country_data)
 ```
+```{r echo=FALSE}
+knitr::kable(head(country_data), format.args=list(big.mark = ","))
+```
 
-Several things can be observed in this example. First, fabricate knows that your second `add_level` command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable "N" changes. During the `add_level` call for countries, N is 5. During the `add_level` call for provinces, N is 10. And the resulting data, of course, has 50 observations.
 
-Finally, the province-level variables are created using the `draw_discrete` function. This is a function provided by `fabricatr` to make simulating discrete random variables simple. When you simulate your own data, you can use `fabricatr`'s functions, R's built-ins, or any custom functions you wish. We continue our exploration of `draw_discrete` below.
+Several things can be observed in this example. First, fabricate knows that your second [`level()`](../reference/level.html) command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable "N" changes. During the [`level()`](../reference/level.html) call for countries, N is 5. During the [`level()`](../reference/level.html) call for provinces, N is 10. And the resulting data, of course, has 50 observations.
+
+Finally, the province-level variables are created using the [`draw_discrete()`](../reference/draw_discrete.html) function. This is a function provided by **fabricatr** to make simulating discrete random variables simple. When you simulate your own data, you can use **fabricatr**'s functions, R's built-ins, or any custom functions you wish. [`draw_discrete()`](../reference/draw_discrete.html) is explained in [our tutorial on variable generation using **fabricatr**](variable_generation.html)
 
 # Adding hierarchy to existing data
 
-`fabricatr` is also able to import existing data and nest hierarchical data under it. This maybe be useful if, for example, you have existing country-level data but wish to simulate data at lower geographical levels for the purposes of an experiment you plan to conduct.
+**fabricatr** is also able to import existing data and nest hierarchical data under it. This maybe be useful if, for example, you have existing country-level data but wish to simulate data at lower geographical levels for the purposes of an experiment you plan to conduct.
 
-Imagine importing the country-province data simulated in the previous example. Because `fabricate` returns a data frame, this simulated data can be re-imported into a subsequent fabricate call, just like external data can be.
+Imagine importing the country-province data simulated in the previous example. Because [`fabricate()`](../reference/fabricate.html) returns a data frame, this simulated data can be re-imported into a subsequent fabricate call, just like external data can be.
 
-```{r}
+```{r echo=TRUE, results="hide"}
 citizen_data <- 
   fabricate(
     data = country_data,
-    citizens = add_level(N=10,
-                         salary = rnorm(N, 
-                                        mean = gdp_per_capita + 
-                                          has_natural_resources * 5000 + 
-                                          has_manufacturing * 5000,
-                                        sd = 10000)))
+    citizens = level(N=10,
+                     salary = rnorm(N, 
+                                    mean = gdp_per_capita + 
+                                      has_nat_resources * 5000 + 
+                                      has_manufacturing * 5000,
+                                    sd = 10000)))
 head(citizen_data)
 ```
+```{r echo=FALSE}
+knitr::kable(head(citizen_data), format.args=list(big.mark = ","))
+```
+
 
 In this example, we add a third level of data; for each of our 50 country-province observations, we now have 10 citizen-level observations. Citizen-level covariates like salary can draw from both the country-level covariate and the province-level covariate.
 
 Notice that the syntax for adding a new nested level to existing data is different than the syntax for adding new variables to the original dataset.
 
-# More complicated level creation with variable numbers of observations
+# Modifying existing levels
 
-`add_level` can be used to create more complicated patterns of nesting. For example, when creating lower level data, it is possible to use a different `N` for each of the values of the higher level data:
-
-```{r}
-variable_data <-
-  fabricate(
-    cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = add_level(N = c(2, 4), age = runif(N, 18, 70))
-  )
-variable_data
-```
-
-Here, each city has a different number of citizens. And the value of `N` used to create the age variable automatically updates as needed. The result is a dataset with 6 citizens, 2 in the first city and 4 in the second. As long as N is either a number, or a vector of the same length of the current lowest level of the data, `add_level` will know what to do.
-
-It is also possible to provide a function to N, enabling a *random* number of citizens per city:
-
-```{r}
-my_data <-
-  fabricate(
-    cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = add_level(N = sample(1:6, size = 2, replace = TRUE), 
-                         age = runif(N, 18, 70))
-  )
-my_data
-```
-
-Here, each city is given a random number of citizens between 1 and 6. Since the `sample` function returns a vector of length 2, this is like specifying 2 separate `N`s as in the example above.
-
-Finally, it is possible to define `N` on the basis of higher level variables themselves. Consider the following example:
-
-```{r}
-fabricate(
-  cities = add_level(N = 5, population = runif(N, 10, 200)),
-  citizens = add_level(N = round(population * 0.3))
-)
-```
-
-Here, the city has a defined population, and the number of citizens in our simulated data reflects a sample of 30% of that population. Each city has a different population, so each city gets a different number of citizens in this example.
-
-## Modifying existing levels
-
-Suppose you have hierarchical data, and wish to simulate variables at a higher level of aggregation. For example, imagine you import a dataset containing citizens within countries, but you wish to simulate additional country-level variables. In `fabricatr`, you can do this using the `modify_level` command.
+Suppose you have hierarchical data, and wish to simulate variables at a higher level of aggregation. For example, imagine you import a dataset containing citizens within countries, but you wish to simulate additional country-level variables. In **fabricatr**, you can do this using the [`level()`](../reference/level.html) command.
 
 Let's use our country-province data from earlier:
 
-```{r}
+```{r echo=TRUE, results="hide"}
 new_country_data <-
   fabricate(
     data = country_data,
-    countries = modify_level(average_temperature = runif(N, 30, 80))
+    countries = level(avg_temp = runif(N, 30, 80))
   )
 
 head(new_country_data)
 ```
+```{r echo=FALSE}
+knitr::kable(head(new_country_data), format.args=list(big.mark = ","))
+```
 
-Two things are worth noting. First, observe that in the resulting data, the new variable is created at the level of aggregation you chose -- countries. Second, although N is not specified anywhere, `modify_level` knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the `modify_level` command is correctly assigned to the level of interest.
+
+How does [`level()`](../reference/level.html) know whether to modify your data or add a new level? [`level()`](../reference/level.html) uses contextual information -- if the name you provide to your [`level()`](../reference/level.html) call is already a field that exists in your data set, [`level()`](../reference/level.html) will treat this as a request to modify this level of data. If, on the other hand, you provide a name not used in the data set, [`level()`](../reference/level.html) will assume you mean to add nested data under the existing data.
+
+We can observe that the new variable is created at the level of aggregation you chose -- countries. Also, although N is not specified anywhere, [`level()`](../reference/level.html) knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the [`level()`](../reference/level.html) command is correctly assigned to the level of interest.
 
 We can also modify more than one level. Recalling our country-province-citizen data from above, the following process is possible:
 
-```{r}
+```{r echo=TRUE, results="hide"}
 new_citizen_data <-
   fabricate(
     data = citizen_data,
-    countries = modify_level(average_temperature = runif(N, 30, 80)),
-    provinces = modify_level(conflict_zone = draw_discrete(N, 
-                                                           x=0.2 + has_natural_resources*0.3,
-                                                           type="binary"),
-                             infant_mortality = runif(N, 0, 10) + 
-                               conflict_zone*10 + 
-                               (average_temperature > 70)*10),
-    citizens = modify_level(college_degree = draw_discrete(N, x=0.4 - (0.3*conflict_zone), type="binary"))
+    countries = level(avg_temp = runif(N, 30, 80)),
+    provinces = level(conflict_zone = draw_discrete(N, 
+                                                    x=0.2 + has_nat_resources * 0.3,
+                                                    type="binary"),
+                      infant_mortality = runif(N, 0, 10) + 
+                        conflict_zone * 10 + 
+                        (avg_temp > 70) * 10),
+    citizens = level(college_degree = draw_discrete(N, 
+                                                    x=0.4 - (0.3 * conflict_zone), 
+                                                    type="binary"))
   )
 ```                        
 
-Before assessing what this tells us about `modify_level`, let's consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on "resource curses". The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizens access to education is also random, but depends on whether they live in a conflict area.
+Before assessing what this tells us about [`level()`](../reference/level.html), let's consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on "resource curses". The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizens access to education is also random, but depends on whether they live in a conflict area.
 
-There are a lot of things to learn from this example. First, it's possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according -- by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one `modify_level` call can be used in subsequent variables of the same call, or subsequent calls.
+There are a lot of things to learn from this example. First, it's possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according -- by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one [`level()`](../reference/level.html) call can be used in subsequent variables of the same call, or subsequent calls.
 
-Again, we see the use of `draw_discrete`. We will now discusss this function, which can be used to generate many common discrete data types.
+Again, we see the use of [`draw_discrete()`](../reference/draw_discrete.html). Using this function is covered in our tutorial on [generating discrete random variables](variable_generation.html), linked below.
 
-# Fabricating discrete random variables.
+# Next Steps
 
-## Binary and binomial outcomes 
-
-The simplest possible type of data, and `draw_discrete`'s default, is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `x` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, `draw_discrete` will generate `N = length(x)` draws. `N` can also be specified explicitly. Consider these examples:
-
-```{r}
-fabricate(N = 3, p = c(0, .5, 1), 
-          binary_1 = draw_discrete(x=p),
-          binary_2 = draw_discrete(N=3, x=0.5))
-```
-
-`draw_discrete` additionally takes an argument `type`, which specifies which type of random variable you wish to draw outcomes from. The default argument here is "binary" -- other aliases include "bernoulli" or "binomial". A simple alias to `draw_discrete(type="binary")` is `draw_binary`. All of the variables created here are equivalent:
-
-```{r}
-fabricate(N = 3, 
-          binary_1 = draw_discrete(N=N, x=0.5, type="binary"),
-          binary_2 = draw_discrete(N=N, x=0.5, type="bernoulli"),
-          binary_3 = draw_discrete(N=N, x=0.5, type="binomial"),
-          binary_4 = draw_binary(N=N, x=0.5)
-)
-```
-
-In addition to binary variables, `draw_discrete` supports repeated Bernoulli trials ("binomial" data). This requires specifying an argument `k`, equal to the number of trials.
-
-```{r}
-fabricate(N = 3, 
-          freethrows = draw_discrete(N=N, x=0.5, k=10, type="binomial")
-)
-```
-
-Some researchers may be interested in specifying probabilities through a "link function". This can be done in `draw_discrete` through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.
-
-```{r}
-fabricate(N = 3, x = 10*rnorm(N), 
-          binary = draw_discrete(x=x, type = "bernoulli", link = "probit"))
-```
-
-## Ordered outcomes
-
-Some researchers may be interested in generating ordered outcomes -- for example, Likert scale outcomes. This can be done using the "ordered" type. Ordered variables require a vector of breakpoints, supplied as the argument `breaks` -- points at which the underlying latent variable switches from category to category. The first break should always be below the lower bound of the data, while the final break should always be above the upper bound of the data.
-
-In the following example, each of three observations has a latent variable `x` which is continuous and unbounded. The variable `ordered` transforms `x` into three numeric categories: 1, 2, and 3. All values of `x` below -1 result in `ordered` 1; all values of `x` between -1 and 1 result in `ordered` 2; all values of `x` above 1 result in `ordered` 3:
-
-```{r}
-fabricate(N = 3, x = 5*rnorm(N), 
-          ordered = draw_discrete(x, type = "ordered", breaks = c(-Inf, -1, 1, Inf)))
-```
-
-Ordered data also supports link functions including "logit" or "probit":
-
-```{r}
-fabricate(N = 3, x = 5*rnorm(N), 
-          ordered = draw_discrete(x, type = "ordered", breaks = c(-Inf, -1, 1, Inf), link = "probit"))
-```
-
-## Count outcomes
-
-`draw_discrete` supports Poisson-distributed count outcomes. These require that the user specify the parameter `x`, equal to the Poisson distribution mean (often referred to as `lambda`).
-
-```{r}
-fabricate(N = 3, x = c(0,5,100), 
-          count = draw_discrete(x, type = "count"))
-```
-
-## Categorical data
-
-`draw_discrete` can also generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities), as well as setting `type` to be "categorical".
-
-If probabilities do not sum to exactly one, they will be normalized, but negative probabilities will cause an error.
-
-In the first example, each unit has a different set of probabilities and the probabilities are provided as a matrix:
-
-```{r}
-fabricate(N = 6, 
-          p1 = runif(N, 0, 1),
-          p2 = runif(N, 0, 1),
-          p3 = runif(N, 0, 1),
-          cat = draw_discrete(N=N, x=cbind(p1, p2, p3), type = "categorical"))
-```
-
-In the second example, each unit has the same probability of getting a given category. `draw_discrete` will issue a warning to remind you that it is interpreting the vector in this way.
-```{r}
-fabricate(N = 6, 
-          cat = draw_discrete(N=N, x=c(0.2, 0.4, 0.4), type = "categorical"))
-```
-
-"categorical" variables can also use link functions, for example to generate multinomial probit data.
-
-# Simulation "resampling" from existing data.
-
-One way to imagine new data is to take data you already have and resample it, ensuring that existing inter-correlations between variables are preserved, while generating new data or expanding the size of the dataset. `fabricatr` offers several options to simulate resampling.
-
-## Bootstrapping
-
-The simplest option in `fabricatr` is to "bootstrap" data. Taking data with N observations, the "bootstrap" resamples these observations with replacement and generates N new observations. Existing observations may be used zero times, once, or more than once. Bootstrapping is very simple with the `resample_data` function:
-
-```{r}
-survey_data = fabricate(N=10, 
-                        voted_republican = draw_binary(N=N, x=0.5))
-
-survey_data_new = resample_data(survey_data)
-survey_data
-```
-
-It is also possible to resample fewer or greater number of observations from your existing data. We can do this by specifying the argument `N` to `resample_data`. Consider expanding a small dataset to allow for better imagination of larger data to be collected later.
-
-```{r}
-large_survey_data = resample_data(survey_data, N=100)
-nrow(large_survey_data)
-```
-
-## Resampling hierarchical data
-
-One of the most powerful features of all of `fabricatr` is the ability to resample from hierarchical data at any or all levels. Doing so requires specifying which levels you will want to resample with the `ID_labels` argument. Unless otherwise specified, all units from levels below the resampled level will be kept. In our earlier country-province-citizen dataset, resampling countries will lead to all provinces and citizens of the selected country being carried forward. You can resample at multiple levels simultaneously.
-
-Consider this example, which takes a dataset containing 2 cities of 3 citizens, and resamples it into a dataset of 3 cities, each containing 5 citizens.
-
-```{r}
-my_data <-
-  fabricate(
-    cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = add_level(N = 3, age = runif(N, 18, 70))
-  )
-
-my_data_2 <- resample_data(my_data, 
-                           N = c(3, 5), 
-                           ID_labels = c("cities", "citizens"))
-my_data_2
-```
-
-`resample_data` will first select the cities to be resampled. Then, for each city, it will continue by selecting the citizens to be resampled. If a higher level unit is used more than once (for example, the same city being chosen twice), and a lower level is subsequently resampled, the choices of which units to keep for the lower level will differ for each copy of the higher level. In this example, if city 1 is chosen twice, then the sets of five citizens chosen for each copy of the city 1 will differ.
-
-Level names can also be specified within the vector for `N`, as follows:
-```{r}
-my_data_2 <- resample_data(my_data, N = c(cities=3, citizens=5))
-my_data_2
-```
-
-## Passing through levels transparently.
-
-When resampling across multiple levels, it may be useful to transparently pass through all units of a particular level. For example, considering data with a clustered design, it may be useful to resample some number of individual observations from each original cluster. This is done by specifying the all-caps flag ALL for the number of units selected at a given level. Do not quote ALL, and ensure that it is written capitalized.
-
-```{r}
-clustered_survey <- fabricate(
-  clusters = add_level(N=25),
-  cities = add_level(N=10, population=runif(n = N, min=50000, max=1000000))
-)
-
-cluster_resample <- resample_data(clustered_survey, N = c(clusters=ALL, cities=2))
-cluster_resample
-```
-
-Recall that if you used `resample_data` only on `cities`, two cities would be chosen from the entire dataset; selecting to pass through ALL clusters ensures that within each cluster, 2 cities are chosen. 
-
-This example begins with a dataset of 25 clusters each containing 10 cities and resamples to a dataset of the same 25 clusters, each containing 2 cities (the original cities may each be used zero or more times in the resampling process).
-
-# Advanced Features
-
-## Averages within higher levels of hierarchy
-
-You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with `ave`:
-
-```{r}
-fabricate(
-    cities = add_level(N = 2),
-    citizens = add_level(
-      N = 1:2, income = rnorm(N), income_mean_city = ave(income, cities))
-  ) 
-```
-
-# Tidyverse integration
-
-Because the functions in `fabricatr` take data and return data, they are easily slotted into a `tidyverse` workflow:
-
-```{r, message=FALSE}
-library(dplyr)
-
-# letting higher levels depend on lower levels
-
-my_data <- 
-fabricate(
-    cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-    citizens = add_level(N = c(2, 3), age = runif(N, 18, 70))
-  ) %>%
-  group_by(cities) %>%
-  mutate(pop = n())
-
-my_data
-
-my_data <- 
-data_frame(Y = sample(1:10, 2)) %>%
-  fabricate(lower_level = add_level(N = 3, Y2 = Y + rnorm(N)))
-my_data
-```
+You've seen **fabricatr**'s ability to generate single-level and hierarchical data, which is enough to get you started on using the package. From here, you can learn about [using `draw_discrete()` to generate discrete random variables](variable_generation.html), [using **fabricatr** to bootstrap or resample hierarchical data](resampling.html), or [advanced features](advanced_features.html).
