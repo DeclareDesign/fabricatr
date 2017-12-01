@@ -120,12 +120,12 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
 
 house_candidates =<span class="st"> </span><span class="kw"><a href="reference/fabricate.html">fabricate</a></span>(
-  <span class="dt">parties =</span> <span class="kw"><a href="reference/fabricate.html">level</a></span>(
+  <span class="dt">parties =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> <span class="dv">2</span>, 
     <span class="dt">party_ideology =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>), 
     <span class="dt">in_power =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), 
     <span class="dt">party_incumbents =</span> <span class="kw">c</span>(<span class="dv">241</span>, <span class="dv">194</span>)),
-  <span class="dt">representatives =</span> <span class="kw"><a href="reference/fabricate.html">level</a></span>(
+  <span class="dt">representatives =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> party_incumbents, 
     <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology),
     <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_discrete.html">draw_discrete</a></span>(<span class="dt">N =</span> N, <span class="dt">x =</span> <span class="dv">3</span>, <span class="dt">type =</span> <span class="st">"count"</span>),

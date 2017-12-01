@@ -3,30 +3,42 @@
 \name{draw_discrete}
 \alias{draw_discrete}
 \alias{draw_binary}
-\title{Draw discrete variables including binary, binomial count, poisson count, ordered, and categorical}
+\title{Draw discrete variables including binary, binomial count, poisson count,
+ordered, and categorical}
 \usage{
 draw_discrete(x, N = length(x), type = "binary", link = "identity",
-  breaks = c(-Inf, 0, Inf), break_labels = FALSE, k = 1)
+  breaks = c(-Inf, 0, Inf), break_labels = NULL, k = 1)
 
 draw_binary(x, N = length(x), link = "identity")
 }
 \arguments{
-\item{x}{vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity"). For cartegorical distributions x is a matrix with as many columns as possible outcomes.}
+\item{x}{vector representing either the latent variable used to draw the
+count outcome (if link is "logit" or "probit") or the probability for the
+count outcome (if link is "identity"). For cartegorical distributions x is
+a matrix with as many columns as possible outcomes.}
 
-\item{N}{number of units to draw. Defaults to the length of the vector \code{x}}
+\item{N}{number of units to draw. Defaults to the length of the vector
+\code{x}}
 
-\item{type}{type of discrete outcome to draw, one of 'binary' (or 'bernoulli'), 'binomial', 'categorical', 'ordered' or 'count'}
+\item{type}{type of discrete outcome to draw, one of 'binary'
+(or 'bernoulli'), 'binomial', 'categorical', 'ordered' or 'count'}
 
-\item{link}{link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.}
+\item{link}{link function between the latent variable and the probability of
+a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity"
+link, the latent variable must be a probability.}
 
 \item{breaks}{vector of breaks to cut an ordered latent outcome}
 
-\item{break_labels}{vector of labels for the breaks for an ordered latent outcome (must be the same length as breaks)}
+\item{break_labels}{vector of labels for the breaks for an ordered latent
+outcome (must be the same length as breaks)}
 
 \item{k}{the number of trials (zero or more)}
 }
 \description{
-Drawing discrete data based on probabilities or latent traits is a common task that can be cumbersome. \code{draw_binary} is an alias for \code{draw_discrete(type = "binary")} that allows you to draw binary outcomes more easily.
+Drawing discrete data based on probabilities or latent traits is a common
+task that can be cumbersome. \code{draw_binary} is an alias for
+\code{draw_discrete(type = "binary")} that allows you to draw binary
+outcomes more easily.
 }
 \examples{
 fabricate(N = 3,
@@ -47,7 +59,8 @@ fabricate(N = 3,
 
 fabricate(N = 3,
    x = 5*rnorm(N),
-   ordered = draw_discrete(x, type = "ordered", breaks = c(-Inf, -1, 1, Inf)))
+   ordered = draw_discrete(x, type = "ordered",
+   breaks = c(-Inf, -1, 1, Inf)))
 
 fabricate(N = 3,
    x = c(0,5,100),

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>fabricatr - Function reference</title>
+<title>fabricatr - Draw normal data with fixed intra-cluster correlation. — draw_normal_icc</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -37,7 +37,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -117,77 +117,73 @@
       </header>
 
       <div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;1.0.0</small>
-      </h1>
+    <h1>Draw normal data with fixed intra-cluster correlation.</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    
+    <p>Data is generated to ensure inter-cluster correlation 0, intra-cluster
+correlation in expectation \(\rho\). The data generating process
+used in this function is specified at the following URL:
+<a href='https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc'>https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc</a></p>
+    
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <pre class="usage"><span class='fu'>draw_normal_icc</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>cluster_ids</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>A number or vector of numbers, one mean per cluster.</p></td>
+    </tr>
+    <tr>
+      <th>N</th>
+      <td><p>(Optional) A number indicating the number of observations to be
+generated. Must be equal to length(cluster_ids) if provided.</p></td>
+    </tr>
+    <tr>
+      <th>cluster_ids</th>
+      <td><p>A vector of factors or items that can be coerced to
+clusters; the length will determine the length of the generated data.</p></td>
+    </tr>
+    <tr>
+      <th>sd</th>
+      <td><p>A number or vector of numbers, indicating the standard deviation of
+each cluster's error terms</p></td>
+    </tr>
+    <tr>
+      <th>rho</th>
+      <td><p>A number indicating the desired RCC.</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="draw_binary_icc.html">draw_binary_icc</a></code> </p>
-          </td>
-          <td><p>Draw binary data with fixed intra-cluster correlation.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="draw_discrete.html">draw_discrete</a></code> <code><a href="draw_discrete.html">draw_binary</a></code> </p>
-          </td>
-          <td><p>Draw discrete variables including binary, binomial count, poisson count,
-ordered, and categorical</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="draw_normal_icc.html">draw_normal_icc</a></code> </p>
-          </td>
-          <td><p>Draw normal data with fixed intra-cluster correlation.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fabricate.html">fabricate</a></code> <code><a href="fabricate.html">add_level</a></code> <code><a href="fabricate.html">modify_level</a></code> </p>
-          </td>
-          <td><p>Fabricate data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fabricatr.html">fabricatr</a></code> </p>
-          </td>
-          <td><p>fabricatr package</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="resample_data.html">resample_data</a></code> </p>
-          </td>
-          <td><p>Resample data, including hierarchical data</p></td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
+    <p>A vector of numbers corresponding to the observations from
+the supplied cluster IDs.</p>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>cluster_ids</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
+<span class='fu'>draw_normal_icc</span>(<span class='kw'>cluster_ids</span> <span class='kw'>=</span> <span class='no'>cluster_ids</span>)</div><div class='output co'>#&gt;  [1]  1.862 -1.927 -0.281  3.149  2.561  2.131 -3.112 -0.062  1.671 -1.166
+#&gt; [11]  0.824 -0.439 -0.512 -0.261 -0.616  1.506 -2.786 -1.564  0.712  1.644
+#&gt; [21]  1.105 -3.819 -0.996  2.119  2.657  0.792 -3.510 -1.747  2.332  2.515
+#&gt; [31]  0.808 -0.782 -0.158 -0.605  1.185  1.297 -1.097  0.665  1.782  0.869
+#&gt; [41]  1.984 -1.407 -1.038  2.188 -0.518  2.587 -3.262 -0.515  1.637  2.489</div><div class='input'>
+</div></pre>
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
     </ul>
+
   </div>
 </div>
 
