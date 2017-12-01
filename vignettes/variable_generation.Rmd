@@ -180,9 +180,11 @@ If you do not specify a vector of probabilities or a correlation coefficient, th
 If `sd` is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1. If `x` is not supplied, each cluster will be assumed to be mean zero. If `rho` is not supplied, it will be set to 0.5.
 
 Here, we model student academic performance by cluster:
+```{r echo=FALSE}
+set.seed(19861108)
+```
 ```{r echo=TRUE, results="hide"}
 # 100 students, 10 each in 10 clusters
-set.seed(19861108)
 cluster_ids = rep(1:10, 10)
 
 numeric_grade = draw_normal_icc(x = 80,
@@ -197,7 +199,7 @@ letter_grade = draw_discrete(x = numeric_grade,
 
 mean(numeric_grade)
 ```
-`r mean(numeric_grade)
+`r mean(numeric_grade)`
 
 The mean grade matches the population mean. Now let's look at the relationship between cluster and letter grade to observe the cluster pattern:
 

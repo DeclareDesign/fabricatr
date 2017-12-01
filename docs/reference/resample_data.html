@@ -156,17 +156,17 @@
 
 <span class='no'>baseline_survey</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>Y_pre</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>))
 <span class='no'>bootsrapped_data</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>baseline_survey</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>10</span>)
-<span class='no'>bootsrapped_data</span></div><div class='output co'>#&gt;    ID     Y_pre
-#&gt; 1   2 0.3764993
-#&gt; 2   4 1.2412631
-#&gt; 3   5 0.6120909
-#&gt; 4   2 0.3764993
-#&gt; 5   3 1.1387077
-#&gt; 6   2 0.3764993
-#&gt; 7   2 0.3764993
-#&gt; 8   2 0.3764993
-#&gt; 9   1 0.1329921
-#&gt; 10  2 0.3764993</div><div class='input'>
+<span class='no'>bootsrapped_data</span></div><div class='output co'>#&gt;    ID Y_pre
+#&gt; 1   2 -0.38
+#&gt; 2   2 -0.38
+#&gt; 3   5 -0.87
+#&gt; 4   1  1.52
+#&gt; 5   4 -0.55
+#&gt; 6   2 -0.38
+#&gt; 7   5 -0.87
+#&gt; 8   1  1.52
+#&gt; 9   3  1.83
+#&gt; 10  3  1.83</div><div class='input'>
 <span class='co'># Resample by a single level of a hierarchical dataset (e.g. resampling clusters of observations)</span>
 <span class='co'># N specifies a number of clusters to return</span>
 
@@ -179,31 +179,31 @@
 
 <span class='no'>cluster_resample</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>clustered_survey</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>ID_labels</span> <span class='kw'>=</span> <span class='st'>"clusters"</span>)
 <span class='no'>cluster_resample</span></div><div class='output co'>#&gt;    clusters cities population
-#&gt; 1        23     62   687021.1
-#&gt; 2        23     63   424088.8
-#&gt; 3        23     64   573726.1
-#&gt; 4        23     65   280368.0
-#&gt; 5        06     15   329063.3
-#&gt; 6        06     16   896720.6
-#&gt; 7        06     17   608674.7
-#&gt; 8        07     18   651570.0
-#&gt; 9        16     41   307428.9
-#&gt; 10       16     42   881840.8
-#&gt; 11       16     43   859156.0
-#&gt; 12       12     31   431890.9</div><div class='input'>
+#&gt; 1        14     36     980082
+#&gt; 2        14     37     673751
+#&gt; 3        14     38     135356
+#&gt; 4        14     39     649016
+#&gt; 5        07     14     667784
+#&gt; 6        07     15     197530
+#&gt; 7        07     16     532894
+#&gt; 8        07     17     131577
+#&gt; 9        16     42     448512
+#&gt; 10       16     43     520782
+#&gt; 11       16     44     385069
+#&gt; 12       08     18     527875
+#&gt; 13       24     66     521043</div><div class='input'>
 <span class='no'>cluster_resample_2</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>clustered_survey</span>, <span class='kw'>N</span><span class='kw'>=</span><span class='fu'>c</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='fl'>5</span>))
 <span class='no'>cluster_resample_2</span></div><div class='output co'>#&gt;    clusters cities population
-#&gt; 1        08     19  296534.00
-#&gt; 2        03     08  496384.97
-#&gt; 3        03     09  143638.07
-#&gt; 4        07     18  651569.99
-#&gt; 5        17     44   93556.85
-#&gt; 6        24     66  243048.39
-#&gt; 7        24     67  114924.62
-#&gt; 8        24     68  341910.05
-#&gt; 9        24     69  993462.19
-#&gt; 10       24     70  160493.72</div><div class='input'>
-
+#&gt; 1        23     62     306210
+#&gt; 2        23     63     513874
+#&gt; 3        23     64      98509
+#&gt; 4        23     65      52353
+#&gt; 5        03     06     648891
+#&gt; 6        19     48     239037
+#&gt; 7        19     49     739971
+#&gt; 8        15     40     882929
+#&gt; 9        15     41     933767
+#&gt; 10       18     47     391962</div><div class='input'>
 <span class='co'># Resample a hierarchical dataset on multiple levels</span>
 
 <span class='no'>my_data</span> <span class='kw'>&lt;-</span>
@@ -215,48 +215,47 @@
 <span class='co'># Specify the levels you wish to resample one of two ways:</span>
 <span class='no'>my_data_2</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>3</span>, <span class='fl'>5</span>), <span class='kw'>ID_labels</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"cities"</span>, <span class='st'>"citizens"</span>))
 <span class='no'>my_data_2</span></div><div class='output co'>#&gt;    cities elevation citizens income
-#&gt; 1       2  1559.491        5   5589
-#&gt; 2       2  1559.491        5   5589
-#&gt; 3       2  1559.491        5   5589
-#&gt; 4       2  1559.491        6   8745
-#&gt; 5       2  1559.491        5   5589
-#&gt; 6       1  1026.625        2   4290
-#&gt; 7       1  1026.625        1   6216
-#&gt; 8       1  1026.625        3   4479
-#&gt; 9       1  1026.625        2   4290
-#&gt; 10      1  1026.625        3   4479
-#&gt; 11      1  1026.625        2   4290
-#&gt; 12      1  1026.625        2   4290
-#&gt; 13      1  1026.625        2   4290
-#&gt; 14      1  1026.625        1   6216
-#&gt; 15      1  1026.625        3   4479</div><div class='input'>
+#&gt; 1       1      1701        3  10505
+#&gt; 2       1      1701        3  10505
+#&gt; 3       1      1701        1   8210
+#&gt; 4       1      1701        3  10505
+#&gt; 5       1      1701        1   8210
+#&gt; 6       1      1701        2   8789
+#&gt; 7       1      1701        2   8789
+#&gt; 8       1      1701        2   8789
+#&gt; 9       1      1701        3  10505
+#&gt; 10      1      1701        3  10505
+#&gt; 11      1      1701        3  10505
+#&gt; 12      1      1701        1   8210
+#&gt; 13      1      1701        1   8210
+#&gt; 14      1      1701        2   8789
+#&gt; 15      1      1701        3  10505</div><div class='input'>
 <span class='no'>my_data_3</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='kw'>cities</span><span class='kw'>=</span><span class='fl'>3</span>, <span class='kw'>citizens</span><span class='kw'>=</span><span class='fl'>5</span>))
 <span class='no'>my_data_3</span></div><div class='output co'>#&gt;    cities elevation citizens income
-#&gt; 1       2  1559.491        6   8745
-#&gt; 2       2  1559.491        5   5589
-#&gt; 3       2  1559.491        6   8745
-#&gt; 4       2  1559.491        5   5589
-#&gt; 5       2  1559.491        5   5589
-#&gt; 6       2  1559.491        5   5589
-#&gt; 7       2  1559.491        6   8745
-#&gt; 8       2  1559.491        5   5589
-#&gt; 9       2  1559.491        4   7559
-#&gt; 10      2  1559.491        6   8745
-#&gt; 11      2  1559.491        6   8745
-#&gt; 12      2  1559.491        4   7559
-#&gt; 13      2  1559.491        5   5589
-#&gt; 14      2  1559.491        6   8745
-#&gt; 15      2  1559.491        5   5589</div><div class='input'>
-
+#&gt; 1       2      1040        4   6786
+#&gt; 2       2      1040        6   5508
+#&gt; 3       2      1040        4   6786
+#&gt; 4       2      1040        5   4613
+#&gt; 5       2      1040        4   6786
+#&gt; 6       2      1040        6   5508
+#&gt; 7       2      1040        4   6786
+#&gt; 8       2      1040        6   5508
+#&gt; 9       2      1040        5   4613
+#&gt; 10      2      1040        6   5508
+#&gt; 11      1      1701        1   8210
+#&gt; 12      1      1701        2   8789
+#&gt; 13      1      1701        1   8210
+#&gt; 14      1      1701        2   8789
+#&gt; 15      1      1701        3  10505</div><div class='input'>
 <span class='co'># Transparently pass through all units at a given level</span>
 <span class='co'># This example will resample 2 citizens at each of the cities:</span>
 
 <span class='no'>passthrough_resample_data</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='kw'>cities</span><span class='kw'>=</span><span class='no'>ALL</span>, <span class='kw'>citizens</span><span class='kw'>=</span><span class='fl'>2</span>))
 <span class='no'>passthrough_resample_data</span></div><div class='output co'>#&gt;   cities elevation citizens income
-#&gt; 1      1  1026.625        3   4479
-#&gt; 2      1  1026.625        3   4479
-#&gt; 3      2  1559.491        4   7559
-#&gt; 4      2  1559.491        4   7559</div><div class='input'>
+#&gt; 1      1      1701        1   8210
+#&gt; 2      1      1701        1   8210
+#&gt; 3      2      1040        4   6786
+#&gt; 4      2      1040        5   4613</div><div class='input'>
 
 </div></pre>
   </div>

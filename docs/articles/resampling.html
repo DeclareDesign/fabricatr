@@ -180,8 +180,8 @@ survey_data</code></pre></div>
 <p>Consider this example, which takes a dataset containing 2 cities of 3 citizens, and resamples it into a dataset of 3 cities, each containing 5 citizens.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
+    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   )
 
 my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, 
@@ -289,6 +289,116 @@ my_data_<span class="dv">2</span></code></pre></div>
 </tbody>
 </table>
 <p><a href="../reference/resample_data.html"><code><a href="../reference/resample_data.html">resample_data()</a></code></a> will first select the cities to be resampled. Then, for each city, it will continue by selecting the citizens to be resampled. If a higher level unit is used more than once (for example, the same city being chosen twice), and a lower level is subsequently resampled, the choices of which units to keep for the lower level will differ for each copy of the higher level. In this example, if city 1 is chosen twice, then the sets of five citizens chosen for each copy of the city 1 will differ.</p>
+<p>You can also specify the levels you wish to resample from using the name arguents to the <code>N</code> parameter, like in this example which does exactly the same thing as the previous example, but specifies the level names in a different way:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
+  )
+
+my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, 
+                           <span class="dt">N =</span> <span class="kw">c</span>(<span class="dt">cities=</span><span class="dv">3</span>, <span class="dt">citizens=</span><span class="dv">5</span>))
+my_data_<span class="dv">2</span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">cities</th>
+<th align="right">elevation</th>
+<th align="left">citizens</th>
+<th align="right">age</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">6</td>
+<td align="right">39</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">5</td>
+<td align="right">51</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">5</td>
+<td align="right">51</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">6</td>
+<td align="right">39</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">5</td>
+<td align="right">51</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">4</td>
+<td align="right">41</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">6</td>
+<td align="right">39</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">5</td>
+<td align="right">51</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">4</td>
+<td align="right">41</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">1014</td>
+<td align="left">5</td>
+<td align="right">51</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">1</td>
+<td align="right">64</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">2</td>
+<td align="right">66</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">3</td>
+<td align="right">43</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">3</td>
+<td align="right">43</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">2</td>
+<td align="right">66</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
   </div>

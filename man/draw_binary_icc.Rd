@@ -22,20 +22,11 @@ A vector of binary numbers corresponding to the observations from
 the supplied cluster IDs.
 }
 \description{
-Data is generated according to the following algorithm, where \eqn{i} is
-the index of a cluster and \eqn{j} is the index of a unit: \deqn{z_i ~
-Bernoulli(p_i) \cr
-y_{ij} ~ Bernoulli(p_{ij}) \cr
-u_{ij} ~ Bernoulli(sqrt(\rho)) \cr
-x_{ij} = (u_{ij}) z_i + (1 - u_{ij}) y_{ij}}
-}
-\details{
-This system of equations ensures inter-cluster correlation 0, intra-cluster
-correlation in expectation \eqn{\rho}. Algorithm from Hossein, Akhtar.
-"ICCbin: An R Package Facilitating Clustered Binary Data Generation, and
-Estimation of Intracluster Correlation Coefficient (ICC) for Binary Data".
-We rederived the analytical properties of this data and did a simulation
-study to confirm that the data generated ensured the ICC we mentioned.
+Data is generated to ensure inter-cluster correlation 0, intra-cluster
+correlation in expectation \eqn{\rho}. Algorithm taken from Hossein,
+Akhtar. "ICCbin: An R Package Facilitating Clustered Binary Data
+Generation, and Estimation of Intracluster Correlation Coefficient (ICC)
+for Binary Data".
 }
 \examples{
 cluster_ids = rep(1:5, 10)
