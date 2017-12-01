@@ -8,34 +8,34 @@
 #'
 #' @param x A number or vector of numbers, one probability per cluster.
 #' @param N (Optional) A number indicating the number of observations to be
-#' generated. Must be equal to length(cluster_ids) if provided.
-#' @param cluster_ids A vector of factors or items that can be coerced to
+#' generated. Must be equal to length(clusters) if provided.
+#' @param clusters A vector of factors or items that can be coerced to
 #' clusters; the length will determine the length of the generated data.
 #' @param rho A number indicating the desired RCC.
 #' @return A vector of binary numbers corresponding to the observations from
 #' the supplied cluster IDs.
 #' @examples
-#' cluster_ids = rep(1:5, 10)
-#' draw_binary_icc(cluster_ids = cluster_ids)
-#' draw_binary_icc(x = 0.5, cluster_ids = cluster_ids, rho = 0.5)
+#' clusters = rep(1:5, 10)
+#' draw_binary_icc(clusters = clusters)
+#' draw_binary_icc(x = 0.5, clusters = clusters, rho = 0.5)
 #'
 #' @importFrom stats rbinom
 #'
 #' @export
-draw_binary_icc = function(x = 0.5, N = NULL, cluster_ids, rho = 0.5) {
-  # Let's not worry about how cluster_ids are provided
+draw_binary_icc = function(x = 0.5, N = NULL, clusters, rho = 0.5) {
+  # Let's not worry about how clusters are provided
   tryCatch({
-    cluster_ids = as.numeric(as.factor(cluster_ids))
+    clusters = as.numeric(as.factor(clusters))
   }, error=function(e) {
     stop("Error coercing cluster IDs to factor levels.")
   })
-  number_of_clusters = length(unique(cluster_ids))
+  number_of_clusters = length(unique(clusters))
 
   # Sanity check N
   if(!is.null(N) && !is.numeric(N)) {
     stop("If you provide an N, it must be numeric.")
   }
-  if(!is.null(N) && N != length(cluster_ids)) {
+  if(!is.null(N) && N != length(clusters)) {
     stop("If you provide an N, it must be equal to the length of provided ",
          "cluster ids")
   }
@@ -71,22 +71,22 @@ draw_binary_icc = function(x = 0.5, N = NULL, cluster_ids, rho = 0.5) {
     cluster_prob = x
   }
   # Individual probabilities: subset operator maps cluster probs to units.
-  individual_prob = cluster_prob[cluster_ids]
+  individual_prob = cluster_prob[clusters]
 
   # Draw the z_ijs
   cluster_draw = rbinom(n = number_of_clusters,
                         size = 1,
-                        prob = cluster_prob)[cluster_ids]
+                        prob = cluster_prob)[clusters]
 
   # Draw the y_ijs
-  individual_draw = rbinom(n = length(cluster_ids),
+  individual_draw = rbinom(n = length(clusters),
                            size = 1,
                            prob = individual_prob)
 
   # Draw the u_ijs -- sqrt(rho) because the actual ICC for this data will be
   # rho^2 -- sqrt(rho^2) = rho, to ensure users can enter in the terms they feel
   # most comfortable in
-  switch_draw = rbinom(n = length(cluster_ids),
+  switch_draw = rbinom(n = length(clusters),
                        size = 1,
                        prob = sqrt(rho))
 

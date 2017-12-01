@@ -36,8 +36,12 @@ test_that("Error handling of Resampling", {
   expect_error(resample_data(two_levels, c(100, 10), ID_labels = c("regions")))
   # Negative N
   expect_error(resample_data(two_levels, c(-1), ID_labels = c("regions")))
-  # Non-numeric
+  # Non-numeric N
   expect_error(resample_data(two_levels, c("hello world"), ID_labels = c("regions")))
+  # Non-numeric N in direct call of resample_single_level. This is unlikely to
+  # arise normally since we don't export it and the code paths that call it have
+  # separate error handling
+  expect_error(resample_single_level(two_levels, N=1.5, ID_labels = c("regions")))
 })
 
 test_that("Direct resample_single_level", {
@@ -53,6 +57,36 @@ test_that("Direct resample_single_level", {
 
   # Trying to resample single level with an invalid ID.
   expect_error(resample_single_level(two_levels, ID_label="invalid-id", N=10))
+})
+
+test_that("Extremely deep resampling", {
+  rect_data = fabricate(
+    N = 10,
+    xA = 1:10,
+    xB = 11:20,
+    xC = 21:30,
+    xD = 31:40,
+    xE = 41:50,
+    xF = 51:60,
+    xG = 61:70,
+    xH = 71:80,
+    xI = 81:90,
+    xJ = 91:100,
+    xK = 101:110
+  )
+
+  expect_error(resample_data(rect_data,
+                             N = c(xA = 5,
+                                   xB = 3,
+                                   xC = 6,
+                                   xD = 7,
+                                   xE = 3,
+                                   xF = 1,
+                                   xG = 2,
+                                   xH = ALL,
+                                   xI = 2,
+                                   xJ = 4,
+                                   xK = 9)))
 })
 
 test_that("Extremely high volume data creation.", {
@@ -86,6 +120,9 @@ test_that("Providing ID_labels through names of N.", {
                              N=c(invalidid=3, cities=5)))
 
   expect_error(resample_data(two_levels,
+                             N=c(3, cities=5)))
+
+  expect_error(resample_data(two_levels,
                              N=c(3, 5)))
 })
 
@@ -99,4 +136,6 @@ test_that("Passthrough resampling.", {
 
   # Warning when final level resampled has passthrough -- this is superfluous
   expect_warning(resample_data(two_levels, N=c(regions=ALL, cities=ALL)))
+
+
 })

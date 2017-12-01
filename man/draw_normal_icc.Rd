@@ -4,15 +4,15 @@
 \alias{draw_normal_icc}
 \title{Draw normal data with fixed intra-cluster correlation.}
 \usage{
-draw_normal_icc(x = 0, N = NULL, cluster_ids, sd = 1, rho = 0.5)
+draw_normal_icc(x = 0, N = NULL, clusters, sd = 1, rho = 0.5)
 }
 \arguments{
 \item{x}{A number or vector of numbers, one mean per cluster.}
 
 \item{N}{(Optional) A number indicating the number of observations to be
-generated. Must be equal to length(cluster_ids) if provided.}
+generated. Must be equal to length(clusters) if provided.}
 
-\item{cluster_ids}{A vector of factors or items that can be coerced to
+\item{clusters}{A vector of factors or items that can be coerced to
 clusters; the length will determine the length of the generated data.}
 
 \item{sd}{A number or vector of numbers, indicating the standard deviation of
@@ -31,7 +31,7 @@ used in this function is specified at the following URL:
 \url{https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc}
 }
 \examples{
-cluster_ids = rep(1:5, 10)
-draw_normal_icc(cluster_ids = cluster_ids)
+clusters = rep(1:5, 10)
+draw_normal_icc(clusters = clusters)
 
 }

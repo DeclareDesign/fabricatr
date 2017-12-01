@@ -4,15 +4,15 @@
 \alias{draw_binary_icc}
 \title{Draw binary data with fixed intra-cluster correlation.}
 \usage{
-draw_binary_icc(x = 0.5, N = NULL, cluster_ids, rho = 0.5)
+draw_binary_icc(x = 0.5, N = NULL, clusters, rho = 0.5)
 }
 \arguments{
 \item{x}{A number or vector of numbers, one probability per cluster.}
 
 \item{N}{(Optional) A number indicating the number of observations to be
-generated. Must be equal to length(cluster_ids) if provided.}
+generated. Must be equal to length(clusters) if provided.}
 
-\item{cluster_ids}{A vector of factors or items that can be coerced to
+\item{clusters}{A vector of factors or items that can be coerced to
 clusters; the length will determine the length of the generated data.}
 
 \item{rho}{A number indicating the desired RCC.}
@@ -29,8 +29,8 @@ Generation, and Estimation of Intracluster Correlation Coefficient (ICC)
 for Binary Data".
 }
 \examples{
-cluster_ids = rep(1:5, 10)
-draw_binary_icc(cluster_ids = cluster_ids)
-draw_binary_icc(x = 0.5, cluster_ids = cluster_ids, rho = 0.5)
+clusters = rep(1:5, 10)
+draw_binary_icc(clusters = clusters)
+draw_binary_icc(x = 0.5, clusters = clusters, rho = 0.5)
 
 }

@@ -7,8 +7,8 @@
 #'
 #' @param x A number or vector of numbers, one mean per cluster.
 #' @param N (Optional) A number indicating the number of observations to be
-#' generated. Must be equal to length(cluster_ids) if provided.
-#' @param cluster_ids A vector of factors or items that can be coerced to
+#' generated. Must be equal to length(clusters) if provided.
+#' @param clusters A vector of factors or items that can be coerced to
 #' clusters; the length will determine the length of the generated data.
 #' @param sd A number or vector of numbers, indicating the standard deviation of
 #' each cluster's error terms
@@ -16,31 +16,31 @@
 #' @return A vector of numbers corresponding to the observations from
 #' the supplied cluster IDs.
 #' @examples
-#' cluster_ids = rep(1:5, 10)
-#' draw_normal_icc(cluster_ids = cluster_ids)
+#' clusters = rep(1:5, 10)
+#' draw_normal_icc(clusters = clusters)
 #'
 #' @importFrom stats rnorm
 #'
 #' @export
 draw_normal_icc = function(x = 0,
                            N = NULL,
-                           cluster_ids,
+                           clusters,
                            sd = 1,
                            rho = 0.5) {
 
-  # Let's not worry about how cluster_ids are provided
+  # Let's not worry about how clusters are provided
   tryCatch({
-    cluster_ids = as.numeric(as.factor(cluster_ids))
+    clusters = as.numeric(as.factor(clusters))
   }, error=function(e) {
     stop("Error coercing cluster IDs to factor levels.")
   })
-  number_of_clusters = length(unique(cluster_ids))
+  number_of_clusters = length(unique(clusters))
 
   # Sanity check N
   if(!is.null(N) && !is.numeric(N)) {
     stop("If you provide an N, it must be numeric.")
   }
-  if(!is.null(N) && N != length(cluster_ids)) {
+  if(!is.null(N) && N != length(clusters)) {
     stop("If you provide an N, it must be equal to the length of provided ",
          "cluster ids")
   }
@@ -79,7 +79,7 @@ draw_normal_icc = function(x = 0,
   }
 
   # Get number of clusters
-  number_of_clusters = length(unique(cluster_ids))
+  number_of_clusters = length(unique(clusters))
   # Convert rho to implied variance per cluster
   recover_var_cluster = (rho * sd^2) / (1 - rho)
 
@@ -90,16 +90,16 @@ draw_normal_icc = function(x = 0,
     cluster_mean = x
   }
   # Expand to individual means
-  individual_mean = cluster_mean[cluster_ids]
+  individual_mean = cluster_mean[clusters]
 
   # Cluster level draws, expanded to individual level draws
   alpha_cluster = rnorm(n=number_of_clusters,
                         mean=0,
-                        sd=sqrt(recover_var_cluster))[cluster_ids]
-  alpha_individual = alpha_cluster[cluster_ids]
+                        sd=sqrt(recover_var_cluster))[clusters]
+  alpha_individual = alpha_cluster[clusters]
 
   # And error terms, which are truly individual
-  epsilon_ij = rnorm(length(cluster_ids), 0, sd)
+  epsilon_ij = rnorm(length(clusters), 0, sd)
 
   individual_mean + alpha_individual + epsilon_ij
 }
