@@ -18,7 +18,7 @@ library(fabricatr)
 
 **fabricatr** provides a convenient helper function, [`draw_discrete()`](../reference/draw_discrete.html), which you can use to generate discrete random variables far more easily than using R's built-in data generation mechanisms. Below, we introduce you to the types of data you can generate using [`draw_discrete()`](../reference/draw_discrete.html).
 
-# Binary and binomial outcomes 
+## Binary and binomial outcomes 
 
 The simplest possible type of data, and [`draw_discrete()`](../reference/draw_discrete.html)'s default, is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `x` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, [`draw_discrete()`](../reference/draw_discrete.html) will generate `N = length(x)` draws. `N` can also be specified explicitly. Consider these examples:
 
@@ -59,7 +59,7 @@ bernoulli_probit = fabricate(N = 3, x = 10*rnorm(N),
                                                     link = "probit"))
 ```
 
-# Ordered outcomes
+## Ordered outcomes
 
 Some researchers may be interested in generating ordered outcomes -- for example, Likert scale outcomes. This can be done using the "ordered" type. Ordered variables require a vector of breakpoints, supplied as the argument `breaks` -- points at which the underlying latent variable switches from category to category. The first break should always be below the lower bound of the data, while the final break should always be above the upper bound of the data.
 
@@ -88,7 +88,7 @@ ordered_probit_example = fabricate(N = 3,
                                    )
 ```
 
-# Count outcomes
+## Count outcomes
 
 [`draw_discrete()`](../reference/draw_discrete.html) supports Poisson-distributed count outcomes. These require that the user specify the parameter `x`, equal to the Poisson distribution mean (often referred to as `lambda`).
 
@@ -98,7 +98,7 @@ count_outcome_example = fabricate(N = 3,
                                   count = draw_discrete(x, type = "count"))
 ```
 
-# Categorical data
+## Categorical data
 
 [`draw_discrete()`](../reference/draw_discrete.html) can also generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities), as well as setting `type` to be "categorical".
 
@@ -127,3 +127,116 @@ warn_draw_discrete_example = fabricate(N = 6,
 ```
 
 "categorical" variables can also use link functions, for example to generate multinomial probit data.
+
+# Fabricating cluster-correlated random variables.
+
+We also provide helper functions to generate cluster-correlated random variables with fixed intra-cluster correlation (ICC) values. Our two functions `draw_binary_icc()` and `draw_normal_icc()` allow you to generate both discrete binary data with fixed ICCs and normal data with fixed ICCs.
+
+## Binary data with fixed ICCs
+
+`draw_binary_icc()` takes three required arguments: `x`, a probability or vector of probabilities which determine the chance a given observation will be a 1; `cluster_ids`, a map of units to clusters (required to generate the correlation structure); and `rho`, the fixed intra-cluster correlation (from 0 to 1). Users may optionally specify `N`; if it is not specified, `draw_binary_icc()` will determine it based on the length of the `cluster_ids` vector.
+
+Consider the following example, which models whether individuals smoke:
+
+```{r echo=FALSE}
+set.seed(19861108)
+```
+```{r echo=TRUE, results="hide"}
+# 100 individual population, 10 each in each of 10 clusters
+cluster_ids = rep(1:10, 10)
+
+# Individuals have a 20% chance of smoking, but clusters are highly correlated
+# in their tendency to smoke
+smoker = draw_binary_icc(x = 0.2,
+                         cluster_ids = cluster_ids,
+                         rho = 0.7)
+
+# Observe distribution of smokers and non-smokers
+table(smoker)
+```
+```{r echo=FALSE}
+knitr::kable(as.matrix(t(table(smoker))))
+```
+
+We see that approximately 20% of the population smokes, in line with our specification, but what patterns of heterogeneity do we see by cluster?
+
+```{r echo=TRUE, results="hide"}
+table(cluster_ids, smoker)
+```
+```{r echo=FALSE}
+knitr::kable(table(cluster_ids, smoker))
+```
+
+We observe that 7 clusters have no smokers at all, two clusters are overwhelming smokers, and one cluster is overwhelmingly non-smokers.
+
+We can also specify separate means for each cluster; but it is worth noting that the higher the ICC, the more the cluster mean will depart from the nominal cluster mean. 
+
+If you do not specify a vector of probabilities or a correlation coefficient, the default values are probability 0.5 for each cluster and ICC (rho) of 0.5. If you do not specify cluster IDs, the function will return an error.
+
+## Normal data with fixed ICCs
+
+`draw_normal_icc()` takes four required arguments: `x`, a mean or vector of means, one for each cluster; `cluster_ids`, a map of units to clusters (required to generate the correlation structure); `rho`, the fixed intra-cluster correlation coefficient; and `sd`, a standard deviation or vector of standard deviations, one for each cluster. Users can optionally specify `N`, a number of units, but if it is not supplied `draw_normal_icc()` will determine it based on the length of the `cluster_ids` vector.
+
+If `sd` is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1. If `x` is not supplied, each cluster will be assumed to be mean zero. If `rho` is not supplied, it will be set to 0.5.
+
+Here, we model student academic performance by cluster:
+```{r echo=TRUE, results="hide"}
+# 100 students, 10 each in 10 clusters
+set.seed(19861108)
+cluster_ids = rep(1:10, 10)
+
+numeric_grade = draw_normal_icc(x = 80,
+                               cluster_ids = cluster_ids,
+                               rho = 0.5,
+                               sd = 15)
+
+letter_grade = draw_discrete(x = numeric_grade,
+                             type = "ordered",
+                             breaks = c(-Inf, 60, 70, 80, 90, Inf),
+                             break_labels = c("F", "D", "C", "B", "A"))
+
+mean(numeric_grade)
+```
+`r mean(numeric_grade)
+
+The mean grade matches the population mean. Now let's look at the relationship between cluster and letter grade to observe the cluster pattern:
+
+```{r echo=TRUE, results="hide"}
+table(letter_grade, cluster_ids)
+```
+```{r echo=FALSE}
+knitr::kable(table(cluster_ids, letter_grade))
+```
+
+It is obvious upon inspection that some clusters are higher performing than others despite having identical cluster means in expectation. 
+
+## Technical Appendix
+
+When generating binary data with a fixed ICC, we follow this formula, where $i$ is a cluster and $j$ is a unit in a cluster:
+
+$$
+\begin{aligned}
+  z_i &\sim \text{Bern}(p_i) \\
+  u_{ij} &\sim \text{Bern}(\sqrt{\rho}) \\
+  x_{ij} &= 
+  \begin{cases}
+    x_{ij} \sim \text{Bern}(p_i) & \quad \text{if } u_{ij} = 1 \\
+    z_i & \quad \text{if } u_{ij} = 0
+  \end{cases}
+\end{aligned}
+$$
+
+In expectation, this guarantees an intra-cluster correlation of $\rho$ and a cluster proportion of $p_i$. This approach derives from Hossain, Akhtar and Chakraborti, Hrishikesh. "ICCBin: Facilitates Clustered Binary Data Generation, and Estimation of Intracluster Correlation Coefficient (ICC) for Binary Data", available on [https://cran.r-project.org/web/packages/ICCbin/index.html](CRAN) or [https://github.com/akhtarh/ICCbin](GitHub)
+
+When generating normal data with a fixed ICC, we follow this formula, again with $i$ as a cluster and $j$ as a unit in the cluster:
+
+$$
+\begin{aligned}
+  \sigma^2_{\alpha i} &= \frac{(\rho * \sigma^2_{\epsilon i})}{(1 - \rho)} \\
+  \alpha_i &\sim \mathcal{N}(0, \sigma^2_{\alpha i}) \\
+  \mu_{ij} &\sim \mathcal{N}(\mu_i, \sigma^2_{\epsilon i}) \\
+  x_{ij} &= \mu_{ij} + \alpha_i
+\end{aligned}
+$$
+
+In expectation, this approach guarantees an intra-cluster correlation of $\rho$, a cluster mean of $\mu_{i}$, and a cluster-level variance in error terms of $\sigma^2_{\epsilon i}$. This approach is specified on [https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc](StatsExchange).

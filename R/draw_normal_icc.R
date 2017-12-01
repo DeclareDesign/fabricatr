@@ -4,7 +4,7 @@
 #' correlation in expectation \eqn{\rho}{rho}. The data generating process
 #' used in this function is specified at the following URL:
 #' \url{https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc}
-#' 
+#'
 #' @param x A number or vector of numbers, one mean per cluster.
 #' @param N (Optional) A number indicating the number of observations to be
 #' generated. Must be equal to length(cluster_ids) if provided.
@@ -96,9 +96,10 @@ draw_normal_icc = function(x = 0,
   alpha_cluster = rnorm(n=number_of_clusters,
                         mean=0,
                         sd=sqrt(recover_var_cluster))[cluster_ids]
+  alpha_individual = alpha_cluster[cluster_ids]
 
   # And error terms, which are truly individual
-  epsilon_ij = rnorm(length(unique(cluster_ids)), 0, sd)
+  epsilon_ij = rnorm(length(cluster_ids), 0, sd)
 
-  individual_mean + alpha_cluster + epsilon_ij
+  individual_mean + alpha_individual + epsilon_ij
 }
