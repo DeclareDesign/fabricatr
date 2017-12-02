@@ -204,7 +204,7 @@ handle_n = function(N, add_level=TRUE, working_environment=NULL,
     }
 
     # If any N is non-numeric or non-integer or negative or zero, fail.
-    if(is.numeric(N) & any(N%%1 | N<=0)) {
+    if(all(is.numeric(N)) && any(N%%1 | N<=0)) {
       stop(
         "Provided N must be a single positive integer."
       )
@@ -215,6 +215,10 @@ handle_n = function(N, add_level=TRUE, working_environment=NULL,
       tryCatch({
         N = as.numeric(N)
       }, error=function(e) {
+        stop(
+          "Provided values for N must be integer numbers"
+        )
+      }, warning=function(e) {
         stop(
           "Provided values for N must be integer numbers"
         )
