@@ -110,6 +110,8 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
 
     # User provided data, if any, should be preloaded into working environment
     if(!is.null(data) & !missing(data)) {
+      # Ensure data is sane.
+      data = handle_data(data)
       working_environment$imported_data_ = data
     }
 
@@ -241,14 +243,11 @@ add_level = function(N = NULL, ID_label = NULL,
   # When this is done, trash the imported data, because the working data frame
   # contains it.
   if("imported_data_" %in% names(working_environment_)) {
-    tryCatch({
-      num_obs_imported = nrow(working_environment_$imported_data_)
-      working_data_list = as.list(working_environment_$imported_data_)
-      working_environment_$variable_names_ = names(working_environment_$imported_data_)
-      working_environment_$imported_data_ = NULL
-    }, error = function(e) {
-        stop("User supplied data must be convertible into a data frame.")
-    })
+    num_obs_imported = nrow(working_environment_$imported_data_)
+    working_data_list = as.list(working_environment_$imported_data_)
+    working_environment_$variable_names_ = names(working_environment_$imported_data_)
+    working_environment_$imported_data_ = NULL
+
     # User didn't specify an N, so get it from the current data.
     if(is.null(N)) {
       N = num_obs_imported
@@ -332,14 +331,9 @@ nest_level = function(N = NULL, ID_label = NULL,
   # Check to make sure we have a data frame to nest on.
   if(is.null(dim(working_environment_$data_frame_output_))) {
     if("imported_data_" %in% names(working_environment_)) {
-      tryCatch({
-        working_environment_$data_frame_output_ = data.frame(working_environment_$imported_data_)
-        working_environment_$variable_names_ = names(working_environment_$imported_data_)
-        working_environment_$imported_data_ = NULL
-      }, error = function(e) {
-        stop("User supplied data must be convertible into a data frame.")
-      })
-
+      working_environment_$data_frame_output_ = data.frame(working_environment_$imported_data_)
+      working_environment_$variable_names_ = names(working_environment_$imported_data_)
+      working_environment_$imported_data_ = NULL
     } else {
       stop("You can't nest a level if there is no level to nest inside")
     }
@@ -470,13 +464,9 @@ modify_level = function(N = NULL,
   # First, establish that if we have no working data frame, we can't continue
   if(is.null(dim(working_environment_$data_frame_output_))) {
     if("imported_data_" %in% names(working_environment_)) {
-      tryCatch({
-        working_environment_$data_frame_output_ = data.frame(working_environment_$imported_data_)
-        working_environment_$variable_names_ = names(working_environment_$imported_data_)
-        working_environment_$imported_data_ = NULL
-      }, error=function(e) {
-        stop("User supplied data must be convertible into a data frame.")
-      })
+      working_environment_$data_frame_output_ = data.frame(working_environment_$imported_data_)
+      working_environment_$variable_names_ = names(working_environment_$imported_data_)
+      working_environment_$imported_data_ = NULL
     } else {
       stop(
         "You can't modify a level if there is no working data frame to ",
