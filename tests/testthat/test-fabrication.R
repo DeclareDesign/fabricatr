@@ -171,5 +171,5 @@ test_that("nest_level call when there was no data to nest", {
   expect_error(fabricate(countries = nest_level(N = 10, new_var = rnorm(N))))
 
   # Import data, should be able to nest level
-  fabricate(datsets::BOD, units = nest_level(N = 2, dd = demand * 2))
+  fabricate(datasets::BOD, units = nest_level(N = 2, dd = demand * 2))
 })
