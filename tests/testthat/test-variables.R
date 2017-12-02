@@ -234,7 +234,12 @@ test_that("Normal ICC", {
   # X doesn't match cluster IDs
   expect_error(draw_normal_icc(x = c(0.5, 0.8), clusters = clusters))
   # X isn't a vector
-  expect_error(draw_normal_icc(x = data.frame(j = c(2, 3), k = c(2, 4)), clusters = clusters))
+  expect_error(draw_normal_icc(x = data.frame(j = c(0.1, 0.2),
+                                              k = c(0.2, 0.4),
+                                              m = c(0.3, 0.6),
+                                              o = c(0.4, 0.8),
+                                              p = c(0.5, 1.0)),
+                               clusters = clusters))
   # X isn't numeric
   expect_error(draw_normal_icc(x = "hello", clusters = clusters))
   # rho isn't a single number
@@ -252,6 +257,10 @@ test_that("Normal ICC", {
   # SD is non-numeric
   expect_error(draw_normal_icc(clusters = clusters, sd = "hello"))
   # SD is not a vector
-  expect_error(draw_normal_icc(clusters = clusters, sd = data.frame(X=1:5, Y=1:5)))
-
+  expect_error(draw_normal_icc(sd = data.frame(j = c(0.1, 0.2),
+                                              k = c(0.2, 0.4),
+                                              m = c(0.3, 0.6),
+                                              o = c(0.4, 0.8),
+                                              p = c(0.5, 1.0)),
+                               clusters = clusters))
 })
