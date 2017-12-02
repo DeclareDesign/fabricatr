@@ -6,7 +6,7 @@
 \alias{modify_level}
 \title{Fabricate data}
 \usage{
-fabricate(data = NULL, N = NULL, ID_label = NULL, ...)
+fabricate(data = NULL, ..., N = NULL, ID_label = NULL)
 
 add_level(N = NULL, ID_label = NULL, working_environment_ = NULL, ...,
   data_arguments = quos(...), new_hierarchy = FALSE)
@@ -20,6 +20,11 @@ fabrication, i.e. you can add variables to existing data. Provide either
 \code{N} or \code{data} (\code{N} is the number of rows of the data if
 \code{data} is provided).}
 
+\item{...}{Variable or level-generating arguments, such as
+\code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass
+\code{add_level()} or \code{modify_level()} arguments, which define a level
+of a multi-level dataset. See examples.}
+
 \item{N}{(optional) number of units to draw. If provided as
 \code{fabricate(N = 5)}, this determines the number of units in the
 single-level data. If provided in \code{add_level}, i.e.
@@ -27,11 +32,6 @@ single-level data. If provided in \code{add_level}, i.e.
 of units in a specific level of a hierarchical dataset.}
 
 \item{ID_label}{(optional) variable name for ID variable, i.e. citizen_ID}
-
-\item{...}{Variable or level-generating arguments, such as
-\code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass
-\code{add_level()} or \code{modify_level()} arguments, which define a level
-of a multi-level dataset. See examples.}
 
 \item{working_environment_}{Internal argument, not intended for end-user use.}
 

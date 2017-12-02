@@ -42,7 +42,10 @@ test_that("Fabricate", {
   )
 
   # User provides matrix, test conversion.
-  fabricate(data = matrix(rep(c(1, 2, 3), 3), byrow=TRUE, ncol=3, nrow=3))
+  fabricate(data = matrix(rep(c(1, 2, 3), 3),
+                          byrow=TRUE,
+                          ncol=3,
+                          nrow=3))
 })
 
 test_that("choose N of a level based on data from higher levels", {
@@ -57,6 +60,15 @@ test_that("choose N of a level based on data from higher levels", {
 
 
 test_that("trigger errors", {
+  # User didn't provide a name for a level, and let's make sure that we also
+  # didn't interpret the unnamed level as any of the special arguments contextually
+  expect_error(fabricate(
+    data = NULL,
+    N = NULL,
+    ID_label = NULL,
+    countries = add_level(N = 10),
+    add_level(N = 5, population = rnorm(N))))
+
   expect_error(fabricate(
     regions = add_level(),
     cities = add_level(N = sample(1:5), subways = rnorm(N, mean = 5))
@@ -106,9 +118,8 @@ test_that("trigger errors", {
   # Negative N
   expect_error(fabricate(N = -1, test1=runif(10)))
 
-  # Sending a scalar will coerce to a data.frame
-  fabricate(data = c(5))
-
+  # Scalar as data
+  expect_error(fabricate(data = c(5)))
   # Vector as ID_label
   expect_error(fabricate(N=10, test1=rnorm(10), test2=rpois(10, lambda=2), ID_label=c("invalid", "id")))
   # Matrix as ID_label
@@ -124,9 +135,14 @@ test_that("trigger errors", {
 
   # Unusual test with implicit data argument
   expect_error(fabricate(N=10, 1:N))
+
 })
 
 test_that("unusual pass of add_level call to single level generation as data matrix", {
   expect_error(fabricate(add_level(N = 5,
                                    gdp = rnorm(N))))
+})
+
+test_that("modify_level call when you probably meant add_level", {
+  expect_error(fabricate(countries = modify_level(N = 10, new_var = rnorm(N))))
 })

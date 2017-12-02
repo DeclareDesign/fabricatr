@@ -43,10 +43,15 @@ test_that("Error handlers: handle_n", {
   # Passed closure as N, didn't evaluate it
   expect_error(handle_n(N = function(x) { x*2 }))
 
+  # Passed closure as N, did evaluate it
   func = function(x) { x*2 }
   handle_n(N = func(4))
 
+  # Non-numeric type where coercion gives a warning
   expect_error(handle_n(N = "hello"))
+
+  # Non-numeric type where coercion gives an explicit error
+  expect_error(handle_n(N = list(Z = Y ~ X)))
 })
 
 test_that("Error handlers: check_rectangular", {

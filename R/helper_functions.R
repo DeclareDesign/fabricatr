@@ -242,9 +242,13 @@ handle_data = function(data) {
 
     # User provided data, but it's not a data frame, and they didn't provide it explicitly,
     # so this is probably a mess-up with an implicit argument
-    if(!"data" %in% names(sys.call())) {
+    if(!"data" %in% names(sys.call()) &&
+       !"data" %in% names(sys.call(-1))) {
       stop(
-        "The data argument must be a data object. The argument call, ", deparse(substitute(data)), ", was not a data object (e.g. a data.frame, tibble, sf object, or convertible matrix)."
+        "The data argument must be a data object. The argument call, ",
+        deparse(substitute(data)),
+        ", was not a data object (e.g. a data.frame, tibble, sf object, or ",
+        "convertible matrix)."
       )
     }
 

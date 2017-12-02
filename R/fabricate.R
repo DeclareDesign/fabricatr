@@ -70,7 +70,7 @@
 #' is_lang get_expr
 #'
 #' @export
-fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
+fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
 {
   # Store all data generation arguments in a quosure for future evaluation
   # A quosure contains unevaluated formulae and function calls.
@@ -90,10 +90,10 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
          (!is.null(N) & !missing(N)),
          all_levels) != 1) {
     stop(
-      "Fabricate can be called in one of three ways: \n
-      1) Provide one or more level calls, with or without existing data \n
-      2) Provide existing data and add new variables without adding a level \n
-      3) Provide an \"N\" and add new variables"
+      "Fabricate can be called in one of three ways: \n",
+      "1) Provide one or more level calls, with or without existing data \n",
+      "2) Provide existing data and add new variables without adding a level \n",
+      "3) Provide an \"N\" and add new variables"
       )
   }
 
@@ -153,11 +153,7 @@ fabricate <- function(data = NULL, N = NULL, ID_label = NULL, ...)
   }
 
   # Confirm data can be a data frame
-  tryCatch({
-    data = data.frame(data)
-  }, error=function(e) {
-    stop("User supplied data must be convertible into a data frame.")
-  })
+  data = handle_data(data)
 
   # Single level -- maybe the user provided an ID_label, maybe they didn't.
   # Sanity check and/or construct an ID label for the new data.
@@ -409,13 +405,14 @@ nest_level = function(N = NULL, ID_label = NULL,
       # If there's a non-even multiple that's an indication something is badly
       # wrong with the data here.
       if((N/inner_N) %% 1) {
-        stop("Variable ", i, " has inappropriate length for nested level ",
-             ID_label, ". \n",
-             " If the nested level has a fixed length, please generate data of
-             the length of either the inner level or the entire data frame.
-             If the nested level has a variable length, please generate data
-             equal to the length of the entire data frame using the N
-             argument.")
+        stop(
+          "Variable ", i, " has inappropriate length for nested level ",
+          ID_label, ". \n",
+          " If the nested level has a fixed length, please generate data of ",
+          "the length of either the inner level or the entire data frame. ",
+          "If the nested level has a variable length, please generate data ",
+          "equal to the length of the entire data frame using the N argument."
+        )
       }
       # Do the repetition
       working_data_list[[i]] = rep(working_data_list[[i]], (N/inner_N))
@@ -466,8 +463,8 @@ modify_level = function(N = NULL,
   # Need to supply an ID_label, otherwise we have no idea what to modify.
   # You actually can, though! It'd just be per unit
   if(is.null(ID_label)) {
-    stop("You can't modify a level without a known level ID variable. If you
-         are adding nested data, please use add_level")
+    stop("You can't modify a level without a known level ID variable. If you",
+         "are adding nested data, please use add_level")
   }
 
   # First, establish that if we have no working data frame, we can't continue
@@ -481,9 +478,11 @@ modify_level = function(N = NULL,
         stop("User supplied data must be convertible into a data frame.")
       })
     } else {
-      stop("You can't modify a level if there is no working data frame to
-           modify: you must either load pre-existing data or generate some data
-           before modifying.")
+      stop(
+        "You can't modify a level if there is no working data frame to ",
+        "modify: you must either load pre-existing data or generate some data ",
+        "before modifying."
+        )
     }
   }
 
@@ -559,13 +558,15 @@ modify_level = function(N = NULL,
   # Error if we try to write using a variable that's not unique to the level.
   if(length(level_unique_variables) != length(write_variables) &
      length(write_variables) != 0) {
-    stop("Your modify_level command attempts to generate a new variable at the
-         level \"", ID_label, "\"
-         but requires reading from the existing variable(s) [",
-         paste(setdiff(write_variables, level_unique_variables), collapse=", "),
-         "] which are not defined at the level \"", ID_label,
-         "\"\n\n To prevent this error, you may modify the data at the level of
-         interest, or change the definition of your new variables.")
+    stop(
+      "Your modify_level command attempts to generate a new variable at the level \"",
+      ID_label,
+      "\" but requires reading from the existing variable(s) [",
+      paste(setdiff(write_variables, level_unique_variables), collapse=", "),
+      "] which are not defined at the level \"", ID_label, "\"\n\n",
+      "To prevent this error, you may modify the data at the level of interest, ",
+      "or change the definition of your new variables."
+    )
   }
 
   # Our subset needs these columns -- the level variable, all the unique
