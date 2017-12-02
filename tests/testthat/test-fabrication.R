@@ -58,6 +58,20 @@ test_that("choose N of a level based on data from higher levels", {
   )
 })
 
+test_that("Import data, single level var modification, with/without ID", {
+  expect_equal(
+    ncol(fabricate(datasets::BOD, dd = demand * 2, ID_label="Time")),
+    3)
+
+  expect_equal(
+    ncol(fabricate(datasets::BOD, dd = demand * 2)),
+    4)
+
+  expect_equal(
+    ncol(fabricate(datasets::BOD, dd = demand * 2, ID_label="Jello")),
+    4)
+})
+
 
 test_that("trigger errors", {
   # User didn't provide a name for a level, and let's make sure that we also
@@ -145,4 +159,17 @@ test_that("unusual pass of add_level call to single level generation as data mat
 
 test_that("modify_level call when you probably meant add_level", {
   expect_error(fabricate(countries = modify_level(N = 10, new_var = rnorm(N))))
+})
+
+test_that("modify_level call where you don't specify which level", {
+  expect_error(fabricate(countries = add_level(N=20),
+                         modify_level(ID_new = as.numeric(ID) * 2)))
+})
+
+test_that("nest_level call when there was no data to nest", {
+  # No import data, nest level
+  expect_error(fabricate(countries = nest_level(N = 10, new_var = rnorm(N))))
+
+  # Import data, should be able to nest level
+  fabricate(datsets::BOD, units = nest_level(N = 2, dd = demand * 2))
 })

@@ -360,8 +360,8 @@ nest_level = function(N = NULL, ID_label = NULL,
   else rep_indices = rep(indices, times=N)
 
   # Update N to the new length.
-  inner_N = N
-  N = length(rep_indices)
+  inner_N = N # Length specified for this level
+  N = length(rep_indices) # Length of overall data frame
 
   # Expand the data frame by duplicating the indices and then coerce the data
   # frame to a list -- we do this to basically make variables accessible in the
@@ -396,19 +396,6 @@ nest_level = function(N = NULL, ID_label = NULL,
     # We need to expand this to each setting of the outer level.
     # Only evaluate if inner_N is a single number
     if(length(inner_N) == 1 && length(working_data_list[[i]]) == inner_N) {
-      # If there's a non-even multiple that's an indication something is badly
-      # wrong with the data here.
-      if((N/inner_N) %% 1) {
-        stop(
-          "Variable ", i, " has inappropriate length for nested level ",
-          ID_label, ". \n",
-          " If the nested level has a fixed length, please generate data of ",
-          "the length of either the inner level or the entire data frame. ",
-          "If the nested level has a variable length, please generate data ",
-          "equal to the length of the entire data frame using the N argument."
-        )
-      }
-      # Do the repetition
       working_data_list[[i]] = rep(working_data_list[[i]], (N/inner_N))
     }
 
