@@ -41,7 +41,9 @@ test_that("Error handling of Resampling", {
   # Non-numeric N in direct call of resample_single_level. This is unlikely to
   # arise normally since we don't export it and the code paths that call it have
   # separate error handling
-  expect_error(resample_single_level(two_levels, N=1.5, ID_labels = c("regions")))
+  expect_error(resample_single_level(two_levels, N=c(1, 2), ID_label = "regions"))
+  expect_error(resample_single_level(two_levels, N=1.5, ID_label = "regions"))
+  expect_error(resample_single_level(two_levels, N="hello", ID_label = "regions"))
 })
 
 test_that("Direct resample_single_level", {

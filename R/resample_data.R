@@ -200,8 +200,12 @@ resample_single_level <- function(data, ID_label = NULL, N) {
     stop("ID label provided (", ID_label, ") is not a column in the data being resampled.")
   }
 
-  if(length(N) > 1 | !is.numeric(N) | N%%1 | (N<=0 & N!=ALL)) {
+  if(length(N) > 1) {
     stop("For a single resample level, N should be a single positive integer. N was ", N)
+  }
+
+  if(!is.numeric(N) || (N%%1 | (N<=0 & N!=ALL))) {
+    stop("For a single resample level, N should be a positive integer. N was ", N)
   }
 
   # Split data by cluster ID, storing all row indices associated with that cluster ID
