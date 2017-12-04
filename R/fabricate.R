@@ -191,16 +191,11 @@ add_level = function(N = NULL, ID_label = NULL,
                      new_hierarchy = FALSE) {
 
   # Copy the working environment out of the data_arguments quosure and into
-  # the root.
+  # the root. This happens when we have a single non-nested fabricate call
+  # and we don't want to double-quosure the working environmented.
   if("working_environment_" %in% names(data_arguments)) {
     working_environment_ = data_arguments[["working_environment_"]]
     data_arguments[["working_environment_"]] = NULL
-  }
-
-  # Copy ID_label out of the data_arguments quosure and into the root
-  if("ID_label" %in% names(data_arguments)) {
-    ID_label = data_arguments[["ID_label_"]]
-    data_arguments[["ID_label"]] = NULL
   }
 
   # Pass-through mapper to nest_level.
@@ -315,19 +310,6 @@ nest_level = function(N = NULL, ID_label = NULL,
                       ...,
                       data_arguments=quos(...)) {
 
-  # Copy the working environment out of the data_arguments quosure and into the
-  # root.
-  if("working_environment_" %in% names(data_arguments)) {
-    working_environment_ = data_arguments[["working_environment_"]]
-    data_arguments[["working_environment_"]] = NULL
-  }
-
-  # Copy ID_label out of the data_arguments quosure and into the root
-  if("ID_label" %in% names(data_arguments)) {
-    ID_label = data_arguments[["ID_label_"]]
-    data_arguments[["ID_label"]] = NULL
-  }
-
   # Check to make sure we have a data frame to nest on.
   if(is.null(dim(working_environment_$data_frame_output_))) {
     if("imported_data_" %in% names(working_environment_)) {
@@ -427,19 +409,6 @@ modify_level = function(N = NULL,
                             working_environment_ = NULL,
                             ...,
                             data_arguments=quos(...)) {
-
-  # Copy the working environment out of the data_arguments quosure and into
-  # the root.
-  if("working_environment_" %in% names(data_arguments)) {
-    working_environment_ = data_arguments[["working_environment_"]]
-    data_arguments[["working_environment_"]] = NULL
-  }
-
-  # Copy ID_label out of the data_arguments quosure and into the root
-  if("ID_label" %in% names(data_arguments)) {
-    ID_label = data_arguments[["ID_label_"]]
-    data_arguments[["ID_label"]] = NULL
-  }
 
   # Need to supply an ID_label, otherwise we have no idea what to modify.
   # You actually can, though! It'd just be per unit
