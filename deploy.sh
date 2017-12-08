@@ -18,10 +18,11 @@ git remote add upstream "https://$GH_TOKEN@github.com/DeclareDesign/declaredesig
 git fetch upstream
 git checkout master
 
+echo "Beginning update_repo.R from deploy.sh"
 Rscript update_repo.R
+echo "Complete update_repo.R from deploy.sh, proceeding with git commits."
 
 git add *
-
 git commit -m "Travis update $PKG_REPO build $COMMIT"
 
 git push
