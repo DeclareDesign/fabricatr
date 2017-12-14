@@ -287,7 +287,8 @@ check_all_levels <- function(options){
   is_level = sapply(func_names, function(i) { i %in% c("level",
                                                        "add_level",
                                                        "nest_level",
-                                                       "modify_level") })
+                                                       "modify_level",
+                                                       "cross_classify") })
 
   # Return false if we have no level calls
   if(length(is_level) == 0) return(FALSE)

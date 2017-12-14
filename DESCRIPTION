@@ -22,6 +22,7 @@ Suggests:
     dplyr,
     knitr,
     rmarkdown,
-    data.table
-FasterWith: data.table
+    data.table,
+    mvnfast
+FasterWith: data.table, mvnfast
 VignetteBuilder: knitr

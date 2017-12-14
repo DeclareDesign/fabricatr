@@ -222,7 +222,8 @@ add_level = function(N = NULL, ID_label = NULL,
 
     # Append it to the existing shelf
     if("shelved_df" %in% names(working_environment_)) {
-      working_environment_$shelved_df = append(working_environment_$shelved_df, package_df)
+      working_environment_$shelved_df = append(working_environment_$shelved_df,
+                                               list(package_df))
     } else {
       # Create a shelf just for this
       working_environment_$shelved_df = list(package_df)
@@ -411,7 +412,6 @@ modify_level = function(N = NULL,
                             data_arguments=quos(...)) {
 
   # Need to supply an ID_label, otherwise we have no idea what to modify.
-  # You actually can, though! It'd just be per unit
   if(is.null(ID_label)) {
     stop("You can't modify a level without a known level ID variable. If you",
          "are adding nested data, please use add_level")
@@ -566,6 +566,106 @@ modify_level = function(N = NULL,
   working_environment_$data_frame_output_ = data.frame(super_working_data_list,
                                                             stringsAsFactors=FALSE,
                                                             row.names=NULL)
+
+  # Return results
+  return(working_environment_)
+}
+
+#' @importFrom rlang quos quo_text
+#'
+#' @rdname fabricate
+#' @export
+cross_classify = function(N = NULL,
+                          ID_label = NULL,
+                          working_environment_ = NULL,
+                          ...,
+                          rho = 0,
+                          sigma = NULL,
+                          data_arguments=quos(...)) {
+
+
+  if(any(!c("data_frame_output_", "shelved_df") %in%
+         names(working_environment_))) {
+    stop("You require at least two separate level hierarchies to create ",
+         "cross-classified data.")
+  }
+
+  # Move the current working data frame into a package
+  package_df = list(data_frame_output_ = working_environment_$data_frame_output_,
+                    level_ids_ = working_environment_$level_ids_,
+                    variable_names_ = names(working_environment_$data_frame_output_))
+
+  # Stuff it in the shelved df
+  working_environment_$shelved_df = append(working_environment_$shelved_df,
+                                           list(package_df))
+
+  # Clear the active working data frame.
+  working_environment_$data_frame_output_ =
+    working_environment_$level_ids_ =
+    working_environment_$variable_names_ = NULL
+
+  # Loop over the variable name
+  data_frame_indices = numeric(length(data_arguments))
+  variable_names = unlist(lapply(data_arguments, function(x) { quo_text(x) }))
+
+  if(anyDuplicated(variable_names)) {
+    stop("Variables names for joining cross-classified data must be unique. ",
+         "Currently, you are joining on a variable named \"",
+         variable_names[anyDuplicated(variable_names)[1]],
+         "\" more than once.")
+  }
+
+  # Figure out which dfs we're joining on which variables
+  for(i in seq_along(variable_names)) {
+    for(j in seq_along(working_environment_$shelved_df)) {
+      if(variable_names[i] %in%
+         working_environment_$shelved_df[[j]]$variable_names_) {
+
+        # If we've already found this one, that's bad news for us...
+        if(data_frame_indices[i]) {
+          stop("Variable name ",
+               names(data_arguments)[i],
+               " is ambiguous and appears in at least two level hierarchies.")
+        }
+
+        data_frame_indices[i] = j
+      }
+    }
+
+    # If we didn't find this one, that's bad news for us...
+    if(!data_frame_indices[i]) {
+      stop("Variable name ",
+           variable_names[i],
+           " was not found in any of the level hierarchies.")
+    }
+  }
+
+  if(anyDuplicated(data_frame_indices)) {
+    stop("You can't join a level hierarchy to itself.")
+  }
+
+  # Actually fetch the df objects
+  data_frame_objects = sapply(data_frame_indices,
+                              function(x) {
+                                working_environment_$shelved_df[[x]]$data_frame_output_
+                              },
+                              simplify = FALSE
+  )
+
+  # Do the join.
+  out = join_dfs(data_frame_objects, variable_names, N, sigma, rho)
+  working_environment_$variable_names_ = names(out)
+
+  # Staple in an ID column onto the data list.
+  if(!is.null(ID_label) && (!ID_label %in% names(out))) {
+    out[, ID_label ] = generate_id_pad(N)
+
+    add_level_id(working_environment_, ID_label)
+    add_variable_name(working_environment_, ID_label)
+  }
+
+  # Overwrite the working data frame.
+  working_environment_$data_frame_output_ = out
 
   # Return results
   return(working_environment_)
