@@ -633,7 +633,7 @@ cross_level = function(N = NULL,
         # If we've already found this one, that's bad news for us...
         if(data_frame_indices[i]) {
           stop("Variable name ",
-               names(data_arguments)[i],
+               variable_names[i],
                " is ambiguous and appears in at least two level hierarchies.")
         }
 

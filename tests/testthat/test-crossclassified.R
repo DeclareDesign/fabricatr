@@ -90,4 +90,37 @@ test_that("Deliberate failures", {
                                    sigma=matrix(c(1, 0.3, 0.3, 0.3, 1, 0.3, 0.3, 0.3, 1),
                                                 ncol = 3
                                                 )))
+
+  expect_error(
+    test_next = fabricate(
+      l1 = add_level(N = 50, j1 = rnorm(N)),
+      l2 = add_level(N = 50, j2 = rnorm(N), nest=FALSE),
+      joined = cross_level(N = 200,
+                           by = join(j1, j_error, sigma=matrix(c(1, 0.5, 0.5, 1), ncol=2)))
+    )
+  )
+
+  expect_error(
+    test_next = fabricate(
+      l1 = add_level(N = 50, j1 = rnorm(N)),
+      l2 = add_level(N = 50, j_var = rnorm(N), j1 = runif(N, 1, 3), nest=FALSE),
+      joined = cross_level(N = 200,
+                           by = join(j1, j_var, sigma=matrix(c(1, 0.5, 0.5, 1), ncol=2)))
+    )
+  )
+
+  expect_error(
+    test_next = fabricate(
+      l1 = add_level(N = 50, j1 = rnorm(N)),
+      l2 = add_level(N = 50, j2 = rnorm(N), nest=FALSE),
+      joined = cross_level(N = 200)
+    )
+  )
+
+  expect_error(
+    test_next = fabricate(
+      l1 = add_level(N = 50),
+      joined = cross_level(N = 200)
+    )
+  )
 })
