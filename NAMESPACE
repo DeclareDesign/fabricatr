@@ -2,7 +2,9 @@
 
 export(ALL)
 export(draw_binary)
+export(draw_binary_icc)
 export(draw_discrete)
+export(draw_normal_icc)
 export(fabricate)
 export(level)
 export(resample_data)
