@@ -24,6 +24,7 @@ env:
   - secure: ZJTeLgP/70/95TXGkStTWca/aQ9Xin+vaxg9OBmWwpBz5XF6YzphnlbLrN7mPoVjsMyz5IBWyfUAGEusPK+nwuEbbtYD3DCEqcE/GERvJTdJhIoRyvY4/E5WtL6HIJofft9dkN9WYCEbtbzRW47co9wBHmJwQbYLNmDSll66LIvo0OLvPkXnJNPWH5YH1lJslId7lE5szggpf6IvhqRWFW3pB5O3FHO6dgUwHxC9wqebcN784x29u5813jE9pItGjD/hdWbUeyabLqXzCz65Im73zvvqAIHCsLnrXgkcrKwknk3+iN4UFsDirU2Fv2RYCLDTKIq9Y7CSg0VukEeWUkrP8nnLj7MaC5d5L7UvfGP+U5u4xqIgoQpAlPNTidn3/til9+EDMlKQQ6Pi0r5F+5oHifLwz0am9HJtlNZvGH0CnuEtmlMd4hq32tvhHUiWR/790xNeaSNwQ48lSXPByunbRaCLZlig146jKZRbFNtueG+4S6WJJOZTupl7+TR9tT8zymFMK8G5NrYtZD/EMSLsMbjc0BgrtErJ5t0ZRKJeERC5DmrY6T5x0Thz7lCGjqA2l6CjaWHa8xixUf45DL8iAyBoZtQvUU/fxID5UpbWEPTMrIAK3Be1YGi0stbO4fqb5NIl2R5ScrtKL3nEDq2S6Ze0UZ/gYDsYWkHZe/A=
 r_github_packages:
 - DeclareDesign/DDtools
+- hadley/pkgdown
 r_packages:
 - covr
 - drat
@@ -32,7 +33,7 @@ after_success:
 - test $TRAVIS_OS_NAME == "linux" && Rscript -e 'covr::coveralls()'
 - test $TRAVIS_OS_NAME == "osx" && Rscript -e "devtools::build(binary = TRUE, args = c('--preclean'))"
 - test $TRAVIS_OS_NAME == "linux" && Rscript -e "devtools::build()"
-- test $TRAVIS_REPO_SLUG == "DeclareDesign/DeclareDesign" && test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && Rscript -e "DDtools::update_drat()"
+- test $TRAVIS_REPO_SLUG == "DeclareDesign/fabricatr" && test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && Rscript -e "DDtools::update_drat()"
 notifications:
   email:
     recipients:
