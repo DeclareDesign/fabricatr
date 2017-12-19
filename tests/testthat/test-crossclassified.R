@@ -77,18 +77,17 @@ test_that("Deliberate failures", {
   df2 = fabricate(N=100, j2 = rnorm(100))
   df3 = fabricate(N=100, j3 = rnorm(100))
 
-  expect_error(fabricatr::join_dfs(df1, c("j1"), N=100, rho=0.5))
-  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1"), N=100, rho=0.5))
-  expect_error(fabricatr::join_dfs(list(df1), c("j1"), N=100, rho=0.5))
-  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1", "j2"), N=-1, rho=0.5))
-  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1"), N=c(3, 10), rho=0.5))
-  expect_error(fabricatr::join_dfs(list(df1, df2, df3), c("j1", "j2", "j3"), N=100, rho=-0.5))
-  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1", "j2"), N=100, rho=c(0.5, 0.3)))
+  expect_error(fabricatr:::join_dfs(df1, c("j1"), N=100, rho=0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N=100, rho=0.5))
+  expect_error(fabricatr:::join_dfs(list(df1), c("j1"), N=100, rho=0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N=-1, rho=0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N=c(3, 10), rho=0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2, df3), c("j1", "j2", "j3"), N=100, rho=-0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N=100, rho=c(0.5, 0.3)))
 
-  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1", "j2"),
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"),
                                    N=100,
                                    sigma=matrix(c(1, 0.3, 0.3, 0.3, 1, 0.3, 0.3, 0.3, 1),
                                                 ncol = 3
                                                 )))
-
 })
