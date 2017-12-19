@@ -55,7 +55,7 @@ joint_draw_ecdf = function (data_list, N, ndim=length(data_list),
 
   # Error handling for rho, if specified
   if(is.null(sigma)) {
-    if(is.atomic(rho)) {
+    if(is.atomic(rho) & length(rho)==1) {
       if(ndim>2 & rho<0) {
         stop("The correlation matrix must be positive semi-definite. In specific, ",
              "if the number of variables being drawn from jointly is 3 or more, ",

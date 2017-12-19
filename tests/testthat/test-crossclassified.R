@@ -59,3 +59,36 @@ test_that("Cross-classified data", {
   expect_gte(cor(test_next$j1, test_next$j2), 0.3)
   expect_lte(cor(test_next$j1, test_next$j2), 0.7)
 })
+
+test_that("Code path without mvnfast", {
+  # Need to directly call joint_draw_ecdf because we don't let users voluntarily
+  # override the use_f argument
+  dl = list(j1 = rnorm(100),
+            j2 = rnorm(500))
+  result = fabricatr:::joint_draw_ecdf(dl, N = 100, rho = 0.25, use_f = FALSE)
+  data = cbind(dl$j1[result[[1]]],
+               dl$j2[result[[2]]])
+  expect_gte(cor(data[, 1], data[, 2]), 0.1)
+  expect_lte(cor(data[, 1], data[, 2]), 0.4)
+})
+
+test_that("Deliberate failures", {
+  df1 = fabricate(N=100, j1 = rnorm(100))
+  df2 = fabricate(N=100, j2 = rnorm(100))
+  df3 = fabricate(N=100, j3 = rnorm(100))
+
+  expect_error(fabricatr::join_dfs(df1, c("j1"), N=100, rho=0.5))
+  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1"), N=100, rho=0.5))
+  expect_error(fabricatr::join_dfs(list(df1), c("j1"), N=100, rho=0.5))
+  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1", "j2"), N=-1, rho=0.5))
+  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1"), N=c(3, 10), rho=0.5))
+  expect_error(fabricatr::join_dfs(list(df1, df2, df3), c("j1", "j2", "j3"), N=100, rho=-0.5))
+  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1", "j2"), N=100, rho=c(0.5, 0.3)))
+
+  expect_error(fabricatr::join_dfs(list(df1, df2), c("j1", "j2"),
+                                   N=100,
+                                   sigma=matrix(c(1, 0.3, 0.3, 0.3, 1, 0.3, 0.3, 0.3, 1),
+                                                ncol = 3
+                                                )))
+
+})
