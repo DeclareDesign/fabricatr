@@ -54,24 +54,26 @@ joint_draw_ecdf = function (data_list, N, ndim=length(data_list),
   }
 
   # Error handling for rho, if specified
-  if(is.atomic(rho)) {
-    if(ndim>2 & rho<0) {
-      stop("The correlation matrix must be positive semi-definite. In specific, ",
-           "if the number of variables being drawn from jointly is 3 or more, ",
-           "then the correlation coefficient rho must be non-negative.")
-    }
+  if(is.null(sigma)) {
+    if(is.atomic(rho)) {
+      if(ndim>2 & rho<0) {
+        stop("The correlation matrix must be positive semi-definite. In specific, ",
+             "if the number of variables being drawn from jointly is 3 or more, ",
+             "then the correlation coefficient rho must be non-negative.")
+      }
 
-    if(rho == 0) {
-      # Uncorrelated draw would be way faster; just sample each column
-      return(lapply(seq_along(data_list),
-                                     function(vn) {
-                                       sample.int(length(data_list[[vn]]), N, replace=TRUE)
-                                     }))
+      if(rho == 0) {
+        # Uncorrelated draw would be way faster; just sample each column
+        return(lapply(seq_along(data_list),
+                                       function(vn) {
+                                         sample.int(length(data_list[[vn]]), N, replace=TRUE)
+                                       }))
+      }
+      sigma = matrix(rho, ncol=ndim, nrow=ndim)
+      diag(sigma) = 1
+    } else {
+      stop("If specified, rho should be a single number")
     }
-    sigma = matrix(rho, ncol=ndim, nrow=ndim)
-    diag(sigma) = 1
-  } else {
-    stop("If specified, rho should be a single number")
   }
 
   # Error handling for sigma

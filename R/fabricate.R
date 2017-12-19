@@ -677,7 +677,6 @@ cross_level = function(N = NULL,
   working_environment_$data_frame_output_ = out
 
   if(length(data_arguments)) {
-    print(data_arguments)
     working_environment_ = modify_level(ID_label = ID_label,
                                         working_environment_ = working_environment_,
                                         data_arguments = data_arguments)
