@@ -72,7 +72,7 @@ test_that("Code path without mvnfast", {
   expect_lte(cor(data[, 1], data[, 2]), 0.4)
 })
 
-test_that("Deliberate failures", {
+test_that("Deliberate failures in join_dfs", {
   df1 = fabricate(N=100, j1 = rnorm(100))
   df2 = fabricate(N=100, j2 = rnorm(100))
   df3 = fabricate(N=100, j3 = rnorm(100))
@@ -90,13 +90,20 @@ test_that("Deliberate failures", {
                                    sigma=matrix(c(1, 0.3, 0.3, 0.3, 1, 0.3, 0.3, 0.3, 1),
                                                 ncol = 3
                                                 )))
+})
 
+test_that("Deliberate failures in cross_level", {
   expect_error(
     test_next = fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
       l2 = add_level(N = 50, j2 = rnorm(N), nest=FALSE),
       joined = cross_level(N = 200,
-                           by = join(j1, j_error, sigma=matrix(c(1, 0.5, 0.5, 1), ncol=2)))
+                           by = join(j1,
+                                     j_error,
+                                     sigma=matrix(c(1, 0.5, 0.5, 1),
+                                                  ncol=2)
+                                     )
+                           )
     )
   )
 

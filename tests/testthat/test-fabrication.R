@@ -173,3 +173,21 @@ test_that("nest_level call when there was no data to nest", {
   # Import data, should be able to nest level
   fabricate(datasets::BOD, units = nest_level(N = 2, dd = demand * 2))
 })
+
+
+test_that("multiple non-nested data frames, again and again", {
+  fabricate(
+    l1 = add_level(N = 100),
+    l2 = add_level(N = 200, nest=FALSE),
+    l3 = add_level(N = 100, nest=FALSE),
+    l4 = add_level(N = 300, nest=FALSE)
+  )
+})
+
+test_that("importing data and then specifying a level ID variable that is in data.", {
+  df = fabricate(N = 100, d1 = rnorm(N), ID_label = "hello")
+  df2 = fabricate(df, ID_label = "hello", new_var1 = d1 * 2)
+  expect_equal(length(colnames(df2)), 3)
+  df3 = fabricate(df, new_var1 = d1 * 2)
+  expect_equal(length(colnames(df3)), 4)
+})
