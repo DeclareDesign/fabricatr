@@ -24,8 +24,7 @@
 #' \code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass
 #' \code{add_level()} or \code{modify_level()} arguments, which define a level
 #' of a multi-level dataset. See examples.
-#' @param new_hierarchy Reserved argument for future functionality to add
-#' cross-classified data. Not yet implemented.
+#' @param nest (Default TRUE) Boolean determining whether data in an \code{add_level()} call will be nested under the current working data frame or create a separate hierarchy of levels. See our vignette for cross-classified, non-nested data for details.
 #' @param working_environment_ Internal argument, not intended for end-user use.
 #' @param data_arguments Internal argument, not intended for end-user use.
 #'
@@ -175,7 +174,7 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
       add_level(N = N,
                 ID_label = ID_label,
                 data_arguments = data_arguments,
-                new_hierarchy=TRUE)
+                nest=TRUE)
     )
   )
 }
@@ -188,7 +187,7 @@ add_level = function(N = NULL, ID_label = NULL,
                      working_environment_ = NULL,
                      ...,
                      data_arguments=quos(...),
-                     new_hierarchy = FALSE) {
+                     nest = TRUE) {
 
   # Copy the working environment out of the data_arguments quosure and into
   # the root. This happens when we have a single non-nested fabricate call
@@ -201,7 +200,7 @@ add_level = function(N = NULL, ID_label = NULL,
   # Pass-through mapper to nest_level.
   # This needs to be done after we read the working environment and
   # before we check N or do the shelving procedure.
-  if(!new_hierarchy &
+  if(nest &
      ("data_frame_output_" %in% names(working_environment_) |
      "imported_data_" %in% names(working_environment_))) {
     return(nest_level(N=N, ID_label=ID_label,
@@ -406,10 +405,10 @@ nest_level = function(N = NULL, ID_label = NULL,
 #' @rdname fabricate
 #' @export
 modify_level = function(N = NULL,
-                            ID_label = NULL,
-                            working_environment_ = NULL,
-                            ...,
-                            data_arguments=quos(...)) {
+                        ID_label = NULL,
+                        working_environment_ = NULL,
+                        ...,
+                        data_arguments=quos(...)) {
 
   # Need to supply an ID_label, otherwise we have no idea what to modify.
   if(is.null(ID_label)) {
@@ -571,23 +570,32 @@ modify_level = function(N = NULL,
   return(working_environment_)
 }
 
-#' @importFrom rlang quos quo_text
+#' Creates cross-classified (partially non-nested, joined data) with a fixed
+#' correlation structure.
 #'
-#' @rdname fabricate
+#' @param N (required) The number of observations in the resulting data frame
+#' @param by The result of a call to \code{join()} which specifies how the cross-classified data will be created
+#' @param ... A variable or series of variables to add to the resulting data frame after the cross-classified data is created.
+#' @param ID_label Internal keyword used to sepcify the name of the ID variable created for the new level. If left empty, this will be the name the level is assigned to as part of a \code{fabricate()} call.
+#' @param working_environment_ Internal keyword not for end user use.
+#' @param data_arguments Internal keyword not for end user use.
+#' @importFrom rlang quos quo_text
 #' @export
-cross_classify = function(N = NULL,
-                          ID_label = NULL,
-                          working_environment_ = NULL,
-                          ...,
-                          rho = 0,
-                          sigma = NULL,
-                          data_arguments=quos(...)) {
-
+cross_level = function(N = NULL,
+                       ID_label = NULL,
+                       working_environment_ = NULL,
+                       by = NULL,
+                       ...,
+                       data_arguments=quos(...)) {
 
   if(any(!c("data_frame_output_", "shelved_df") %in%
          names(working_environment_))) {
     stop("You require at least two separate level hierarchies to create ",
          "cross-classified data.")
+  }
+
+  if(is.null(by) || !length(by$variable_names)) {
+    stop("You must specify a join structure to create cross-classified data.")
   }
 
   # Move the current working data frame into a package
@@ -605,8 +613,9 @@ cross_classify = function(N = NULL,
     working_environment_$variable_names_ = NULL
 
   # Loop over the variable name
-  data_frame_indices = numeric(length(data_arguments))
-  variable_names = unlist(lapply(data_arguments, function(x) { quo_text(x) }))
+
+  variable_names = by$variable_names
+  data_frame_indices = numeric(length(variable_names))
 
   if(anyDuplicated(variable_names)) {
     stop("Variables names for joining cross-classified data must be unique. ",
@@ -653,12 +662,12 @@ cross_classify = function(N = NULL,
   )
 
   # Do the join.
-  out = join_dfs(data_frame_objects, variable_names, N, sigma, rho)
+  out = join_dfs(data_frame_objects, variable_names, N, by$sigma, by$rho)
   working_environment_$variable_names_ = names(out)
 
   # Staple in an ID column onto the data list.
   if(!is.null(ID_label) && (!ID_label %in% names(out))) {
-    out[, ID_label ] = generate_id_pad(N)
+    out[, ID_label] = generate_id_pad(N)
 
     add_level_id(working_environment_, ID_label)
     add_variable_name(working_environment_, ID_label)
@@ -667,8 +676,29 @@ cross_classify = function(N = NULL,
   # Overwrite the working data frame.
   working_environment_$data_frame_output_ = out
 
+  if(length(data_arguments)) {
+    print(data_arguments)
+    working_environment_ = modify_level(ID_label = ID_label,
+                                        working_environment_ = working_environment_,
+                                        data_arguments = data_arguments)
+  }
+
   # Return results
   return(working_environment_)
+}
+
+#' Helper function handling specification of which variables to join a
+#' cross-classified data on, and what kind of correlation structure needed
+#' @param ... A series of two or more variable names, unquoted, to join on in order to create cross-classified data.
+#' @param rho A fixed (Spearman's rank) correlation coefficient between the variables being joined on: note that if it is not possible to make a correlation matrix from this coefficient (i.e. if you are joining on three or more variables and rho is negative) then the \code{cross_level()} call will fail.
+#' @param sigma A matrix with dimensions equal to the number of variables you are joining on, specifying the correlation for the resulting joined data. Only one of rho and sigma should be provided.
+#' @param data_arguments Internal, not for end-user use.
+#' @export
+join = function(..., rho=0, sigma=NULL, data_arguments=quos(...)) {
+  variable_names = unlist(lapply(data_arguments, function(x) { quo_text(x) }))
+  return(list(variable_names = variable_names,
+              rho = rho,
+              sigma = sigma))
 }
 
 #' Deprecated level call function maintained to provide useful error for

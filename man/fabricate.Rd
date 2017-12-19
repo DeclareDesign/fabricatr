@@ -9,7 +9,7 @@
 fabricate(data = NULL, ..., N = NULL, ID_label = NULL)
 
 add_level(N = NULL, ID_label = NULL, working_environment_ = NULL, ...,
-  data_arguments = quos(...), new_hierarchy = FALSE)
+  data_arguments = quos(...), nest = TRUE)
 
 modify_level(N = NULL, ID_label = NULL, working_environment_ = NULL, ...,
   data_arguments = quos(...))
@@ -37,8 +37,7 @@ of units in a specific level of a hierarchical dataset.}
 
 \item{data_arguments}{Internal argument, not intended for end-user use.}
 
-\item{new_hierarchy}{Reserved argument for future functionality to add
-cross-classified data. Not yet implemented.}
+\item{nest}{(Default TRUE) Boolean determining whether data in an \code{add_level()} call will be nested under the current working data frame or create a separate hierarchy of levels. See our vignette for cross-classified, non-nested data for details.}
 }
 \value{
 data.frame

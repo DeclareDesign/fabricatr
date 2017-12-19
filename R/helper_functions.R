@@ -288,7 +288,7 @@ check_all_levels <- function(options){
                                                        "add_level",
                                                        "nest_level",
                                                        "modify_level",
-                                                       "cross_classify") })
+                                                       "cross_level") })
 
   # Return false if we have no level calls
   if(length(is_level) == 0) return(FALSE)
