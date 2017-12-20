@@ -94,7 +94,7 @@ test_that("Deliberate failures in join_dfs", {
 
 test_that("Deliberate failures in cross_level", {
   expect_error(
-    test_next = fabricate(
+    fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
       l2 = add_level(N = 50, j2 = rnorm(N), nest=FALSE),
       joined = cross_level(N = 200,
@@ -108,7 +108,7 @@ test_that("Deliberate failures in cross_level", {
   )
 
   expect_error(
-    test_next = fabricate(
+    fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
       l2 = add_level(N = 50, j_var = rnorm(N), j1 = runif(N, 1, 3), nest=FALSE),
       joined = cross_level(N = 200,
@@ -117,7 +117,7 @@ test_that("Deliberate failures in cross_level", {
   )
 
   expect_error(
-    test_next = fabricate(
+    fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
       l2 = add_level(N = 50, j2 = rnorm(N), nest=FALSE),
       joined = cross_level(N = 200)
@@ -125,7 +125,7 @@ test_that("Deliberate failures in cross_level", {
   )
 
   expect_error(
-    test_next = fabricate(
+    fabricate(
       l1 = add_level(N = 50),
       joined = cross_level(N = 200)
     )
