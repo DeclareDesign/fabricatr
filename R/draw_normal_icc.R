@@ -29,7 +29,6 @@ draw_normal_icc = function(x = 0,
                            clusters,
                            sd = 1,
                            rho = 0) {
-
   # Let's not worry about how clusters are provided
   tryCatch({
     clusters = as.numeric(as.factor(clusters))
