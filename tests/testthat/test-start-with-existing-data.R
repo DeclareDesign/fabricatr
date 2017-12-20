@@ -1,17 +1,22 @@
 context("Start with existing multi-level data and add variables")
 
+test_that("Import data plus single-level add variables.", {
+  result = fabricate(mtcars, zort = drat * 2)
+  expect_equal(dim(result), c(32, 13))
+})
+
 test_that("Start with existing multi-level data and add variables",{
 
   user_data <-
   fabricate(
-    regions = level(N = 5, gdp = rnorm(N)))
+    regions = add_level(N = 5, gdp = rnorm(N)))
 
   expect_equal(dim(user_data), c(5, 2))
 
   user_data <-
     fabricate(
-    regions = level(N = 5, gdp = rnorm(N)),
-    cities = level(N = sample(1:5), subways = rnorm(N, mean = gdp)))
+    regions = add_level(N = 5, gdp = rnorm(N)),
+    cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp)))
 
   expect_equal(dim(user_data), c(15, 4))
 
@@ -19,31 +24,38 @@ test_that("Start with existing multi-level data and add variables",{
 
   user_data_2 <-
     fabricate(data = user_data,
-                   regions = level(rob = paste0(regions, "r")))
+                   regions = modify_level(rob = paste0(regions, "r")))
 
   expect_equal(dim(user_data_2), c(15, 5))
 
   ## add a variable at the cities level
   user_data_3 <-
   fabricate(data = user_data,
-                 cities = level(rob = paste0(cities, "c")))
+                 cities = modify_level(rob = paste0(cities, "c")))
 
   expect_equal(dim(user_data_3), c(15, 5))
 
   user_data_4 <-
   fabricate(data = user_data,
-                 regions = level(rob = paste0(regions, "r")),
-                 cities = level(bob = paste0(cities, "c")))
+                 regions = modify_level(rob = paste0(regions, "r")),
+                 cities = modify_level(bob = paste0(cities, "c")))
 
   expect_equal(dim(user_data_4), c(15, 6))
 
   user_data_5 <-
   fabricate(data = user_data,
-                 regions = level(rob = paste0(regions, "r")),
-                 cities = level(bob = paste0(cities, "c")),
-                 neighborhoods = level(N = 10, tmp = rnorm(N)))
+                 regions = modify_level(rob = paste0(regions, "r")),
+                 cities = modify_level(bob = paste0(cities, "c")),
+                 neighborhoods = add_level(N = 10, tmp = rnorm(N)))
 
   expect_equal(dim(user_data_5), c(150, 8))
 
 
+})
+
+test_that("Modify var at wrong level", {
+  df = fabricate(country = add_level(N = 50, population = runif(N, 10000, 20000)),
+                 state = add_level(N = 10, latitude = runif(N, 40, 50)),
+                 town = add_level(N = 5, stop_lights = draw_binary(x = 0.7, N=N)))
+  expect_error(fabricate(df, state = modify_level(crime = 0.5 + stop_lights + latitude)))
 })

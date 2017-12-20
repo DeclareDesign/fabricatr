@@ -73,6 +73,13 @@ fabricate(
   ) 
 
 ## ------------------------------------------------------------------------
+fabricate(
+    cities = level(N = 2),
+    citizens = level(
+      N = 1:2, income = rnorm(N), income_mean_city = ave(income, cities))
+  ) 
+
+## ------------------------------------------------------------------------
 my_data <-
   fabricate(
     cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),

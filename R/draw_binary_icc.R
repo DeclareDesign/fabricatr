@@ -6,12 +6,14 @@
 #' Generation, and Estimation of Intracluster Correlation Coefficient (ICC)
 #' for Binary Data".
 #'
-#' @param x A number or vector of numbers, one probability per cluster.
+#' @param x A number or vector of numbers, one probability per cluster. If none
+#' is provided, will default to 0.5.
 #' @param N (Optional) A number indicating the number of observations to be
 #' generated. Must be equal to length(clusters) if provided.
 #' @param clusters A vector of factors or items that can be coerced to
 #' clusters; the length will determine the length of the generated data.
-#' @param rho A number indicating the desired RCC.
+#' @param rho A number indicating the desired ICC, if none is provided will
+#' default to 0.
 #' @return A vector of binary numbers corresponding to the observations from
 #' the supplied cluster IDs.
 #' @examples
@@ -22,7 +24,7 @@
 #' @importFrom stats rbinom
 #'
 #' @export
-draw_binary_icc = function(x = 0.5, N = NULL, clusters, rho = 0.5) {
+draw_binary_icc = function(x = 0.5, N = NULL, clusters, rho = 0) {
   # Let's not worry about how clusters are provided
   tryCatch({
     clusters = as.numeric(as.factor(clusters))

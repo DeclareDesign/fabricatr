@@ -1,13 +1,25 @@
-#' Draw discrete variables including binary, binomial count, poisson count, ordered, and categorical
+#' Draw discrete variables including binary, binomial count, poisson count,
+#' ordered, and categorical
 #'
-#' Drawing discrete data based on probabilities or latent traits is a common task that can be cumbersome. \code{draw_binary} is an alias for \code{draw_discrete(type = "binary")} that allows you to draw binary outcomes more easily.
+#' Drawing discrete data based on probabilities or latent traits is a common
+#' task that can be cumbersome. \code{draw_binary} is an alias for
+#' \code{draw_discrete(type = "binary")} that allows you to draw binary
+#' outcomes more easily.
 #'
-#' @param x vector representing either the latent variable used to draw the count outcome (if link is "logit" or "probit") or the probability for the count outcome (if link is "identity"). For cartegorical distributions x is a matrix with as many columns as possible outcomes.
-#' @param N number of units to draw. Defaults to the length of the vector \code{x}
-#' @param type type of discrete outcome to draw, one of 'binary' (or 'bernoulli'), 'binomial', 'categorical', 'ordered' or 'count'
-#' @param link link function between the latent variable and the probability of a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity" link, the latent variable must be a probability.
+#' @param x vector representing either the latent variable used to draw the
+#' count outcome (if link is "logit" or "probit") or the probability for the
+#' count outcome (if link is "identity"). For cartegorical distributions x is
+#' a matrix with as many columns as possible outcomes.
+#' @param N number of units to draw. Defaults to the length of the vector
+#' \code{x}
+#' @param type type of discrete outcome to draw, one of 'binary'
+#' (or 'bernoulli'), 'binomial', 'categorical', 'ordered' or 'count'
+#' @param link link function between the latent variable and the probability of
+#' a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity"
+#' link, the latent variable must be a probability.
 #' @param breaks vector of breaks to cut an ordered latent outcome
-#' @param break_labels vector of labels for the breaks for an ordered latent outcome (must be the same length as breaks)
+#' @param break_labels vector of labels for the breaks for an ordered latent
+#' outcome (must be the same length as breaks)
 #' @param k the number of trials (zero or more)
 #'
 #' @importFrom stats pnorm rnorm rpois
@@ -33,7 +45,8 @@
 #'
 #' fabricate(N = 3,
 #'    x = 5*rnorm(N),
-#'    ordered = draw_discrete(x, type = "ordered", breaks = c(-Inf, -1, 1, Inf)))
+#'    ordered = draw_discrete(x, type = "ordered",
+#'    breaks = c(-Inf, -1, 1, Inf)))
 #'
 #' fabricate(N = 3,
 #'    x = c(0,5,100),
@@ -48,7 +61,7 @@ draw_discrete <-
            type = "binary",
            link = "identity",
            breaks = c(-Inf, 0, Inf),
-           break_labels = FALSE,
+           break_labels = NULL,
            k = 1) {
 
     if (!link %in% c("logit", "probit", "identity")) {
@@ -62,7 +75,8 @@ draw_discrete <-
                           "ordered",
                           "count")) {
       stop(
-        "Please choose either 'binary' (or 'bernoulli'), 'binomial', 'categorical', 'ordered', or 'count' as a data type."
+        "Please choose either 'binary' (or 'bernoulli'), 'binomial',",
+        "'categorical', 'ordered', or 'count' as a data type."
       )
     }
 
@@ -91,7 +105,8 @@ draw_discrete <-
       }
       if (link == "identity")
         if (!all(0 <= x & x <= 1)) {
-          stop("The identity link requires probability values between 0 and 1, inclusive.")
+          stop("The identity link requires probability values between 0 and 1,",
+               "inclusive.")
         }
 
       out <- rbinom(N, k, prob)
@@ -105,7 +120,8 @@ draw_discrete <-
       if(is.vector(k) & length(k)>1) {
         if(N %% length(k)) {
           stop(
-            "\"N\" is not an even multiple of the length of the number of trials, \"k\"."
+            "\"N\" is not an even multiple of the length of the number of
+            trials, \"k\"."
           )
         }
         if(!all(is.numeric(k) & (is.integer(k) | !k%%1))) {
@@ -116,7 +132,8 @@ draw_discrete <-
       }
       if(!is.null(dim(k))) {
         stop(
-          "Number of trials must be an integer or vector, not higher-dimensional."
+          "Number of trials must be an integer or vector,",
+          " not higher-dimensional."
         )
       }
       if(is.null(k) | is.na(k)) {
@@ -151,21 +168,34 @@ draw_discrete <-
       if (is.matrix(breaks) | is.data.frame(breaks)) {
         stop("Numeric breaks must be a vector.")
       }
-      if (length(breaks) < 3) {
-        stop("Numeric breaks for ordered data must be of at least length 3.")
-      }
       if (is.unsorted(breaks)) {
         stop("Numeric breaks must be in ascending order.")
       }
-      if(any(breaks[1] > x) | any(breaks[length(breaks)] < x)) {
-        stop("Numeric break endpoints should be outside min/max of x data range.")
+
+      # Pre-pend -Inf
+      if(any(breaks[1] > x)) {
+        breaks = c(-Inf, breaks)
       }
-      if(is.vector(break_labels) & !is.logical(break_labels) & all(!is.na(break_labels)) & length(break_labels) != length(breaks)-1) {
-        stop("Break labels should be of length one less than breaks.")
+      # Post-pend Inf
+      if(any(breaks[length(breaks)] < x)) {
+        breaks = c(breaks, Inf)
       }
 
-      out <- cut(x, breaks, labels = break_labels)
+      if(!is.null(break_labels) &&
+         (is.vector(break_labels) &
+         !is.logical(break_labels) &
+         all(!is.na(break_labels)) &
+         length(break_labels) != length(breaks)-1)) {
+        stop("Break labels should be of length one less than breaks. ",
+             "Currently you have ", length(break_labels), " bucket labels and ",
+             length(breaks)-1, " buckets of data.")
+      }
 
+      if(!is.null(break_labels)) {
+        out <- break_labels[findInterval(x, breaks)]
+      } else {
+        out <- findInterval(x, breaks)
+      }
     } else if (type == "count") {
       if (link != "identity") {
         stop("Count data does not accept link functions.")
@@ -188,17 +218,21 @@ draw_discrete <-
         if (is.vector(x) & all(is.numeric(x)) & length(x)>1) {
           x <- matrix(rep(x, N), byrow=TRUE, ncol=length(x), nrow=N)
           warning(
-            "For a categorical (multinomial) distribution, a matrix of probabilities should be provided. Data generated by interpreting vector of category probabilities, identical for each observation."
+            "For a categorical (multinomial) distribution, a matrix of ",
+            "probabilities should be provided. Data generated by interpreting ",
+            "vector of category probabilities, identical for each observation."
           )
         } else {
           stop(
-            "For a categorical (multinomial) distribution, a matrix of probabilities should be provided"
+            "For a categorical (multinomial) distribution, a matrix of ",
+            "probabilities should be provided"
           )
         }
       }
       if (!all(apply(x, 1, min) > 0)) {
         stop(
-          "For a categorical (multinomial) distribution, the elements of x should be positive and sum to a positive number."
+          "For a categorical (multinomial) distribution, the elements of x ",
+          "should be positive and sum to a positive number."
         )
       }
 

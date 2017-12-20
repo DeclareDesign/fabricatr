@@ -35,12 +35,12 @@ Once the package is installed, it is easy to generate new data, or modify your o
 library(fabricatr)
 
 house_candidates = fabricate(
-  parties = level(
+  parties = add_level(
     N = 2, 
     party_ideology = c(0.5, -0.5), 
     in_power = c(1, 0), 
     party_incumbents = c(241, 194)),
-  representatives = level(
+  representatives = add_level(
     N = party_incumbents, 
     member_ideology = rnorm(N, party_ideology),
     terms_served = draw_discrete(N = N, x = 3, type = "count"),

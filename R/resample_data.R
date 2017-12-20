@@ -18,8 +18,8 @@
 #' # N specifies a number of clusters to return
 #'
 #' clustered_survey <- fabricate(
-#'   clusters = level(N=25),
-#'   cities = level(N=runif(25, 1, 5), population=runif(n = N, min=50000, max=1000000))
+#'   clusters = add_level(N=25),
+#'   cities = add_level(N=round(runif(25, 1, 5)), population=runif(n = N, min=50000, max=1000000))
 #' )
 #'
 #' # Specify the name of the cluster variable one of two ways
@@ -34,8 +34,8 @@
 #'
 #' my_data <-
 #' fabricate(
-#'   cities = level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-#'   citizens = level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+#'   cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+#'   citizens = add_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
 #' )
 #'
 #' # Specify the levels you wish to resample one of two ways:
@@ -57,7 +57,9 @@
 
 resample_data = function(data, N, ID_labels=NULL) {
   # Mask internal outer_level and use_dt arguments from view.
-  .resample_data_internal(data, N, ID_labels)
+  df = .resample_data_internal(data, N, ID_labels)
+  rownames(df) = NULL
+  return(df)
 }
 
 #' Magic number constant to allow users to specify "ALL" for passthrough resampling
@@ -198,8 +200,12 @@ resample_single_level <- function(data, ID_label = NULL, N) {
     stop("ID label provided (", ID_label, ") is not a column in the data being resampled.")
   }
 
-  if(length(N) > 1 | !is.numeric(N) | N%%1 | (N<=0 & N!=ALL)) {
+  if(length(N) > 1) {
     stop("For a single resample level, N should be a single positive integer. N was ", N)
+  }
+
+  if(!is.numeric(N) || (N%%1 | (N<=0 & N!=ALL))) {
+    stop("For a single resample level, N should be a positive integer. N was ", N)
   }
 
   # Split data by cluster ID, storing all row indices associated with that cluster ID
