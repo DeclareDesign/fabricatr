@@ -1,5 +1,10 @@
 context("Start with existing multi-level data and add variables")
 
+test_that("Import data plus single-level add variables.", {
+  result = fabricate(mtcars, zort = drat * 2)
+  expect_equal(dim(result), c(32, 13))
+})
+
 test_that("Start with existing multi-level data and add variables",{
 
   user_data <-

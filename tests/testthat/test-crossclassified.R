@@ -65,11 +65,11 @@ test_that("Code path without mvnfast", {
   # override the use_f argument
   dl = list(j1 = rnorm(100),
             j2 = rnorm(500))
-  result = fabricatr:::joint_draw_ecdf(dl, N = 100, rho = 0.25, use_f = FALSE)
+  result = fabricatr:::joint_draw_ecdf(dl, N = 100, rho = 0.3, use_f = FALSE)
   data = cbind(dl$j1[result[[1]]],
                dl$j2[result[[2]]])
   expect_gte(cor(data[, 1], data[, 2]), 0.1)
-  expect_lte(cor(data[, 1], data[, 2]), 0.4)
+  expect_lte(cor(data[, 1], data[, 2]), 0.5)
 })
 
 test_that("Deliberate failures in join_dfs", {
@@ -128,6 +128,22 @@ test_that("Deliberate failures in cross_level", {
     fabricate(
       l1 = add_level(N = 50),
       joined = cross_level(N = 200)
+    )
+  )
+
+  expect_error(
+    fabricate(
+      l1 = add_level(N = 50, v1 = rnorm(N), v2 = rnorm(N), v3 = rnorm(N)),
+      l2 = add_level(N = 30, v4 = rnorm(N), nest=FALSE),
+      joined = cross_level(N = 100, by=join(v1, v2))
+    )
+  )
+
+  expect_error(
+    fabricate(
+      l1 = add_level(N = 50, v1 = rnorm(N), v2 = rnorm(N), v3 = rnorm(N)),
+      l2 = add_level(N = 30, v4 = rnorm(N), nest=FALSE),
+      joined = cross_level(N = 100, by=join(v1, v4, v1))
     )
   )
 })

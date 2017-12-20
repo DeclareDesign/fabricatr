@@ -174,7 +174,7 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
       add_level(N = N,
                 ID_label = ID_label,
                 data_arguments = data_arguments,
-                nest=TRUE)
+                nest=FALSE)
     )
   )
 }
