@@ -4,10 +4,11 @@
 \alias{draw_normal_icc}
 \title{Draw normal data with fixed intra-cluster correlation.}
 \usage{
-draw_normal_icc(x = 0, N = NULL, clusters, sd = 1, rho = 0.5)
+draw_normal_icc(x = 0, N = NULL, clusters, sd = 1, rho = 0)
 }
 \arguments{
-\item{x}{A number or vector of numbers, one mean per cluster.}
+\item{x}{A number or vector of numbers, one mean per cluster. If none is
+provided, will default to 0.}
 
 \item{N}{(Optional) A number indicating the number of observations to be
 generated. Must be equal to length(clusters) if provided.}
@@ -18,7 +19,8 @@ clusters; the length will determine the length of the generated data.}
 \item{sd}{A number or vector of numbers, indicating the standard deviation of
 each cluster's error terms}
 
-\item{rho}{A number indicating the desired RCC.}
+\item{rho}{A number indicating the desired ICC. If none is provided,
+will default to 0.}
 }
 \value{
 A vector of numbers corresponding to the observations from

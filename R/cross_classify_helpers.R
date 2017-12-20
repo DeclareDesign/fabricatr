@@ -57,7 +57,7 @@ joint_draw_ecdf = function (data_list, N, ndim=length(data_list),
   if(is.null(sigma)) {
     if(is.atomic(rho) & length(rho)==1) {
       if(ndim>2 & rho<0) {
-        stop("The correlation matrix must be positive semi-definite. In specific, ",
+        stop("The correlation matrix must be positive semi-definite. Specifically, ",
              "if the number of variables being drawn from jointly is 3 or more, ",
              "then the correlation coefficient rho must be non-negative.")
       }
@@ -102,12 +102,11 @@ joint_draw_ecdf = function (data_list, N, ndim=length(data_list),
     # Generate standard normal data and right-multiply by decomposed matrix
     # with right_chol to make it correlated.
     correlated_sn <- matrix(rnorm(N * ndim),
-                            nrow = N,
-                            byrow = TRUE) %*% right_chol
+                            nrow = N) %*% right_chol
 
   } else {
     # Using mvnfast
-    correlated_sn = mvnfast::rmvn(N, ncores = 2, mu, sigma)
+    correlated_sn = mvnfast::rmvn(N, ncores = getOption("mc.cores", 2L), mu, sigma)
   }
 
   # Z-scores to quantiles

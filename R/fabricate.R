@@ -85,19 +85,19 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
   # 1) One or more level calls (with or without importing their own data)
   # 2) Import their own data and do not involve level calls
   # 3) Provide an N without importing their own data
-  if(sum((!is.null(data) & !missing(data) & !all_levels),
+  if(sum((!missing(data) && !is.null(data) & !all_levels),
          (!is.null(N) & !missing(N)),
          all_levels) != 1) {
     stop(
-      "Fabricate can be called in one of three ways: \n",
-      "1) Provide one or more level calls, with or without existing data \n",
-      "2) Provide existing data and add new variables without adding a level \n",
-      "3) Provide an \"N\" and add new variables"
+      "You must do exactly one of: \n",
+      "1) One or more level calls, with or without existing data \n",
+      "2) Import existing data and optionally, add new variables without adding a level \n",
+      "3) Provide an \"N\" without importing data and optionally, add new variables"
       )
   }
 
   # Create a blank working environment.
-  working_environment = new.env()
+  working_environment = new.env(parent = emptyenv())
 
   # User provided level calls
   if(all_levels) {
@@ -200,7 +200,7 @@ add_level = function(N = NULL, ID_label = NULL,
   # Pass-through mapper to nest_level.
   # This needs to be done after we read the working environment and
   # before we check N or do the shelving procedure.
-  if(nest &
+  if(nest &&
      ("data_frame_output_" %in% names(working_environment_) |
      "imported_data_" %in% names(working_environment_))) {
     return(nest_level(N=N, ID_label=ID_label,
@@ -613,9 +613,8 @@ cross_level = function(N = NULL,
     working_environment_$variable_names_ = NULL
 
   # Loop over the variable name
-
   variable_names = by$variable_names
-  data_frame_indices = numeric(length(variable_names))
+  data_frame_indices = integer(length(variable_names))
 
   if(anyDuplicated(variable_names)) {
     stop("Variables names for joining cross-classified data must be unique. ",

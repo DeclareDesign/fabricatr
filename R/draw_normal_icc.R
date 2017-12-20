@@ -5,14 +5,16 @@
 #' used in this function is specified at the following URL:
 #' \url{https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc}
 #'
-#' @param x A number or vector of numbers, one mean per cluster.
+#' @param x A number or vector of numbers, one mean per cluster. If none is
+#' provided, will default to 0.
 #' @param N (Optional) A number indicating the number of observations to be
 #' generated. Must be equal to length(clusters) if provided.
 #' @param clusters A vector of factors or items that can be coerced to
 #' clusters; the length will determine the length of the generated data.
 #' @param sd A number or vector of numbers, indicating the standard deviation of
 #' each cluster's error terms
-#' @param rho A number indicating the desired RCC.
+#' @param rho A number indicating the desired ICC. If none is provided,
+#' will default to 0.
 #' @return A vector of numbers corresponding to the observations from
 #' the supplied cluster IDs.
 #' @examples
@@ -26,7 +28,7 @@ draw_normal_icc = function(x = 0,
                            N = NULL,
                            clusters,
                            sd = 1,
-                           rho = 0.5) {
+                           rho = 0) {
 
   # Let's not worry about how clusters are provided
   tryCatch({
