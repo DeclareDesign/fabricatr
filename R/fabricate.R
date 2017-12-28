@@ -8,7 +8,7 @@
 #' existing hierarchical data using \code{modify_level()}. You can use any R
 #' function to create each variable. We provide several built-in options to
 #' easily draw from binary and count outcomes, \code{\link{draw_binary}},
-#' \code{\link{draw_binary_icc}}, and \code{\link{draw_discrete}}.
+#' \code{\link{draw_binary_icc}}.
 #'
 #' @param data (optional) user-provided data that forms the basis of the
 #' fabrication, i.e. you can add variables to existing data. Provide either

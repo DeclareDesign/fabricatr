@@ -70,8 +70,8 @@ country_data <-
                       gdp_per_capita = runif(N, min=10000, max=50000),
                       life_expectancy = 50 + runif(N, 10, 20) + ((gdp_per_capita > 30000) * 10)),
     provinces = add_level(N = 10,
-                      has_nat_resources = draw_discrete(x=0.3, N=N, type="bernoulli"),
-                      has_manufacturing = draw_discrete(x=0.7, N=N, type="bernoulli"))
+                      has_nat_resources = draw_binary(probs=0.3, N=N),
+                      has_manufacturing = draw_binary(probs=0.7, N=N))
   )
 head(country_data)
 ```
@@ -82,7 +82,7 @@ knitr::kable(head(country_data), format.args=list(big.mark = ","))
 
 Several things can be observed in this example. First, fabricate knows that your second [`add_level()`](../reference/add_level.html) command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable "N" changes. During the [`add_level()`](../reference/add_level.html) call for countries, N is 5. During the [`add_level()`](../reference/level.html) call for provinces, N is 10. And the resulting data, of course, has 50 observations.
 
-Finally, the province-level variables are created using the [`draw_discrete()`](../reference/draw_discrete.html) function. This is a function provided by **fabricatr** to make simulating discrete random variables simple. When you simulate your own data, you can use **fabricatr**'s functions, R's built-ins, or any custom functions you wish. [`draw_discrete()`](../reference/draw_discrete.html) is explained in [our tutorial on variable generation using **fabricatr**](variable_generation.html)
+Finally, the province-level variables are created using the [`draw_binary()`](../reference/draw_inary.html) function. This is a function provided by **fabricatr** to make simulating discrete random variables simple. When you simulate your own data, you can use **fabricatr**'s functions, R's built-ins, or any custom functions you wish. [`draw_binary()`](../reference/draw_binary.html) is explained in [our tutorial on variable generation using **fabricatr**](variable_generation.html)
 
 # Adding hierarchy to existing data
 
@@ -139,15 +139,15 @@ new_citizen_data <-
   fabricate(
     data = citizen_data,
     countries = modify_level(avg_temp = runif(N, 30, 80)),
-    provinces = modify_level(conflict_zone = draw_discrete(N, 
-                                                           x=0.2 + has_nat_resources * 0.3,
-                                                           type="binary"),
+    provinces = modify_level(conflict_zone = draw_binary(N,
+                                                         probs=0.2 + has_nat_resources * 0.3),
                              infant_mortality = runif(N, 0, 10) + 
                                conflict_zone * 10 + 
                                (avg_temp > 70) * 10),
-    citizens = modify_level(college_degree = draw_discrete(N, 
-                                                           x=0.4 - (0.3 * conflict_zone),
-                                                           type="binary"))
+    citizens = modify_level(college_degree = draw_binary(N,
+                                                         probs=0.4 - (0.3 * conflict_zone)
+                                                         )
+                            )
   )
 ```                        
 
@@ -155,8 +155,8 @@ Before assessing what this tells us about [`modify_level()`](../reference/modify
 
 There are a lot of things to learn from this example. First, it's possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according -- by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one [`modify_level()`](../reference/level.html) call can be used in subsequent variables of the same call, or subsequent calls.
 
-Again, we see the use of [`draw_discrete()`](../reference/draw_discrete.html). Using this function is covered in our tutorial on [generating discrete random variables](variable_generation.html), linked below.
+Again, we see the use of [`draw_binary()`](../reference/draw_binary.html). Using this function is covered in our tutorial on [generating discrete random variables](variable_generation.html), linked below.
 
 # Next Steps
 
-You've seen **fabricatr**'s ability to generate single-level and hierarchical data, which is enough to get you started on using the package. From here, you can learn about [using `draw_discrete()` to generate discrete random variables](variable_generation.html), [using **fabricatr** to bootstrap or resample hierarchical data](resampling.html), or [advanced features](advanced_features.html).
+You've seen **fabricatr**'s ability to generate single-level and hierarchical data, which is enough to get you started on using the package. From here, you can learn about [generating discrete random variables](variable_generation.html), [using **fabricatr** to bootstrap or resample hierarchical data](resampling.html), or [advanced features](advanced_features.html).
