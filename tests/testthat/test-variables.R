@@ -210,6 +210,10 @@ test_that("Binary ICCs", {
   expect_error(draw_binary_icc(clusters = clusters, N = "hello"))
   # N provided but doesn't match
   expect_error(draw_binary_icc(clusters = clusters, N = 20))
+  # length(x) == N, but cluster mean is not unique by cluster
+  clusters = rep(1:10, 10)
+  cluster_means = sample(rep(seq(0.1, 1, 0.1), 10))
+  expect_error(draw_binary_icc(x = cluster_means, clusters = clusters))
 })
 
 test_that("Likert data example", {
@@ -274,4 +278,8 @@ test_that("Normal ICC", {
                                               o = c(0.4, 0.8),
                                               p = c(0.5, 1.0)),
                                clusters = clusters))
+  # length(x) == N, but x is non-unique per cluster
+  clusters = rep(1:10, 10)
+  cluster_means = sample(rep(1:10, 10))
+  expect_error(draw_normal_icc(x = cluster_means, clusters = clusters))
 })
