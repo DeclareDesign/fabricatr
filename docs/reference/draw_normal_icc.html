@@ -129,22 +129,23 @@ used in this function is specified at the following URL:
 <a href='https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc'>https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc</a></p>
     
 
-    <pre class="usage"><span class='fu'>draw_normal_icc</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>cluster_ids</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</pre>
+    <pre class="usage"><span class='fu'>draw_normal_icc</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>clusters</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>A number or vector of numbers, one mean per cluster.</p></td>
+      <td><p>A number or vector of numbers, one mean per cluster. If none is
+provided, will default to 0.</p></td>
     </tr>
     <tr>
       <th>N</th>
       <td><p>(Optional) A number indicating the number of observations to be
-generated. Must be equal to length(cluster_ids) if provided.</p></td>
+generated. Must be equal to length(clusters) if provided.</p></td>
     </tr>
     <tr>
-      <th>cluster_ids</th>
+      <th>clusters</th>
       <td><p>A vector of factors or items that can be coerced to
 clusters; the length will determine the length of the generated data.</p></td>
     </tr>
@@ -155,7 +156,8 @@ each cluster's error terms</p></td>
     </tr>
     <tr>
       <th>rho</th>
-      <td><p>A number indicating the desired RCC.</p></td>
+      <td><p>A number indicating the desired ICC. If none is provided,
+will default to 0.</p></td>
     </tr>
     </table>
     
@@ -166,12 +168,16 @@ the supplied cluster IDs.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>cluster_ids</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
-<span class='fu'>draw_normal_icc</span>(<span class='kw'>cluster_ids</span> <span class='kw'>=</span> <span class='no'>cluster_ids</span>)</div><div class='output co'>#&gt;  [1]  1.862 -1.927 -0.281  3.149  2.561  2.131 -3.112 -0.062  1.671 -1.166
-#&gt; [11]  0.824 -0.439 -0.512 -0.261 -0.616  1.506 -2.786 -1.564  0.712  1.644
-#&gt; [21]  1.105 -3.819 -0.996  2.119  2.657  0.792 -3.510 -1.747  2.332  2.515
-#&gt; [31]  0.808 -0.782 -0.158 -0.605  1.185  1.297 -1.097  0.665  1.782  0.869
-#&gt; [41]  1.984 -1.407 -1.038  2.188 -0.518  2.587 -3.262 -0.515  1.637  2.489</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='no'>clusters</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
+<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>)</div><div class='output co'>#&gt;  [1] -0.78543266 -1.05673687 -0.79554143 -1.75627543 -0.69053790 -0.55854199
+#&gt;  [7] -0.53666333  0.22712713  0.97845492 -0.20888265 -1.39941046  0.25853729
+#&gt; [13] -0.44179945  0.56859986  2.12685046  0.42485844 -1.68428153  0.24940178
+#&gt; [19]  1.07283825  2.03936926  0.44945378  1.39181405  0.42656655  0.10758399
+#&gt; [25]  0.02229473  0.60361101 -0.26265057 -0.52826408  0.19214942 -1.14619967
+#&gt; [31]  0.84618466  0.08171963 -1.30511701 -0.94491206  0.45434159 -0.85520250
+#&gt; [37] -0.28689522  0.89496163  0.06730444 -0.16267634 -0.82731017  1.87650562
+#&gt; [43]  0.76644020  0.97995670  1.32178099 -1.11971083  0.51459982 -1.50909984
+#&gt; [49]  1.53274148  0.42914737</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -130,14 +130,14 @@ either start with your own data and add simulated variables to it (by passing
 citizens within cities within states using <code>add_level()</code> or modify
 existing hierarchical data using <code>modify_level()</code>. You can use any R
 function to create each variable. We provide several built-in options to
-easily draw from binary and count outcomes, <code><a href='draw_discrete.html'>draw_binary</a></code>,
-<code><a href='draw_binary_icc.html'>draw_binary_icc</a></code>, and <code><a href='draw_discrete.html'>draw_discrete</a></code>.</p>
+easily draw from binary and count outcomes, <code><a href='draw_binomial.html'>draw_binary</a></code>,
+<code><a href='draw_binary_icc.html'>draw_binary_icc</a></code>.</p>
     
 
-    <pre class="usage"><span class='fu'>fabricate</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>fabricate</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>working_environment_</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>,
-  <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>), <span class='kw'>new_hierarchy</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+  <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>), <span class='kw'>nest</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='fu'>modify_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>working_environment_</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>,
   <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>))</pre>
@@ -153,6 +153,13 @@ fabrication, i.e. you can add variables to existing data. Provide either
 <code>data</code> is provided).</p></td>
     </tr>
     <tr>
+      <th>...</th>
+      <td><p>Variable or level-generating arguments, such as
+<code>my_var = rnorm(N)</code>. For <code>fabricate</code>, you may also pass
+<code>add_level()</code> or <code>modify_level()</code> arguments, which define a level
+of a multi-level dataset. See examples.</p></td>
+    </tr>
+    <tr>
       <th>N</th>
       <td><p>(optional) number of units to draw. If provided as
 <code>fabricate(N = 5)</code>, this determines the number of units in the
@@ -165,13 +172,6 @@ of units in a specific level of a hierarchical dataset.</p></td>
       <td><p>(optional) variable name for ID variable, i.e. citizen_ID</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Variable or level-generating arguments, such as
-<code>my_var = rnorm(N)</code>. For <code>fabricate</code>, you may also pass
-<code>add_level()</code> or <code>modify_level()</code> arguments, which define a level
-of a multi-level dataset. See examples.</p></td>
-    </tr>
-    <tr>
       <th>working_environment_</th>
       <td><p>Internal argument, not intended for end-user use.</p></td>
     </tr>
@@ -180,9 +180,8 @@ of a multi-level dataset. See examples.</p></td>
       <td><p>Internal argument, not intended for end-user use.</p></td>
     </tr>
     <tr>
-      <th>new_hierarchy</th>
-      <td><p>Reserved argument for future functionality to add
-cross-classified data. Not yet implemented.</p></td>
+      <th>nest</th>
+      <td><p>(Default TRUE) Boolean determining whether data in an <code>add_level()</code> call will be nested under the current working data frame or create a separate hierarchy of levels. See our vignette for cross-classified, non-nested data for details.</p></td>
     </tr>
     </table>
     
@@ -208,12 +207,12 @@ cross-classified data. Not yet implemented.</p></td>
   <span class='kw'>height_ft</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>3.5</span>, <span class='fl'>8</span>)
 )
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;    ID height_ft
-#&gt; 1 001       4.2
-#&gt; 2 002       7.7
-#&gt; 3 003       7.9
-#&gt; 4 004       6.7
-#&gt; 5 005       7.5
-#&gt; 6 006       7.9</div><div class='input'>
+#&gt; 1 001  5.968661
+#&gt; 2 002  7.223756
+#&gt; 3 003  4.074009
+#&gt; 4 004  4.675338
+#&gt; 5 005  4.797877
+#&gt; 6 006  3.566461</div><div class='input'>
 <span class='co'># Start with existing data</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>df</span>,
@@ -226,12 +225,12 @@ cross-classified data. Not yet implemented.</p></td>
  <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   regions cities pollution
-#&gt; 1       1     01       5.3
-#&gt; 2       1     02       6.4
-#&gt; 3       2     03       4.8
-#&gt; 4       2     04       5.7
-#&gt; 5       3     05       5.1
-#&gt; 6       3     06       5.0</div><div class='input'>
+#&gt; 1       1     01  3.935536
+#&gt; 2       1     02  6.077117
+#&gt; 3       2     03  6.181576
+#&gt; 4       2     04  5.198392
+#&gt; 5       3     05  4.599595
+#&gt; 6       3     06  5.616154</div><div class='input'>
 <span class='co'># Start with existing data and add variables to hierarchical data</span>
 <span class='co'># at levels which are already present in the existing data.</span>
 <span class='co'># Note: do not provide N when adding variables to an existing level</span>

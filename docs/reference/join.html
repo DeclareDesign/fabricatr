@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>fabricatr - Function reference</title>
+<title>fabricatr - Helper function handling specification of which variables to join a
+cross-classified data on, and what kind of correlation structure needed — join</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -37,7 +38,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -117,91 +118,48 @@
       </header>
 
       <div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;1.0.1</small>
-      </h1>
+    <h1>Helper function handling specification of which variables to join a
+cross-classified data on, and what kind of correlation structure needed</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    
+    <p>Helper function handling specification of which variables to join a
+cross-classified data on, and what kind of correlation structure needed</p>
+    
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <pre class="usage"><span class='fu'>join</span>(<span class='no'>...</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>))</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>...</th>
+      <td><p>A series of two or more variable names, unquoted, to join on in order to create cross-classified data.</p></td>
+    </tr>
+    <tr>
+      <th>rho</th>
+      <td><p>A fixed (Spearman's rank) correlation coefficient between the variables being joined on: note that if it is not possible to make a correlation matrix from this coefficient (i.e. if you are joining on three or more variables and rho is negative) then the <code><a href='cross_level.html'>cross_level()</a></code> call will fail.</p></td>
+    </tr>
+    <tr>
+      <th>sigma</th>
+      <td><p>A matrix with dimensions equal to the number of variables you are joining on, specifying the correlation for the resulting joined data. Only one of rho and sigma should be provided.</p></td>
+    </tr>
+    <tr>
+      <th>data_arguments</th>
+      <td><p>Internal, not for end-user use.</p></td>
+    </tr>
+    </table>
+    
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="cross_level.html">cross_level</a></code> </p>
-          </td>
-          <td><p>Creates cross-classified (partially non-nested, joined data) with a fixed
-correlation structure.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="draw_binary_icc.html">draw_binary_icc</a></code> </p>
-          </td>
-          <td><p>Draw binary data with fixed intra-cluster correlation.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="draw_binomial.html">draw_binomial</a></code> <code><a href="draw_binomial.html">draw_categorical</a></code> <code><a href="draw_binomial.html">draw_ordered</a></code> <code><a href="draw_binomial.html">draw_count</a></code> <code><a href="draw_binomial.html">draw_binary</a></code> </p>
-          </td>
-          <td><p>Draw discrete variables including binary, binomial count, poisson count,
-ordered, and categorical</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="draw_normal_icc.html">draw_normal_icc</a></code> </p>
-          </td>
-          <td><p>Draw normal data with fixed intra-cluster correlation.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fabricate.html">fabricate</a></code> <code><a href="fabricate.html">add_level</a></code> <code><a href="fabricate.html">modify_level</a></code> </p>
-          </td>
-          <td><p>Fabricate data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fabricatr.html">fabricatr</a></code> </p>
-          </td>
-          <td><p>fabricatr package</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="join.html">join</a></code> </p>
-          </td>
-          <td><p>Helper function handling specification of which variables to join a
-cross-classified data on, and what kind of correlation structure needed</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="resample_data.html">resample_data</a></code> </p>
-          </td>
-          <td><p>Resample data, including hierarchical data</p></td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
-    </ul>
+      <li><a href="#arguments">Arguments</a></li>
+                </ul>
+
   </div>
 </div>
 

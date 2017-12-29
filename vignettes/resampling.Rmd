@@ -28,7 +28,7 @@ The simplest option in **fabricatr** is to "bootstrap" data. Taking data with N 
 
 ```{r echo=TRUE, results="hide"}
 survey_data = fabricate(N=10, 
-                        voted_republican = draw_binary(N=N, x=0.5))
+                        voted_republican = draw_binary(probs=0.5, N=N))
 
 survey_data_new = resample_data(survey_data)
 survey_data
