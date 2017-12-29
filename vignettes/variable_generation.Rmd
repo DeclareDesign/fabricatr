@@ -28,7 +28,7 @@ draw_binary_ex = fabricate(N = 3, p = c(0, .5, 1),
                            binary_2 = draw_binary(N = 3, probs = 0.5))
 ```
 
-In addition to binary variables, you can make data from repeated Bernoulli trials ("binomial" data).This requires using the [`draw_binomial()`](../reference/draw_binomial.html) function and specifying an argument `trials`, equal to the number of trials.
+In addition to binary variables, you can make data from repeated Bernoulli trials ("binomial" data). This requires using the [`draw_binomial()`](../reference/draw_binomial.html) function and specifying an argument `trials`, equal to the number of trials.
 
 ```{r}
 binomial_ex = fabricate(N = 3, 
@@ -48,7 +48,7 @@ bernoulli_probit = fabricate(N = 3, x = 10*rnorm(N),
 
 ## Ordered outcomes
 
-Some researchers may be interested in generating ordered outcomes -- for example, Likert scale outcomes. You can do this with the [`draw_ordered()`](../reference/draw_ordered.html) function. Ordered variables require a vector of breakpoints, supplied as the argument `breaks` -- points at which the underlying latent variable switches from category to category. The first break should always be below the lower bound of the data, while the final break should always be above the upper bound of the data.
+Some researchers may be interested in generating ordered outcomes -- for example, Likert scale outcomes. You can do this with the [`draw_ordered()`](../reference/draw_ordered.html) function. Ordered variables require a vector of breakpoints, supplied as the argument `breaks` -- points at which the underlying latent variable switches from category to category. The first break should always be below the lower bound of the data, while the final break should always be above the upper bound of the data -- if breaks do not cover the data, [`draw_ordered()`](../reference/draw_ordered.html) will attempt to correct this by adding breaks where appropriate.
 
 In the following example, each of three observations has a latent variable `x` which is continuous and unbounded. The variable `ordered` transforms `x` into three numeric categories: 1, 2, and 3. All values of `x` below -1 result in `ordered` 1; all values of `x` between -1 and 1 result in `ordered` 2; all values of `x` above 1 result in `ordered` 3:
 
@@ -75,7 +75,7 @@ ordered_probit_example = fabricate(N = 3,
 
 ## Count outcomes
 
-[`draw_count()`](../reference/draw_count.html) allows you to create Poisson-distributed count outcomes. These require that the user specify the parameter `means`, equal to the Poisson distribution mean (often referred to as `lambda` in R's built-in functions or other statistical formulations).
+[`draw_count()`](../reference/draw_count.html) allows you to create Poisson-distributed count outcomes. These require that the user specify the parameter `means`, equal to the Poisson distribution mean (often referred to as `lambda` in statistical formulations of count data).
 
 ```{r}
 count_outcome_example = fabricate(N = 3, 
