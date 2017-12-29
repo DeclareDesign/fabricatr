@@ -11,7 +11,7 @@ ordered, and categorical}
 \usage{
 draw_binomial(probs, trials = 1, N = length(probs), link = "identity")
 
-draw_categorical(probs, N = length(probs), link = "identity")
+draw_categorical(probs, N = NULL, link = "identity")
 
 draw_ordered(x, breaks = c(-1, 0, 1), break_labels = NULL, N = length(x),
   link = "identity")
@@ -52,4 +52,32 @@ a different type of discrete data: `draw_binary` creates binary 0/1 data,
 `draw_categorical` creates categorical data, `draw_ordered` transforms latent
 data into observed ordered categories, `draw_count` creates count data
 (poisson-distributed)
+}
+\examples{
+fabricate(N = 3,
+   p = c(0, .5, 1),
+   binary = draw_binary(probs = p))
+
+
+fabricate(N = 3,
+   x = 10 * rnorm(N),
+   binary = draw_binary(probs = x, link = "probit"))
+
+fabricate(N = 3,
+   p = c(0, .5, 1),
+   binomial = draw_binomial(probs = p, trials = 10))
+
+fabricate(N = 3,
+   x = 5 * rnorm(N),
+   ordered = draw_ordered(x=x,
+                          breaks = c(-Inf, -1, 1, Inf)))
+
+fabricate(N = 3,
+   x = c(0,5,100),
+   count = draw_count(means=x))
+
+# Categorical
+fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),
+          cat = draw_categorical(cbind(p1, p2, p3)))
+
 }

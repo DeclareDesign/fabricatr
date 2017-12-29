@@ -25,12 +25,43 @@
 #' a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity"
 #' link, the latent variable must be a probability.
 #'
+#' @examples
+#' fabricate(N = 3,
+#'    p = c(0, .5, 1),
+#'    binary = draw_binary(probs = p))
+#'
+#'
+#' fabricate(N = 3,
+#'    x = 10 * rnorm(N),
+#'    binary = draw_binary(probs = x, link = "probit"))
+#'
+#' fabricate(N = 3,
+#'    p = c(0, .5, 1),
+#'    binomial = draw_binomial(probs = p, trials = 10))
+#'
+#' fabricate(N = 3,
+#'    x = 5 * rnorm(N),
+#'    ordered = draw_ordered(x=x,
+#'                           breaks = c(-Inf, -1, 1, Inf)))
+#'
+#' fabricate(N = 3,
+#'    x = c(0,5,100),
+#'    count = draw_count(means=x))
+#'
+#' # Categorical
+#' fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),
+#'           cat = draw_categorical(cbind(p1, p2, p3)))
+#'
 #' @importFrom stats pnorm rnorm rpois rbinom
 #'
 #' @export
 #'
 draw_binomial <- function(probs, trials=1, N = length(probs), link = "identity") {
   # Error handle probabilities and apply link function.
+  if(mode(probs) != "numeric") {
+    stop("Probabilities provided must be numeric.")
+  }
+
   if (link == "identity") {
     if (!all(0 <= probs & probs <= 1)) {
       stop("The identity link requires probability values between 0 and 1,",
@@ -91,13 +122,17 @@ draw_binomial <- function(probs, trials=1, N = length(probs), link = "identity")
 
 #' @rdname draw_binomial
 #' @export
-draw_categorical <- function(probs, N = length(probs), link = "identity") {
+draw_categorical <- function(probs, N=NULL, link = "identity") {
   if (link != "identity") {
     stop("Categorical data does not accept link functions.")
   }
 
   if (is.null(dim(probs))) {
     if (is.vector(probs) & all(is.numeric(probs)) & length(probs)>1) {
+      if(is.null(N)) {
+        stop("If probs is a vector of category probabilityes, you must provide",
+             " an explicit N argument.")
+      }
       probs <- matrix(rep(probs, N), byrow=TRUE, ncol=length(probs), nrow=N)
       warning(
         "For a categorical (multinomial) distribution, a matrix of ",
@@ -116,6 +151,14 @@ draw_categorical <- function(probs, N = length(probs), link = "identity") {
       "For a categorical (multinomial) distribution, the elements of probs ",
       "should be positive and sum to a positive number."
     )
+  }
+
+  if(is.null(N)) {
+    N = nrow(probs)
+  }
+
+  if(!(nrow(probs) %in% c(1, N))) {
+    stop("The number of probability rows provided should be N or 1.")
   }
 
   m <- ncol(probs)
@@ -148,6 +191,11 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
   }
   if (is.unsorted(breaks)) {
     stop("Numeric breaks must be in ascending order.")
+  }
+
+  # Check N/x
+  if(N %% length(x)) {
+    stop("N must be an even multiple of the length of x.")
   }
 
   # Pre-pend -Inf
@@ -191,6 +239,10 @@ draw_count <- function(means, N = length(means), link = "identity") {
     )
   }
 
+  if(N %% length(means)) {
+    stop("N must be an even multiple of the length of means.")
+  }
+
   return(rpois(N, lambda = means))
 }
 
@@ -207,42 +259,3 @@ draw_binary <- function(probs, N = length(probs), link = "identity") {
 
 
 # Stuff to circle back around to.
-# @examples
-# fabricate(N = 3,
-#    p = c(0, .5, 1),
-#    binary = draw_discrete(p))
-#
-# fabricate(N = 3,
-#    p = c(0, .5, 1),
-#    binary = draw_discrete(p, type = "bernoulli"))
-#
-# fabricate(N = 3,
-#    x = 10*rnorm(N),
-#    binary = draw_discrete(x, type = "bernoulli", link = "probit"))
-#
-# fabricate(N = 3,
-#    p = c(0, .5, 1),
-#    binomial = draw_discrete(p, type = "binomial", k = 10))
-#
-# fabricate(N = 3,
-#    x = 5*rnorm(N),
-#    ordered = draw_discrete(x, type = "ordered",
-#    breaks = c(-Inf, -1, 1, Inf)))
-#
-# fabricate(N = 3,
-#    x = c(0,5,100),
-#    count = draw_discrete(x, type = "count"))
-#
-# # Categorical
-# fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),
-#          cat = draw_discrete(cbind(p1, p2, p3), type = "categorical"))
-
-#    if (N %% length(x) & type != "categorical") {
-#      stop(
-#        "N is not an even multiple of the length of the vector x."
-#      )
-#    }
-#
-#    if (mode(x) != "numeric") {
-#      stop("\"x\" must be a number or vector of numbers.")
-#    }

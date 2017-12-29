@@ -153,6 +153,9 @@ test_that("Ordered data invalid tests", {
   expect_error(draw_ordered(x=rnorm(5),
                             breaks=c(-Inf, 0, Inf),
                             break_labels=c(1))) # Invalid length break labels.
+  expect_error(draw_ordered(x=rnorm(5),
+                            breaks=c(-Inf, 0, Inf),
+                            link="logit"))
 })
 
 test_that("Ordered data valid tests", {
