@@ -195,7 +195,8 @@ test_that("Binary ICCs", {
                                               m = c(0.3, 0.6),
                                               o = c(0.4, 0.8),
                                               p = c(0.5, 1.0)),
-                               clusters = clusters))
+                               clusters = clusters,
+                               N = length(clusters)))
   # X isn't numeric
   expect_error(draw_binary_icc(x = "hello", clusters = clusters))
   # X isn't a probability
