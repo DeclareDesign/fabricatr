@@ -130,7 +130,7 @@ draw_categorical <- function(probs, N=NULL, link = "identity") {
   if (is.null(dim(probs))) {
     if (is.vector(probs) & all(is.numeric(probs)) & length(probs)>1) {
       if(is.null(N)) {
-        stop("If probs is a vector of category probabilityes, you must provide",
+        stop("If probs is a vector of category probabilities, you must provide",
              " an explicit N argument.")
       }
       probs <- matrix(rep(probs, N), byrow=TRUE, ncol=length(probs), nrow=N)

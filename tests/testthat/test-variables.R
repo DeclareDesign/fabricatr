@@ -106,6 +106,7 @@ test_that("Count invalid tests", {
   expect_error(draw_count(means=-1, N=5)) # Invalid lambda, negative
   expect_error(draw_count(means=c(1, 2, 3, 4, -1), N=5)) # Mixed lambdas, one negative
   expect_error(draw_count(means=c(1, 2, 3, 4, "invalid"), N=5)) # Mixed lambdas, one character
+  expect_error(draw_count(means = c(1, 5, 7), N = 2))
 })
 
 test_that("Count valid tests", {
@@ -126,12 +127,16 @@ test_that("Categorical invalid tests", {
   expect_error(draw_categorical(probs=0.3, N=3)) # Only one class label
   expect_error(draw_categorical(probs=c(0.5, 0.75),
                                 N=10, link="probit")) # Link functions not accepted
+  expect_error(draw_categorical(probs = c(0.3, 0.3, 0.4)))
+  expect_error(draw_categorical(probs =
+                                  matrix(rep(c(0.3, 0.3, 0.4), 3), byrow=TRUE, ncol=3),
+                                N = 4))
+
 })
 
 test_that("Categorical valid tests", {
   draw_categorical(probs=matrix(rep(c(0.3, 0.3, 0.4), 3),
-                                byrow=TRUE, ncol=3, nrow=3),
-                   N=3)
+                                byrow=TRUE, ncol=3, nrow=3))
 
   # Convert vector of probabilities to matrix of probabilities
   expect_warning(draw_categorical(probs=c(0.3, 0.3, 0.4), N=3))
@@ -156,6 +161,9 @@ test_that("Ordered data invalid tests", {
   expect_error(draw_ordered(x=rnorm(5),
                             breaks=c(-Inf, 0, Inf),
                             link="logit"))
+  expect_error(draw_ordered(x = rnorm(5),
+                            N = 3,
+                            breaks = c(-Inf, 0, Inf)))
 })
 
 test_that("Ordered data valid tests", {

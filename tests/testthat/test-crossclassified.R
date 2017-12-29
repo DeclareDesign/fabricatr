@@ -44,8 +44,8 @@ test_that("Cross-classified data", {
   )
 
   # Again, within tolerance
-  expect_gte(cor(students_uncorr$ps_quality, students_uncorr$ss_quality), -0.1)
-  expect_lte(cor(students_uncorr$ps_quality, students_uncorr$ss_quality), 0.1)
+  expect_gte(cor(students_uncorr$ps_quality, students_uncorr$ss_quality), -0.15)
+  expect_lte(cor(students_uncorr$ps_quality, students_uncorr$ss_quality), 0.15)
 
 
   # Specifying sigma in lieu of rho
