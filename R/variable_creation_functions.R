@@ -29,17 +29,25 @@
 #'
 #' @export
 #'
-draw_binomial <- function(probs, trials, N = length(probs), link = "identity") {
+draw_binomial <- function(probs, trials=1, N = length(probs), link = "identity") {
   # Error handle probabilities and apply link function.
   if (link == "identity") {
     if (!all(0 <= probs & probs <= 1)) {
       stop("The identity link requires probability values between 0 and 1,",
            "inclusive.")
     }
+    if (N %% length(probs)) {
+      stop(
+        "\"N\" is not an even multiple of the length of the number of
+        probabilities, \"probs\"."
+      )
+    }
   } else if (link == "logit") {
     probs <- 1 / (1 + exp(-probs))
   } else if (link == "probit") {
     probs <- pnorm(probs)
+  } else {
+    stop("Only 'identity', 'logit', 'and 'probit' are valid link functions.")
   }
 
   # Error handle trials
@@ -47,7 +55,7 @@ draw_binomial <- function(probs, trials, N = length(probs), link = "identity") {
     if(N %% length(trials)) {
       stop(
         "\"N\" is not an even multiple of the length of the number of
-        trials, \"k\"."
+        trials, \"trials\"."
       )
     }
     if(!all(is.numeric(trials) & (is.integer(trials) | !trials%%1))) {
@@ -105,7 +113,7 @@ draw_categorical <- function(probs, N = length(probs), link = "identity") {
   }
   if (!all(apply(probs, 1, min) > 0)) {
     stop(
-      "For a categorical (multinomial) distribution, the elements of x ",
+      "For a categorical (multinomial) distribution, the elements of probs ",
       "should be positive and sum to a positive number."
     )
   }
@@ -198,6 +206,7 @@ draw_binary <- function(probs, N = length(probs), link = "identity") {
 }
 
 
+# Stuff to circle back around to.
 # @examples
 # fabricate(N = 3,
 #    p = c(0, .5, 1),

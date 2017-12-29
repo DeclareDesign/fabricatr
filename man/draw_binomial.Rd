@@ -9,7 +9,7 @@
 \title{Draw discrete variables including binary, binomial count, poisson count,
 ordered, and categorical}
 \usage{
-draw_binomial(probs, trials, N = length(probs), link = "identity")
+draw_binomial(probs, trials = 1, N = length(probs), link = "identity")
 
 draw_categorical(probs, N = length(probs), link = "identity")
 
