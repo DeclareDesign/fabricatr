@@ -43,8 +43,8 @@ house_candidates = fabricate(
   representatives = add_level(
     N = party_incumbents, 
     member_ideology = rnorm(N, party_ideology),
-    terms_served = draw_discrete(N = N, x = 3, type = "count"),
-    female = draw_discrete(N = N, x = 0.2, type = "bernoulli"))
+    terms_served = draw_count(N = N, means = 3),
+    female = draw_binary(N = N, probs = 0.2))
   )
 head(house_candidates)
 ```
