@@ -23,6 +23,7 @@ Suggests:
     knitr,
     rmarkdown,
     data.table,
-    mvnfast
+    mvnfast,
+    diagram
 FasterWith: data.table, mvnfast
 VignetteBuilder: knitr

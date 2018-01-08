@@ -37,7 +37,9 @@ of units in a specific level of a hierarchical dataset.}
 
 \item{data_arguments}{Internal argument, not intended for end-user use.}
 
-\item{nest}{(Default TRUE) Boolean determining whether data in an \code{add_level()} call will be nested under the current working data frame or create a separate hierarchy of levels. See our vignette for cross-classified, non-nested data for details.}
+\item{nest}{(Default TRUE) Boolean determining whether data in an \code{add_level()} call
+will be nested under the current working data frame or create a separate hierarchy of levels.
+See our vignette for cross-classified, non-nested data for details.}
 }
 \value{
 data.frame
@@ -50,8 +52,9 @@ either start with your own data and add simulated variables to it (by passing
 citizens within cities within states using \code{add_level()} or modify
 existing hierarchical data using \code{modify_level()}. You can use any R
 function to create each variable. We provide several built-in options to
-easily draw from binary and count outcomes, \code{\link{draw_binary}},
-\code{\link{draw_binary_icc}}.
+easily draw from binary and count outcomes, including
+\code{\link{draw_binary}}, \code{\link{draw_count}},
+\code{\link{draw_binary_icc}}, and \code{\link{draw_normal_icc}}.
 }
 \examples{
 
@@ -87,5 +90,8 @@ df <- fabricate(
   regions = modify_level(watershed = sample(c(0, 1), N, replace = TRUE)),
   cities = modify_level(runoff = rnorm(N))
 )
+
+# For examples of cross-classified data, please read our vignette or check
+# documentation for \\code{cross_level}
 
 }
