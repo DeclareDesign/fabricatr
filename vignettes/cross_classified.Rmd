@@ -18,13 +18,14 @@ Although much of **fabricatr**'s is designed to generate hierarchical, nested da
 
 Let's begin by visualizing how our data will be laid out:
 
-```{r eval=TRUE, echo=FALSE, fig.width=5, fig.height=3}
-library(diagram)
+```{r eval=TRUE, echo=FALSE, fig.width=5, fig.height=3, message=FALSE, error=FALSE}
+invisible(library(diagram))
 names = c("PrimarySchool", "SecondarySchool", "Student")
 relationship_matrix = matrix(c(0, 0, 0,
                                0, 0, 0,
                                "", "", 0), ncol = 3, byrow=TRUE)
 
+par(mar=c(0, 0, 0, 0))
 plotmat(relationship_matrix,
         pos = c(2, 1),
         curve = 0,
@@ -97,8 +98,11 @@ Here, each student is assigned a standardized testing score, equal to a baseline
 
 A linear regression confirms that the resulting data approximately reflects the the data generating process:
 
-```{r echo=TRUE}
+```{r echo=TRUE, results="hide"}
 lm(SAT_score ~ ps_quality + ss_quality, data=schools_data)
+```
+```{r echo=FALSE}
+knitr::kable(summary(lm(SAT_score ~ ps_quality + ss_quality, data=schools_data))$coefficients)
 ```
 
 Other variables can be added in the *students* level, or indeed in either of the component levels.
@@ -125,6 +129,7 @@ We can check the resulting correlation here:
 ```{r echo=TRUE, results="hide"}
 cor(corr_data$ps_quality, corr_data$ss_quality)
 ```
+`r cor(corr_data$ps_quality, corr_data$ss_quality)`
 
 # Joining more than two levels
 

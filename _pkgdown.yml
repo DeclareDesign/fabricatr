@@ -27,6 +27,8 @@ navbar:
         href: articles/variable_generation.html
       - text: Resampling
         href: articles/resampling.html
+      - text: Cross-classified Data
+        href: articles/cross_classified.html
       - text: Advanced Features
         href: articles/advanced_features.html
   - text: Reference

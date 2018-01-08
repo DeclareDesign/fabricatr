@@ -69,6 +69,9 @@ correlation structure. — cross_level</title>
       <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
+      <a href="../articles/cross_classified.html">Cross-classified Data</a>
+    </li>
+    <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
   </ul>
@@ -141,7 +144,9 @@ correlation structure.</p>
     </tr>
     <tr>
       <th>ID_label</th>
-      <td><p>Internal keyword used to sepcify the name of the ID variable created for the new level. If left empty, this will be the name the level is assigned to as part of a <code><a href='fabricate.html'>fabricate()</a></code> call.</p></td>
+      <td><p>Internal keyword used to sepcify the name of the ID variable
+created for the new level. If left empty, this will be the name the level is
+assigned to as part of a <code><a href='fabricate.html'>fabricate()</a></code> call.</p></td>
     </tr>
     <tr>
       <th>working_environment_</th>
@@ -149,11 +154,13 @@ correlation structure.</p>
     </tr>
     <tr>
       <th>by</th>
-      <td><p>The result of a call to <code><a href='join.html'>join()</a></code> which specifies how the cross-classified data will be created</p></td>
+      <td><p>The result of a call to <code><a href='join.html'>join()</a></code> which specifies how the
+cross-classified data will be created</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>A variable or series of variables to add to the resulting data frame after the cross-classified data is created.</p></td>
+      <td><p>A variable or series of variables to add to the resulting data
+frame after the cross-classified data is created.</p></td>
     </tr>
     <tr>
       <th>data_arguments</th>
@@ -161,13 +168,44 @@ correlation structure.</p>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
+    <p>data.frame</p>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='co'># Generate cross-classified data and merge, no correlation</span>
+<span class='no'>students</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
+ <span class='kw'>primary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>ps_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>)),
+ <span class='kw'>secondary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>ss_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
+ <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>cross_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>primary_school</span>, <span class='no'>secondary_school</span>))
+)
+<span class='fu'>head</span>(<span class='no'>students</span>)</div><div class='output co'>#&gt;   primary_school ps_quality secondary_school ss_quality students
+#&gt; 1             09        7.6               01        3.6      001
+#&gt; 2             15        4.6               07        1.5      002
+#&gt; 3             19        4.5               10        7.2      003
+#&gt; 4             04        2.4               09        7.3      004
+#&gt; 5             05        1.1               12        3.0      005
+#&gt; 6             14        3.9               08        5.8      006</div><div class='input'>
+<span class='co'># Cross-classified data with a correlation structure</span>
+<span class='no'>students</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
+ <span class='kw'>primary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>ps_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>)),
+ <span class='kw'>secondary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>ss_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
+ <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>cross_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>ps_quality</span>, <span class='no'>ss_quality</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>))
+)
+<span class='fu'>cor</span>(<span class='no'>students</span>$<span class='no'>ps_quality</span>, <span class='no'>students</span>$<span class='no'>ss_quality</span>)</div><div class='output co'>#&gt; [1] 0.47</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

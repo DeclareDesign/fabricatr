@@ -68,6 +68,9 @@
       <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
+      <a href="../articles/cross_classified.html">Cross-classified Data</a>
+    </li>
+    <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
   </ul>
@@ -130,8 +133,9 @@ either start with your own data and add simulated variables to it (by passing
 citizens within cities within states using <code>add_level()</code> or modify
 existing hierarchical data using <code>modify_level()</code>. You can use any R
 function to create each variable. We provide several built-in options to
-easily draw from binary and count outcomes, <code><a href='draw_binomial.html'>draw_binary</a></code>,
-<code><a href='draw_binary_icc.html'>draw_binary_icc</a></code>.</p>
+easily draw from binary and count outcomes, including
+<code><a href='draw_binomial.html'>draw_binary</a></code>, <code><a href='draw_binomial.html'>draw_count</a></code>,
+<code><a href='draw_binary_icc.html'>draw_binary_icc</a></code>, and <code><a href='draw_normal_icc.html'>draw_normal_icc</a></code>.</p>
     
 
     <pre class="usage"><span class='fu'>fabricate</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
@@ -181,7 +185,9 @@ of units in a specific level of a hierarchical dataset.</p></td>
     </tr>
     <tr>
       <th>nest</th>
-      <td><p>(Default TRUE) Boolean determining whether data in an <code>add_level()</code> call will be nested under the current working data frame or create a separate hierarchy of levels. See our vignette for cross-classified, non-nested data for details.</p></td>
+      <td><p>(Default TRUE) Boolean determining whether data in an <code>add_level()</code> call
+will be nested under the current working data frame or create a separate hierarchy of levels.
+See our vignette for cross-classified, non-nested data for details.</p></td>
     </tr>
     </table>
     
@@ -207,12 +213,12 @@ of units in a specific level of a hierarchical dataset.</p></td>
   <span class='kw'>height_ft</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>3.5</span>, <span class='fl'>8</span>)
 )
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;    ID height_ft
-#&gt; 1 001  5.968661
-#&gt; 2 002  7.223756
-#&gt; 3 003  4.074009
-#&gt; 4 004  4.675338
-#&gt; 5 005  4.797877
-#&gt; 6 006  3.566461</div><div class='input'>
+#&gt; 1 001       5.6
+#&gt; 2 002       4.5
+#&gt; 3 003       4.1
+#&gt; 4 004       4.5
+#&gt; 5 005       5.3
+#&gt; 6 006       4.6</div><div class='input'>
 <span class='co'># Start with existing data</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>df</span>,
@@ -225,12 +231,12 @@ of units in a specific level of a hierarchical dataset.</p></td>
  <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
 <span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   regions cities pollution
-#&gt; 1       1     01  3.935536
-#&gt; 2       1     02  6.077117
-#&gt; 3       2     03  6.181576
-#&gt; 4       2     04  5.198392
-#&gt; 5       3     05  4.599595
-#&gt; 6       3     06  5.616154</div><div class='input'>
+#&gt; 1       1     01       3.7
+#&gt; 2       1     02       5.5
+#&gt; 3       2     03       4.7
+#&gt; 4       2     04       4.3
+#&gt; 5       3     05       3.5
+#&gt; 6       3     06       4.2</div><div class='input'>
 <span class='co'># Start with existing data and add variables to hierarchical data</span>
 <span class='co'># at levels which are already present in the existing data.</span>
 <span class='co'># Note: do not provide N when adding variables to an existing level</span>
@@ -238,7 +244,10 @@ of units in a specific level of a hierarchical dataset.</p></td>
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>df</span>,
   <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>modify_level</span>(<span class='kw'>watershed</span> <span class='kw'>=</span> <span class='fu'>sample</span>(<span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>1</span>), <span class='no'>N</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)),
   <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>modify_level</span>(<span class='kw'>runoff</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>))
-)</div></pre>
+)
+
+<span class='co'># For examples of cross-classified data, please read our vignette or check</span>
+<span class='co'># documentation for \code{cross_level}</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
