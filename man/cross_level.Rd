@@ -11,17 +11,43 @@ cross_level(N = NULL, ID_label = NULL, working_environment_ = NULL,
 \arguments{
 \item{N}{(required) The number of observations in the resulting data frame}
 
-\item{ID_label}{Internal keyword used to sepcify the name of the ID variable created for the new level. If left empty, this will be the name the level is assigned to as part of a \code{fabricate()} call.}
+\item{ID_label}{Internal keyword used to sepcify the name of the ID variable
+created for the new level. If left empty, this will be the name the level is
+assigned to as part of a \code{fabricate()} call.}
 
 \item{working_environment_}{Internal keyword not for end user use.}
 
-\item{by}{The result of a call to \code{join()} which specifies how the cross-classified data will be created}
+\item{by}{The result of a call to \code{join()} which specifies how the
+cross-classified data will be created}
 
-\item{...}{A variable or series of variables to add to the resulting data frame after the cross-classified data is created.}
+\item{...}{A variable or series of variables to add to the resulting data
+frame after the cross-classified data is created.}
 
 \item{data_arguments}{Internal keyword not for end user use.}
+}
+\value{
+data.frame
 }
 \description{
 Creates cross-classified (partially non-nested, joined data) with a fixed
 correlation structure.
+}
+\examples{
+
+# Generate cross-classified data and merge, no correlation
+students <- fabricate(
+ primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
+ secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
+ students = cross_level(N = 500, by = join(primary_school, secondary_school))
+)
+head(students)
+
+# Cross-classified data with a correlation structure
+students <- fabricate(
+ primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
+ secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
+ students = cross_level(N = 500, by = join(ps_quality, ss_quality, rho = 0.5))
+)
+cor(students$ps_quality, students$ss_quality)
+
 }

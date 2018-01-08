@@ -8,11 +8,18 @@ cross-classified data on, and what kind of correlation structure needed}
 join(..., rho = 0, sigma = NULL, data_arguments = quos(...))
 }
 \arguments{
-\item{...}{A series of two or more variable names, unquoted, to join on in order to create cross-classified data.}
+\item{...}{A series of two or more variable names, unquoted, to join on in
+order to create cross-classified data.}
 
-\item{rho}{A fixed (Spearman's rank) correlation coefficient between the variables being joined on: note that if it is not possible to make a correlation matrix from this coefficient (i.e. if you are joining on three or more variables and rho is negative) then the \code{cross_level()} call will fail.}
+\item{rho}{A fixed (Spearman's rank) correlation coefficient between the
+variables being joined on: note that if it is not possible to make a
+correlation matrix from this coefficient (i.e. if you are joining on three
+or more variables and rho is negative) then the \code{cross_level()} call
+will fail.}
 
-\item{sigma}{A matrix with dimensions equal to the number of variables you are joining on, specifying the correlation for the resulting joined data. Only one of rho and sigma should be provided.}
+\item{sigma}{A matrix with dimensions equal to the number of variables you
+are joining on, specifying the correlation for the resulting joined data.
+Only one of rho and sigma should be provided.}
 
 \item{data_arguments}{Internal, not for end-user use.}
 }

@@ -68,6 +68,9 @@
       <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
+      <a href="../articles/cross_classified.html">Cross-classified Data</a>
+    </li>
+    <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
   </ul>
@@ -156,17 +159,17 @@
 
 <span class='no'>baseline_survey</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>Y_pre</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>))
 <span class='no'>bootsrapped_data</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>baseline_survey</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>10</span>)
-<span class='no'>bootsrapped_data</span></div><div class='output co'>#&gt;    ID      Y_pre
-#&gt; 1   2 -1.2316026
-#&gt; 2   4 -0.6458052
-#&gt; 3   5 -1.0419806
-#&gt; 4   5 -1.0419806
-#&gt; 5   5 -1.0419806
-#&gt; 6   1 -0.7550303
-#&gt; 7   4 -0.6458052
-#&gt; 8   5 -1.0419806
-#&gt; 9   4 -0.6458052
-#&gt; 10  3  0.7642656</div><div class='input'>
+<span class='no'>bootsrapped_data</span></div><div class='output co'>#&gt;    ID  Y_pre
+#&gt; 1   2 -1.489
+#&gt; 2   1 -0.681
+#&gt; 3   1 -0.681
+#&gt; 4   4 -1.750
+#&gt; 5   3 -0.393
+#&gt; 6   3 -0.393
+#&gt; 7   5 -0.039
+#&gt; 8   4 -1.750
+#&gt; 9   4 -1.750
+#&gt; 10  5 -0.039</div><div class='input'>
 <span class='co'># Resample by a single level of a hierarchical dataset (e.g. resampling clusters of observations)</span>
 <span class='co'># N specifies a number of clusters to return</span>
 
@@ -179,46 +182,39 @@
 
 <span class='no'>cluster_resample</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>clustered_survey</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>ID_labels</span> <span class='kw'>=</span> <span class='st'>"clusters"</span>)
 <span class='no'>cluster_resample</span></div><div class='output co'>#&gt;    clusters cities population
-#&gt; 1        13     40   81828.84
-#&gt; 2        13     41   91162.02
-#&gt; 3        13     42  802497.80
-#&gt; 4        13     43  242564.02
-#&gt; 5        13     44  115355.68
-#&gt; 6        01     01  494684.88
-#&gt; 7        01     02  561282.82
-#&gt; 8        01     03  364406.02
-#&gt; 9        01     04  647248.00
-#&gt; 10       01     05  479924.85
-#&gt; 11       21     64  641907.98
-#&gt; 12       21     65  474647.56
-#&gt; 13       08     26  866736.14
-#&gt; 14       08     27  233647.03
-#&gt; 15       07     23  967851.55
-#&gt; 16       07     24  332303.83
-#&gt; 17       07     25  326115.89</div><div class='input'>
+#&gt; 1        05     16     825153
+#&gt; 2        05     17     342451
+#&gt; 3        25     70     349231
+#&gt; 4        25     71     908269
+#&gt; 5        25     72     531730
+#&gt; 6        25     73     892469
+#&gt; 7        23     66     559334
+#&gt; 8        23     67     252766
+#&gt; 9        23     68     292793
+#&gt; 10       19     53     227383
+#&gt; 11       19     54     514845
+#&gt; 12       19     55     175691
+#&gt; 13       19     56     640482
+#&gt; 14       19     57     376953
+#&gt; 15       23     66     559334
+#&gt; 16       23     67     252766
+#&gt; 17       23     68     292793</div><div class='input'>
 <span class='no'>cluster_resample_2</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>clustered_survey</span>, <span class='kw'>N</span><span class='kw'>=</span><span class='fu'>c</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='fl'>5</span>))
 <span class='no'>cluster_resample_2</span></div><div class='output co'>#&gt;    clusters cities population
-#&gt; 1        10     31   863277.0
-#&gt; 2        10     32   173523.2
-#&gt; 3        10     33   802312.3
-#&gt; 4        16     51   280331.6
-#&gt; 5        16     52   645800.0
-#&gt; 6        16     53   209993.9
-#&gt; 7        16     54   472550.2
-#&gt; 8        16     55   206441.5
-#&gt; 9        24     72   641776.6
-#&gt; 10       24     73   487710.1
-#&gt; 11       24     74   205241.7
-#&gt; 12       24     75   538173.5
-#&gt; 13       24     76   186103.1
-#&gt; 14       09     28   818653.0
-#&gt; 15       09     29   397212.2
-#&gt; 16       09     30   290064.7
-#&gt; 17       16     51   280331.6
-#&gt; 18       16     52   645800.0
-#&gt; 19       16     53   209993.9
-#&gt; 20       16     54   472550.2
-#&gt; 21       16     55   206441.5</div><div class='input'>
+#&gt; 1        07     21     211291
+#&gt; 2        07     22     314285
+#&gt; 3        24     69     376049
+#&gt; 4        22     64     528277
+#&gt; 5        22     65     301438
+#&gt; 6        12     34     920485
+#&gt; 7        12     35     850057
+#&gt; 8        12     36     955382
+#&gt; 9        18     48     892971
+#&gt; 10       18     49     460249
+#&gt; 11       18     50     897950
+#&gt; 12       18     51     231284
+#&gt; 13       18     52     765864</div><div class='input'>
+
 <span class='co'># Resample a hierarchical dataset on multiple levels</span>
 
 <span class='no'>my_data</span> <span class='kw'>&lt;-</span>
@@ -230,48 +226,47 @@
 <span class='co'># Specify the levels you wish to resample one of two ways:</span>
 <span class='no'>my_data_2</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>3</span>, <span class='fl'>5</span>), <span class='kw'>ID_labels</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"cities"</span>, <span class='st'>"citizens"</span>))
 <span class='no'>my_data_2</span></div><div class='output co'>#&gt;    cities elevation citizens income
-#&gt; 1       1  1824.915        1  12483
-#&gt; 2       1  1824.915        3   9140
-#&gt; 3       1  1824.915        2   7838
-#&gt; 4       1  1824.915        1  12483
-#&gt; 5       1  1824.915        3   9140
-#&gt; 6       1  1824.915        1  12483
-#&gt; 7       1  1824.915        1  12483
-#&gt; 8       1  1824.915        3   9140
-#&gt; 9       1  1824.915        2   7838
-#&gt; 10      1  1824.915        1  12483
-#&gt; 11      1  1824.915        1  12483
-#&gt; 12      1  1824.915        1  12483
-#&gt; 13      1  1824.915        1  12483
-#&gt; 14      1  1824.915        3   9140
-#&gt; 15      1  1824.915        3   9140</div><div class='input'>
+#&gt; 1       2      1190        5   6255
+#&gt; 2       2      1190        6   6305
+#&gt; 3       2      1190        5   6255
+#&gt; 4       2      1190        6   6305
+#&gt; 5       2      1190        6   6305
+#&gt; 6       1      1268        1   6065
+#&gt; 7       1      1268        3   3346
+#&gt; 8       1      1268        2   4660
+#&gt; 9       1      1268        3   3346
+#&gt; 10      1      1268        3   3346
+#&gt; 11      1      1268        1   6065
+#&gt; 12      1      1268        3   3346
+#&gt; 13      1      1268        1   6065
+#&gt; 14      1      1268        1   6065
+#&gt; 15      1      1268        1   6065</div><div class='input'>
 <span class='no'>my_data_3</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='kw'>cities</span><span class='kw'>=</span><span class='fl'>3</span>, <span class='kw'>citizens</span><span class='kw'>=</span><span class='fl'>5</span>))
 <span class='no'>my_data_3</span></div><div class='output co'>#&gt;    cities elevation citizens income
-#&gt; 1       2  1145.115        5   4189
-#&gt; 2       2  1145.115        4   8055
-#&gt; 3       2  1145.115        4   8055
-#&gt; 4       2  1145.115        5   4189
-#&gt; 5       2  1145.115        4   8055
-#&gt; 6       1  1824.915        1  12483
-#&gt; 7       1  1824.915        2   7838
-#&gt; 8       1  1824.915        1  12483
-#&gt; 9       1  1824.915        2   7838
-#&gt; 10      1  1824.915        1  12483
-#&gt; 11      1  1824.915        3   9140
-#&gt; 12      1  1824.915        3   9140
-#&gt; 13      1  1824.915        1  12483
-#&gt; 14      1  1824.915        3   9140
-#&gt; 15      1  1824.915        2   7838</div><div class='input'>
+#&gt; 1       1      1268        2   4660
+#&gt; 2       1      1268        1   6065
+#&gt; 3       1      1268        2   4660
+#&gt; 4       1      1268        2   4660
+#&gt; 5       1      1268        3   3346
+#&gt; 6       2      1190        6   6305
+#&gt; 7       2      1190        5   6255
+#&gt; 8       2      1190        6   6305
+#&gt; 9       2      1190        4   4274
+#&gt; 10      2      1190        5   6255
+#&gt; 11      1      1268        3   3346
+#&gt; 12      1      1268        3   3346
+#&gt; 13      1      1268        3   3346
+#&gt; 14      1      1268        2   4660
+#&gt; 15      1      1268        3   3346</div><div class='input'>
 <span class='co'># Transparently pass through all units at a given level</span>
 <span class='co'># This example will resample 2 citizens at each of the cities:</span>
 
 <span class='no'>passthrough_resample_data</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='kw'>cities</span><span class='kw'>=</span><span class='no'>ALL</span>, <span class='kw'>citizens</span><span class='kw'>=</span><span class='fl'>2</span>))
 <span class='no'>passthrough_resample_data</span></div><div class='output co'>#&gt;   cities elevation citizens income
-#&gt; 1      1  1824.915        3   9140
-#&gt; 2      1  1824.915        3   9140
-#&gt; 3      2  1145.115        4   8055
-#&gt; 4      2  1145.115        5   4189</div><div class='input'>
-
+#&gt; 1      1      1268        2   4660
+#&gt; 2      1      1268        3   3346
+#&gt; 3      2      1190        5   6255
+#&gt; 4      2      1190        4   4274</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

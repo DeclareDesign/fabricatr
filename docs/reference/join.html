@@ -69,6 +69,9 @@ cross-classified data on, and what kind of correlation structure needed — join
       <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
+      <a href="../articles/cross_classified.html">Cross-classified Data</a>
+    </li>
+    <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
   </ul>
@@ -136,15 +139,22 @@ cross-classified data on, and what kind of correlation structure needed</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>...</th>
-      <td><p>A series of two or more variable names, unquoted, to join on in order to create cross-classified data.</p></td>
+      <td><p>A series of two or more variable names, unquoted, to join on in
+order to create cross-classified data.</p></td>
     </tr>
     <tr>
       <th>rho</th>
-      <td><p>A fixed (Spearman's rank) correlation coefficient between the variables being joined on: note that if it is not possible to make a correlation matrix from this coefficient (i.e. if you are joining on three or more variables and rho is negative) then the <code><a href='cross_level.html'>cross_level()</a></code> call will fail.</p></td>
+      <td><p>A fixed (Spearman's rank) correlation coefficient between the
+variables being joined on: note that if it is not possible to make a
+correlation matrix from this coefficient (i.e. if you are joining on three
+or more variables and rho is negative) then the <code><a href='cross_level.html'>cross_level()</a></code> call
+will fail.</p></td>
     </tr>
     <tr>
       <th>sigma</th>
-      <td><p>A matrix with dimensions equal to the number of variables you are joining on, specifying the correlation for the resulting joined data. Only one of rho and sigma should be provided.</p></td>
+      <td><p>A matrix with dimensions equal to the number of variables you
+are joining on, specifying the correlation for the resulting joined data.
+Only one of rho and sigma should be provided.</p></td>
     </tr>
     <tr>
       <th>data_arguments</th>

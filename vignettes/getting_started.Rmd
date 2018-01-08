@@ -159,4 +159,4 @@ Again, we see the use of [`draw_binary()`](../reference/draw_binary.html). Using
 
 # Next Steps
 
-You've seen **fabricatr**'s ability to generate single-level and hierarchical data, which is enough to get you started on using the package. From here, you can learn about [generating discrete random variables](variable_generation.html), [using **fabricatr** to bootstrap or resample hierarchical data](resampling.html), or [advanced features](advanced_features.html).
+You've seen **fabricatr**'s ability to generate single-level and hierarchical data, which is enough to get you started on using the package. From here, you can learn about [generating discrete random variables](variable_generation.html), [using **fabricatr** to bootstrap or resample hierarchical data](resampling.html), [using **fabricatr** to generate cross-classified data](cross_classified.html), or [advanced features](advanced_features.html).

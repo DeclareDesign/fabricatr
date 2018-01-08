@@ -25,7 +25,9 @@
 #' \code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass
 #' \code{add_level()} or \code{modify_level()} arguments, which define a level
 #' of a multi-level dataset. See examples.
-#' @param nest (Default TRUE) Boolean determining whether data in an \code{add_level()} call will be nested under the current working data frame or create a separate hierarchy of levels. See our vignette for cross-classified, non-nested data for details.
+#' @param nest (Default TRUE) Boolean determining whether data in an \code{add_level()} call
+#' will be nested under the current working data frame or create a separate hierarchy of levels.
+#' See our vignette for cross-classified, non-nested data for details.
 #' @param working_environment_ Internal argument, not intended for end-user use.
 #' @param data_arguments Internal argument, not intended for end-user use.
 #'
@@ -65,6 +67,9 @@
 #'   regions = modify_level(watershed = sample(c(0, 1), N, replace = TRUE)),
 #'   cities = modify_level(runoff = rnorm(N))
 #' )
+#'
+#' # For examples of cross-classified data, please read our vignette or check
+#' # documentation for \code{cross_level}
 #'
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args
 #' is_lang get_expr
@@ -575,11 +580,36 @@ modify_level = function(N = NULL,
 #' correlation structure.
 #'
 #' @param N (required) The number of observations in the resulting data frame
-#' @param by The result of a call to \code{join()} which specifies how the cross-classified data will be created
-#' @param ... A variable or series of variables to add to the resulting data frame after the cross-classified data is created.
-#' @param ID_label Internal keyword used to sepcify the name of the ID variable created for the new level. If left empty, this will be the name the level is assigned to as part of a \code{fabricate()} call.
+#' @param by The result of a call to \code{join()} which specifies how the
+#' cross-classified data will be created
+#' @param ... A variable or series of variables to add to the resulting data
+#' frame after the cross-classified data is created.
+#' @param ID_label Internal keyword used to sepcify the name of the ID variable
+#' created for the new level. If left empty, this will be the name the level is
+#' assigned to as part of a \code{fabricate()} call.
 #' @param working_environment_ Internal keyword not for end user use.
 #' @param data_arguments Internal keyword not for end user use.
+#'
+#' @return data.frame
+#'
+#' @examples
+#'
+#' # Generate cross-classified data and merge, no correlation
+#' students <- fabricate(
+#'  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
+#'  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
+#'  students = cross_level(N = 500, by = join(primary_school, secondary_school))
+#' )
+#' head(students)
+#'
+#' # Cross-classified data with a correlation structure
+#' students <- fabricate(
+#'  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
+#'  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
+#'  students = cross_level(N = 500, by = join(ps_quality, ss_quality, rho = 0.5))
+#' )
+#' cor(students$ps_quality, students$ss_quality)
+#'
 #' @importFrom rlang quos quo_text
 #' @export
 cross_level = function(N = NULL,
@@ -688,9 +718,16 @@ cross_level = function(N = NULL,
 
 #' Helper function handling specification of which variables to join a
 #' cross-classified data on, and what kind of correlation structure needed
-#' @param ... A series of two or more variable names, unquoted, to join on in order to create cross-classified data.
-#' @param rho A fixed (Spearman's rank) correlation coefficient between the variables being joined on: note that if it is not possible to make a correlation matrix from this coefficient (i.e. if you are joining on three or more variables and rho is negative) then the \code{cross_level()} call will fail.
-#' @param sigma A matrix with dimensions equal to the number of variables you are joining on, specifying the correlation for the resulting joined data. Only one of rho and sigma should be provided.
+#' @param ... A series of two or more variable names, unquoted, to join on in
+#' order to create cross-classified data.
+#' @param rho A fixed (Spearman's rank) correlation coefficient between the
+#' variables being joined on: note that if it is not possible to make a
+#' correlation matrix from this coefficient (i.e. if you are joining on three
+#' or more variables and rho is negative) then the \code{cross_level()} call
+#' will fail.
+#' @param sigma A matrix with dimensions equal to the number of variables you
+#' are joining on, specifying the correlation for the resulting joined data.
+#' Only one of rho and sigma should be provided.
 #' @param data_arguments Internal, not for end-user use.
 #' @export
 join = function(..., rho=0, sigma=NULL, data_arguments=quos(...)) {
