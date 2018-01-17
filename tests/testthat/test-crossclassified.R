@@ -1,6 +1,8 @@
 context("Fabricate")
 
 test_that("Cross-classified data", {
+  set.seed(19861108)
+
   # Example draw setup
   students = fabricate(
     primary_schools = add_level(N = 100,
@@ -61,6 +63,8 @@ test_that("Cross-classified data", {
 })
 
 test_that("Code path without mvnfast", {
+  set.seed(19861108)
+
   # Need to directly call joint_draw_ecdf because we don't let users voluntarily
   # override the use_f argument
   dl = list(j1 = rnorm(100),
