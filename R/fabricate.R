@@ -102,12 +102,8 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
       )
   }
 
-  # Create a blank working environment.
-  working_environment = new.env(parent = emptyenv())
-
   # User provided level calls
   if(all_levels) {
-
     # Ensure the user provided a name for each level call.
     if(is.null(names(data_arguments)) | any(names(data_arguments) == "")) {
       stop("You must provide a name for each level you create.")
@@ -115,9 +111,9 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
 
     # User provided data, if any, should be preloaded into working environment
     if(!is.null(data) & !missing(data)) {
-      # Ensure data is sane.
-      data = handle_data(data)
-      working_environment$imported_data_ = data
+      working_environment = import_data_list(data)
+    } else {
+      working_environment = new_working_environment()
     }
 
     # Each of data_arguments is a level call
@@ -143,82 +139,91 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
   if(is.null(data) | missing(data)) {
     # Single level -- maybe the user provided an ID_label, maybe they didn't.
     # Sanity check and/or construct an ID label for the new data.
-    ID_label = handle_id(ID_label, data)
+    ID_label = handle_id(ID_label, NULL)
 
     # Is the N argument passed here sane? Let's check
     N = handle_n(N, add_level = TRUE)
 
-    # Creating a working environment that's empty (user passed no data)
-    data_arguments[["working_environment_"]] = working_environment
-
     # Run the level adder, report the results, and return
     return(
       report_results(
-        add_level(N = N, ID_label = ID_label, data_arguments = data_arguments)
+        add_level(N = N,
+                  ID_label = ID_label,
+                  working_environment_ = new_working_environment(),
+                  data_arguments = data_arguments)
       )
     )
   }
 
-  # Confirm data can be a data frame
-  data = handle_data(data)
+  working_environment = import_data_list(data)
 
   # Single level -- maybe the user provided an ID_label, maybe they didn't.
   # Sanity check and/or construct an ID label for the new data.
-  ID_label = handle_id(ID_label, data)
+  ID_label = handle_id(ID_label, working_environment$data_frame_output_)
 
   # User passed data, not N
   # First, let's dynamically get N from the number of rows
-  N = nrow(data)
+  N = nrow(working_environment$data_frame_output_)
 
-  # Now, let's load the data into our working environment
-  working_environment$imported_data_ = data
-  data_arguments[["working_environment_"]] = working_environment
+  # Now, see if we need to staple one on
+  if(ID_label %in% names(working_environment$data_frame_output_)) {
+    add_level_id(working_environment, ID_label)
+  } else if(length(data_arguments)) {
+    working_environment$data_frame_output_[[ID_label]] = generate_id_pad(N)
+    add_level_id(working_environment, ID_label)
+    add_variable_name(working_environment, ID_label)
+  }
 
   # Run the level adder, report the results, and return
   return(
     report_results(
-      add_level(N = N,
+      modify_level(N = N,
                 ID_label = ID_label,
                 data_arguments = data_arguments,
+                working_environment_ = working_environment,
                 nest=FALSE)
     )
   )
 }
 
-#' @importFrom rlang quos eval_tidy quo lang_modify
-#'
-#' @rdname fabricate
-#' @export
-add_level = function(N = NULL, ID_label = NULL,
-                     working_environment_ = NULL,
-                     ...,
-                     data_arguments=quos(...),
-                     nest = TRUE) {
+new_working_environment = function() { return(new.env(parent = emptyenv())) }
 
-  # Copy the working environment out of the data_arguments quosure and into
-  # the root. This happens when we have a single non-nested fabricate call
-  # and we don't want to double-quosure the working environmented.
-  if("working_environment_" %in% names(data_arguments)) {
-    working_environment_ = data_arguments[["working_environment_"]]
-    data_arguments[["working_environment_"]] = NULL
+import_data_list = function(data) {
+  working_environment_ = new_working_environment()
+
+  # If we have multiple sets of data, import them one at a time in order.
+  # Type checking beyond this is done in the handle_data call from import_data
+  if(is.list(data) & !is.data.frame(data)) {
+    for(data_item in data) {
+      working_environment_ = import_data(data_item, working_environment_)
+    }
+  } else {
+    # If not, just import them.
+    working_environment_ = import_data(data, working_environment_)
+  }
+}
+
+import_data = function(data,
+                       working_environment_ = NULL) {
+  # Sanity check that the data we're bringing in is good.
+  data = handle_data(data=data)
+
+  # If we don't yet have a working environment, create one.
+  if(is.null(working_environment_)) {
+    working_environment_ = new_working_environment()
   }
 
-  # Pass-through mapper to nest_level.
-  # This needs to be done after we read the working environment and
-  # before we check N or do the shelving procedure.
-  if(nest &&
-     ("data_frame_output_" %in% names(working_environment_) |
-     "imported_data_" %in% names(working_environment_))) {
-    return(nest_level(N=N, ID_label=ID_label,
-                      working_environment_=working_environment_,
-                      data_arguments=data_arguments))
-  }
+  # Shelf the current working data if there's any.
+  working_environment_ = shelf_working_data(working_environment_)
 
-  # Check to make sure the N here is sane
-  N = handle_n(N, add_level=TRUE)
+  # Now copy the current data into the environment
+  working_environment_$data_frame_output_ = data
+  working_environment_$variable_names_ = names(data)
 
-  # User is adding a new level, but already has a working data frame.
-  # Shelf the working data frame and move on
+  return(working_environment_)
+}
+
+shelf_working_data = function(working_environment_) {
   if("data_frame_output_" %in% names(working_environment_)) {
     # Construct the shelved version
     package_df = list(data_frame_output_ = working_environment_$data_frame_output_,
@@ -240,19 +245,37 @@ add_level = function(N = NULL, ID_label = NULL,
       working_environment_$variable_names_ = NULL
   }
 
-  # User is adding a new level, but we need to sneak in the imported data first.
-  # When this is done, trash the imported data, because the working data frame
-  # contains it.
-  if("imported_data_" %in% names(working_environment_)) {
-    num_obs_imported = nrow(working_environment_$imported_data_)
-    working_data_list = as.list(working_environment_$imported_data_)
-    working_environment_$variable_names_ = names(working_environment_$imported_data_)
-    working_environment_$imported_data_ = NULL
+  return(working_environment_)
+}
 
-    # User didn't specify an N, so get it from the current data.
-    if(is.null(N)) {
-      N = num_obs_imported
-    }
+#' @importFrom rlang quos eval_tidy quo lang_modify
+#'
+#' @rdname fabricate
+#' @export
+add_level = function(N = NULL, ID_label = NULL,
+                     working_environment_ = NULL,
+                     ...,
+                     data_arguments=quos(...),
+                     nest = TRUE) {
+
+  # Pass-through mapper to nest_level.
+  # This needs to be done after we read the working environment and
+  # before we check N or do the shelving procedure.
+  if(nest && "data_frame_output_" %in% names(working_environment_)) {
+    return(nest_level(N=N, ID_label=ID_label,
+                      working_environment_=working_environment_,
+                      data_arguments=data_arguments))
+  }
+
+  # Check to make sure the N here is sane
+  N = handle_n(N, add_level=TRUE)
+
+  # If the user already has a working data frame, we need to shelf it before
+  # we move on.
+  working_environment_ = shelf_working_data(working_environment_)
+
+  if("data_frame_output_" %in% names(working_environment_)) {
+    working_data_list = as.list(working_environment_$data_frame_output_)
   } else {
     working_data_list = list()
   }
@@ -318,13 +341,7 @@ nest_level = function(N = NULL, ID_label = NULL,
 
   # Check to make sure we have a data frame to nest on.
   if(is.null(dim(working_environment_$data_frame_output_))) {
-    if("imported_data_" %in% names(working_environment_)) {
-      working_environment_$data_frame_output_ = data.frame(working_environment_$imported_data_)
-      working_environment_$variable_names_ = names(working_environment_$imported_data_)
-      working_environment_$imported_data_ = NULL
-    } else {
       stop("You can't nest a level if there is no level to nest inside")
-    }
   }
 
   # Check to make sure the N here is sane
@@ -424,17 +441,11 @@ modify_level = function(N = NULL,
 
   # First, establish that if we have no working data frame, we can't continue
   if(is.null(dim(working_environment_$data_frame_output_))) {
-    if("imported_data_" %in% names(working_environment_)) {
-      working_environment_$data_frame_output_ = data.frame(working_environment_$imported_data_)
-      working_environment_$variable_names_ = names(working_environment_$imported_data_)
-      working_environment_$imported_data_ = NULL
-    } else {
-      stop(
+    stop(
         "You can't modify a level if there is no working data frame to ",
         "modify: you must either load pre-existing data or generate some data ",
         "before modifying."
-        )
-    }
+      )
   }
 
   # There are two possibilities. One is that we are modifying the lowest level
