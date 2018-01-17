@@ -201,12 +201,12 @@ test_that("Binary ICCs", {
   expect_error(draw_binary_icc(x = "hello", clusters = clusters))
   # X isn't a probability
   expect_error(draw_binary_icc(x = -0.5, clusters = clusters))
-  # rho isn't a single number
-  expect_error(draw_binary_icc(clusters = clusters, rho = c(0.5, 0.8)))
-  # rho isn't a probability
-  expect_error(draw_binary_icc(clusters = clusters, rho = 2))
-  # rho isn't a number
-  expect_error(draw_binary_icc(clusters = clusters, rho = "hello"))
+  # ICC isn't a single number
+  expect_error(draw_binary_icc(clusters = clusters, ICC = c(0.5, 0.8)))
+  # ICC isn't a probability
+  expect_error(draw_binary_icc(clusters = clusters, ICC = 2))
+  # ICC isn't a number
+  expect_error(draw_binary_icc(clusters = clusters, ICC = "hello"))
   # Non-numeric N
   expect_error(draw_binary_icc(clusters = clusters, N = "hello"))
   # N provided but doesn't match
@@ -258,12 +258,12 @@ test_that("Normal ICC", {
                                clusters = clusters))
   # X isn't numeric
   expect_error(draw_normal_icc(x = "hello", clusters = clusters))
-  # rho isn't a single number
-  expect_error(draw_normal_icc(clusters = clusters, rho = c(0.5, 0.8)))
-  # rho isn't a probability
-  expect_error(draw_normal_icc(clusters = clusters, rho = 2))
-  # rho isn't a number
-  expect_error(draw_normal_icc(clusters = clusters, rho = "hello"))
+  # ICC isn't a single number
+  expect_error(draw_normal_icc(clusters = clusters, ICC = c(0.5, 0.8)))
+  # ICC isn't a probability
+  expect_error(draw_normal_icc(clusters = clusters, ICC = 2))
+  # ICC isn't a number
+  expect_error(draw_normal_icc(clusters = clusters, ICC = "hello"))
   # Non-numeric N
   expect_error(draw_normal_icc(clusters = clusters, N = "hello"))
   # N provided but doesn't match

@@ -203,10 +203,10 @@ into ordered categories.</p></td>
 
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
    <span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>10</span> * <span class='fu'>rnorm</span>(<span class='no'>N</span>),
-   <span class='kw'>binary</span> <span class='kw'>=</span> <span class='fu'>draw_binary</span>(<span class='kw'>probs</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"probit"</span>))</div><div class='output co'>#&gt;   ID     x binary
-#&gt; 1  1 -18.8      0
-#&gt; 2  2   4.7      1
-#&gt; 3  3   3.8      1</div><div class='input'>
+   <span class='kw'>binary</span> <span class='kw'>=</span> <span class='fu'>draw_binary</span>(<span class='kw'>probs</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"probit"</span>))</div><div class='output co'>#&gt;   ID          x binary
+#&gt; 1  1 -18.815811      0
+#&gt; 2  2   4.662434      1
+#&gt; 3  3   3.840727      1</div><div class='input'>
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
    <span class='kw'>p</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>.5</span>, <span class='fl'>1</span>),
    <span class='kw'>binomial</span> <span class='kw'>=</span> <span class='fu'>draw_binomial</span>(<span class='kw'>probs</span> <span class='kw'>=</span> <span class='no'>p</span>, <span class='kw'>trials</span> <span class='kw'>=</span> <span class='fl'>10</span>))</div><div class='output co'>#&gt;   ID   p binomial
@@ -216,10 +216,10 @@ into ordered categories.</p></td>
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
    <span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>5</span> * <span class='fu'>rnorm</span>(<span class='no'>N</span>),
    <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fu'>draw_ordered</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>,
-                          <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>Inf</span>, -<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>Inf</span>)))</div><div class='output co'>#&gt;   ID    x ordered
-#&gt; 1  1  4.8       3
-#&gt; 2  2  2.8       3
-#&gt; 3  3 -5.8       1</div><div class='input'>
+                          <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>Inf</span>, -<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>Inf</span>)))</div><div class='output co'>#&gt;   ID         x ordered
+#&gt; 1  1  4.825444       3
+#&gt; 2  2  2.810337       3
+#&gt; 3  3 -5.814528       1</div><div class='input'>
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
    <span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>,<span class='fl'>5</span>,<span class='fl'>100</span>),
    <span class='kw'>count</span> <span class='kw'>=</span> <span class='fu'>draw_count</span>(<span class='kw'>means</span><span class='kw'>=</span><span class='no'>x</span>))</div><div class='output co'>#&gt;   ID   x count
@@ -228,13 +228,13 @@ into ordered categories.</p></td>
 #&gt; 3  3 100    89</div><div class='input'>
 <span class='co'># Categorical</span>
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>p1</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>), <span class='kw'>p2</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>), <span class='kw'>p3</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>),
-          <span class='kw'>cat</span> <span class='kw'>=</span> <span class='fu'>draw_categorical</span>(<span class='fu'>cbind</span>(<span class='no'>p1</span>, <span class='no'>p2</span>, <span class='no'>p3</span>)))</div><div class='output co'>#&gt;   ID   p1   p2   p3 cat
-#&gt; 1  1 0.47 0.27 0.92   1
-#&gt; 2  2 0.79 0.43 0.61   1
-#&gt; 3  3 0.31 0.42 0.32   3
-#&gt; 4  4 0.31 0.13 0.81   3
-#&gt; 5  5 0.35 0.69 0.90   3
-#&gt; 6  6 0.83 0.17 0.13   1</div><div class='input'>
+          <span class='kw'>cat</span> <span class='kw'>=</span> <span class='fu'>draw_categorical</span>(<span class='fu'>cbind</span>(<span class='no'>p1</span>, <span class='no'>p2</span>, <span class='no'>p3</span>)))</div><div class='output co'>#&gt;   ID        p1        p2        p3 cat
+#&gt; 1  1 0.4702427 0.2739955 0.9234934   1
+#&gt; 2  2 0.7910454 0.4308361 0.6137436   1
+#&gt; 3  3 0.3129833 0.4168978 0.3156294   3
+#&gt; 4  4 0.3087645 0.1343122 0.8097331   3
+#&gt; 5  5 0.3451553 0.6863414 0.9023741   3
+#&gt; 6  6 0.8284433 0.1720781 0.1252978   1</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

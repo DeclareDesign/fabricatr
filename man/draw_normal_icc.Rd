@@ -4,7 +4,7 @@
 \alias{draw_normal_icc}
 \title{Draw normal data with fixed intra-cluster correlation.}
 \usage{
-draw_normal_icc(x = 0, N = NULL, clusters, sd = 1, rho = 0)
+draw_normal_icc(x = 0, N = NULL, clusters, sd = 1, ICC = 0)
 }
 \arguments{
 \item{x}{A number or vector of numbers, one mean per cluster. If none is
@@ -19,7 +19,7 @@ clusters; the length will determine the length of the generated data.}
 \item{sd}{A number or vector of numbers, indicating the standard deviation of
 each cluster's error terms}
 
-\item{rho}{A number indicating the desired ICC. If none is provided,
+\item{ICC}{A number indicating the desired ICC. If none is provided,
 will default to 0.}
 }
 \value{
@@ -28,7 +28,7 @@ the supplied cluster IDs.
 }
 \description{
 Data is generated to ensure inter-cluster correlation 0, intra-cluster
-correlation in expectation \eqn{\rho}{rho}. The data generating process
+correlation in expectation ICC. The data generating process
 used in this function is specified at the following URL:
 \url{https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc}
 }

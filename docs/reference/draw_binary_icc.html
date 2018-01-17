@@ -127,13 +127,13 @@
 
     
     <p>Data is generated to ensure inter-cluster correlation 0, intra-cluster
-correlation in expectation \(\rho\). Algorithm taken from Hossein,
+correlation in expectation ICC. Algorithm taken from Hossein,
 Akhtar. "ICCbin: An R Package Facilitating Clustered Binary Data
 Generation, and Estimation of Intracluster Correlation Coefficient (ICC)
 for Binary Data".</p>
     
 
-    <pre class="usage"><span class='fu'>draw_binary_icc</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>clusters</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
+    <pre class="usage"><span class='fu'>draw_binary_icc</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -154,7 +154,7 @@ generated. Must be equal to length(clusters) if provided.</p></td>
 clusters; the length will determine the length of the generated data.</p></td>
     </tr>
     <tr>
-      <th>rho</th>
+      <th>ICC</th>
       <td><p>A number indicating the desired ICC, if none is provided will
 default to 0.</p></td>
     </tr>
@@ -169,7 +169,7 @@ the supplied cluster IDs.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>clusters</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
 <span class='fu'>draw_binary_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>)</div><div class='output co'>#&gt;  [1] 1 1 0 1 0 0 0 1 0 0 0 0 0 0 1 0 1 1 1 1 1 0 0 0 0 0 1 1 1 1 0 1 1 0 1 1 0 0
-#&gt; [39] 1 1 0 0 0 1 1 0 1 0 1 1</div><div class='input'><span class='fu'>draw_binary_icc</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</div><div class='output co'>#&gt;  [1] 1 0 1 0 0 0 0 1 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1
+#&gt; [39] 1 1 0 0 0 1 1 0 1 0 1 1</div><div class='input'><span class='fu'>draw_binary_icc</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</div><div class='output co'>#&gt;  [1] 1 0 1 0 0 0 0 1 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1
 #&gt; [39] 0 0 1 1 1 0 0 1 0 1 0 0</div><div class='input'>
 </div></pre>
   </div>

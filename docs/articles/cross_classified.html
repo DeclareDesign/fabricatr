@@ -117,9 +117,10 @@
 <li>Use the [<code>cross_classify()</code>] function to join the non-nested data frames on particular variables, optionally specifying a desired correlation outcome.</li>
 <li>Optionally, add new variables or further levels in the resulting cross-classified data. (Students)</li>
 </ol>
-<div id="generating-multiple-non-nested-levels-" class="section level1">
+<div id="generating-multiple-non-nested-levels-using-fabricatr" class="section level1">
 <h1 class="hasAnchor">
-<a href="#generating-multiple-non-nested-levels-" class="anchor"></a>Generating multiple non-nested levels.</h1>
+<a href="#generating-multiple-non-nested-levels-using-fabricatr" class="anchor"></a>Generating multiple non-nested levels using <strong>fabricatr</strong>
+</h1>
 <p>As with nested data, the workhorse function for ge_nerating new levels of data is [<code><a href="../reference/fabricate.html">add_level()</a></code>]. To generate multiple non-nested levels of data, it is necessary to add an additional argument in the following form:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">schools_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">primary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">20</span>, <span class="dt">ps_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
@@ -128,6 +129,16 @@
 )</code></pre></div>
 <p>Observe that the second (and any subsequent) non-nested levels should contain the <code>nest = FALSE</code> argument – otherwise, secondary schools would be interpreted to be a level nested within schools. Each level can have as many variables as you want, and <strong>fabricatr</strong> will internally track each level separately.</p>
 <p>This [<code><a href="../reference/fabricate.html">fabricate()</a></code>] call is incomplete – so far we have just completed the first step. We must also specify how to merge the two levels. If you do not specify a way to merge the levels, [<code><a href="../reference/fabricate.html">fabricate()</a></code>] will return the most recent working data frame: in this case, the secondary schools level.</p>
+</div>
+<div id="importing-non-nested-data-frames" class="section level1">
+<h1 class="hasAnchor">
+<a href="#importing-non-nested-data-frames" class="anchor"></a>Importing non-nested data frames</h1>
+<p>You can also import the data you wish to cross-classify on from existing data sources, or a combination of imported data and data specified using <strong>fabricatr</strong>. Recall that the first argument to a [<code><a href="../reference/fabricate.html">fabricate()</a></code>] call is the data you wish to import. We have previously seen that it is possible to import a single data frame this way, but it is also possible to import a list of data frames, staging them all for use for cross-classifying data. Data imported in this manner looks like this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">schools_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="kw">list</span>(primary_schools, secondary_schools),
+  ...
+)</code></pre></div>
+<p>Again, the [<code><a href="../reference/fabricate.html">fabricate()</a></code>] call is incomplete – we have imported the data we wish to cross-classify on, but not yet learned how to merge the data.</p>
 </div>
 <div id="specifying-a-merge-function" class="section level1">
 <h1 class="hasAnchor">
@@ -194,7 +205,7 @@
 <div id="correlations-after-merging" class="section level1">
 <h1 class="hasAnchor">
 <a href="#correlations-after-merging" class="anchor"></a>Correlations after merging</h1>
-<p>The functionality discussed up until now is implemented in a variety of R packages. A key feature of <strong>fabricatr</strong> is that the resulting joined data can be coerced into having a specific correlation on the joined variables. We might, for example, reasonably assume that students assigned to better primary schools are later assigned to better secondary schools – whether due to economic geography of the area, selective admissions, or other causes. It is easy to specify a correlation between these outcomes using much the same syntax we used before:</p>
+<p>The functionality discussed up until now is implemented in a variety of R packages. A key feature of <strong>fabricatr</strong> is that the resulting joined data can be sampled such that is has a specific correlation on the joined variables. We might, for example, reasonably assume that students assigned to better primary schools are later assigned to better secondary schools – whether due to economic geography of the area, selective admissions, or other causes. It is easy to specify a correlation between these outcomes using much the same syntax we used before:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">corr_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">primary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">20</span>, <span class="dt">ps_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
   <span class="dt">secondary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">15</span>, <span class="dt">ss_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
@@ -204,10 +215,12 @@
 <span class="st">                           </span><span class="dv">26</span> <span class="op">*</span><span class="st"> </span>ss_quality <span class="op">+</span><span class="st"> </span>
 <span class="st">                           </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">50</span>))
 )</code></pre></div>
-<p>Here, we have changed the structure of our [<code><a href="../reference/join.html">join()</a></code>] function call. First, the variables we are joining on are <code>ps_quality</code> and <code>ss_quality</code>. Second, we specify a Spearman’s (rank) correlation coefficient, <code>rho</code>, which will induce a correlation in the resulting data. Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that <code>rho</code> can be any value from -1 to 1, and that the resulting correlation will be approximately equal to <code>rho</code>. <em>Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated from the specified <code>rho</code>. There is no general purpose correction to compensate for this attenuation.</em></p>
+<p>Here, we have changed the structure of our [<code><a href="../reference/join.html">join()</a></code>] function call. First, the variables we are joining on are <code>ps_quality</code> and <code>ss_quality</code>. Second, we specify a Spearman’s (rank) correlation coefficient, <code>rho</code>, which will induce a correlation in the resulting data based on the join function. In this case, we want a correlation between <code>ps_quality</code> and <code>ss_quality</code> of 0.5.</p>
+<p>Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that <code>rho</code> can be any value from -1 to 1, and that the resulting correlation will be approximately equal to <code>rho</code>. <em>Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated from the specified <code>rho</code>. There is no general purpose correction to compensate for this attenuation.</em></p>
 <p>We can check the resulting correlation here:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cor</span>(corr_data<span class="op">$</span>ps_quality, corr_data<span class="op">$</span>ss_quality)</code></pre></div>
 <p>0.47</p>
+<p>It should be noted that the specified correlation exists only within the variables on which a join was specified: other variables from either data source will not be explicitly connected except through the joined variables.</p>
 </div>
 <div id="joining-more-than-two-levels" class="section level1">
 <h1 class="hasAnchor">
@@ -253,7 +266,7 @@ adv_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fa
 <div id="technical-appendix-implementation-of-correlated-joins-" class="section level1">
 <h1 class="hasAnchor">
 <a href="#technical-appendix-implementation-of-correlated-joins-" class="anchor"></a>Technical appendix: Implementation of correlated joins.</h1>
-<p>The implementation of the correlated join is done via the normal copula. Mathematically, what is occurring is as follows:</p>
+<p>The implementation of the correlated join is done via the Gaussian copula. Mathematically, what is occurring is as follows:</p>
 <ol style="list-style-type: decimal">
 <li>User specifies a correlation structure.</li>
 <li>Draw multivariate standard normal data with that correlation structure.</li>
@@ -270,7 +283,8 @@ adv_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fa
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#generating-multiple-non-nested-levels-">Generating multiple non-nested levels.</a></li>
+<li><a href="#generating-multiple-non-nested-levels-using-fabricatr">Generating multiple non-nested levels using <strong>fabricatr</strong></a></li>
+      <li><a href="#importing-non-nested-data-frames">Importing non-nested data frames</a></li>
       <li><a href="#specifying-a-merge-function">Specifying a merge function</a></li>
       <li><a href="#adding-additional-variables">Adding additional variables</a></li>
       <li><a href="#correlations-after-merging">Correlations after merging</a></li>

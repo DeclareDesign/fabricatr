@@ -182,29 +182,31 @@ frame after the cross-classified data is created.</p></td>
  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>cross_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>primary_school</span>, <span class='no'>secondary_school</span>))
 )
 <span class='fu'>head</span>(<span class='no'>students</span>)</div><div class='output co'>#&gt;   primary_school ps_quality secondary_school ss_quality students
-#&gt; 1             09        7.6               01        3.6      001
-#&gt; 2             15        4.6               07        1.5      002
-#&gt; 3             19        4.5               10        7.2      003
-#&gt; 4             04        2.4               09        7.3      004
-#&gt; 5             05        1.1               12        3.0      005
-#&gt; 6             14        3.9               08        5.8      006</div><div class='input'>
+#&gt; 1             09   7.595938               01   3.609031      001
+#&gt; 2             15   4.620954               07   1.463016      002
+#&gt; 3             19   4.498312               10   7.197004      003
+#&gt; 4             04   2.414876               09   7.262415      004
+#&gt; 5             05   1.066595               12   3.030063      005
+#&gt; 6             14   3.883472               08   5.771912      006</div><div class='input'>
 <span class='co'># Cross-classified data with a correlation structure</span>
 <span class='no'>students</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
  <span class='kw'>primary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>ps_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>)),
  <span class='kw'>secondary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>ss_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>cross_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>ps_quality</span>, <span class='no'>ss_quality</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>))
 )
-<span class='fu'>cor</span>(<span class='no'>students</span>$<span class='no'>ps_quality</span>, <span class='no'>students</span>$<span class='no'>ss_quality</span>)</div><div class='output co'>#&gt; [1] 0.47</div><div class='input'>
+<span class='fu'>cor</span>(<span class='no'>students</span>$<span class='no'>ps_quality</span>, <span class='no'>students</span>$<span class='no'>ss_quality</span>)</div><div class='output co'>#&gt; [1] 0.4690153</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      
       <li><a href="#value">Value</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
+
   </div>
 </div>
 

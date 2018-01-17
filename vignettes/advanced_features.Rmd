@@ -83,7 +83,7 @@ knitr::kable(ave_example)
 
 # Tidyverse integration
 
-Because the functions in **fabricatr** take data and return data, they are easily slotted into a `tidyverse` workflow:
+Because the functions in **fabricatr** take data and return data, they are cross-compatible with a `tidyverse` workflow:
 
 ```{r, message=FALSE, echo=TRUE, results="hide"}
 library(dplyr)

@@ -1,6 +1,8 @@
 context("Fabricate")
 
 test_that("Cross-classified data", {
+  set.seed(19861108)
+
   # Example draw setup
   students = fabricate(
     primary_schools = add_level(N = 100,
@@ -61,6 +63,8 @@ test_that("Cross-classified data", {
 })
 
 test_that("Code path without mvnfast", {
+  set.seed(19861108)
+
   # Need to directly call joint_draw_ecdf because we don't let users voluntarily
   # override the use_f argument
   dl = list(j1 = rnorm(100),
@@ -146,4 +150,33 @@ test_that("Deliberate failures in cross_level", {
       joined = cross_level(N = 100, by=join(v1, v4, v1))
     )
   )
+})
+
+test_that("Cross-classified with double import", {
+  set.seed(19861108)
+
+  primary_schools = fabricate(N = 100,
+                              ps_quality = runif(n=N, 1, 100),
+                              ps_hasband = draw_binary(0.5, N=N),
+                              ps_testscores = ps_quality * 5 + rnorm(N, 30, 5),
+                              ID_label = "primary_schools")
+  secondary_schools = fabricate(N = 50,
+                                ss_quality = runif(n=N, 1, 100),
+                                ss_hascomputers = draw_binary(ss_quality/100, N=N),
+                                ss_testscores = ss_quality * 5 + rnorm(N, 30, 5),
+                                ID_label = "secondary_schools")
+
+  students = fabricate(
+    list(primary_schools, secondary_schools),
+    students = cross_level(N = 1000,
+                           by = join(ps_quality, ss_quality, rho=0.5),
+                           student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
+                           student_score_2 = student_score * 2,
+                           extracurricular = ps_hasband + ss_hascomputers
+    )
+  )
+
+  # Within a reasonable "tolerance"
+  expect_gte(cor(students$ps_quality, students$ss_quality), 0.3)
+  expect_lte(cor(students$ps_quality, students$ss_quality), 0.7)
 })

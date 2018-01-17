@@ -112,12 +112,17 @@
 <div id="basics" class="section level1">
 <h1 class="hasAnchor">
 <a href="#basics" class="anchor"></a>Basics</h1>
-<p>Using <strong>fabricatr</strong> begins by making a call to the function <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a>. <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a> can be used to create single-level of hierarchical data. There are three main ways to call <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a>: making a single-level dataset by specifying how many observations you would like; making a single-level dataset by importing data and optionally modifying it by creating new variables; and making a hierarchical dataset.</p>
+<p>Using <strong>fabricatr</strong> begins by calling the function <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a>. <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a> can be used to create single-level of hierarchical data. There are three main ways to call <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a>:</p>
+<ul>
+<li>Making a single-level dataset by specifying how many observations you would like</li>
+<li>Making a single-level dataset by importing data and optionally modifying it by creating new variables</li>
+<li>Making a hierarchical dataset.</li>
+</ul>
 </div>
 <div id="single-level-datasets-from-scratch" class="section level1">
 <h1 class="hasAnchor">
 <a href="#single-level-datasets-from-scratch" class="anchor"></a>Single-level datasets from scratch</h1>
-<p>Making a single-level dataset begins with providing the argument <code>N</code>, a number representing the number of observations you wish to create, followed by a series of variable definitions. Variables can be defined using any function you have access to in R. <strong>fabricatr</strong> provides several simple functions for generating common types of data. These are covered below. Functions that create subsequent variables can rely on previously created variables, which ensures that variables can be correlated with one another:</p>
+<p>Making a single-level dataset begins with providing the argument <code>N</code>, a number representing the number of observations you wish to create, followed by a series of variable definitions. Variables can be defined using any function you have access to in R. <strong>fabricatr</strong> provides several simple functions for generating common types of data. These are covered below. Functions that create subsequent variables can rely on previously created variables, which ensures that variables can be related to one another:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
 my_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">Y =</span> <span class="kw">runif</span>(N), <span class="dt">Y2 =</span> Y<span class="op">*</span><span class="dv">5</span>)
 my_data</code></pre></div>
