@@ -1,7 +1,7 @@
 #' Draw binary data with fixed intra-cluster correlation.
 #'
 #' Data is generated to ensure inter-cluster correlation 0, intra-cluster
-#' correlation in expectation \eqn{\rho}. Algorithm taken from Hossein,
+#' correlation in expectation ICC. Algorithm taken from Hossein,
 #' Akhtar. "ICCbin: An R Package Facilitating Clustered Binary Data
 #' Generation, and Estimation of Intracluster Correlation Coefficient (ICC)
 #' for Binary Data".
@@ -12,19 +12,19 @@
 #' generated. Must be equal to length(clusters) if provided.
 #' @param clusters A vector of factors or items that can be coerced to
 #' clusters; the length will determine the length of the generated data.
-#' @param rho A number indicating the desired ICC, if none is provided will
+#' @param ICC A number indicating the desired ICC, if none is provided will
 #' default to 0.
 #' @return A vector of binary numbers corresponding to the observations from
 #' the supplied cluster IDs.
 #' @examples
 #' clusters = rep(1:5, 10)
 #' draw_binary_icc(clusters = clusters)
-#' draw_binary_icc(x = 0.5, clusters = clusters, rho = 0.5)
+#' draw_binary_icc(x = 0.5, clusters = clusters, ICC = 0.5)
 #'
 #' @importFrom stats rbinom
 #'
 #' @export
-draw_binary_icc = function(x = 0.5, N = NULL, clusters, rho = 0) {
+draw_binary_icc = function(x = 0.5, N = NULL, clusters, ICC = 0) {
   # Let's not worry about how clusters are provided
   tryCatch({
     clusters = as.numeric(as.factor(clusters))
@@ -61,15 +61,15 @@ draw_binary_icc = function(x = 0.5, N = NULL, clusters, rho = 0) {
     stop("x must be numeric probabilities between 0 and 1 inclusive.")
   }
 
-  # Sanity check rho
-  if(length(rho) > 1) {
-    stop("rho must be a single number.")
+  # Sanity check ICC
+  if(length(ICC) > 1) {
+    stop("ICC must be a single number.")
   }
-  if(!is.numeric(rho)) {
-    stop("rho must be a number.")
+  if(!is.numeric(ICC)) {
+    stop("ICC must be a number.")
   }
-  if(rho > 1 | rho < 0) {
-    stop("rho must be a number between 0 and 1.")
+  if(ICC > 1 | ICC < 0) {
+    stop("ICC must be a number between 0 and 1.")
   }
 
   # Generate cluster and individual probabilities
@@ -91,12 +91,12 @@ draw_binary_icc = function(x = 0.5, N = NULL, clusters, rho = 0) {
                            size = 1,
                            prob = individual_prob)
 
-  # Draw the u_ijs -- sqrt(rho) because the actual ICC for this data will be
-  # rho^2 -- sqrt(rho^2) = rho, to ensure users can enter in the terms they feel
+  # Draw the u_ijs -- sqrt(ICC) because the actual ICC for this data will be
+  # ICC^2 -- sqrt(ICC^2) = ICC, to ensure users can enter in the terms they feel
   # most comfortable in
   switch_draw = rbinom(n = length(clusters),
                        size = 1,
-                       prob = sqrt(rho))
+                       prob = sqrt(ICC))
 
   # Return either the cluster outcome or individual outcome depending on the
   # switch
