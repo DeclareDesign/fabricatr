@@ -21,9 +21,9 @@ Let's begin by visualizing how our data will be laid out:
 ```{r eval=TRUE, echo=FALSE, fig.width=5, fig.height=3, message=FALSE, error=FALSE}
 invisible(library(diagram))
 names = c("PrimarySchool", "SecondarySchool", "Student")
-relationship_matrix = matrix(c(0, 0, 0,
-                               0, 0, 0,
-                               "", "", 0), ncol = 3, byrow=TRUE)
+relationship_matrix = matrix(c(0, 0, "",
+                               0, 0, "",
+                               0, 0, 0), ncol = 3, byrow=TRUE)
 
 par(mar=c(0, 0, 0, 0))
 plotmat(relationship_matrix,
@@ -109,7 +109,7 @@ Other variables can be added in the *students* level, or indeed in either of the
 
 # Correlations after merging
 
-The functionality discussed up until now is implemented in a variety of R packages. A key feature of **fabricatr** is that the resulting joined data can be coerced into having a specific correlation on the joined variables. We might, for example, reasonably assume that students assigned to better primary schools are later assigned to better secondary schools -- whether due to economic geography of the area, selective admissions, or other causes. It is easy to specify a correlation between these outcomes using much the same syntax we used before:
+The functionality discussed up until now is implemented in a variety of R packages. A key feature of **fabricatr** is that the resulting joined data can be sampled such that is has a specific correlation on the joined variables. We might, for example, reasonably assume that students assigned to better primary schools are later assigned to better secondary schools -- whether due to economic geography of the area, selective admissions, or other causes. It is easy to specify a correlation between these outcomes using much the same syntax we used before:
 
 ```{r echo=TRUE, results="hide"}
 corr_data <- fabricate(
@@ -123,13 +123,17 @@ corr_data <- fabricate(
 )
 ```
 
-Here, we have changed the structure of our  [`join()`] function call. First, the variables we are joining on are `ps_quality` and `ss_quality`. Second, we specify a Spearman's (rank) correlation coefficient, `rho`, which will induce a correlation in the resulting data. Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that `rho` can be any value from -1 to 1, and that the resulting correlation will be approximately equal to `rho`. *Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated from the specified `rho`. There is no general purpose correction to compensate for this attenuation.*
+Here, we have changed the structure of our  [`join()`] function call. First, the variables we are joining on are `ps_quality` and `ss_quality`. Second, we specify a Spearman's (rank) correlation coefficient, `rho`, which will induce a correlation in the resulting data based on the join function. In this case, we want a correlation between `ps_quality` and `ss_quality` of 0.5. 
+
+Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that `rho` can be any value from -1 to 1, and that the resulting correlation will be approximately equal to `rho`. *Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated from the specified `rho`. There is no general purpose correction to compensate for this attenuation.*
 
 We can check the resulting correlation here:
 ```{r echo=TRUE, results="hide"}
 cor(corr_data$ps_quality, corr_data$ss_quality)
 ```
 `r cor(corr_data$ps_quality, corr_data$ss_quality)`
+
+It should be noted that the specified correlation exists only within the variables on which a join was specified: other variables from either data source will not be explicitly connected except through the joined variables.
 
 # Joining more than two levels
 
@@ -182,7 +186,7 @@ adv_data <- fabricate(
 
 # Technical appendix: Implementation of correlated joins.
 
-The implementation of the correlated join is done via the normal copula. Mathematically, what is occurring is as follows:
+The implementation of the correlated join is done via the Gaussian copula. Mathematically, what is occurring is as follows:
 
 1. User specifies a correlation structure.
 2. Draw multivariate standard normal data with that correlation structure.

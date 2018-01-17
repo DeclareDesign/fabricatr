@@ -23,11 +23,15 @@ library(fabricatr)
 
 # Basics
 
-Using **fabricatr** begins by making a call to the function [`fabricate()`](../reference/fabricate.html). [`fabricate()`](../reference/fabricate.html) can be used to create single-level of hierarchical data. There are three main ways to call [`fabricate()`](../reference/fabricate.html): making a single-level dataset by specifying how many observations you would like; making a single-level dataset by importing data and optionally modifying it by creating new variables; and making a hierarchical dataset.
+Using **fabricatr** begins by calling the function [`fabricate()`](../reference/fabricate.html). [`fabricate()`](../reference/fabricate.html) can be used to create single-level of hierarchical data. There are three main ways to call [`fabricate()`](../reference/fabricate.html): 
+
+* Making a single-level dataset by specifying how many observations you would like
+* Making a single-level dataset by importing data and optionally modifying it by creating new variables
+* Making a hierarchical dataset.
 
 # Single-level datasets from scratch
 
-Making a single-level dataset begins with providing the argument `N`, a number representing the number of observations you wish to create, followed by a series of variable definitions. Variables can be defined using any function you have access to in R. **fabricatr** provides several simple functions for generating common types of data. These are covered below. Functions that create subsequent variables can rely on previously created variables, which ensures that variables can be correlated with one another:
+Making a single-level dataset begins with providing the argument `N`, a number representing the number of observations you wish to create, followed by a series of variable definitions. Variables can be defined using any function you have access to in R. **fabricatr** provides several simple functions for generating common types of data. These are covered below. Functions that create subsequent variables can rely on previously created variables, which ensures that variables can be related to one another:
 
 ```{r echo=TRUE, results="hide"}
 library(fabricatr)
