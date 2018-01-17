@@ -4,7 +4,7 @@
 \alias{draw_binary_icc}
 \title{Draw binary data with fixed intra-cluster correlation.}
 \usage{
-draw_binary_icc(x = 0.5, N = NULL, clusters, rho = 0)
+draw_binary_icc(x = 0.5, N = NULL, clusters, ICC = 0)
 }
 \arguments{
 \item{x}{A number or vector of numbers, one probability per cluster. If none
@@ -16,7 +16,7 @@ generated. Must be equal to length(clusters) if provided.}
 \item{clusters}{A vector of factors or items that can be coerced to
 clusters; the length will determine the length of the generated data.}
 
-\item{rho}{A number indicating the desired ICC, if none is provided will
+\item{ICC}{A number indicating the desired ICC, if none is provided will
 default to 0.}
 }
 \value{
@@ -25,7 +25,7 @@ the supplied cluster IDs.
 }
 \description{
 Data is generated to ensure inter-cluster correlation 0, intra-cluster
-correlation in expectation \eqn{\rho}. Algorithm taken from Hossein,
+correlation in expectation ICC. Algorithm taken from Hossein,
 Akhtar. "ICCbin: An R Package Facilitating Clustered Binary Data
 Generation, and Estimation of Intracluster Correlation Coefficient (ICC)
 for Binary Data".
@@ -33,6 +33,6 @@ for Binary Data".
 \examples{
 clusters = rep(1:5, 10)
 draw_binary_icc(clusters = clusters)
-draw_binary_icc(x = 0.5, clusters = clusters, rho = 0.5)
+draw_binary_icc(x = 0.5, clusters = clusters, ICC = 0.5)
 
 }
