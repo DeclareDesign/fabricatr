@@ -189,7 +189,7 @@
 <div id="binary-data-with-fixed-iccs" class="section level2">
 <h2 class="hasAnchor">
 <a href="#binary-data-with-fixed-iccs" class="anchor"></a>Binary data with fixed ICCs</h2>
-<p><code><a href="../reference/draw_binary_icc.html">draw_binary_icc()</a></code> takes three required arguments: <code>x</code>, a probability or vector of probabilities which determine the chance a given observation will be a 1; <code>clusters</code>, a map of units to clusters (required to generate the correlation structure); and <code>rho</code>, the fixed intra-cluster correlation (from 0 to 1). Users may optionally specify <code>N</code>; if it is not specified, <code><a href="../reference/draw_binary_icc.html">draw_binary_icc()</a></code> will determine it based on the length of the <code>clusters</code> vector.</p>
+<p><code><a href="../reference/draw_binary_icc.html">draw_binary_icc()</a></code> takes three required arguments: <code>x</code>, a probability or vector of probabilities which determine the chance a given observation will be a 1; <code>clusters</code>, a map of units to clusters (required to generate the correlation structure); and <code>ICC</code>, the fixed intra-cluster correlation (from 0 to 1). Users may optionally specify <code>N</code>; if it is not specified, <code><a href="../reference/draw_binary_icc.html">draw_binary_icc()</a></code> will determine it based on the length of the <code>clusters</code> vector.</p>
 <p>Consider the following example, which models whether individuals smoke:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 100 individual population, 10 each in each of 10 clusters</span>
 clusters =<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">10</span>)
@@ -198,7 +198,7 @@ clusters =<span class="st"> </span><span class="kw">rep</span>(<span class="dv">
 <span class="co"># in their tendency to smoke</span>
 smoker =<span class="st"> </span><span class="kw"><a href="../reference/draw_binary_icc.html">draw_binary_icc</a></span>(<span class="dt">x =</span> <span class="fl">0.2</span>,
                          <span class="dt">clusters =</span> clusters,
-                         <span class="dt">rho =</span> <span class="fl">0.7</span>)
+                         <span class="dt">ICC =</span> <span class="fl">0.7</span>)
 
 <span class="co"># Observe distribution of smokers and non-smokers</span>
 <span class="kw">table</span>(smoker)</code></pre></div>
@@ -264,20 +264,20 @@ smoker =<span class="st"> </span><span class="kw"><a href="../reference/draw_bin
 </table>
 <p>We observe that 7 clusters have no smokers at all, two clusters are overwhelming smokers, and one cluster is overwhelmingly non-smokers.</p>
 <p>We can also specify separate means for each cluster; but it is worth noting that the higher the ICC, the more the cluster mean will depart from the nominal cluster mean.</p>
-<p>If you do not specify a vector of probabilities or a correlation coefficient, the default values are probability 0.5 for each cluster and ICC (rho) of 0.5. If you do not specify cluster IDs, the function will return an error.</p>
+<p>If you do not specify a vector of probabilities or a correlation coefficient, the default values are probability 0.5 for each cluster and ICC of 0.5. If you do not specify cluster IDs, the function will return an error.</p>
 </div>
 <div id="normal-data-with-fixed-iccs" class="section level2">
 <h2 class="hasAnchor">
 <a href="#normal-data-with-fixed-iccs" class="anchor"></a>Normal data with fixed ICCs</h2>
-<p><code><a href="../reference/draw_normal_icc.html">draw_normal_icc()</a></code> takes four required arguments: <code>x</code>, a mean or vector of means, one for each cluster; <code>clusters</code>, a map of units to clusters (required to generate the correlation structure); <code>rho</code>, the fixed intra-cluster correlation coefficient; and <code>sd</code>, a standard deviation or vector of standard deviations, one for each cluster. Users can optionally specify <code>N</code>, a number of units, but if it is not supplied <code><a href="../reference/draw_normal_icc.html">draw_normal_icc()</a></code> will determine it based on the length of the <code>clusters</code> vector.</p>
-<p>If <code>sd</code> is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1. If <code>x</code> is not supplied, each cluster will be assumed to be mean zero. If <code>rho</code> is not supplied, it will be set to 0.5.</p>
+<p><code><a href="../reference/draw_normal_icc.html">draw_normal_icc()</a></code> takes four required arguments: <code>x</code>, a mean or vector of means, one for each cluster; <code>clusters</code>, a map of units to clusters (required to generate the correlation structure); <code>ICC</code>, the fixed intra-cluster correlation coefficient; and <code>sd</code>, a standard deviation or vector of standard deviations, one for each cluster. Users can optionally specify <code>N</code>, a number of units, but if it is not supplied <code><a href="../reference/draw_normal_icc.html">draw_normal_icc()</a></code> will determine it based on the length of the <code>clusters</code> vector.</p>
+<p>If <code>sd</code> is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1. If <code>x</code> is not supplied, each cluster will be assumed to be mean zero. If <code>ICC</code> is not supplied, it will be set to 0.5.</p>
 <p>Here, we model student academic performance by cluster:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 100 students, 10 each in 10 clusters</span>
 clusters =<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">10</span>)
 
 numeric_grade =<span class="st"> </span><span class="kw"><a href="../reference/draw_normal_icc.html">draw_normal_icc</a></span>(<span class="dt">x =</span> <span class="dv">80</span>,
                                <span class="dt">clusters =</span> clusters,
-                               <span class="dt">rho =</span> <span class="fl">0.5</span>,
+                               <span class="dt">ICC =</span> <span class="fl">0.5</span>,
                                <span class="dt">sd =</span> <span class="dv">15</span>)
 
 letter_grade =<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(<span class="dt">x =</span> numeric_grade,
