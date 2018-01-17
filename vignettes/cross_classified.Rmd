@@ -43,10 +43,10 @@ Primary schools and secondary schools each exist independent of each other and h
 The main steps involved in generating cross-classified data are as follows:
 
 1. Generate multiple non-nested data frames (Primary and Secondary Schools)
-2. Use the [`cross_classify()`] function to join the non-nested data frames on particular variables, optionally specifying a desired correlation outcome.
+2. Use the [`cross_level()`] function to join the non-nested data frames on particular variables, optionally specifying a desired correlation outcome.
 3. Optionally, add new variables or further levels in the resulting cross-classified data. (Students)
 
-# Generating multiple non-nested levels.
+# Generating multiple non-nested levels using **fabricatr**
 
 As with nested data, the workhorse function for ge_nerating new levels of data is [`add_level()`]. To generate multiple non-nested levels of data, it is necessary to add an additional argument in the following form:
 
@@ -61,6 +61,19 @@ schools_data <- fabricate(
 Observe that the second (and any subsequent) non-nested levels should contain the `nest = FALSE` argument -- otherwise, secondary schools would be interpreted to be a level nested within schools. Each level can have as many variables as you want, and **fabricatr** will internally track each level separately.
 
 This [`fabricate()`] call is incomplete -- so far we have just completed the first step. We must also specify how to merge the two levels. If you do not specify a way to merge the levels, [`fabricate()`] will return the most recent working data frame: in this case, the secondary schools level.
+
+# Importing non-nested data frames
+
+You can also import the data you wish to cross-classify on from existing data sources, or a combination of imported data and data specified using **fabricatr**. Recall that the first argument to a [`fabricate()`] call is the data you wish to import. We have previously seen that it is possible to import a single data frame this way, but it is also possible to import a list of data frames, staging them all for use for cross-classifying data. Data imported in this manner looks like this:
+
+```{r eval=FALSE, echo=TRUE, results="hide"}
+schools_data <- fabricate(
+  list(primary_schools, secondary_schools),
+  ...
+)
+```
+
+Again, the [`fabricate()`] call is incomplete -- we have imported the data we wish to cross-classify on, but not yet learned how to merge the data.
 
 # Specifying a merge function
 

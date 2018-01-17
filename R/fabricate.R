@@ -174,6 +174,11 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
     add_variable_name(working_environment, ID_label)
   }
 
+  # If the user does a passthrough for some reason, just return as is.
+  if(!length(data_arguments)) {
+    return(report_results(working_environment))
+  }
+
   # Run the level adder, report the results, and return
   return(
     report_results(
@@ -201,6 +206,8 @@ import_data_list = function(data) {
     # If not, just import them.
     working_environment_ = import_data(data, working_environment_)
   }
+
+  return(working_environment_)
 }
 
 import_data = function(data,
