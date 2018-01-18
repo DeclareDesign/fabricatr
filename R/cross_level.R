@@ -1,0 +1,151 @@
+
+#' Creates cross-classified (partially non-nested, joined data) with a fixed
+#' correlation structure.
+#'
+#' @param N (required) The number of observations in the resulting data frame
+#' @param by The result of a call to \code{join()} which specifies how the
+#' cross-classified data will be created
+#' @param ... A variable or series of variables to add to the resulting data
+#' frame after the cross-classified data is created.
+#' @param ID_label Internal keyword used to sepcify the name of the ID variable
+#' created for the new level. If left empty, this will be the name the level is
+#' assigned to as part of a \code{fabricate()} call.
+#' @param working_environment_ Internal keyword not for end user use.
+#' @param data_arguments Internal keyword not for end user use.
+#'
+#' @return data.frame
+#'
+#' @examples
+#'
+#' # Generate cross-classified data and merge, no correlation
+#' students <- fabricate(
+#'  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
+#'  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
+#'  students = cross_level(N = 500, by = join(primary_school, secondary_school))
+#' )
+#' head(students)
+#'
+#' # Cross-classified data with a correlation structure
+#' students <- fabricate(
+#'  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
+#'  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
+#'  students = cross_level(N = 500, by = join(ps_quality, ss_quality, rho = 0.5))
+#' )
+#' cor(students$ps_quality, students$ss_quality)
+#'
+#' @importFrom rlang quos quo_text
+#' @export
+cross_level = function(N = NULL,
+                       ID_label = NULL,
+                       working_environment_ = NULL,
+                       by = NULL,
+                       ...,
+                       data_arguments=quos(...)) {
+
+  if(any(!c("data_frame_output_", "shelved_df") %in%
+         names(working_environment_))) {
+    stop("You require at least two separate level hierarchies to create ",
+         "cross-classified data.")
+  }
+
+  if(is.null(by) || !length(by$variable_names)) {
+    stop("You must specify a join structure to create cross-classified data.")
+  }
+
+  # Shelf the working data frame before continuing, so now all our data is on
+  # the shelf.
+  working_environment_ = shelf_working_data(working_environment_)
+
+  # Loop over the variable name
+  variable_names = by$variable_names
+  data_frame_indices = integer(length(variable_names))
+
+  if(anyDuplicated(variable_names)) {
+    stop("Variables names for joining cross-classified data must be unique. ",
+         "Currently, you are joining on a variable named \"",
+         variable_names[anyDuplicated(variable_names)[1]],
+         "\" more than once.")
+  }
+
+  # Figure out which dfs we're joining on which variables
+  for(i in seq_along(variable_names)) {
+    for(j in seq_along(working_environment_$shelved_df)) {
+      if(variable_names[i] %in%
+         working_environment_$shelved_df[[j]]$variable_names_) {
+
+        # If we've already found this one, that's bad news for us...
+        if(data_frame_indices[i]) {
+          stop("Variable name ",
+               variable_names[i],
+               " is ambiguous and appears in at least two level hierarchies.")
+        }
+
+        data_frame_indices[i] = j
+      }
+    }
+
+    # If we didn't find this one, that's bad news for us...
+    if(!data_frame_indices[i]) {
+      stop("Variable name ",
+           variable_names[i],
+           " was not found in any of the level hierarchies.")
+    }
+  }
+
+  if(anyDuplicated(data_frame_indices)) {
+    stop("You can't join a level hierarchy to itself.")
+  }
+
+  # Actually fetch the df objects
+  data_frame_objects = sapply(data_frame_indices,
+                              function(x) {
+                                working_environment_$shelved_df[[x]]$data_frame_output_
+                              },
+                              simplify = FALSE
+  )
+
+  # Do the join.
+  out = join_dfs(data_frame_objects, variable_names, N, by$sigma, by$rho)
+  working_environment_$variable_names_ = names(out)
+
+  # Staple in an ID column onto the data list.
+  if(!is.null(ID_label) && (!ID_label %in% names(out))) {
+    out[, ID_label] = generate_id_pad(N)
+
+    add_level_id(working_environment_, ID_label)
+    add_variable_name(working_environment_, ID_label)
+  }
+
+  # Overwrite the working data frame.
+  working_environment_$data_frame_output_ = out
+
+  if(length(data_arguments)) {
+    working_environment_ = modify_level(ID_label = ID_label,
+                                        working_environment_ = working_environment_,
+                                        data_arguments = data_arguments)
+  }
+
+  # Return results
+  return(working_environment_)
+}
+
+#' Helper function handling specification of which variables to join a
+#' cross-classified data on, and what kind of correlation structure needed
+#' @param ... A series of two or more variable names, unquoted, to join on in
+#' order to create cross-classified data.
+#' @param rho A fixed (Spearman's rank) correlation coefficient between the
+#' variables being joined on: note that if it is not possible to make a
+#' correlation matrix from this coefficient (i.e. if you are joining on three
+#' or more variables and rho is negative) then the \code{cross_level()} call
+#' will fail.
+#' @param sigma A matrix with dimensions equal to the number of variables you
+#' are joining on, specifying the correlation for the resulting joined data.
+#' Only one of rho and sigma should be provided.
+#' @param data_arguments Internal, not for end-user use.
+#' @export
+join = function(..., rho=0, sigma=NULL, data_arguments=quos(...)) {
+  variable_names = unlist(lapply(data_arguments, function(x) { quo_text(x) }))
+  return(list(variable_names = variable_names,
+              rho = rho,
+              sigma = sigma))
+}

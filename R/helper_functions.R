@@ -417,3 +417,11 @@ add_variable_name = function(working_environment_, variable_name) {
 
   return()
 }
+
+
+# Dummy helper function that just extracts the working data frame from the
+# environment. This exists because we may in the future want to return something
+# that is not a data frame.
+report_results = function(working_environment) {
+  return(working_environment$data_frame_output_)
+}
