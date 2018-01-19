@@ -94,13 +94,14 @@ draw_normal_icc = function(x = 0,
   } else {
     cluster_mean = x
   }
-  # Expand to individual means
+
+  # Each individual has a realization of their cluster's mean
   individual_mean = cluster_mean[clusters]
 
   # Cluster level draws, expanded to individual level draws
   alpha_cluster = rnorm(n=number_of_clusters,
                         mean=0,
-                        sd=sqrt(recover_var_cluster))[clusters]
+                        sd=sqrt(recover_var_cluster))
   alpha_individual = alpha_cluster[clusters]
 
   # And error terms, which are truly individual
