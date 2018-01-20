@@ -12,15 +12,15 @@
 #' \code{\link{draw_binary_icc}}, and \code{\link{draw_normal_icc}}.
 #'
 #' @param data (optional) user-provided data that forms the basis of the
-#' fabrication, i.e. you can add variables to existing data. Provide either
+#' fabrication, e.g. you can add variables to existing data. Provide either
 #' \code{N} or \code{data} (\code{N} is the number of rows of the data if
 #' \code{data} is provided).
 #' @param N (optional) number of units to draw. If provided as
 #' \code{fabricate(N = 5)}, this determines the number of units in the
-#' single-level data. If provided in \code{add_level}, i.e.
+#' single-level data. If provided in \code{add_level}, e.g.
 #' \code{fabricate(cities = add_level(N = 5))}, \code{N} determines the number
 #' of units in a specific level of a hierarchical dataset.
-#' @param ID_label (optional) variable name for ID variable, i.e. citizen_ID
+#' @param ID_label (optional) variable name for ID variable, e.g. citizen_ID
 #' @param ... Variable or level-generating arguments, such as
 #' \code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass
 #' \code{add_level()} or \code{modify_level()} arguments, which define a level
@@ -40,37 +40,50 @@
 #' head(df)
 #'
 #' # Draw a single-level dataset with a covariate
-#' df <- fabricate(
+#' building_df <- fabricate(
 #'   N = 100,
-#'   height_ft = runif(N, 3.5, 8)
+#'   height_ft = runif(N, 300, 800)
 #' )
-#' head(df)
+#' head(building_df)
 #'
 #' # Start with existing data
-#' df <- fabricate(
-#'   data = df,
-#'   new_variable = rnorm(N)
+#' building_modified <- fabricate(
+#'   data = building_df,
+#'   rent = rnorm(N, mean = height_ft * 100, sd = height_ft * 30)
 #' )
 #'
 #' # Draw a two-level hierarchical dataset
 #' # containing cities within regions
-#' df <- fabricate(
+#' multi_level_df <- fabricate(
 #'  regions = add_level(N = 5),
 #'  cities = add_level(N = 2, pollution = rnorm(N, mean = 5)))
 #' head(df)
 #'
+#' # Start with existing data and add a nested level:
+#' company_df <- fabricate(
+#'  data = building_df,
+#'  company_id = add_level(N=10, is_headquarters = sample(c(0, 1), N, replace=TRUE))
+#' )
+#'
 #' # Start with existing data and add variables to hierarchical data
 #' # at levels which are already present in the existing data.
 #' # Note: do not provide N when adding variables to an existing level
-#' df <- fabricate(
-#'   data = df,
+#' modified_multi_level_df <- fabricate(
+#'   data = multi_level_df,
 #'   regions = modify_level(watershed = sample(c(0, 1), N, replace = TRUE)),
 #'   cities = modify_level(runoff = rnorm(N))
 #' )
 #'
-#' # For examples of cross-classified data, please read our vignette or check
-#' # documentation for \code{cross_level}
-#'
+#' # fabricatr can also make cross-classified data. For more information about
+#' # syntax for this functionality please read our vignette or check
+#' # documentation for \code{cross_level}:
+#' cross_classified <- fabricate(
+#'   primary_schools = add_level(N = 50, ps_quality = runif(N, 0, 10)),
+#'   secondary_schools = add_level(N = 100, ss_quality = runif(N, 0, 10), nest=FALSE),
+#'   students = cross_level(N = 2000,
+#'                          by=join(ps_quality, ss_quality, rho = 0.5),
+#'                          student_quality = ps_quality + 3*ss_quality + rnorm(N)))
+
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args
 #' is_lang get_expr
 #'

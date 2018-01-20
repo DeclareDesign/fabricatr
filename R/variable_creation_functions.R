@@ -22,7 +22,7 @@
 #' @param N number of units to draw. Defaults to the length of the vector of
 #' probabilities or latent data you provided
 #' @param link link function between the latent variable and the probability of
-#' a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity"
+#' a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 #' link, the latent variable must be a probability.
 #'
 #' @examples
@@ -52,7 +52,7 @@
 #' fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),
 #'           cat = draw_categorical(cbind(p1, p2, p3)))
 #'
-#' @importFrom stats pnorm rnorm rpois rbinom
+#' @importFrom stats pnorm rnorm rpois rbinom na.omit
 #'
 #' @export
 #'
@@ -63,9 +63,11 @@ draw_binomial <- function(probs, trials=1, N = length(probs), link = "identity")
   }
 
   if (link == "identity") {
-    if (!all(0 <= probs & probs <= 1)) {
+    if (!all(na.omit(0 <= probs & probs <= 1))) {
       stop("The identity link requires probability values between 0 and 1,",
            "inclusive.")
+    } else if(any(is.na(probs))) {
+      warning("At least one specified probability was NA.")
     }
     if (N %% length(probs)) {
       stop(

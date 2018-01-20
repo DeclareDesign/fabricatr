@@ -240,47 +240,47 @@ test_that("Likert data example", {
 
 test_that("Normal ICC", {
   clusters = rep(1:5, 10)
-  # Single mean
-  draw_normal_icc(clusters = clusters)
   # Means = length(cluster ids)
-  draw_normal_icc(x = c(-1, -0.5, 0, 0.5, 1), clusters = clusters)
+  draw_normal_icc(x = c(-1, -0.5, 0, 0.5, 1), clusters = clusters, ICC=0.5)
 
   # Invalid cluster IDs
   expect_error(draw_normal_icc(clusters = data.frame(X=1:10, Y=1:10)))
   # X doesn't match cluster IDs
-  expect_error(draw_normal_icc(x = c(0.5, 0.8), clusters = clusters))
+  expect_error(draw_normal_icc(x = c(0.5, 0.8), clusters = clusters, ICC=0.5))
   # X isn't a vector
   expect_error(draw_normal_icc(x = data.frame(j = c(0.1, 0.2),
                                               k = c(0.2, 0.4),
                                               m = c(0.3, 0.6),
                                               o = c(0.4, 0.8),
                                               p = c(0.5, 1.0)),
-                               clusters = clusters))
+                               clusters = clusters,
+                               ICC = 0.5))
   # X isn't numeric
-  expect_error(draw_normal_icc(x = "hello", clusters = clusters))
+  expect_error(draw_normal_icc(x = "hello", clusters = clusters, ICC=0.5))
   # ICC isn't a single number
   expect_error(draw_normal_icc(clusters = clusters, ICC = c(0.5, 0.8)))
-  # ICC isn't a probability
+  # ICC isn't a 0-1 proportion.
   expect_error(draw_normal_icc(clusters = clusters, ICC = 2))
   # ICC isn't a number
   expect_error(draw_normal_icc(clusters = clusters, ICC = "hello"))
   # Non-numeric N
-  expect_error(draw_normal_icc(clusters = clusters, N = "hello"))
+  expect_error(draw_normal_icc(clusters = clusters, N = "hello", ICC=0.5))
   # N provided but doesn't match
-  expect_error(draw_normal_icc(clusters = clusters, N = 20))
+  expect_error(draw_normal_icc(clusters = clusters, N = 20, ICC=0.5))
   # SD is wrong length
-  expect_error(draw_normal_icc(clusters = clusters, sd = c(1, 2)))
+  expect_error(draw_normal_icc(clusters = clusters, sd = c(1, 2), ICC=0.5))
   # SD is non-numeric
-  expect_error(draw_normal_icc(clusters = clusters, sd = "hello"))
+  expect_error(draw_normal_icc(clusters = clusters, sd = "hello", ICC=0.5))
   # SD is not a vector
   expect_error(draw_normal_icc(sd = data.frame(j = c(0.1, 0.2),
                                               k = c(0.2, 0.4),
                                               m = c(0.3, 0.6),
                                               o = c(0.4, 0.8),
                                               p = c(0.5, 1.0)),
-                               clusters = clusters))
+                               clusters = clusters,
+                               ICC = 0.5))
   # length(x) == N, but x is non-unique per cluster
   clusters = rep(1:10, 10)
   cluster_means = sample(rep(1:10, 10))
-  expect_error(draw_normal_icc(x = cluster_means, clusters = clusters))
+  expect_error(draw_normal_icc(x = cluster_means, clusters = clusters, ICC=0.5))
 })

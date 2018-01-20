@@ -55,6 +55,7 @@ nest_level = function(N = NULL, ID_label = NULL,
 
   # Loop through each of the variable generating arguments
   for(i in names(data_arguments)) {
+
     # Evaluate the formula in an environment consisting of:
     # 1) The current working data list
     # 2) A list that tells everyone what N means in this context.
@@ -71,6 +72,15 @@ nest_level = function(N = NULL, ID_label = NULL,
       working_data_list[[i]] = rep(working_data_list[[i]], (N/inner_N))
     }
 
+    if(length(working_data_list[[i]]) != N) {
+      warning(
+        "Nested data length for the variable \"", i, "\" ",
+        "appears to be incorrect. Nested data must either inherit the length N ",
+        "or be fixed-length variables equal to the total number of observations ",
+        "at the outer level. (In this case, ", N, ")\n\n"
+      )
+    }
+
     # Write the variable name to the list of variable names
     add_variable_name(working_environment_, i)
 
@@ -79,7 +89,8 @@ nest_level = function(N = NULL, ID_label = NULL,
     data_arguments[[i]] = NULL
   }
 
-  # Before handing back data, ensure it's actually rectangular
+  # Before handing back data, ensure it's actually rectangular -- although
+  # this should be covered by the error message above.
   working_data_list = check_rectangular(working_data_list, N)
 
   # Overwrite the working data frame.
