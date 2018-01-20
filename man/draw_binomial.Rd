@@ -32,7 +32,7 @@ function, these underlying probabilities will be transformed.}
 probabilities or latent data you provided}
 
 \item{link}{link function between the latent variable and the probability of
-a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity"
+a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 link, the latent variable must be a probability.}
 
 \item{x}{for `draw_ordered`, the latent data for each observation.}
