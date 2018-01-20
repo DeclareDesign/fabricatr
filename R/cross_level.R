@@ -135,7 +135,7 @@ cross_level = function(N = NULL,
 #' order to create cross-classified data.
 #' @param rho A fixed (Spearman's rank) correlation coefficient between the
 #' variables being joined on: note that if it is not possible to make a
-#' correlation matrix from this coefficient (i.e. if you are joining on three
+#' correlation matrix from this coefficient (e.g. if you are joining on three
 #' or more variables and rho is negative) then the \code{cross_level()} call
 #' will fail.
 #' @param sigma A matrix with dimensions equal to the number of variables you
