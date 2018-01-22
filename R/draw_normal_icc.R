@@ -87,6 +87,12 @@ draw_normal_icc = function(mean = 0,
       message("Implied `ICC` of provided standard deviations: ", implied_ICC)
     }
   } else {
+    # Fill in a default value if only ICC is specified; sd within-cluster = 1
+    # i.e. each cluster is unit variance.
+    if(is.null(sd) & is.null(sd_between)) {
+      sd = 1
+    }
+
     if(length(ICC) > 1) {
       stop("The `ICC` provided to `draw_normal_icc()` must be a single number.")
     }
@@ -128,10 +134,6 @@ draw_normal_icc = function(mean = 0,
               "deviations implies an ICC of ", implied_ICC, ". Ignoring the ",
               "provided `ICC`")
     }
-
-    if(is.null(sd) & is.null(sd_between)) {
-      sd = 1
-    }
   }
 
   # Sanity check sd
@@ -158,7 +160,7 @@ draw_normal_icc = function(mean = 0,
     if(!is.vector(sd_between)) {
       stop("`sd_between`, if provided, must be a number or vector of numbers.")
     }
-    if(any(!is.numeric(sd))) {
+    if(any(!is.numeric(sd_between))) {
       stop("`sd_between`, if provided, must be a number or vector of numbers.")
     }
     if(any(sd_between < 0)) {

@@ -81,7 +81,7 @@
 #'   students = cross_level(N = 2000,
 #'                          by=join(ps_quality, ss_quality, rho = 0.5),
 #'                          student_quality = ps_quality + 3*ss_quality + rnorm(N)))
-
+#' @seealso [cross_level()]
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args
 #' is_lang get_expr
 #'

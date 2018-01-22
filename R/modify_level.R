@@ -31,8 +31,8 @@ modify_level_internal = function(N = NULL, ID_label = NULL,
 
   # Need to supply an ID_label, otherwise we have no idea what to modify.
   if(is.null(ID_label)) {
-    stop("You can't modify a level without a known level ID variable. If you",
-         "are adding nested data, please use `add_level()`")
+    stop("You can't modify a level without a known level ID variable. If you ",
+         "are trying to add nested data, please use `add_level()`")
   }
 
   # First, establish that if we have no working data frame, we can't continue

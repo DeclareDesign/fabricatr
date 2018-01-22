@@ -38,9 +38,6 @@ add_level_internal = function(N = NULL, ID_label = NULL,
   # This needs to be done after we read the working environment and
   # before we check N or do the shelving procedure.
   if(nest && "data_frame_output_" %in% names(working_environment_)) {
-    #N = handle_n(N, add_level=FALSE,
-    #             working_environment = working_environment_,
-    #             parent_frame_levels=2)
 
     return(nest_level_internal(N=N, ID_label=ID_label,
                                working_environment_=working_environment_,
@@ -62,22 +59,17 @@ add_level_internal = function(N = NULL, ID_label = NULL,
 
   # Staple in an ID column onto the data list.
   if(!is.null(ID_label)) {
-    # It's possible the working data frame already has the ID label, if so,
-    # don't do anything.
-    if(is.null(names(working_data_list)) || !ID_label %in% names(working_data_list)) {
-      # First, add the column to the working data frame
-      working_data_list[[ID_label]] = generate_id_pad(N)
+    # It's actually not possible the working data frame already has an ID label
+    # since we forcibly shelved it earlier -- so let's just plough along.
 
-      # Next, add the ID_label to the level ids tracker
-      # Why does this not need to return? Because environments are passed by
-      # reference
-      add_level_id(working_environment_, ID_label)
-      add_variable_name(working_environment_, ID_label)
-    } else {
-      # If the ID label was specified but already exists, we should still log
-      # it as a level ID
-      add_level_id(working_environment_, ID_label)
-    }
+    # First, add the column to the working data frame
+    working_data_list[[ID_label]] = generate_id_pad(N)
+
+    # Next, add the ID_label to the level ids tracker
+    # Why does this not need to return? Because environments are passed by
+    # reference
+    add_level_id(working_environment_, ID_label)
+    add_variable_name(working_environment_, ID_label)
   } else {
     stop("Please specify a name for the level call you are creating.")
   }

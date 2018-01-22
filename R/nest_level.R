@@ -100,7 +100,7 @@ nest_level_internal = function(N = NULL, ID_label = NULL,
     }
 
     if(length(working_data_list[[i]]) != N) {
-      warning(
+      stop(
         "Nested data length for the variable \"", i, "\" ",
         "appears to be incorrect. Nested data must either inherit the length N ",
         "or be fixed-length variables equal to the total number of observations ",
