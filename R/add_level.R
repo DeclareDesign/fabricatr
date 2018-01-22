@@ -10,7 +10,13 @@ add_level = function(N = NULL,
   if("working_environment_" %in% names(data_arguments)) {
     working_environment_ = get_expr(data_arguments[["working_environment_"]])
     data_arguments[["working_environment_"]] = NULL
+  } else {
+    # This happens if either an add_level call is run external to a fabricate
+    # call OR if add_level is the only argument to a fabricate call and
+    # the data argument tries to resolve an add_level call.
+    stop("`add_level()` calls must be run inside `fabricate()` calls.")
   }
+
   if("ID_label" %in% names(data_arguments)) {
     ID_label = get_expr(data_arguments[["ID_label"]])
     data_arguments[["ID_label"]] = NULL

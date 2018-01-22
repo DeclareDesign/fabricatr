@@ -9,19 +9,19 @@
 \title{Draw discrete variables including binary, binomial count, poisson count,
 ordered, and categorical}
 \usage{
-draw_binomial(probs, trials = 1, N = length(probs), link = "identity")
+draw_binomial(prob, trials = 1, N = length(prob), link = "identity")
 
-draw_categorical(probs, N = NULL, link = "identity")
+draw_categorical(prob, N = NULL, link = "identity")
 
 draw_ordered(x, breaks = c(-1, 0, 1), break_labels = NULL, N = length(x),
   link = "identity")
 
-draw_count(means, N = length(means), link = "identity")
+draw_count(mean, N = length(mean), link = "identity")
 
-draw_binary(probs, N = length(probs), link = "identity")
+draw_binary(prob, N = length(prob), link = "identity")
 }
 \arguments{
-\item{probs}{A number or vector of numbers representing the probability for
+\item{prob}{A number or vector of numbers representing the probability for
 binary or binomial outcomes; or a number, vector, or matrix of numbers
 representing probabilities for categorical outcomes. If you supply a link
 function, these underlying probabilities will be transformed.}
@@ -42,7 +42,7 @@ link, the latent variable must be a probability.}
 \item{break_labels}{vector of labels for the breaks to cut a latent outcome
 into ordered categories.}
 
-\item{means}{for `draw_count`, the mean number of count units for each observation}
+\item{mean}{for `draw_count`, the mean number of count units for each observation}
 }
 \description{
 Drawing discrete data based on probabilities or latent traits is a common
@@ -56,16 +56,16 @@ data into observed ordered categories, `draw_count` creates count data
 \examples{
 fabricate(N = 3,
    p = c(0, .5, 1),
-   binary = draw_binary(probs = p))
+   binary = draw_binary(prob = p))
 
 
 fabricate(N = 3,
    x = 10 * rnorm(N),
-   binary = draw_binary(probs = x, link = "probit"))
+   binary = draw_binary(prob = x, link = "probit"))
 
 fabricate(N = 3,
    p = c(0, .5, 1),
-   binomial = draw_binomial(probs = p, trials = 10))
+   binomial = draw_binomial(prob = p, trials = 10))
 
 fabricate(N = 3,
    x = 5 * rnorm(N),
@@ -74,7 +74,7 @@ fabricate(N = 3,
 
 fabricate(N = 3,
    x = c(0,5,100),
-   count = draw_count(means=x))
+   count = draw_count(mean=x))
 
 # Categorical
 fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),

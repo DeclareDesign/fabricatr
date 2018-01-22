@@ -154,24 +154,27 @@ handle_id = function(ID_label, data=NULL) {
   # they were assuming NSE substitution of an undefined symbol.
   tryCatch(force(ID_label),
            error = function(e) {
-             stop("The ID_label provided is a reference to an undefined variable. Please enclose ID_label in quotation marks if you intended to provide ID_label as a character vector.")
+             stop("The `ID_label` provided is a reference to an undefined variable. ",
+                  "Please enclose `ID_label` in quotation marks if you intended to ",
+                  "provide `ID_label` as a character vector.")
            })
 
   # User passed a non-symbol non-null ID_label
   if(!is.null(ID_label)) {
     if(is.vector(ID_label) & length(ID_label) > 1) {
       # Vector of length n>1, error
-      stop("Provided ID_label must be a character vector of length 1 or variable name.")
+      stop("Provided `ID_label` must be a character vector of length 1 or variable name.")
     } else if(is.vector(ID_label) & is.numeric(ID_label[1])) {
       # Numeric ID_label -- this is OK but variable names can't be numeric
-      warning("Provided ID_label is numeric and will be prefixed with the character \"X\"")
+      warning("Provided `ID_label` is numeric and will be prefixed with the character \"X\"")
       ID_label <- as.character(ID_label)
     } else if(is.vector(ID_label) & is.character(ID_label[1])) {
       # Valid ID_label
       ID_label <- as.character(ID_label)
     } else if(!is.null(dim(ID_label))) {
       # Higher dimensional ID_label
-      stop("Provided ID_label must be a character vector or variable name, not a data frame or matrix.")
+      stop("Provided `ID_label` must be a character vector or variable name, ",
+           "not a data frame or matrix.")
     }
   }
 
@@ -200,7 +203,9 @@ handle_id = function(ID_label, data=NULL) {
         # We tried all our backup IDs and still couldn't find a valid ID
         if(tries >= 5 & is.null(ID_label)) {
           stop(
-            "No ID label specified for level and supply of default ID_labels -- ID, fab_ID_1, fab_ID_2, fab_ID_3, fab_ID_4, fab_ID_5 -- all used for data columns. Please specify an ID_label for this level."
+            "No `ID_label` specified for level and supply of default ID labels -- ",
+            "ID, fab_ID_1, fab_ID_2, fab_ID_3, fab_ID_4, fab_ID_5 -- are all used ",
+            "for data columns. Please specify an `ID_label` for this level."
           )
         }
       }
@@ -228,7 +233,8 @@ handle_n = function(N, add_level=TRUE, working_environment=NULL,
 
   # User provided an unevaluated function
   if(typeof(N) == "closure") {
-    stop("If you use a function to define N, you must evaluate that function rather than passing it in closure form.")
+    stop("If you use a function to define `N`, you must evaluate that function ",
+         "rather than passing it in closure form.")
   }
 
   # If they provided an N
@@ -237,7 +243,7 @@ handle_n = function(N, add_level=TRUE, working_environment=NULL,
     if(add_level) {
       if(length(N) > 1) {
         stop(
-          "When adding a new level, the specified N must be a single number."
+          "When adding a new level, the specified `N` must be a single number."
         )
       }
     } else {
@@ -255,7 +261,7 @@ handle_n = function(N, add_level=TRUE, working_environment=NULL,
 
         if(length(N) != length(unique_values_of_last_level)) {
           stop(
-            "N must be either a single number or a vector of length ",
+            "`N` must be either a single number or a vector of length ",
             length(unique_values_of_last_level),
             " (one value for each possible level of ",
             name_of_last_level,
@@ -270,7 +276,7 @@ handle_n = function(N, add_level=TRUE, working_environment=NULL,
     # If any N is non-numeric or non-integer or negative or zero, fail.
     if(all(is.numeric(N)) && any(N%%1 | N<=0)) {
       stop(
-        "Provided N must be a single positive integer."
+        "Provided `N` must be a single positive integer."
       )
     }
 
@@ -280,11 +286,11 @@ handle_n = function(N, add_level=TRUE, working_environment=NULL,
         N = as.numeric(N)
       }, error=function(e) {
         stop(
-          "Provided values for N must be integer numbers"
+          "Provided values for `N` must be integer numbers"
         )
       }, warning=function(e) {
         stop(
-          "Provided values for N must be integer numbers"
+          "Provided values for `N` must be integer numbers"
         )
       })
     }
@@ -300,7 +306,8 @@ handle_data = function(data) {
     # User provided data, but it's not 2D
     if(is.null(dim(data))) {
       stop(
-        "User provided data must be a data frame. Provided data was low dimensional."
+        "User provided `data` must be a data frame. Provided `data` was low ",
+        "dimensional."
       )
     }
 
@@ -309,7 +316,7 @@ handle_data = function(data) {
     if(!"data" %in% names(sys.call()) &&
        !"data" %in% names(sys.call(-1))) {
       stop(
-        "The data argument must be a data object. The argument call, ",
+        "The `data` argument must be a data object. The argument call, ",
         deparse(substitute(data)),
         ", was not a data object (e.g. a data.frame, tibble, sf object, or ",
         "convertible matrix)."
@@ -324,7 +331,7 @@ handle_data = function(data) {
       # since it relies on something with a dim attribute not converting to
       # a data frame.
       stop(
-        "User provided data could not convert to a data frame."
+        "User provided `data` could not convert to a data frame."
       )
     })
   }
@@ -360,7 +367,8 @@ check_all_levels <- function(options){
   # If some calls are levels and some aren't, we're unhappy
   if (any(is_level) != all(is_level)) {
     stop(
-      "Arguments passed to ... must either all be calls to create or modify levels, or else none of them must be."
+      "Arguments passed to `...` must either all be calls to create or modify ",
+      "levels, or else none of them must be."
     )
   }
 
@@ -387,7 +395,7 @@ check_rectangular = function(working_data_list, N) {
       working_data_list[[i]] = rep(working_data_list[[i]], N)
     } else if(length(working_data_list[[i]]) != N) {
       # Variable is not of length N. Oops.
-      stop("Variable lengths must all be equal to N.")
+      stop("Variable lengths must all be equal to `N.`")
     }
   }
   return(working_data_list)

@@ -38,6 +38,11 @@ cross_level = function(N = NULL,
   if("working_environment_" %in% names(data_arguments)) {
     working_environment_ = get_expr(data_arguments[["working_environment_"]])
     data_arguments[["working_environment_"]] = NULL
+  } else {
+    # This happens if either an add_level call is run external to a fabricate
+    # call OR if add_level is the only argument to a fabricate call and
+    # the data argument tries to resolve an add_level call.
+    stop("`cross_level()` calls must be run inside `fabricate()` calls.")
   }
   if("ID_label" %in% names(data_arguments)) {
     ID_label = get_expr(data_arguments[["ID_label"]])
@@ -58,12 +63,15 @@ cross_level_internal = function(N = NULL,
 
   if(any(!c("data_frame_output_", "shelved_df") %in%
          names(working_environment_))) {
-    stop("You require at least two separate level hierarchies to create ",
-         "cross-classified data.")
+    stop("You must provide at least two separate level hierarchies to create ",
+         "cross-classified data. If you have specified multiple levels, please ",
+         "ensure that you use the `nest=FALSE` argument to specify they are ",
+         "non-nested")
   }
 
   if(is.null(by) || !length(by$variable_names)) {
-    stop("You must specify a join structure to create cross-classified data.")
+    stop("You must specify a join structure using the `by` argument to create ",
+         "cross-classified data.")
   }
 
   # Shelf the working data frame before continuing, so now all our data is on
@@ -75,7 +83,7 @@ cross_level_internal = function(N = NULL,
   data_frame_indices = integer(length(variable_names))
 
   if(anyDuplicated(variable_names)) {
-    stop("Variables names for joining cross-classified data must be unique. ",
+    stop("Variable names for joining cross-classified data must be unique. ",
          "Currently, you are joining on a variable named \"",
          variable_names[anyDuplicated(variable_names)[1]],
          "\" more than once.")
@@ -89,9 +97,10 @@ cross_level_internal = function(N = NULL,
 
         # If we've already found this one, that's bad news for us...
         if(data_frame_indices[i]) {
-          stop("Variable name ",
+          stop("The variable name ",
                variable_names[i],
-               " is ambiguous and appears in at least two level hierarchies.")
+               " is ambiguous and appears in at least two level hierarchies. ",
+               "All level names used for joining must be unique.")
         }
 
         data_frame_indices[i] = j
@@ -100,9 +109,10 @@ cross_level_internal = function(N = NULL,
 
     # If we didn't find this one, that's bad news for us...
     if(!data_frame_indices[i]) {
-      stop("Variable name ",
+      stop("The variable name ",
            variable_names[i],
-           " was not found in any of the level hierarchies.")
+           " that you specified as part of your `cross_level()` join was not ",
+           "found in any of the level hierarchies")
     }
   }
 

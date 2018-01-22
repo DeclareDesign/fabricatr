@@ -4,10 +4,10 @@
 \alias{draw_binary_icc}
 \title{Draw binary data with fixed intra-cluster correlation.}
 \usage{
-draw_binary_icc(x = 0.5, N = NULL, clusters, ICC = 0)
+draw_binary_icc(prob = 0.5, N = NULL, clusters, ICC = 0)
 }
 \arguments{
-\item{x}{A number or vector of numbers, one probability per cluster. If none
+\item{prob}{A number or vector of numbers, one probability per cluster. If none
 is provided, will default to 0.5.}
 
 \item{N}{(Optional) A number indicating the number of observations to be
@@ -33,6 +33,6 @@ for Binary Data".
 \examples{
 clusters = rep(1:5, 10)
 draw_binary_icc(clusters = clusters)
-draw_binary_icc(x = 0.5, clusters = clusters, ICC = 0.5)
+draw_binary_icc(prob = 0.5, clusters = clusters, ICC = 0.5)
 
 }

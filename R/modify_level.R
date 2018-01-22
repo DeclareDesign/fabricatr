@@ -7,6 +7,11 @@ modify_level = function(N = NULL, ...) {
   if("working_environment_" %in% names(data_arguments)) {
     working_environment_ = get_expr(data_arguments[["working_environment_"]])
     data_arguments[["working_environment_"]] = NULL
+  } else {
+    # This happens if either an add_level call is run external to a fabricate
+    # call OR if add_level is the only argument to a fabricate call and
+    # the data argument tries to resolve an add_level call.
+    stop("`modify_level()` calls must be run inside `fabricate()` calls.")
   }
   if("ID_label" %in% names(data_arguments)) {
     ID_label = get_expr(data_arguments[["ID_label"]])
@@ -27,7 +32,7 @@ modify_level_internal = function(N = NULL, ID_label = NULL,
   # Need to supply an ID_label, otherwise we have no idea what to modify.
   if(is.null(ID_label)) {
     stop("You can't modify a level without a known level ID variable. If you",
-         "are adding nested data, please use add_level")
+         "are adding nested data, please use `add_level()`")
   }
 
   # First, establish that if we have no working data frame, we can't continue

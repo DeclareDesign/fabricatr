@@ -74,8 +74,8 @@ country_data <-
                       gdp_per_capita = runif(N, min=10000, max=50000),
                       life_expectancy = 50 + runif(N, 10, 20) + ((gdp_per_capita > 30000) * 10)),
     provinces = add_level(N = 10,
-                      has_nat_resources = draw_binary(probs=0.3, N=N),
-                      has_manufacturing = draw_binary(probs=0.7, N=N))
+                      has_nat_resources = draw_binary(prob=0.3, N=N),
+                      has_manufacturing = draw_binary(prob=0.7, N=N))
   )
 head(country_data)
 ```
@@ -144,12 +144,12 @@ new_citizen_data <-
     data = citizen_data,
     countries = modify_level(avg_temp = runif(N, 30, 80)),
     provinces = modify_level(conflict_zone = draw_binary(N,
-                                                         probs=0.2 + has_nat_resources * 0.3),
+                                                         prob=0.2 + has_nat_resources * 0.3),
                              infant_mortality = runif(N, 0, 10) + 
                                conflict_zone * 10 + 
                                (avg_temp > 70) * 10),
     citizens = modify_level(college_degree = draw_binary(N,
-                                                         probs=0.4 - (0.3 * conflict_zone)
+                                                         prob=0.4 - (0.3 * conflict_zone)
                                                          )
                             )
   )

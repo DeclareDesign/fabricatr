@@ -109,7 +109,7 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
       "You must do exactly one of: \n",
       "1) One or more level calls, with or without existing data \n",
       "2) Import existing data and optionally, add new variables without adding a level \n",
-      "3) Provide an \"N\" without importing data and optionally, add new variables"
+      "3) Provide an `N` without importing data and optionally, add new variables"
       )
   }
 
@@ -148,6 +148,7 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
 
   # User did not pass data -- they passed N
   if(is.null(data) | missing(data)) {
+
     # Single level -- maybe the user provided an ID_label, maybe they didn't.
     # Sanity check and/or construct an ID label for the new data.
     ID_label = handle_id(ID_label, NULL)
@@ -207,7 +208,8 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
 #' @keywords internal
 #' @export
 level = function(N = NULL, ID_label = NULL, ...) {
-  stop("Level calls are currently deprecated; use add_level and modify_level")
+  stop("The `level()` function from early versions of fabricatr is deprecated. ",
+       "Please use `add_level()` or `modify_level()` as necessary.")
   # Stub, this doesn't do anything yet -- may in the future dispatch to the
   # relevant levels.
 }

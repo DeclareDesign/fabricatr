@@ -1,13 +1,13 @@
 join_dfs = function(dfs, variables, N, sigma=NULL, rho=0) {
   # Error handling
   if(is.data.frame(dfs)) {
-    stop("You need at least two data frames.")
+    stop("You must specify at least two data frames in a `cross_level()` call.")
   }
   if(length(dfs) != length(variables)) {
-    stop("You must define which variables to join on.")
+    stop("You must define which variables to join in a `cross_level()` call.")
   }
   if(length(variables) < 2) {
-    stop("You must define at least two variables to join on.")
+    stop("You must define at least two variables to join on in a `cross_level()` call.")
   }
 
   # Create the data list -- the subset from the dfs of the variables we're
@@ -50,7 +50,7 @@ joint_draw_ecdf = function (data_list, N, ndim=length(data_list),
 
   # Error handling for N
   if(is.null(N) || is.na(N) || !is.atomic(N) || length(N) > 1 || N <= 0) {
-    stop("N must be a single integer that is positive.")
+    stop("N for `cross_level()` calls must be a single integer that is positive.")
   }
 
   # Error handling for rho, if specified
@@ -72,7 +72,8 @@ joint_draw_ecdf = function (data_list, N, ndim=length(data_list),
       sigma = matrix(rho, ncol=ndim, nrow=ndim)
       diag(sigma) = 1
     } else {
-      stop("If specified, rho should be a single number")
+      stop("If `rho` is specified in a `cross_level()` call, it must be a single ",
+           "number")
     }
   }
 
@@ -104,6 +105,8 @@ joint_draw_ecdf = function (data_list, N, ndim=length(data_list),
     correlated_sn <- matrix(rnorm(N * ndim),
                             nrow = N) %*% right_chol
 
+    message("`cross_level()` calls are faster if the `mvnfast` package is ",
+            "installed.")
   } else {
     # Using mvnfast
     correlated_sn = mvnfast::rmvn(N, ncores = getOption("mc.cores", 2L), mu, sigma)

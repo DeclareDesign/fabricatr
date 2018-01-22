@@ -197,15 +197,15 @@ resample_single_level <- function(data, ID_label = NULL, N) {
     # Simple bootstrap
     return(data[sample(seq_len(dim(data)[1]), N, replace = TRUE), , drop = F])
   } else if(!ID_label %in% colnames(data)) {
-    stop("ID label provided (", ID_label, ") is not a column in the data being resampled.")
+    stop("`ID_label` provided (", ID_label, ") is not a column in the data being resampled.")
   }
 
   if(length(N) > 1) {
-    stop("For a single resample level, N should be a single positive integer. N was ", N)
+    stop("For a single resample level, `N` should be a single positive integer. `N` was ", N)
   }
 
   if(!is.numeric(N) || (N%%1 | (N<=0 & N!=ALL))) {
-    stop("For a single resample level, N should be a positive integer. N was ", N)
+    stop("For a single resample level, `N` should be a positive integer. `N` was ", N)
   }
 
   # Split data by cluster ID, storing all row indices associated with that cluster ID
@@ -217,7 +217,9 @@ resample_single_level <- function(data, ID_label = NULL, N) {
     # User wants passthrough resampling
     # seq_len should be a little faster than 1:length(.)
     resample_ids = seq_len(length(indices_split))
-    warning("You do not need to specify ALL for the final level of your resampling plan. By default any excluded levels implicitly keep all units at this level.")
+    warning("You do not need to specify ALL for the final level of your ",
+            "resampling plan. By default any excluded levels implicitly keep ",
+            "all units at this level.")
   } else {
     # sample.int is slightly faster than sample(1:length(.)) or sample(seq_len(length(.))
     resample_ids = sample.int(length(indices_split), size=N, replace=TRUE)

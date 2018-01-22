@@ -9,6 +9,11 @@ nest_level = function(N = NULL,
   if("working_environment_" %in% names(data_arguments)) {
     working_environment_ = get_expr(data_arguments[["working_environment_"]])
     data_arguments[["working_environment_"]] = NULL
+  } else {
+    # This happens if either an add_level call is run external to a fabricate
+    # call OR if add_level is the only argument to a fabricate call and
+    # the data argument tries to resolve an add_level call.
+    stop("`nest_level()` calls must be run inside `fabricate()` calls.")
   }
   if("ID_label" %in% names(data_arguments)) {
     ID_label = get_expr(data_arguments[["ID_label"]])
@@ -28,7 +33,9 @@ nest_level_internal = function(N = NULL, ID_label = NULL,
 
   # Check to make sure we have a data frame to nest on.
   if(is.null(dim(working_environment_$data_frame_output_))) {
-    stop("You can't nest a level if there is no level to nest inside")
+    stop("You can't nest a level if there is no level to nest inside. You can ",
+         "resolve this issue by using `add_level()` instead of `nest_level()` or ",
+         "by ensuring that data has been created or imported before using `nest_level()`")
   }
 
   # Check to make sure the N here is sane

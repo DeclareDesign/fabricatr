@@ -4,11 +4,11 @@
 \alias{draw_normal_icc}
 \title{Draw normal data with fixed intra-cluster correlation.}
 \usage{
-draw_normal_icc(x = 0, N = NULL, clusters, sd = NULL, sd_between = NULL,
-  ICC = NULL)
+draw_normal_icc(mean = 0, N = NULL, clusters, sd = NULL,
+  sd_between = NULL, ICC = NULL)
 }
 \arguments{
-\item{x}{A number or vector of numbers, one mean per cluster. If none is
+\item{mean}{A number or vector of numbers, one mean per cluster. If none is
 provided, will default to 0.}
 
 \item{N}{(Optional) A number indicating the number of observations to be
