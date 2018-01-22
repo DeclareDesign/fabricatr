@@ -18,35 +18,41 @@ install.packages("fabricatr", dependencies = TRUE,
 
 ### Getting started
 
-Once the package is installed, it is easy to generate new data, or modify your own. The below example simulates the United States House of Representatives, where 435 members belong to two parties, and both parties and representatives have characteristics modeled in the data:
+Once you have installed **fabricatr**, you can easily import your own data or generate new data. **fabricatr** is designed to help you solve two key problems:
+
+1.  Generating variables that look like the real thing, including Likert survey responses, treatment status, demographic variables, and variables correlated by group.
+2.  Generating data that are structured like the real thing, including multi-level ("nested") data or cross-classified data.
+
+**fabricatr** is easy to learn and easy to read. Consider this example which generates data modeling the United States House of Representatives:
 
 ``` r
 library(fabricatr)
 
-house_candidates = fabricate(
-  parties = add_level(
+house_members = fabricate(
+  party_id = add_level(
     N = 2, 
+    party_names = c("Republican", "Democrat"),
     party_ideology = c(0.5, -0.5), 
     in_power = c(1, 0), 
     party_incumbents = c(241, 194)),
-  representatives = add_level(
+  rep_id = add_level(
     N = party_incumbents, 
-    member_ideology = rnorm(N, party_ideology),
-    terms_served = draw_count(N = N, means = 3),
-    female = draw_binary(N = N, probs = 0.2))
+    member_ideology = rnorm(N, party_ideology, sd=0.5),
+    terms_served = draw_count(N = N, mean = 4),
+    female = draw_binary(N = N, prob = 0.198))
   )
-head(house_candidates)
 ```
 
-| parties |  party\_ideology|  in\_power|  party\_incumbents| representatives |  member\_ideology|  terms\_served|  female|
-|:--------|----------------:|----------:|------------------:|:----------------|-----------------:|--------------:|-------:|
-| 1       |              0.5|          1|                241| 001             |              1.26|              2|       0|
-| 1       |              0.5|          1|                241| 002             |              0.59|              2|       0|
-| 1       |              0.5|          1|                241| 003             |              0.05|              2|       1|
-| 1       |              0.5|          1|                241| 004             |              0.02|              3|       0|
-| 1       |              0.5|          1|                241| 005             |              1.54|              6|       0|
-| 1       |              0.5|          1|                241| 006             |             -0.50|              4|       0|
+|     | party\_names |  party\_ideology|  in\_power|  member\_ideology|  terms\_served|  female|
+|-----|:-------------|----------------:|----------:|-----------------:|--------------:|-------:|
+| 339 | Democrat     |             -0.5|          0|              0.11|              3|       0|
+| 217 | Republican   |              0.5|          1|             -0.37|              1|       0|
+| 233 | Republican   |              0.5|          1|              0.71|              2|       1|
+| 263 | Democrat     |             -0.5|          0|             -1.05|              3|       0|
+| 140 | Republican   |              0.5|          1|              0.24|              4|       0|
 
-For more information, use the command `?fabricate` in R to explore our documentation or read our [online tutorial](http://fabricatr.declaredesign.org/articles/getting_started.html).
+### Next Steps
+
+For more information, read our [online tutorial](http://fabricatr.declaredesign.org/articles/getting_started.html) to get started with **fabricatr**. This tutorial will give you a brief overview of **fabricatr**'s main functions and direct you towards your next steps. You can also read our documentation inside R using the command `?fabricate` as your entry point.
 
 This project is generously supported by a grant from the [Laura and John Arnold Foundation](http://www.arnoldfoundation.org) and seed funding from [EGAP](http://egap.org).

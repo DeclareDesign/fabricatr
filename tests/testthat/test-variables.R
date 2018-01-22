@@ -219,7 +219,7 @@ test_that("Binary ICCs", {
   expect_error(draw_binary_icc(prob = cluster_means, clusters = clusters))
 })
 
-test_that("Likert data example", {
+test_that("Likert data example using ordered", {
   set.seed(19861108)
   latent = rnorm(n=100, mean=3, sd=10)
   cutpoints = c(-15, -7, -3, 3, 7, 15)
@@ -329,7 +329,20 @@ test_that("Normal ICC", {
 })
 
 test_that("Likert alias", {
+  # Without specifying anything
   draw_likert(x = rnorm(100))
+
+  # Specifying breaks
+  draw_likert(x = rnorm(100), breaks=c(-Inf, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, Inf))
   draw_likert(x = rnorm(100), breaks=c(-Inf, -1.5, -0.5, 0.5, 1.5, Inf))
-  expect_error(draw_likert(x = rnorm(100), breaks=c(-1, 0, 1)))
+  draw_likert(x = rnorm(100), breaks=c(-Inf, -1, 0, 1, Inf))
+
+  # Specifying types
+  draw_likert(x = rnorm(100), type = 7)
+  draw_likert(x = rnorm(100), type = 5)
+  draw_likert(x = rnorm(100), type = 4)
+
+  # Errors: bad breaks, bad types
+  expect_error(draw_likert(x = rnorm(100), breaks=c(-Inf, -1, 0, Inf)))
+  expect_error(draw_likert(x = rnorm(100), type = 3))
 })

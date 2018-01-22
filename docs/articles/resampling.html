@@ -39,13 +39,22 @@
       <a href="../articles/getting_started.html">Getting Started</a>
     </li>
     <li>
+      <a href="../articles/common_social.html">Common Social Sciences Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
+    </li>
+    <li>
+      <a href="../articles/building_importing.html">Building and Importing Data</a>
+    </li>
+    <li>
+      <a href="../articles/cross_classified.html">Cross-classified Data</a>
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
-      <a href="../articles/cross_classified.html">Cross-classified Data</a>
+      <a href="../articles/other_packages.html">Other Packages</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -119,7 +128,7 @@
 <a href="#bootstrapping" class="anchor"></a>Bootstrapping</h1>
 <p>The simplest option in <strong>fabricatr</strong> is to “bootstrap” data. Taking data with N observations, the “bootstrap” resamples these observations with replacement and generates N new observations. Existing observations may be used zero times, once, or more than once. Bootstrapping is very simple with the <a href="../reference/resample_data.html"><code><a href="../reference/resample_data.html">resample_data()</a></code></a> function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N=</span><span class="dv">10</span>, 
-                        <span class="dt">voted_republican =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">probs=</span><span class="fl">0.5</span>, <span class="dt">N=</span>N))
+                        <span class="dt">voted_republican =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob=</span><span class="fl">0.5</span>, <span class="dt">N=</span>N))
 
 survey_data_new =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data)
 survey_data</code></pre></div>
@@ -422,7 +431,7 @@ my_data_<span class="dv">2</span></code></pre></div>
 
 
       <footer><div class="copyright" style="flex:2;">
-  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin.</p>
+  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin, Neal Fultz.</p>
   <p>Code is licensed under <a href="https://opensource.org/licenses/mit-license.php">MIT</a> license.</p>
 </div>
 

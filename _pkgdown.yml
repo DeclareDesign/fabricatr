@@ -23,12 +23,18 @@ navbar:
     menu:
       - text: Getting Started
         href: articles/getting_started.html
+      - text: Common Social Sciences Variables
+        href: articles/common_social.html
       - text: Generating Variables
         href: articles/variable_generation.html
-      - text: Resampling
-        href: articles/resampling.html
+      - text: Building and Importing Data
+        href: articles/building_importing.html
       - text: Cross-classified Data
         href: articles/cross_classified.html
+      - text: Resampling
+        href: articles/resampling.html
+      - text: Other Packages
+        href: articles/other_packages.html
       - text: Advanced Features
         href: articles/advanced_features.html
   - text: Reference
@@ -48,4 +54,4 @@ navbar:
   - text: "DeclareDesign home"
     href: http://declaredesign.org
   right:
-  - text: 
+  - text:

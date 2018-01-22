@@ -63,13 +63,22 @@ cross-classified data on, and what kind of correlation structure needed — join
       <a href="../articles/getting_started.html">Getting Started</a>
     </li>
     <li>
+      <a href="../articles/common_social.html">Common Social Sciences Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
+    </li>
+    <li>
+      <a href="../articles/building_importing.html">Building and Importing Data</a>
+    </li>
+    <li>
+      <a href="../articles/cross_classified.html">Cross-classified Data</a>
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
-      <a href="../articles/cross_classified.html">Cross-classified Data</a>
+      <a href="../articles/other_packages.html">Other Packages</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -132,7 +141,7 @@ cross-classified data on, and what kind of correlation structure needed</h1>
 cross-classified data on, and what kind of correlation structure needed</p>
     
 
-    <pre class="usage"><span class='fu'>join</span>(<span class='no'>...</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>))</pre>
+    <pre class="usage"><span class='fu'>join</span>(<span class='no'>...</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -146,7 +155,7 @@ order to create cross-classified data.</p></td>
       <th>rho</th>
       <td><p>A fixed (Spearman's rank) correlation coefficient between the
 variables being joined on: note that if it is not possible to make a
-correlation matrix from this coefficient (i.e. if you are joining on three
+correlation matrix from this coefficient (e.g. if you are joining on three
 or more variables and rho is negative) then the <code><a href='cross_level.html'>cross_level()</a></code> call
 will fail.</p></td>
     </tr>
@@ -155,10 +164,6 @@ will fail.</p></td>
       <td><p>A matrix with dimensions equal to the number of variables you
 are joining on, specifying the correlation for the resulting joined data.
 Only one of rho and sigma should be provided.</p></td>
-    </tr>
-    <tr>
-      <th>data_arguments</th>
-      <td><p>Internal, not for end-user use.</p></td>
     </tr>
     </table>
     
@@ -175,7 +180,7 @@ Only one of rho and sigma should be provided.</p></td>
 
       <footer>
       <div class="copyright" style="flex:2;">
-  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin.</p>
+  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin, Neal Fultz.</p>
   <p>Code is licensed under <a href="https://opensource.org/licenses/mit-license.php">MIT</a> license.</p>
 </div>
 

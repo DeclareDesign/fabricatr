@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>fabricatr - Imagine your data before you collect it </title>
+<title>fabricatr - Imagine Your Data Before You Collect It </title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
@@ -39,13 +39,22 @@
       <a href="articles/getting_started.html">Getting Started</a>
     </li>
     <li>
+      <a href="articles/common_social.html">Common Social Sciences Variables</a>
+    </li>
+    <li>
       <a href="articles/variable_generation.html">Generating Variables</a>
+    </li>
+    <li>
+      <a href="articles/building_importing.html">Building and Importing Data</a>
+    </li>
+    <li>
+      <a href="articles/cross_classified.html">Cross-classified Data</a>
     </li>
     <li>
       <a href="articles/resampling.html">Resampling</a>
     </li>
     <li>
-      <a href="articles/cross_classified.html">Cross-classified Data</a>
+      <a href="articles/other_packages.html">Other Packages</a>
     </li>
     <li>
       <a href="articles/advanced_features.html">Advanced Features</a>
@@ -119,97 +128,90 @@
 <div id="getting-started" class="section level3">
 <h3 class="hasAnchor">
 <a href="#getting-started" class="anchor"></a>Getting started</h3>
-<p>Once the package is installed, it is easy to generate new data, or modify your own. The below example simulates the United States House of Representatives, where 435 members belong to two parties, and both parties and representatives have characteristics modeled in the data:</p>
+<p>Once you have installed <strong>fabricatr</strong>, you can easily import your own data or generate new data. <strong>fabricatr</strong> is designed to help you solve two key problems:</p>
+<ol style="list-style-type: decimal">
+<li>Generating variables that look like the real thing, including Likert survey responses, treatment status, demographic variables, and variables correlated by group.</li>
+<li>Generating data that are structured like the real thing, including multi-level (“nested”) data or cross-classified data.</li>
+</ol>
+<p><strong>fabricatr</strong> is easy to learn and easy to read. Consider this example which generates data modeling the United States House of Representatives:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
 
-house_candidates =<span class="st"> </span><span class="kw"><a href="reference/fabricate.html">fabricate</a></span>(
-  <span class="dt">parties =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
+house_members =<span class="st"> </span><span class="kw"><a href="reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">party_id =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> <span class="dv">2</span>, 
+    <span class="dt">party_names =</span> <span class="kw">c</span>(<span class="st">"Republican"</span>, <span class="st">"Democrat"</span>),
     <span class="dt">party_ideology =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>), 
     <span class="dt">in_power =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), 
     <span class="dt">party_incumbents =</span> <span class="kw">c</span>(<span class="dv">241</span>, <span class="dv">194</span>)),
-  <span class="dt">representatives =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
+  <span class="dt">rep_id =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> party_incumbents, 
-    <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology),
-    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">means =</span> <span class="dv">3</span>),
-    <span class="dt">female =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">probs =</span> <span class="fl">0.2</span>))
-  )
-<span class="kw">head</span>(house_candidates)</code></pre></div>
+    <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology, <span class="dt">sd=</span><span class="fl">0.5</span>),
+    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">mean =</span> <span class="dv">4</span>),
+    <span class="dt">female =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.198</span>))
+  )</code></pre></div>
 <table class="table">
 <thead><tr class="header">
-<th align="left">parties</th>
+<th></th>
+<th align="left">party_names</th>
 <th align="right">party_ideology</th>
 <th align="right">in_power</th>
-<th align="right">party_incumbents</th>
-<th align="left">representatives</th>
 <th align="right">member_ideology</th>
 <th align="right">terms_served</th>
 <th align="right">female</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">1</td>
-<td align="right">0.5</td>
-<td align="right">1</td>
-<td align="right">241</td>
-<td align="left">001</td>
-<td align="right">1.26</td>
-<td align="right">2</td>
+<td>339</td>
+<td align="left">Democrat</td>
+<td align="right">-0.5</td>
+<td align="right">0</td>
+<td align="right">0.11</td>
+<td align="right">3</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
-<td align="left">1</td>
+<td>217</td>
+<td align="left">Republican</td>
 <td align="right">0.5</td>
 <td align="right">1</td>
-<td align="right">241</td>
-<td align="left">002</td>
-<td align="right">0.59</td>
-<td align="right">2</td>
+<td align="right">-0.37</td>
+<td align="right">1</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
-<td align="left">1</td>
+<td>233</td>
+<td align="left">Republican</td>
 <td align="right">0.5</td>
 <td align="right">1</td>
-<td align="right">241</td>
-<td align="left">003</td>
-<td align="right">0.05</td>
+<td align="right">0.71</td>
 <td align="right">2</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
-<td align="left">1</td>
-<td align="right">0.5</td>
-<td align="right">1</td>
-<td align="right">241</td>
-<td align="left">004</td>
-<td align="right">0.02</td>
+<td>263</td>
+<td align="left">Democrat</td>
+<td align="right">-0.5</td>
+<td align="right">0</td>
+<td align="right">-1.05</td>
 <td align="right">3</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
-<td align="left">1</td>
+<td>140</td>
+<td align="left">Republican</td>
 <td align="right">0.5</td>
 <td align="right">1</td>
-<td align="right">241</td>
-<td align="left">005</td>
-<td align="right">1.54</td>
-<td align="right">6</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">1</td>
-<td align="right">0.5</td>
-<td align="right">1</td>
-<td align="right">241</td>
-<td align="left">006</td>
-<td align="right">-0.50</td>
+<td align="right">0.24</td>
 <td align="right">4</td>
 <td align="right">0</td>
 </tr>
 </tbody>
 </table>
-<p>For more information, use the command <code><a href="reference/fabricate.html">?fabricate</a></code> in R to explore our documentation or read our <a href="http://fabricatr.declaredesign.org/articles/getting_started.html">online tutorial</a>.</p>
+</div>
+<div id="next-steps" class="section level3">
+<h3 class="hasAnchor">
+<a href="#next-steps" class="anchor"></a>Next Steps</h3>
+<p>For more information, read our <a href="http://fabricatr.declaredesign.org/articles/getting_started.html">online tutorial</a> to get started with <strong>fabricatr</strong>. This tutorial will give you a brief overview of <strong>fabricatr</strong>’s main functions and direct you towards your next steps. You can also read our documentation inside R using the command <code><a href="reference/fabricate.html">?fabricate</a></code> as your entry point.</p>
 <p>This project is generously supported by a grant from the <a href="http://www.arnoldfoundation.org">Laura and John Arnold Foundation</a> and seed funding from <a href="http://egap.org">EGAP</a>.</p>
 </div>
 </div>
@@ -233,7 +235,8 @@ house_candidates =<span class="st"> </span><span class="kw"><a href="reference/f
 <li>Jasper Cooper <br><small class="roles"> Author </small> </li>
 <li>Alexander Coppock <br><small class="roles"> Author </small> </li>
 <li>Macartan Humphreys <br><small class="roles"> Author </small> </li>
-<li>Aaron Rudkin <br><small class="roles"> Contributor </small> </li>
+<li>Aaron Rudkin <br><small class="roles"> Author </small> </li>
+<li>Neal Fultz <br><small class="roles"> Contributor </small> </li>
 </ul>
 </div>
       </div>
@@ -242,7 +245,7 @@ house_candidates =<span class="st"> </span><span class="kw"><a href="reference/f
 
 
       <footer><div class="copyright" style="flex:2;">
-  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin.</p>
+  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin, Neal Fultz.</p>
   <p>Code is licensed under <a href="https://opensource.org/licenses/mit-license.php">MIT</a> license.</p>
 </div>
 
