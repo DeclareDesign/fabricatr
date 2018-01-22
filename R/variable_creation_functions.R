@@ -230,7 +230,7 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
     return(factor(break_labels[findInterval(x, breaks)],
                   levels = break_labels))
   } else {
-    return(findInterval(x, breaks))
+    return(factor(findInterval(x, breaks)))
   }
 }
 

@@ -91,6 +91,7 @@ Optionally, users can specify their own breaks. These will override the `type` c
 Labels are automatically provided by `draw_likert()`. The default 7-item Likert scale uses the labels ["Strongly Disagree", "Disagree", "Lean Disagree", "Don't Know / Neutral", "Lean Agree", "Agree", "Strongly Agree"].
 
 Examples of how users might use the function are available below:
+
 ```{r echo=TRUE, results="hide"}
 survey_data = fabricate(N = 100,
                         Q1 = draw_likert(x = rnorm(N), type = 7),

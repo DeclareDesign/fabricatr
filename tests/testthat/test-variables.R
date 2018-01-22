@@ -226,8 +226,8 @@ test_that("Likert data example", {
   likert = draw_ordered(x = latent,
                         breaks = cutpoints)
   expect_equal(length(unique(likert)), 7)
-  expect_equal(max(likert), 7)
-  expect_equal(min(likert), 1)
+  expect_equal(max(as.numeric(likert)), 7)
+  expect_equal(min(as.numeric(likert)), 1)
 
   draw_ordered(x = latent,
                breaks = cutpoints,
