@@ -136,40 +136,12 @@ draw_normal_icc = function(mean = 0,
     }
   }
 
-  # Sanity check sd
-  if(!is.null(sd)) {
-    if(!length(sd) %in% c(1, number_of_clusters)) {
-      stop("`sd` must be either a number or one number per cluster.")
-    }
-    if(!is.vector(sd)) {
-      stop("`sd` must be a number or vector of numbers.")
-    }
-    if(any(!is.numeric(sd))) {
-      stop("`sd` must be a number or vector of numbers.")
-    }
-    if(any(sd < 0)) {
-      stop("Numbers provided to `sd` must be non-negative.")
-    }
-  }
-
-  # Sanity check sd_between
-  if(!is.null(sd_between)) {
-    if(!length(sd_between) %in% c(1, number_of_clusters)) {
-      stop("`sd_between`, if provided, must be either a number or one number per cluster.")
-    }
-    if(!is.vector(sd_between)) {
-      stop("`sd_between`, if provided, must be a number or vector of numbers.")
-    }
-    if(any(!is.numeric(sd_between))) {
-      stop("`sd_between`, if provided, must be a number or vector of numbers.")
-    }
-    if(any(sd_between < 0)) {
-      stop("Numbers provided to `sd_between` must be non-negative.")
-    }
-  }
-
   # Get number of clusters
   number_of_clusters = length(unique(clusters))
+
+  # Sanity check sd/sd_between
+  check_sd_error_helper(sd, "sd", number_of_clusters)
+  check_sd_error_helper(sd_between, "sd_between", number_of_clusters)
 
   # Fill in the unfilled number at this point.
   if(is.null(sd)) {
@@ -203,4 +175,22 @@ draw_normal_icc = function(mean = 0,
   epsilon_ij = rnorm(length(clusters), 0, sd)
 
   individual_mean + alpha_individual + epsilon_ij
+}
+
+check_sd_error_helper = function(data, data_name, number_of_clusters) {
+  # Sanity check sd or sd_between
+  if(!is.null(data)) {
+    if(!length(data) %in% c(1, number_of_clusters)) {
+      stop("`", data_name, "` must be either a number or one number per cluster.")
+    }
+    if(!is.vector(data)) {
+      stop("`", data_name, "` must be a number or vector of numbers.")
+    }
+    if(any(!is.numeric(data))) {
+      stop("`", data_name, "` must be a number or vector of numbers.")
+    }
+    if(any(data < 0)) {
+      stop("Numbers provided to `", data_name, "` must be non-negative.")
+    }
+  }
 }
