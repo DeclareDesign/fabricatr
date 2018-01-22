@@ -7,7 +7,9 @@
 #' `draw_binomial` creates binomial data (repeated trial binary data),
 #' `draw_categorical` creates categorical data, `draw_ordered` transforms latent
 #' data into observed ordered categories, `draw_count` creates count data
-#' (poisson-distributed)
+#' (poisson-distributed). `draw_liket` is an alias to `draw_ordered` that
+#' pre-specifies break labels and offers default breaks appropriate for a likert
+#' survey question.
 #'
 #' @param prob A number or vector of numbers representing the probability for
 #' binary or binomial outcomes; or a number, vector, or matrix of numbers
@@ -19,6 +21,8 @@
 #' @param breaks vector of breaks to cut a latent outcome into ordered categories
 #' @param break_labels vector of labels for the breaks to cut a latent outcome
 #' into ordered categories.
+#' @param type Type of Likert scale data for `draw_likert`. Valid options are 4,
+#' 5, and 7.
 #' @param N number of units to draw. Defaults to the length of the vector of
 #' probabilities or latent data you provided
 #' @param link link function between the latent variable and the probability of
@@ -223,7 +227,8 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
 
   # Output
   if(!is.null(break_labels)) {
-    return(break_labels[findInterval(x, breaks)])
+    return(factor(break_labels[findInterval(x, breaks)],
+                  levels = break_labels))
   } else {
     return(findInterval(x, breaks))
   }
@@ -258,4 +263,55 @@ draw_binary <- function(prob, N = length(prob), link = "identity") {
     link = link,
     trials = 1
   ))
+}
+
+#' @rdname draw_binomial
+#' @export
+draw_likert <- function(x,
+                        type = 7,
+                        breaks = NULL,
+                        N = length(x),
+                        link = "identity") {
+
+  if(is.null(breaks)) {
+    if(type == 7) {
+      breaks = c(-Inf, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, Inf)
+    } else if(type == 5) {
+      breaks = c(-Inf, -1.5, -0.5, 0.5, 1.5, Inf)
+    } else if(type == 4) {
+      breaks = c(-Inf, -1, 0, 1, Inf)
+    } else {
+      stop("You must specify either `breaks` or `type` to use `draw_likert()`.")
+    }
+  }
+
+  if(length(breaks) == 8) {
+    break_labels = c("Strongly Disagree",
+                     "Disagree",
+                     "Lean Disagree",
+                     "Don't Know / Neutral",
+                     "Lean Agree",
+                     "Agree",
+                     "Strong Agree")
+  } else if(length(breaks) == 6) {
+    break_labels = c("Strongly Disagree",
+                     "Disagree",
+                     "Don't Know / Neutral",
+                     "Agree",
+                     "Strongly Agree")
+  } else if(length(breaks) == 5) {
+    break_labels = c("Strongly Disagree",
+                     "Disagree",
+                     "Agree",
+                     "Strongly Agree")
+  } else if(is.null(type)) {
+      stop("If you provide `draw_likert()` with a `breaks` argument, `breaks must ",
+           "be either 5, 6, or 8 elements long for 4, 5, or 7 category Likert data.")
+  }
+
+  return(draw_ordered(x = x,
+                      breaks = breaks,
+                      N = N,
+                      link = link,
+                      break_labels = break_labels))
 }

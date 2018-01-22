@@ -327,3 +327,9 @@ test_that("Normal ICC", {
   cluster_means = sample(rep(1:10, 10))
   expect_error(draw_normal_icc(mean = cluster_means, clusters = clusters, ICC=0.5))
 })
+
+test_that("Likert alias", {
+  draw_likert(x = rnorm(100))
+  draw_likert(x = rnorm(100), breaks=c(-Inf, -1.5, -0.5, 0.5, 1.5, Inf))
+  expect_error(draw_likert(x = rnorm(100), breaks=c(-1, 0, 1)))
+})

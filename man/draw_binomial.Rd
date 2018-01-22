@@ -6,6 +6,7 @@
 \alias{draw_ordered}
 \alias{draw_count}
 \alias{draw_binary}
+\alias{draw_likert}
 \title{Draw discrete variables including binary, binomial count, poisson count,
 ordered, and categorical}
 \usage{
@@ -19,6 +20,9 @@ draw_ordered(x, breaks = c(-1, 0, 1), break_labels = NULL, N = length(x),
 draw_count(mean, N = length(mean), link = "identity")
 
 draw_binary(prob, N = length(prob), link = "identity")
+
+draw_likert(x, breaks = c(-Inf, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, Inf),
+  N = length(x), link = "identity")
 }
 \arguments{
 \item{prob}{A number or vector of numbers representing the probability for

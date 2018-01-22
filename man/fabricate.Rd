@@ -105,3 +105,6 @@ cross_classified <- fabricate(
                          by=join(ps_quality, ss_quality, rho = 0.5),
                          student_quality = ps_quality + 3*ss_quality + rnorm(N)))
 }
+\seealso{
+[cross_level()]
+}
