@@ -20,12 +20,12 @@ library(fabricatr)
 
 ## Binary and binomial outcomes 
 
-The simplest possible type of data is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `probs` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, [`draw_binary()`](../reference/draw_vbinary.html) will generate `N = length(probs)` draws. `N` can also be specified explicitly. Consider these examples:
+The simplest possible type of data is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `prob` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, [`draw_binary()`](../reference/draw_vbinary.html) will generate `N = length(prob)` draws. `N` can also be specified explicitly. Consider these examples:
 
 ```{r}
 draw_binary_ex = fabricate(N = 3, p = c(0, .5, 1),
-                           binary_1 = draw_binary(probs = p),
-                           binary_2 = draw_binary(N = 3, probs = 0.5))
+                           binary_1 = draw_binary(prob = p),
+                           binary_2 = draw_binary(N = 3, prob = 0.5))
 ```
 
 In addition to binary variables, you can make data from repeated Bernoulli trials ("binomial" data). This requires using the [`draw_binomial()`](../reference/draw_binomial.html) function and specifying an argument `trials`, equal to the number of trials.
@@ -33,7 +33,7 @@ In addition to binary variables, you can make data from repeated Bernoulli trial
 ```{r}
 binomial_ex = fabricate(N = 3, 
                         freethrows = draw_binomial(N = N, 
-                                                   probs = 0.5, 
+                                                   prob = 0.5, 
                                                    trials = 10)
                         )
 ```
@@ -42,7 +42,7 @@ Some researchers may be interested in specifying probabilities through a "link f
 
 ```{r}
 bernoulli_probit = fabricate(N = 3, x = 10*rnorm(N), 
-                             binary = draw_binary(probs = x,
+                             binary = draw_binary(prob = x,
                                                   link = "probit"))
 ```
 
@@ -75,12 +75,12 @@ ordered_probit_example = fabricate(N = 3,
 
 ## Count outcomes
 
-[`draw_count()`](../reference/draw_count.html) allows you to create Poisson-distributed count outcomes. These require that the user specify the parameter `means`, equal to the Poisson distribution mean (often referred to as `lambda` in statistical formulations of count data).
+[`draw_count()`](../reference/draw_count.html) allows you to create Poisson-distributed count outcomes. These require that the user specify the parameter `mean`, equal to the Poisson distribution mean (often referred to as `lambda` in statistical formulations of count data).
 
 ```{r}
 count_outcome_example = fabricate(N = 3, 
                                   x = c(0, 5, 100), 
-                                  count = draw_count(means = x))
+                                  count = draw_count(mean = x))
 ```
 
 ## Categorical data
@@ -97,7 +97,7 @@ categorical_example = fabricate(N = 6,
                                 p2 = runif(N, 0, 1),
                                 p3 = runif(N, 0, 1),
                                 cat = draw_categorical(N = N, 
-                                                       probs = cbind(p1, p2, p3))
+                                                       prob = cbind(p1, p2, p3))
                                 )
 ```
 
@@ -105,7 +105,7 @@ In the second example, each unit has the same probability of getting a given cat
 ```{r}
 warn_draw_cat_example = fabricate(N = 6,
                                   cat = draw_categorical(N = N,
-                                                         probs = c(0.2, 0.4, 0.4))
+                                                         prob = c(0.2, 0.4, 0.4))
                                   )
 ```
 
@@ -117,7 +117,7 @@ We also provide helper functions to generate cluster-correlated random variables
 
 ## Binary data with fixed ICCs
 
-`draw_binary_icc()` takes three required arguments: `x`, a probability or vector of probabilities which determine the chance a given observation will be a 1; `clusters`, a map of units to clusters (required to generate the correlation structure); and `ICC`, the fixed intra-cluster correlation (from 0 to 1). Users may optionally specify `N`; if it is not specified, `draw_binary_icc()` will determine it based on the length of the `clusters` vector.
+`draw_binary_icc()` takes three required arguments: `prob`, a probability or vector of probabilities which determine the chance a given observation will be a 1; `clusters`, a map of units to clusters (required to generate the correlation structure); and `ICC`, the fixed intra-cluster correlation (from 0 to 1). Users may optionally specify `N`; if it is not specified, `draw_binary_icc()` will determine it based on the length of the `clusters` vector.
 
 Consider the following example, which models whether individuals smoke:
 
@@ -130,7 +130,7 @@ clusters = rep(1:10, 10)
 
 # Individuals have a 20% chance of smoking, but clusters are highly correlated
 # in their tendency to smoke
-smoker = draw_binary_icc(x = 0.2,
+smoker = draw_binary_icc(prob = 0.2,
                          clusters = clusters,
                          ICC = 0.7)
 
@@ -152,15 +152,15 @@ knitr::kable(table(clusters, smoker))
 
 We observe that 7 clusters have no smokers at all, two clusters are overwhelming smokers, and one cluster is overwhelmingly non-smokers.
 
-We can also specify separate means for each cluster; but it is worth noting that the higher the ICC, the more the cluster mean will depart from the nominal cluster mean. 
+We can also specify separate mean for each cluster; but it is worth noting that the higher the ICC, the more the cluster mean will depart from the nominal cluster mean. 
 
 If you do not specify a vector of probabilities or a correlation coefficient, the default values are probability 0.5 for each cluster and ICC of 0.5. If you do not specify cluster IDs, the function will return an error.
 
 ## Normal data with fixed ICCs
 
-`draw_normal_icc()` takes four required arguments: `x`, a mean or vector of means, one for each cluster; `clusters`, a map of units to clusters (required to generate the correlation structure); `ICC`, the fixed intra-cluster correlation coefficient; and `sd`, a standard deviation or vector of standard deviations, one for each cluster. Users can optionally specify `N`, a number of units, but if it is not supplied `draw_normal_icc()` will determine it based on the length of the `clusters` vector.
+`draw_normal_icc()` takes four required arguments: `mean`, a mean or vector of means, one for each cluster; `clusters`, a map of units to clusters (required to generate the correlation structure); `ICC`, the fixed intra-cluster correlation coefficient; and `sd`, a standard deviation or vector of standard deviations, one for each cluster. Users can optionally specify `N`, a number of units, but if it is not supplied `draw_normal_icc()` will determine it based on the length of the `clusters` vector.
 
-If `sd` is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1. If `x` is not supplied, each cluster will be assumed to be mean zero. If `ICC` is not supplied, it will be set to 0.5.
+If `sd` is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1. If `mean` is not supplied, each cluster will be assumed to be mean zero. If `ICC` is not supplied, it will be set to 0.5.
 
 Here, we model student academic performance by cluster:
 ```{r echo=FALSE}
@@ -170,7 +170,7 @@ set.seed(19861108)
 # 100 students, 10 each in 10 clusters
 clusters = rep(1:10, 10)
 
-numeric_grade = draw_normal_icc(x = 80,
+numeric_grade = draw_normal_icc(mean = 80,
                                clusters = clusters,
                                ICC = 0.5,
                                sd = 15)

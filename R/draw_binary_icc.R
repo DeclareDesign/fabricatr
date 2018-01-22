@@ -6,7 +6,7 @@
 #' Generation, and Estimation of Intracluster Correlation Coefficient (ICC)
 #' for Binary Data".
 #'
-#' @param x A number or vector of numbers, one probability per cluster. If none
+#' @param prob A number or vector of numbers, one probability per cluster. If none
 #' is provided, will default to 0.5.
 #' @param N (Optional) A number indicating the number of observations to be
 #' generated. Must be equal to length(clusters) if provided.
@@ -19,64 +19,65 @@
 #' @examples
 #' clusters = rep(1:5, 10)
 #' draw_binary_icc(clusters = clusters)
-#' draw_binary_icc(x = 0.5, clusters = clusters, ICC = 0.5)
+#' draw_binary_icc(prob = 0.5, clusters = clusters, ICC = 0.5)
 #'
 #' @importFrom stats rbinom
 #'
 #' @export
-draw_binary_icc = function(x = 0.5, N = NULL, clusters, ICC = 0) {
+draw_binary_icc = function(prob = 0.5, N = NULL, clusters, ICC = 0) {
   # Let's not worry about how clusters are provided
   tryCatch({
     clusters = as.numeric(as.factor(clusters))
   }, error=function(e) {
-    stop("Error coercing cluster IDs to factor levels.")
+    stop("Error coercing cluster IDs to factor levels. Please ensure the `clusters` ",
+         "argument is numeric, factor, or can be coerced into being a factor.")
   })
   number_of_clusters = length(unique(clusters))
 
   # Sanity check N
   if(!is.null(N) && !is.numeric(N)) {
-    stop("If you provide an N, it must be numeric.")
+    stop("If you provide an N for `draw_binary_icc()`, it must be numeric.")
   }
   if(!is.null(N) && N != length(clusters)) {
-    stop("If you provide an N, it must be equal to the length of provided ",
-         "cluster ids")
+    stop("If you provide an N for `draw_binary_icc()`, it must be equal to the ",
+         "length of provided cluster ids")
   }
 
-  # Sanity check x
-  if(!is.vector(x)) {
-    stop("x must be a number or vector of numbers.")
+  # Sanity check prob
+  if(!is.vector(prob)) {
+    stop("`prob` must be a number or vector of numbers.")
   }
-  if(!length(x) %in% c(1, number_of_clusters, length(clusters))) {
-    stop("x must be either one number or one number per cluster.")
+  if(!length(prob) %in% c(1, number_of_clusters, length(clusters))) {
+    stop("`prob` must be either one number or one number per cluster.")
   }
-  if(length(x) == length(clusters) &&
-     nrow(unique(cbind(x, clusters))) != number_of_clusters) {
-    stop("If x is provided for each observation, it must be unique per cluster.")
+  if(length(prob) == length(clusters) &&
+     nrow(unique(cbind(prob, clusters))) != number_of_clusters) {
+    stop("If `prob` is provided for each observation, it must be unique per cluster.")
   }
 
-  if(any(!is.numeric(x))) {
-    stop("x must be a number or vector of numbers.")
+  if(any(!is.numeric(prob))) {
+    stop("`prob` must be a number or vector of numbers.")
   }
-  if(any(x > 1 | x < 0)) {
-    stop("x must be numeric probabilities between 0 and 1 inclusive.")
+  if(any(prob > 1 | prob < 0)) {
+    stop("`prob` must be numeric probabilities between 0 and 1 inclusive.")
   }
 
   # Sanity check ICC
   if(length(ICC) > 1) {
-    stop("ICC must be a single number.")
+    stop("The ICC provided to `draw_binary_icc()` must be a single number.")
   }
   if(!is.numeric(ICC)) {
-    stop("ICC must be a number.")
+    stop("The ICC provided to `draw_binary_icc()` must be a number.")
   }
   if(ICC > 1 | ICC < 0) {
-    stop("ICC must be a number between 0 and 1.")
+    stop("The ICC provided to `draw_binary_icc()` must be a number between 0 and 1.")
   }
 
   # Generate cluster and individual probabilities
-  if(length(x) == 1) {
-    cluster_prob = rep(x, number_of_clusters)
+  if(length(prob) == 1) {
+    cluster_prob = rep(prob, number_of_clusters)
   } else {
-    cluster_prob = x
+    cluster_prob = prob
   }
   # Individual probabilities: subset operator maps cluster probs to units.
   individual_prob = cluster_prob[clusters]

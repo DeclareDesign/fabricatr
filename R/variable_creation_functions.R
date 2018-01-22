@@ -9,12 +9,12 @@
 #' data into observed ordered categories, `draw_count` creates count data
 #' (poisson-distributed)
 #'
-#' @param probs A number or vector of numbers representing the probability for
+#' @param prob A number or vector of numbers representing the probability for
 #' binary or binomial outcomes; or a number, vector, or matrix of numbers
 #' representing probabilities for categorical outcomes. If you supply a link
 #' function, these underlying probabilities will be transformed.
 #' @param trials for `draw_binomial`, the number of trials for each observation
-#' @param means for `draw_count`, the mean number of count units for each observation
+#' @param mean for `draw_count`, the mean number of count units for each observation
 #' @param x for `draw_ordered`, the latent data for each observation.
 #' @param breaks vector of breaks to cut a latent outcome into ordered categories
 #' @param break_labels vector of labels for the breaks to cut a latent outcome
@@ -22,22 +22,22 @@
 #' @param N number of units to draw. Defaults to the length of the vector of
 #' probabilities or latent data you provided
 #' @param link link function between the latent variable and the probability of
-#' a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity"
+#' a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 #' link, the latent variable must be a probability.
 #'
 #' @examples
 #' fabricate(N = 3,
 #'    p = c(0, .5, 1),
-#'    binary = draw_binary(probs = p))
+#'    binary = draw_binary(prob = p))
 #'
 #'
 #' fabricate(N = 3,
 #'    x = 10 * rnorm(N),
-#'    binary = draw_binary(probs = x, link = "probit"))
+#'    binary = draw_binary(prob = x, link = "probit"))
 #'
 #' fabricate(N = 3,
 #'    p = c(0, .5, 1),
-#'    binomial = draw_binomial(probs = p, trials = 10))
+#'    binomial = draw_binomial(prob = p, trials = 10))
 #'
 #' fabricate(N = 3,
 #'    x = 5 * rnorm(N),
@@ -46,47 +46,50 @@
 #'
 #' fabricate(N = 3,
 #'    x = c(0,5,100),
-#'    count = draw_count(means=x))
+#'    count = draw_count(mean=x))
 #'
 #' # Categorical
 #' fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),
 #'           cat = draw_categorical(cbind(p1, p2, p3)))
 #'
-#' @importFrom stats pnorm rnorm rpois rbinom
+#' @importFrom stats pnorm rnorm rpois rbinom na.omit
 #'
 #' @export
 #'
-draw_binomial <- function(probs, trials=1, N = length(probs), link = "identity") {
+draw_binomial <- function(prob, trials=1, N = length(prob), link = "identity") {
   # Error handle probabilities and apply link function.
-  if(mode(probs) != "numeric") {
-    stop("Probabilities provided must be numeric.")
+  if(mode(prob) != "numeric") {
+    stop("Probabilities provided in the `prob` argument must be numeric.")
   }
 
   if (link == "identity") {
-    if (!all(0 <= probs & probs <= 1)) {
+    if (!all(na.omit(0 <= prob & prob <= 1))) {
       stop("The identity link requires probability values between 0 and 1,",
            "inclusive.")
+    } else if(any(is.na(prob))) {
+      warning("At least one specified probability (`prob`) was NA.")
     }
-    if (N %% length(probs)) {
+    if (N %% length(prob)) {
       stop(
-        "\"N\" is not an even multiple of the length of the number of
-        probabilities, \"probs\"."
+        "`N` is not an even multiple of the length of the number of
+        probabilities, `prob`."
       )
     }
   } else if (link == "logit") {
-    probs <- 1 / (1 + exp(-probs))
+    prob <- 1 / (1 + exp(-prob))
   } else if (link == "probit") {
-    probs <- pnorm(probs)
+    prob <- pnorm(prob)
   } else {
-    stop("Only 'identity', 'logit', 'and 'probit' are valid link functions.")
+    stop("Only 'identity', 'logit', 'and 'probit' are valid link functions for ",
+         "`draw_binomial()` and `draw_binary()`.")
   }
 
   # Error handle trials
   if(is.vector(trials) & length(trials)>1) {
     if(N %% length(trials)) {
       stop(
-        "\"N\" is not an even multiple of the length of the number of
-        trials, \"trials\"."
+        "`N` is not an even multiple of the length of the number of
+        trials, `trials`."
       )
     }
     if(!all(is.numeric(trials) & (is.integer(trials) | !trials%%1))) {
@@ -97,8 +100,7 @@ draw_binomial <- function(probs, trials=1, N = length(probs), link = "identity")
   }
   if(!is.null(dim(trials))) {
     stop(
-      "Number of trials must be an integer or vector,",
-      " not higher-dimensional."
+      "Number of trials must be an integer or vector, not higher-dimensional."
     )
   }
   if(is.null(trials) | is.na(trials)) {
@@ -117,55 +119,56 @@ draw_binomial <- function(probs, trials=1, N = length(probs), link = "identity")
     )
   }
 
-  return(rbinom(N, trials, probs))
+  return(rbinom(N, trials, prob))
 }
 
 #' @rdname draw_binomial
 #' @export
-draw_categorical <- function(probs, N=NULL, link = "identity") {
+draw_categorical <- function(prob, N=NULL, link = "identity") {
   if (link != "identity") {
     stop("Categorical data does not accept link functions.")
   }
 
-  if (is.null(dim(probs))) {
-    if (is.vector(probs) & all(is.numeric(probs)) & length(probs)>1) {
+  if (is.null(dim(prob))) {
+    if (is.vector(prob) & all(is.numeric(prob)) & length(prob)>1) {
       if(is.null(N)) {
-        stop("If probs is a vector of category probabilities, you must provide",
-             " an explicit N argument.")
+        stop("If `prob` is a vector of category probabilities, you must provide ",
+             "an explicit `N` argument.")
       }
-      probs <- matrix(rep(probs, N), byrow=TRUE, ncol=length(probs), nrow=N)
+      prob <- matrix(rep(prob, N), byrow=TRUE, ncol=length(prob), nrow=N)
       warning(
         "For a categorical (multinomial) distribution, a matrix of ",
-        "probabilities should be provided. Data generated by interpreting ",
-        "vector of category probabilities, identical for each observation."
+        "probabilities should be provided. The data below is generated by ",
+        "interpreting the vector of category probabilities you provided as ",
+        "identical for each observation."
       )
     } else {
       stop(
         "For a categorical (multinomial) distribution, a matrix of ",
-        "probabilities should be provided"
+        "probabilities must be provided"
       )
     }
   }
-  if (!all(apply(probs, 1, min) > 0)) {
+  if (!all(apply(prob, 1, min) > 0)) {
     stop(
-      "For a categorical (multinomial) distribution, the elements of probs ",
+      "For a categorical (multinomial) distribution, the elements of `prob` ",
       "should be positive and sum to a positive number."
     )
   }
 
   if(is.null(N)) {
-    N = nrow(probs)
+    N = nrow(prob)
   }
 
-  if(!(nrow(probs) %in% c(1, N))) {
-    stop("The number of probability rows provided should be N or 1.")
+  if(!(nrow(prob) %in% c(1, N))) {
+    stop("The number of probabilities provided should be equal to `N` or 1.")
   }
 
-  m <- ncol(probs)
+  m <- ncol(prob)
   rcateg <- function(p)
     sample(1:m, 1, prob = p)
 
-  return(apply(probs, 1, rcateg))
+  return(apply(prob, 1, rcateg))
 }
 
 #' @rdname draw_binomial
@@ -176,7 +179,7 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
   if (link == "probit") {
     x <- x + rnorm(N)
   } else if (link != "identity") {
-    stop("`draw_ordered` only accepts 'identity' and 'probit' link functions.")
+    stop("`draw_ordered()` only accepts 'identity' and 'probit' link functions.")
   }
 
   # Error handling breaks
@@ -195,7 +198,7 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
 
   # Check N/x
   if(N %% length(x)) {
-    stop("N must be an even multiple of the length of x.")
+    stop("`N` must be an even multiple of the length of `x`.")
   }
 
   # Pre-pend -Inf
@@ -228,34 +231,31 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
 
 #' @rdname draw_binomial
 #' @export
-draw_count <- function(means, N = length(means), link = "identity") {
+draw_count <- function(mean, N = length(mean), link = "identity") {
   if (link != "identity") {
     stop("Count data does not accept link functions.")
   }
 
-  if (any(means < 0)) {
+  if (any(mean < 0)) {
     stop(
       "All provided count values must be non-negative."
     )
   }
 
-  if(N %% length(means)) {
-    stop("N must be an even multiple of the length of means.")
+  if(N %% length(mean)) {
+    stop("`N` must be an even multiple of the length of mean.")
   }
 
-  return(rpois(N, lambda = means))
+  return(rpois(N, lambda = mean))
 }
 
 #' @rdname draw_binomial
 #' @export
-draw_binary <- function(probs, N = length(probs), link = "identity") {
+draw_binary <- function(prob, N = length(prob), link = "identity") {
   return(draw_binomial(
-    probs,
+    prob,
     N = N,
     link = link,
     trials = 1
   ))
 }
-
-
-# Stuff to circle back around to.
