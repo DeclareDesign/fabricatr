@@ -80,7 +80,7 @@ draw_normal_icc = function(mean = 0,
 
   # Sanity check ICC
   if(is.null(ICC)) {
-    if(is.null(sd) | is.null(sd_between)) {
+    if(is.null(sd) || is.null(sd_between)) {
       stop("If `ICC` is not provided, both `sd` and `sd_between` must be provided.")
     } else {
       implied_ICC = sd_between^2 / (sd_between^2 + sd^2)
@@ -89,7 +89,7 @@ draw_normal_icc = function(mean = 0,
   } else {
     # Fill in a default value if only ICC is specified; sd within-cluster = 1
     # i.e. each cluster is unit variance.
-    if(is.null(sd) & is.null(sd_between)) {
+    if(is.null(sd) && is.null(sd_between)) {
       sd = 1
     }
 
@@ -177,6 +177,10 @@ draw_normal_icc = function(mean = 0,
   }
   if(is.null(sd_between)) {
     sd_between = sqrt( (ICC * sd^2) / (1 - ICC) )
+  }
+
+  if(length(sd) != length(sd_between)) {
+    stop("Lengths of `sd` and `sd_between` must be identical.")
   }
 
   # Cluster means are either the same or individually supplied
