@@ -21,8 +21,8 @@ draw_count(mean, N = length(mean), link = "identity")
 
 draw_binary(prob, N = length(prob), link = "identity")
 
-draw_likert(x, breaks = c(-Inf, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, Inf),
-  N = length(x), link = "identity")
+draw_likert(x, type = 7, breaks = NULL, N = length(x),
+  link = "identity")
 }
 \arguments{
 \item{prob}{A number or vector of numbers representing the probability for
@@ -47,6 +47,9 @@ link, the latent variable must be a probability.}
 into ordered categories.}
 
 \item{mean}{for `draw_count`, the mean number of count units for each observation}
+
+\item{type}{Type of Likert scale data for `draw_likert`. Valid options are 4,
+5, and 7.}
 }
 \description{
 Drawing discrete data based on probabilities or latent traits is a common
@@ -55,7 +58,9 @@ a different type of discrete data: `draw_binary` creates binary 0/1 data,
 `draw_binomial` creates binomial data (repeated trial binary data),
 `draw_categorical` creates categorical data, `draw_ordered` transforms latent
 data into observed ordered categories, `draw_count` creates count data
-(poisson-distributed)
+(poisson-distributed). `draw_liket` is an alias to `draw_ordered` that
+pre-specifies break labels and offers default breaks appropriate for a likert
+survey question.
 }
 \examples{
 fabricate(N = 3,

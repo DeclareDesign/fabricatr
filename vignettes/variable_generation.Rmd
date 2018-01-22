@@ -73,6 +73,42 @@ ordered_probit_example = fabricate(N = 3,
                                    )
 ```
 
+## Likert variables
+
+Likert variables are a special case of ordered variables. Users can use [`draw_ordered()`] with properly specified breaks and break labels to generate Likert data, or use the [`draw_likert()`] function as a convenient alias:
+
+```{r}
+survey_data = fabricate(N = 100,
+                        Q1 = draw_likert(x = rnorm(N)),
+                        Q2 = draw_likert(x = rnorm(N)),
+                        Q3 = draw_likert(x = rnorm(N)))
+```
+
+[`draw_likert()`] takes one compulsory argument (`x`, which represents the latent variable being transformed into ordered data). By default, [`draw_likert()`] provides a 7-item Likert scale with breaks at [-$\infty$, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, $\infty$]. Users can explicitly specify the `type` argument to use other types of Likert data. Supported types are 4, 5, and 7. Default breaks for 5-item Likert scales are [-$\infty$, -1.5, -0.5, 0.5, 1.5, $\infty$]. Default breaks for 4-item Likert scales are [-$\infty$, -1, 0, 1, $infty$].
+
+Optionally, users can specify their own breaks. These will override the `type` command and scale type will be detected based on the length of the `break` argument. As above, a `break` argument with 8 values will produce a 7-item Likert scale, one with 6 values will produce a 5-item Likert scale, and one with 5 values will produce a 4-item Likert scale.
+
+Labels are automatically provided by `draw_likert()`. The default 7-item Likert scale uses the labels ["Strongly Disagree", "Disagree", "Lean Disagree", "Don't Know / Neutral", "Lean Agree", "Agree", "Strongly Agree"].
+
+Examples of how users might use the function are available below:
+```{r echo=TRUE, results="hide"}
+survey_data = fabricate(N = 100,
+                        Q1 = draw_likert(x = rnorm(N), type = 7),
+                        Q2 = draw_likert(x = rnorm(N), type = 5),
+                        Q3 = draw_likert(x = rnorm(N), type = 4),
+                        Q4 = draw_likert(x = rnorm(N), 
+                                         breaks = c(-Inf, -0.8, 0, 1, 2, Inf))
+)
+
+table(survey_data$Q2)
+```
+```{r}
+knitr::kable(as.matrix(t(table(survey_data$Q2))))
+```
+
+
+This function is a convenient, quick alias for creating likert variables with these labels. Users who want more flexibility with respect to break labels or number of breaks should use [`draw_ordered()`] and specify breaks and break labels explicitly.
+
 ## Count outcomes
 
 [`draw_count()`](../reference/draw_count.html) allows you to create Poisson-distributed count outcomes. These require that the user specify the parameter `mean`, equal to the Poisson distribution mean (often referred to as `lambda` in statistical formulations of count data).
