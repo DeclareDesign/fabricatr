@@ -5,7 +5,7 @@
 \title{Helper function handling specification of which variables to join a
 cross-classified data on, and what kind of correlation structure needed}
 \usage{
-join(..., rho = 0, sigma = NULL, data_arguments = quos(...))
+join(..., rho = 0, sigma = NULL)
 }
 \arguments{
 \item{...}{A series of two or more variable names, unquoted, to join on in
@@ -20,8 +20,6 @@ will fail.}
 \item{sigma}{A matrix with dimensions equal to the number of variables you
 are joining on, specifying the correlation for the resulting joined data.
 Only one of rho and sigma should be provided.}
-
-\item{data_arguments}{Internal, not for end-user use.}
 }
 \description{
 Helper function handling specification of which variables to join a

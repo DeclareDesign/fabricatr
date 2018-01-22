@@ -7,11 +7,6 @@
 #' cross-classified data will be created
 #' @param ... A variable or series of variables to add to the resulting data
 #' frame after the cross-classified data is created.
-#' @param ID_label Internal keyword used to sepcify the name of the ID variable
-#' created for the new level. If left empty, this will be the name the level is
-#' assigned to as part of a \code{fabricate()} call.
-#' @param working_environment_ Internal keyword not for end user use.
-#' @param data_arguments Internal keyword not for end user use.
 #'
 #' @return data.frame
 #'
@@ -33,14 +28,33 @@
 #' )
 #' cor(students$ps_quality, students$ss_quality)
 #'
-#' @importFrom rlang quos quo_text
+#' @importFrom rlang quos get_expr
 #' @export
 cross_level = function(N = NULL,
-                       ID_label = NULL,
-                       working_environment_ = NULL,
                        by = NULL,
-                       ...,
-                       data_arguments=quos(...)) {
+                       ...) {
+
+  data_arguments = quos(...)
+  if("working_environment_" %in% names(data_arguments)) {
+    working_environment_ = get_expr(data_arguments[["working_environment_"]])
+    data_arguments[["working_environment_"]] = NULL
+  }
+  if("ID_label" %in% names(data_arguments)) {
+    ID_label = get_expr(data_arguments[["ID_label"]])
+    data_arguments[["ID_label"]] = NULL
+  }
+
+  return(cross_level_internal(N = N, ID_label = ID_label, by = by,
+                              working_environment_ = working_environment_,
+                              data_arguments = data_arguments))
+}
+
+#' @importFrom rlang quo_text eval_tidy
+cross_level_internal = function(N = NULL,
+                                ID_label = NULL,
+                                working_environment_ = NULL,
+                                by = NULL,
+                                data_arguments = NULL) {
 
   if(any(!c("data_frame_output_", "shelved_df") %in%
          names(working_environment_))) {
@@ -120,9 +134,9 @@ cross_level = function(N = NULL,
   working_environment_$data_frame_output_ = out
 
   if(length(data_arguments)) {
-    working_environment_ = modify_level(ID_label = ID_label,
-                                        working_environment_ = working_environment_,
-                                        data_arguments = data_arguments)
+    working_environment_ = modify_level_internal(ID_label = ID_label,
+                                                 working_environment_ = working_environment_,
+                                                 data_arguments = data_arguments)
   }
 
   # Return results
@@ -141,9 +155,9 @@ cross_level = function(N = NULL,
 #' @param sigma A matrix with dimensions equal to the number of variables you
 #' are joining on, specifying the correlation for the resulting joined data.
 #' Only one of rho and sigma should be provided.
-#' @param data_arguments Internal, not for end-user use.
 #' @export
-join = function(..., rho=0, sigma=NULL, data_arguments=quos(...)) {
+join = function(..., rho=0, sigma=NULL) {
+  data_arguments = quos(...)
   variable_names = unlist(lapply(data_arguments, function(x) { quo_text(x) }))
   return(list(variable_names = variable_names,
               rho = rho,

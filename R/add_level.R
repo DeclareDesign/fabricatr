@@ -1,21 +1,44 @@
-
-#' @importFrom rlang quos eval_tidy quo lang_modify
+#' @importFrom rlang quos get_expr quo_text
 #'
 #' @rdname fabricate
 #' @export
-add_level = function(N = NULL, ID_label = NULL,
-                     working_environment_ = NULL,
+add_level = function(N = NULL,
                      ...,
-                     data_arguments=quos(...),
                      nest = TRUE) {
+
+  data_arguments = quos(...)
+  if("working_environment_" %in% names(data_arguments)) {
+    working_environment_ = get_expr(data_arguments[["working_environment_"]])
+    data_arguments[["working_environment_"]] = NULL
+  }
+  if("ID_label" %in% names(data_arguments)) {
+    ID_label = get_expr(data_arguments[["ID_label"]])
+    data_arguments[["ID_label"]] = NULL
+  }
+
+  return(add_level_internal(N=N, ID_label = ID_label,
+                            working_environment_ = working_environment_,
+                            data_arguments = data_arguments,
+                            nest = nest))
+}
+
+#' @importFrom rlang eval_tidy
+add_level_internal = function(N = NULL, ID_label = NULL,
+                              working_environment_ = NULL,
+                              data_arguments = NULL,
+                              nest = TRUE) {
 
   # Pass-through mapper to nest_level.
   # This needs to be done after we read the working environment and
   # before we check N or do the shelving procedure.
   if(nest && "data_frame_output_" %in% names(working_environment_)) {
-    return(nest_level(N=N, ID_label=ID_label,
-                      working_environment_=working_environment_,
-                      data_arguments=data_arguments))
+    #N = handle_n(N, add_level=FALSE,
+    #             working_environment = working_environment_,
+    #             parent_frame_levels=2)
+
+    return(nest_level_internal(N=N, ID_label=ID_label,
+                               working_environment_=working_environment_,
+                               data_arguments=data_arguments))
   }
 
   # Check to make sure the N here is sane

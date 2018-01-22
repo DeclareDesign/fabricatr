@@ -28,8 +28,6 @@
 #' @param nest (Default TRUE) Boolean determining whether data in an \code{add_level()} call
 #' will be nested under the current working data frame or create a separate hierarchy of levels.
 #' See our vignette for cross-classified, non-nested data for details.
-#' @param working_environment_ Internal argument, not intended for end-user use.
-#' @param data_arguments Internal argument, not intended for end-user use.
 #'
 #' @return data.frame
 #'
@@ -160,10 +158,11 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
     # Run the level adder, report the results, and return
     return(
       report_results(
-        add_level(N = N,
-                  ID_label = ID_label,
-                  working_environment_ = new_working_environment(),
-                  data_arguments = data_arguments)
+        add_level_internal(N = N,
+                           ID_label = ID_label,
+                           working_environment_ = new_working_environment(),
+                           data_arguments = data_arguments,
+                           nest = TRUE)
       )
     )
   }
@@ -195,11 +194,10 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL)
   # Run the level adder, report the results, and return
   return(
     report_results(
-      modify_level(N = N,
-                ID_label = ID_label,
-                data_arguments = data_arguments,
-                working_environment_ = working_environment,
-                nest=FALSE)
+      modify_level_internal(N = N,
+                            ID_label = ID_label,
+                            data_arguments = data_arguments,
+                            working_environment_ = working_environment)
     )
   )
 }

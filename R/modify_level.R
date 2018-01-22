@@ -1,13 +1,28 @@
-
-#' @importFrom rlang quos eval_tidy quo lang_modify
+#' @importFrom rlang quos get_expr
 #'
 #' @rdname fabricate
 #' @export
-modify_level = function(N = NULL,
-                        ID_label = NULL,
-                        working_environment_ = NULL,
-                        ...,
-                        data_arguments=quos(...)) {
+modify_level = function(N = NULL, ...) {
+  data_arguments = quos(...)
+  if("working_environment_" %in% names(data_arguments)) {
+    working_environment_ = get_expr(data_arguments[["working_environment_"]])
+    data_arguments[["working_environment_"]] = NULL
+  }
+  if("ID_label" %in% names(data_arguments)) {
+    ID_label = get_expr(data_arguments[["ID_label"]])
+    data_arguments[["ID_label"]] = NULL
+  }
+
+  return(modify_level_internal(N = N, ID_label = ID_label,
+                               working_environment_ = working_environment_,
+                               data_arguments = data_arguments))
+}
+
+#' @importFrom rlang eval_tidy
+#'
+modify_level_internal = function(N = NULL, ID_label = NULL,
+                                 working_environment_ = NULL,
+                                 data_arguments=NULL) {
 
   # Need to supply an ID_label, otherwise we have no idea what to modify.
   if(is.null(ID_label)) {

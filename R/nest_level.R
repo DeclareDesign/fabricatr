@@ -1,10 +1,30 @@
+#' @importFrom rlang quos get_expr quo_text
 #'
-#' @importFrom rlang quos eval_tidy quo lang_modify
+#' @rdname fabricate
+#' @export
+nest_level = function(N = NULL,
+                     ...) {
+
+  data_arguments = quos(...)
+  if("working_environment_" %in% names(data_arguments)) {
+    working_environment_ = get_expr(data_arguments[["working_environment_"]])
+    data_arguments[["working_environment_"]] = NULL
+  }
+  if("ID_label" %in% names(data_arguments)) {
+    ID_label = get_expr(data_arguments[["ID_label"]])
+    data_arguments[["ID_label"]] = NULL
+  }
+
+  return(nest_level_internal(N = N, ID_label = ID_label,
+                             working_environment_ = working_environment_,
+                             data_arguments = data_arguments))
+}
+
+#' @importFrom rlang eval_tidy
 #'
-nest_level = function(N = NULL, ID_label = NULL,
-                      working_environment_ = NULL,
-                      ...,
-                      data_arguments=quos(...)) {
+nest_level_internal = function(N = NULL, ID_label = NULL,
+                               working_environment_ = NULL,
+                               data_arguments = NULL) {
 
   # Check to make sure we have a data frame to nest on.
   if(is.null(dim(working_environment_$data_frame_output_))) {
@@ -15,7 +35,7 @@ nest_level = function(N = NULL, ID_label = NULL,
   # Pass the working environment because N might not be a singleton here
   N = handle_n(N, add_level=FALSE,
                working_environment = working_environment_,
-               parent_frame_levels=2)
+               parent_frame_levels=3)
 
   # We need to expand the size of the current working data frame by copying it
   # Let's start by getting the size of the current working data frame
