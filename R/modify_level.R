@@ -90,15 +90,10 @@ modify_level_internal = function(N = NULL, ID_label = NULL,
   # First, get the unique values of the level:
   unique_values_of_level = unique(working_environment_$data_frame_output_[[ID_label]])
 
-  # Pre-allocate the mapping vector
-  index_maps = numeric(length(working_environment_$data_frame_output_[[ID_label]]))
-  # Iterate along the unique values of the level
-  for(i in seq_along(unique_values_of_level)) {
-    # Any obs that matches the level matching this i will be a duplicate of this i.
-    index_maps[
-      working_environment_$data_frame_output_[[ID_label]] == unique_values_of_level[i]
-      ] = i
-  }
+  index_maps = as.numeric(factor(working_environment_$data_frame_output_[[ID_label]],
+                                 levels = unique_values_of_level,
+                                 labels = 1:length(unique_values_of_level)))
+
 
   # Now, which variables are we going to write to (do we need to subset)?
   write_variables = unname(unlist(get_symbols_from_quosure(data_arguments)))
