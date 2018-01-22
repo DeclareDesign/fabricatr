@@ -84,7 +84,7 @@ draw_normal_icc = function(mean = 0,
       stop("If `ICC` is not provided, both `sd` and `sd_between` must be provided.")
     } else {
       implied_ICC = sd_between^2 / (sd_between^2 + sd^2)
-      message("Implied `ICC` of provided standard deviations: ", implied_ICC)
+      message("Implied `ICC` of provided standard deviations: ", round(implied_ICC, 3))
     }
   } else {
     # Fill in a default value if only ICC is specified; sd within-cluster = 1
@@ -131,7 +131,7 @@ draw_normal_icc = function(mean = 0,
     if(!is.null(sd) & !is.null(sd_between)) {
       implied_ICC = sd_between^2 / (sd_between^2 + sd^2)
       warning("Providing both between-cluster and within-cluster standard ",
-              "deviations implies an ICC of ", implied_ICC, ". Ignoring the ",
+              "deviations implies an ICC of ", round(implied_ICC, 3), ". Ignoring the ",
               "provided `ICC`")
     }
   }

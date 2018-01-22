@@ -317,6 +317,10 @@ test_that("Normal ICC", {
                                clusters = clusters,
                                ICC = 0.5))
 
+  # Provide valid SD and SD_between but they're not the same length.
+  expect_error(draw_normal_icc(sd = 1,
+                               sd_between = seq(0.5, 2.5, 0.5),
+                               clusters = clusters))
 
   # length(mean) == N, but mean is non-unique per cluster
   clusters = rep(1:10, 10)
