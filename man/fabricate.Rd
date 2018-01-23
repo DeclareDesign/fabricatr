@@ -50,16 +50,17 @@ either start with your own data and add simulated variables to it (by passing
 \code{N}. Create hierarchical data with multiple levels of data such as
 citizens within cities within states using \code{add_level()} or modify
 existing hierarchical data using \code{modify_level()}. You can use any R
-function to create each variable. We provide several built-in options to
-easily draw from binary and count outcomes, including
-\code{\link{draw_binary}}, \code{\link{draw_count}},
-\code{\link{draw_binary_icc}}, and \code{\link{draw_normal_icc}}.
+function to create each variable. Use \code{cross_level()} to make more
+complex designs such as panel or cross-classified data.
+}
+\details{
+We also provide several built-in options to easily create variables, including
+\code{\link{draw_binary}}, \code{\link{draw_count}}, \code{\link{draw_likert}},
+and intra-cluster correlated variables \code{\link{draw_binary_icc}} and
+\code{\link{draw_normal_icc}}
 }
 \examples{
 
-# Draw a single-level dataset with no covariates
-df <- fabricate(N = 100)
-head(df)
 
 # Draw a single-level dataset with a covariate
 building_df <- fabricate(
@@ -68,7 +69,7 @@ building_df <- fabricate(
 )
 head(building_df)
 
-# Start with existing data
+# Start with existing data instead
 building_modified <- fabricate(
   data = building_df,
   rent = rnorm(N, mean = height_ft * 100, sd = height_ft * 30)
@@ -96,9 +97,9 @@ modified_multi_level_df <- fabricate(
   cities = modify_level(runoff = rnorm(N))
 )
 
-# fabricatr can also make cross-classified data. For more information about
-# syntax for this functionality please read our vignette or check
-# documentation for \\code{cross_level}:
+# fabricatr can also make panel or cross-classified data. For more
+# information about syntax for this functionality please read our vignette
+# or check documentation for \\code{cross_level}:
 cross_classified <- fabricate(
   primary_schools = add_level(N = 50, ps_quality = runif(N, 0, 10)),
   secondary_schools = add_level(N = 100, ss_quality = runif(N, 0, 10), nest=FALSE),

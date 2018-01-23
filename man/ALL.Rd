@@ -3,12 +3,14 @@
 \docType{data}
 \name{ALL}
 \alias{ALL}
-\title{Magic number constant to allow users to specify "ALL" for passthrough resampling}
+\title{Magic number constant to allow users to specify \code{ALL} for passthrough
+resampling}
 \format{An object of class \code{integer} of length 1.}
 \usage{
 ALL
 }
 \description{
-Magic number constant to allow users to specify "ALL" for passthrough resampling
+Magic number constant to allow users to specify \code{ALL} for passthrough
+resampling
 }
 \keyword{internal}

@@ -2,18 +2,18 @@
 % Please edit documentation in R/cross_level.R
 \name{cross_level}
 \alias{cross_level}
-\title{Creates cross-classified (partially non-nested, joined data) with a fixed
-correlation structure.}
+\title{Creates panel or cross-classified data}
 \usage{
 cross_level(N = NULL, by = NULL, ...)
 }
 \arguments{
 \item{N}{The number of observations in the resulting data frame.
-If N is NULL or not provided, the join will be an "outer join" -- creating a
-full panel of each of the rows from each data frame provided.}
+If \code{N} is NULL or not provided, the join will be an "outer product" --
+merging each row of each provided data frame with each other data frame to
+make a full panel.}
 
-\item{by}{The result of a call to \code{join()} which specifies how the
-cross-classified data will be created}
+\item{by}{The result of a call to \code{join()} which specifies how
+the cross-classified data will be created}
 
 \item{...}{A variable or series of variables to add to the resulting data
 frame after the cross-classified data is created.}
@@ -22,20 +22,26 @@ frame after the cross-classified data is created.}
 data.frame
 }
 \description{
-Creates cross-classified (partially non-nested, joined data) with a fixed
-correlation structure.
+This function allows the user to create data structures that are paneled or
+cross-classified: where one level of observation draws simultaneously from
+two or many source levels. Common examples of panels include country-year
+data which have country-level and year-level characteristics.
+}
+\details{
+By specifying the appropriate arguments in \code{join()} within the
+function call, it is possible to induce correlation in cross-classified data.
 }
 \examples{
 
 # Generate full panel data
-
 panel <- fabricate(
  countries = add_level(N = 20, country_shock = runif(N, 1, 10)),
  years = add_level(N = 20, year_shock = runif(N, 1, 10), nest=FALSE),
  obs = cross_level(by=join(countries, years), GDP_it = country_shock + year_shock)
 )
 
-# Generate cross-classified data and merge, no correlation
+# Include an "N" argument to allow for cross-classified
+# data.
 students <- fabricate(
  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
@@ -43,7 +49,8 @@ students <- fabricate(
 )
 head(students)
 
-# Cross-classified data with a correlation structure
+# Induce a correlation structure in cross-classified data by providing
+# rho.
 students <- fabricate(
  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),

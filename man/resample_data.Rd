@@ -9,60 +9,66 @@ resample_data(data, N, ID_labels = NULL)
 \arguments{
 \item{data}{A data.frame, usually provided by the user.}
 
-\item{N}{The number of sample N to return. If N is a single scalar and no labels are provided, N will specify the number of unit observations to resample. If N is named, or if the ID_labels argument is specified (in which case, both N and ID_labels should be the same length), then the units resampled will be values of the levels resampled (this is useful for, e.g., cluster resampling). If N is the constant ALL for any level, all units of this level will be transparently passed through to the next level of resampling.}
+\item{N}{The number of sample observations to return. If \code{N} is a single
+scalar and no labels are provided, \code{N} will specify the number of unit
+observations to resample. If \code{N} is named, or if the \code{ID_labels}
+argument is specified (in which case, both \code{N} and \code{ID_labels}
+should be the same length), then the units resampled will be values of the
+levels resampled (this is useful for, e.g., cluster resampling). If \code{N}
+is the constant \code{ALL} for any level, all units of this level will be
+transparently passed through to the next level of resampling.}
 
-\item{ID_labels}{A character vector of the variables that indicate the data hierarchy, from highest to lowest (i.e., from cities to citizens).}
+\item{ID_labels}{A character vector of the variables that indicate the data
+hierarchy, from highest to lowest (i.e., from cities to citizens).}
 }
 \value{
 A data.frame
 }
 \description{
-Resample data, including hierarchical data
+This function allows you to resample any data frame. The default mode
+performs a single resample of size \code{N} without replacement. Users can
+also specify more complex resampling strategies to resample hierarchical
+data.
 }
 \examples{
 
-# Bootstrap a dataset without any hierarchy. N specifies a number of observations to return
+# Resample a dataset of size N without any hierarchy
+baseline_survey <- fabricate(N = 50, Y_pre = rnorm(N))
+bootstrapped_data <- resample_data(baseline_survey)
 
-baseline_survey <- fabricate(N = 5, Y_pre = rnorm(N))
-bootsrapped_data <- resample_data(baseline_survey, N = 10)
-bootsrapped_data
+# Specify a fixed number of observations to return
+baseline_survey <- fabricate(N = 50, Y_pre = rnorm(N))
+bootstrapped_data <- resample_data(baseline_survey, N = 100)
 
-# Resample by a single level of a hierarchical dataset (e.g. resampling clusters of observations)
-# N specifies a number of clusters to return
+# Resample by a single level of a hierarchical dataset (e.g. resampling
+# clusters of observations): N specifies a number of clusters to return
 
 clustered_survey <- fabricate(
   clusters = add_level(N=25),
-  cities = add_level(N=round(runif(25, 1, 5)), population=runif(n = N, min=50000, max=1000000))
+  cities = add_level(N=round(runif(25, 1, 5)),
+                     population=runif(n = N, min=50000, max=1000000))
 )
-
-# Specify the name of the cluster variable one of two ways
 
 cluster_resample <- resample_data(clustered_survey, N = 5, ID_labels = "clusters")
-cluster_resample
 
+# Alternatively, pass the level to resample as a name:
 cluster_resample_2 <- resample_data(clustered_survey, N=c(clusters = 5))
-cluster_resample_2
 
 # Resample a hierarchical dataset on multiple levels
-
 my_data <-
 fabricate(
-  cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
-  citizens = add_level(N = 3, income = round(elevation * rnorm(n = N, mean = 5)))
+  cities = add_level(N = 20, elevation = runif(n = N, min = 1000, max = 2000)),
+  citizens = add_level(N = 30, age = runif(n = N, min = 18, max = 85))
 )
 
-# Specify the levels you wish to resample one of two ways:
-my_data_2 <- resample_data(my_data, N = c(3, 5), ID_labels = c("cities", "citizens"))
-my_data_2
+# Specify the levels you wish to resample:
+my_data_2 <- resample_data(my_data, N = c(3, 5),
+                           ID_labels = c("cities", "citizens"))
 
-my_data_3 <- resample_data(my_data, N = c(cities=3, citizens=5))
-my_data_3
+# To resample every unit at a given level, use the ALL constant
+# This example will resample 10 citizens at each of the cities:
 
-# Transparently pass through all units at a given level
-# This example will resample 2 citizens at each of the cities:
-
-passthrough_resample_data <- resample_data(my_data, N = c(cities=ALL, citizens=2))
-passthrough_resample_data
+passthrough_resample_data <- resample_data(my_data, N = c(cities=ALL, citizens=10))
 
 
 }
