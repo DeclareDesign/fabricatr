@@ -273,6 +273,10 @@ draw_likert <- function(x,
                         N = length(x),
                         link = "identity") {
 
+  if(is.null(breaks) && is.null(type)) {
+    stop("You must provide either `breaks` or `type` to a `draw_likert()` call.")
+  }
+
   if(is.null(breaks)) {
     if(type == 7) {
       breaks = c(-Inf, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, Inf)
@@ -281,7 +285,7 @@ draw_likert <- function(x,
     } else if(type == 4) {
       breaks = c(-Inf, -1, 0, 1, Inf)
     } else {
-      stop("You must specify either `breaks` or `type` to use `draw_likert()`.")
+      stop("Valid `type` arguments for a `draw_likert()` call are 4, 5, and 7.")
     }
   }
 
@@ -304,8 +308,8 @@ draw_likert <- function(x,
                      "Disagree",
                      "Agree",
                      "Strongly Agree")
-  } else if(is.null(type)) {
-      stop("If you provide `draw_likert()` with a `breaks` argument, `breaks must ",
+  } else {
+      stop("If you provide `draw_likert()` with a `breaks` argument, `breaks` must ",
            "be either 5, 6, or 8 elements long for 4, 5, or 7 category Likert data.")
   }
 
