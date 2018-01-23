@@ -63,13 +63,16 @@ correlation structure. — cross_level</title>
       <a href="../articles/getting_started.html">Getting Started</a>
     </li>
     <li>
+      <a href="../articles/building_importing.html">Building and Importing Data</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
-      <a href="../articles/resampling.html">Resampling</a>
+      <a href="../articles/cross_classified.html">Panel and Cross-Classified Data</a>
     </li>
     <li>
-      <a href="../articles/cross_classified.html">Cross-classified Data</a>
+      <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -132,25 +135,16 @@ correlation structure.</h1>
 correlation structure.</p>
     
 
-    <pre class="usage"><span class='fu'>cross_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>working_environment_</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>))</pre>
+    <pre class="usage"><span class='fu'>cross_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>N</th>
-      <td><p>(required) The number of observations in the resulting data frame</p></td>
-    </tr>
-    <tr>
-      <th>ID_label</th>
-      <td><p>Internal keyword used to sepcify the name of the ID variable
-created for the new level. If left empty, this will be the name the level is
-assigned to as part of a <code><a href='fabricate.html'>fabricate()</a></code> call.</p></td>
-    </tr>
-    <tr>
-      <th>working_environment_</th>
-      <td><p>Internal keyword not for end user use.</p></td>
+      <td><p>The number of observations in the resulting data frame.
+If N is NULL or not provided, the join will be an "outer join" -- creating a
+full panel of each of the rows from each data frame provided.</p></td>
     </tr>
     <tr>
       <th>by</th>
@@ -162,10 +156,6 @@ cross-classified data will be created</p></td>
       <td><p>A variable or series of variables to add to the resulting data
 frame after the cross-classified data is created.</p></td>
     </tr>
-    <tr>
-      <th>data_arguments</th>
-      <td><p>Internal keyword not for end user use.</p></td>
-    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -175,6 +165,14 @@ frame after the cross-classified data is created.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
+<span class='co'># Generate full panel data</span>
+
+<span class='no'>panel</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
+ <span class='kw'>countries</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>country_shock</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>)),
+ <span class='kw'>years</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>year_shock</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
+ <span class='kw'>obs</span> <span class='kw'>=</span> <span class='fu'>cross_level</span>(<span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='join.html'>join</a></span>(<span class='no'>countries</span>, <span class='no'>years</span>), <span class='kw'>GDP_it</span> <span class='kw'>=</span> <span class='no'>country_shock</span> + <span class='no'>year_shock</span>)
+)
+
 <span class='co'># Generate cross-classified data and merge, no correlation</span>
 <span class='no'>students</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
  <span class='kw'>primary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>ps_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>)),
@@ -182,19 +180,19 @@ frame after the cross-classified data is created.</p></td>
  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>cross_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>primary_school</span>, <span class='no'>secondary_school</span>))
 )
 <span class='fu'>head</span>(<span class='no'>students</span>)</div><div class='output co'>#&gt;   primary_school ps_quality secondary_school ss_quality students
-#&gt; 1             09   7.595938               01   3.609031      001
-#&gt; 2             15   4.620954               07   1.463016      002
-#&gt; 3             19   4.498312               10   7.197004      003
-#&gt; 4             04   2.414876               09   7.262415      004
-#&gt; 5             05   1.066595               12   3.030063      005
-#&gt; 6             14   3.883472               08   5.771912      006</div><div class='input'>
+#&gt; 1             01        7.1               13        1.3      001
+#&gt; 2             08        9.9               14        5.2      002
+#&gt; 3             12        3.8               11        5.0      003
+#&gt; 4             18        7.4               06        2.7      004
+#&gt; 5             08        9.9               01        8.4      005
+#&gt; 6             11        5.2               07        9.5      006</div><div class='input'>
 <span class='co'># Cross-classified data with a correlation structure</span>
 <span class='no'>students</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
  <span class='kw'>primary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>ps_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>)),
  <span class='kw'>secondary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>ss_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>cross_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>ps_quality</span>, <span class='no'>ss_quality</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>))
 )
-<span class='fu'>cor</span>(<span class='no'>students</span>$<span class='no'>ps_quality</span>, <span class='no'>students</span>$<span class='no'>ss_quality</span>)</div><div class='output co'>#&gt; [1] 0.4690153</div><div class='input'>
+<span class='fu'>cor</span>(<span class='no'>students</span>$<span class='no'>ps_quality</span>, <span class='no'>students</span>$<span class='no'>ss_quality</span>)</div><div class='output co'>#&gt; [1] 0.47</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -212,7 +210,7 @@ frame after the cross-classified data is created.</p></td>
 
       <footer>
       <div class="copyright" style="flex:2;">
-  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin.</p>
+  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin, Neal Fultz.</p>
   <p>Code is licensed under <a href="https://opensource.org/licenses/mit-license.php">MIT</a> license.</p>
 </div>
 

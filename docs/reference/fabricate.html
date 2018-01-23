@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>fabricatr - Fabricate data — fabricate</title>
+<title>fabricatr - Fabricate data — add_level</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -62,13 +62,16 @@
       <a href="../articles/getting_started.html">Getting Started</a>
     </li>
     <li>
+      <a href="../articles/building_importing.html">Building and Importing Data</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
-      <a href="../articles/resampling.html">Resampling</a>
+      <a href="../articles/cross_classified.html">Panel and Cross-Classified Data</a>
     </li>
     <li>
-      <a href="../articles/cross_classified.html">Cross-classified Data</a>
+      <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -138,23 +141,24 @@ easily draw from binary and count outcomes, including
 <code><a href='draw_binary_icc.html'>draw_binary_icc</a></code>, and <code><a href='draw_normal_icc.html'>draw_normal_icc</a></code>.</p>
     
 
-    <pre class="usage"><span class='fu'>fabricate</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+    <pre class="usage"><span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>nest</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
-<span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>working_environment_</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>,
-  <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>), <span class='kw'>nest</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>fabricate</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
-<span class='fu'>modify_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ID_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>working_environment_</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>,
-  <span class='kw'>data_arguments</span> <span class='kw'>=</span> <span class='fu'>quos</span>(<span class='no'>...</span>))</pre>
+<span class='fu'>modify_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+
+<span class='fu'>nest_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>(optional) user-provided data that forms the basis of the
-fabrication, i.e. you can add variables to existing data. Provide either
-<code>N</code> or <code>data</code> (<code>N</code> is the number of rows of the data if
-<code>data</code> is provided).</p></td>
+      <th>N</th>
+      <td><p>(optional) number of units to draw. If provided as
+<code>fabricate(N = 5)</code>, this determines the number of units in the
+single-level data. If provided in <code>add_level</code>, e.g.
+<code>fabricate(cities = add_level(N = 5))</code>, <code>N</code> determines the number
+of units in a specific level of a hierarchical dataset.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -164,36 +168,31 @@ fabrication, i.e. you can add variables to existing data. Provide either
 of a multi-level dataset. See examples.</p></td>
     </tr>
     <tr>
-      <th>N</th>
-      <td><p>(optional) number of units to draw. If provided as
-<code>fabricate(N = 5)</code>, this determines the number of units in the
-single-level data. If provided in <code>add_level</code>, i.e.
-<code>fabricate(cities = add_level(N = 5))</code>, <code>N</code> determines the number
-of units in a specific level of a hierarchical dataset.</p></td>
-    </tr>
-    <tr>
-      <th>ID_label</th>
-      <td><p>(optional) variable name for ID variable, i.e. citizen_ID</p></td>
-    </tr>
-    <tr>
-      <th>working_environment_</th>
-      <td><p>Internal argument, not intended for end-user use.</p></td>
-    </tr>
-    <tr>
-      <th>data_arguments</th>
-      <td><p>Internal argument, not intended for end-user use.</p></td>
-    </tr>
-    <tr>
       <th>nest</th>
       <td><p>(Default TRUE) Boolean determining whether data in an <code>add_level()</code> call
 will be nested under the current working data frame or create a separate hierarchy of levels.
 See our vignette for cross-classified, non-nested data for details.</p></td>
+    </tr>
+    <tr>
+      <th>data</th>
+      <td><p>(optional) user-provided data that forms the basis of the
+fabrication, e.g. you can add variables to existing data. Provide either
+<code>N</code> or <code>data</code> (<code>N</code> is the number of rows of the data if
+<code>data</code> is provided).</p></td>
+    </tr>
+    <tr>
+      <th>ID_label</th>
+      <td><p>(optional) variable name for ID variable, e.g. citizen_ID</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>data.frame</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <p>[cross_level()]</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -208,46 +207,59 @@ See our vignette for cross-classified, non-nested data for details.</p></td>
 #&gt; 5 005
 #&gt; 6 006</div><div class='input'>
 <span class='co'># Draw a single-level dataset with a covariate</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
+<span class='no'>building_df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
   <span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>height_ft</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>3.5</span>, <span class='fl'>8</span>)
+  <span class='kw'>height_ft</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>300</span>, <span class='fl'>800</span>)
 )
-<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;    ID height_ft
-#&gt; 1 001  5.550356
-#&gt; 2 002  4.490406
-#&gt; 3 003  4.126321
-#&gt; 4 004  4.472710
-#&gt; 5 005  5.325554
-#&gt; 6 006  4.551806</div><div class='input'>
+<span class='fu'>head</span>(<span class='no'>building_df</span>)</div><div class='output co'>#&gt;    ID height_ft
+#&gt; 1 001       469
+#&gt; 2 002       371
+#&gt; 3 003       476
+#&gt; 4 004       501
+#&gt; 5 005       744
+#&gt; 6 006       456</div><div class='input'>
 <span class='co'># Start with existing data</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
-  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>df</span>,
-  <span class='kw'>new_variable</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>)
+<span class='no'>building_modified</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
+  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>building_df</span>,
+  <span class='kw'>rent</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='no'>height_ft</span> * <span class='fl'>100</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='no'>height_ft</span> * <span class='fl'>30</span>)
 )
 
 <span class='co'># Draw a two-level hierarchical dataset</span>
 <span class='co'># containing cities within regions</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
+<span class='no'>multi_level_df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
  <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
-<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   regions cities pollution
-#&gt; 1       1     01  3.743827
-#&gt; 2       1     02  5.480848
-#&gt; 3       2     03  4.745469
-#&gt; 4       2     04  4.301791
-#&gt; 5       3     05  3.524879
-#&gt; 6       3     06  4.181729</div><div class='input'>
+<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;    ID
+#&gt; 1 001
+#&gt; 2 002
+#&gt; 3 003
+#&gt; 4 004
+#&gt; 5 005
+#&gt; 6 006</div><div class='input'>
+<span class='co'># Start with existing data and add a nested level:</span>
+<span class='no'>company_df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
+ <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>building_df</span>,
+ <span class='kw'>company_id</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span><span class='kw'>=</span><span class='fl'>10</span>, <span class='kw'>is_headquarters</span> <span class='kw'>=</span> <span class='fu'>sample</span>(<span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>1</span>), <span class='no'>N</span>, <span class='kw'>replace</span><span class='kw'>=</span><span class='fl'>TRUE</span>))
+)
+
 <span class='co'># Start with existing data and add variables to hierarchical data</span>
 <span class='co'># at levels which are already present in the existing data.</span>
 <span class='co'># Note: do not provide N when adding variables to an existing level</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
-  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>df</span>,
+<span class='no'>modified_multi_level_df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
+  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>multi_level_df</span>,
   <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>modify_level</span>(<span class='kw'>watershed</span> <span class='kw'>=</span> <span class='fu'>sample</span>(<span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>1</span>), <span class='no'>N</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)),
   <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>modify_level</span>(<span class='kw'>runoff</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>))
 )
 
-<span class='co'># For examples of cross-classified data, please read our vignette or check</span>
-<span class='co'># documentation for \code{cross_level}</span></div></pre>
+<span class='co'># fabricatr can also make cross-classified data. For more information about</span>
+<span class='co'># syntax for this functionality please read our vignette or check</span>
+<span class='co'># documentation for \code{cross_level}:</span>
+<span class='no'>cross_classified</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
+  <span class='kw'>primary_schools</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>ps_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>0</span>, <span class='fl'>10</span>)),
+  <span class='kw'>secondary_schools</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>ss_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>0</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
+  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'><a href='cross_level.html'>cross_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>2000</span>,
+                         <span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='join.html'>join</a></span>(<span class='no'>ps_quality</span>, <span class='no'>ss_quality</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>),
+                         <span class='kw'>student_quality</span> <span class='kw'>=</span> <span class='no'>ps_quality</span> + <span class='fl'>3</span>*<span class='no'>ss_quality</span> + <span class='fu'>rnorm</span>(<span class='no'>N</span>)))</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -255,6 +267,8 @@ See our vignette for cross-classified, non-nested data for details.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -264,7 +278,7 @@ See our vignette for cross-classified, non-nested data for details.</p></td>
 
       <footer>
       <div class="copyright" style="flex:2;">
-  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin.</p>
+  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin, Neal Fultz.</p>
   <p>Code is licensed under <a href="https://opensource.org/licenses/mit-license.php">MIT</a> license.</p>
 </div>
 

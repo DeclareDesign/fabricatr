@@ -1,5 +1,5 @@
 ---
-title: "Cross-classified (partially nested) data"
+title: "Panel and Cross-classifieddata"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
 vignette: >
@@ -14,7 +14,87 @@ set.seed(19861108)
 library(fabricatr)
 ```
 
-Although much of **fabricatr**'s is designed to generate hierarchical, nested data, we also provide functions to generate cross-classified (partially nested) data. In this vignette, we consider the example of generating data about students, whose educational outcomes depend on both the primary and secondary school they attend.
+Although much of **fabricatr**'s is designed to generate hierarchical, nested data, we also provide functions to generate panel and cross-classified (partially nested) data. In this vignette, we offer instructions to do both.
+
+## Panel Data Construction
+
+Let's begin by visualizing an example of panel data, where we have data for each of several countries in each of several years.
+
+```{r eval=TRUE, echo=FALSE, fig.width=5, fig.height=3, message=FALSE, error=FALSE}
+invisible(library(diagram))
+names = c("Country", "Year", "Observation")
+relationship_matrix = matrix(c(0, 0, "",
+                               0, 0, "",
+                               0, 0, 0), ncol = 3, byrow=TRUE)
+
+par(mar=c(0, 0, 0, 0))
+plotmat(relationship_matrix,
+        pos = c(2, 1),
+        curve = 0,
+        name = names,
+        box.type = "square",
+        lwd = 1,
+        box.lwd = 2,
+        cex.txt = 0.8,
+        box.size = 0.15,
+        box.prop = 0.5)
+```
+
+This data arrangement is somewhat more complex than traditional nested, hierarchical data. Each observation draws from a common pool of countries and years. In other words, the year-specific variables attached to Country A's 1997 observation are also attached to Country B's 1997 observation.
+
+The steps for generating a panel in **fabricatr** are as follows:
+
+1. Generate multiple non-nested data frames (Countries and Years)
+2. Use the [`cross_level()`] function to join the non-nested data frames to make a panel.
+3. Optionally, add new variables or further levels in the resulting cross-classified data. (Observation-level variables)
+
+### Generating multiple, non-nested levels in **fabricatr**
+
+First, we need to generate country and year data. By default, **fabricatr** fully nests subsequent levels under the first level call. Here, we must explicitly not do this.
+
+```{r eval=FALSE, echo=TRUE, results="hide"}
+panels <- fabricate(
+  countries = add_level(N = 150, country_fe = runif(N, 1, 10)),
+  years = add_level(N = 25, year_shock = runif(N, 1, 10), nest = FALSE),
+  ...
+)
+```
+
+Note that this function call will not evaluate because we have specified the two non-nested data frames, but not yet told **fabricatr** what to do with them. The second (and any subsequent) non-nested levels should contain the `nest = FALSE` argument -- otherwise, years would be interpreted as to be a level nested within countries. Each level will track all of its own variables, so it is possible to add as many features as you would like to the levels.
+
+### Importing non-nested data frames
+
+It is also possible to import multiple non-nested data frames; this will allow you to assemble pre-existing data sources however you would like. Recall that the first argument to a [`fabricate()`] call is the data you wish to import. We have previously seen that it is possible to import a single data frame this way, but it is also possible to import a list of data frames, staging them all for use for cross-classifying data. Data imported in this manner looks like this:
+
+```{r eval=FALSE, echo=TRUE, results="hide"}
+example_data <- fabricate(
+  list(data_frame_1, data_frame_2),
+  ...
+)
+```
+
+Again, the [`fabricate()`] call is incomplete -- we have imported the data we wish to cross-classify on, but not yet learned how to merge the data. If you do not specify how to merge the data, [`fabricate()`] will simply return the most recent data frame imported or generated, unmodified.
+
+### Specifying a merge function
+
+Specifying a merge function to create a panel is simple. You need only to tell **fabricatr** which levels you wish to merge, and then you will have an assembled panel and can generate new variables at the observation-level. We do this using a call to [`cross_level()`]:
+
+```{r eval=FALSE, echo=TRUE, results="hide"}
+panels <- fabricate(
+  countries = add_level(N = 150, country_fe = runif(N, 1, 10)),
+  years = add_level(N = 25, year_shock = runif(N, 1, 10), nest = FALSE),
+  obs = cross_level(by = join(countries, years), 
+                    new_variable = country_fe + year_shock + rnorm(N, 0, 2))
+)
+```
+
+Note that [`cross_level()`] takes a single required argument, which is of the form `by = join(...)`. This join command tells **fabricatr** how to assemble your data. In this case, we are telling it to join the countries data frame to the years data frame, resulting in country-year observations.
+
+Just like with regular [`add_level()`] commands, you can add new variables which have full access to the existing columns.
+
+## Cross-Classified or Correlated Data Joins:
+
+Another type of data **fabricatr** excels at enabling is cross-classified data. In a cross-classified dataset, just like in a panel, observations draw from a combination of multiple existing data sets. Our example in this vignette will be students. Students attend a primary school and a secondary school. Unlike in a panel, not every student attends every school; and not every combination of schools has exactly one student. Student outcomes depend both on primary and secondary school education.
 
 Let's begin by visualizing how our data will be laid out:
 
@@ -38,46 +118,17 @@ plotmat(relationship_matrix,
         box.prop = 0.5)
 ```
 
-Primary schools and secondary schools each exist independent of each other and have some specific characteristics. Students draw from a single primary school and a single secondary school, and may also have some individual characteristics.
-
 The main steps involved in generating cross-classified data are as follows:
 
 1. Generate multiple non-nested data frames (Primary and Secondary Schools)
-2. Use the [`cross_level()`] function to join the non-nested data frames on particular variables, optionally specifying a desired correlation outcome.
-3. Optionally, add new variables or further levels in the resulting cross-classified data. (Students)
+2. Use the [`cross_level()`] function to join the non-nested data frames on *particular variables*, optionally specifying a desired correlation outcome.
+3. Optionally, add new variables or further levels in the resulting cross-classified data. (Student-level characteristics)
 
-# Generating multiple non-nested levels using **fabricatr**
+We have already learned above how to generate multiple non-nested data frames; now we example how to specify a merge function for cross-classified data.
 
-As with nested data, the workhorse function for ge_nerating new levels of data is [`add_level()`]. To generate multiple non-nested levels of data, it is necessary to add an additional argument in the following form:
+### Specifying a merge function for cross-classified data.
 
-```{r eval=FALSE, echo=TRUE, results="hide"}
-schools_data <- fabricate(
-  primary_schools = add_level(N = 20, ps_quality = runif(N, 1, 10)),
-  secondary_schools = add_level(N = 15, ss_quality = runif(N, 1, 10), nest = FALSE),
-  ...
-)
-```
-
-Observe that the second (and any subsequent) non-nested levels should contain the `nest = FALSE` argument -- otherwise, secondary schools would be interpreted to be a level nested within schools. Each level can have as many variables as you want, and **fabricatr** will internally track each level separately.
-
-This [`fabricate()`] call is incomplete -- so far we have just completed the first step. We must also specify how to merge the two levels. If you do not specify a way to merge the levels, [`fabricate()`] will return the most recent working data frame: in this case, the secondary schools level.
-
-# Importing non-nested data frames
-
-You can also import the data you wish to cross-classify on from existing data sources, or a combination of imported data and data specified using **fabricatr**. Recall that the first argument to a [`fabricate()`] call is the data you wish to import. We have previously seen that it is possible to import a single data frame this way, but it is also possible to import a list of data frames, staging them all for use for cross-classifying data. Data imported in this manner looks like this:
-
-```{r eval=FALSE, echo=TRUE, results="hide"}
-schools_data <- fabricate(
-  list(primary_schools, secondary_schools),
-  ...
-)
-```
-
-Again, the [`fabricate()`] call is incomplete -- we have imported the data we wish to cross-classify on, but not yet learned how to merge the data.
-
-# Specifying a merge function
-
-Specifying a merge function is as easy as telling **fabricatr** which variables you wish to merge on, and how many resulting observations to make. Suppose we wish to create a school system that contains 1500 students, each of whom attends a single primary school and a single secondary school. At this stage, we want the allocations to primary and secondary schools to be random (no correlation between the types of schools people attend):
+One difference between panel data and cross-classified data is that we need to specify the number of observations we will create by combining the existing levels of data. For example, there may be 20 primary schools and 15 secondary schools in a mid-sized city, but several thousand students. Specifying this is as easy as providing an `N` argument to the [`cross_level()`] call. At this juncture, we will assume there is no relationship between the primary school a student attends and the secondary school a student attends:
 
 ```{r echo=TRUE, results="hide"}
 schools_data <- fabricate(
@@ -87,13 +138,11 @@ schools_data <- fabricate(
 )
 ```
 
-Merging requires the use of two functions: first, a [`cross_level()`] call, which specifies information about the resulting, merged level. In the simplest case, we need only specify an `N`, the number of observations to create. Second, a [`join()`] call passed to the `by` argument, which specifies how to join the two levels. In this case we are joining on the ID variables (primary_schools and secondary_schools), which have no substantive meaning but allow us to track which school is which.
+We see that the only change here is providing an `N` argument to [`cross_level()`] call. The result is, predictably, a data frame containing 1500 observations, each of five columns: primary_schools (ID), ps_quality, secondary_schools (ID), ss_quality, and students (ID).
 
-The result is, predictably, a data frame containing 1500 observations, each of five columns: primary_schools (ID), ps_quality, secondary_schools (ID), ss_quality, and students (ID).
+### Adding additional variables
 
-# Adding additional variables
-
-Additional variables can easily be added to cross-classified data, just as they can be added to any other **fabricatr** level call:
+As shown above, it is simple to add variables to the new, cross-classified data:
 
 ```{r echo=TRUE, results="hide"}
 schools_data <- fabricate(
@@ -120,9 +169,9 @@ knitr::kable(summary(lm(SAT_score ~ ps_quality + ss_quality, data=schools_data))
 
 Other variables can be added in the *students* level, or indeed in either of the component levels.
 
-# Correlations after merging
+### Correlations after merging
 
-The functionality discussed up until now is implemented in a variety of R packages. A key feature of **fabricatr** is that the resulting joined data can be sampled such that is has a specific correlation on the joined variables. We might, for example, reasonably assume that students assigned to better primary schools are later assigned to better secondary schools -- whether due to economic geography of the area, selective admissions, or other causes. It is easy to specify a correlation between these outcomes using much the same syntax we used before:
+A variety of R packages support functionality for joining data in various ways. However, a key feature of **fabricatr** is that it is possible to generate *correlated* cross-classified data. Above, we assumed that the primary school a student attended has no relationship to the secondary school the same student attends. This assumption does not reflect actual patterns in the social world. We might, for example, reasonably assume that students assigned to better primary schools are later assigned to better secondary schools -- whether due to economic geography of the area, selective admissions, or other causes. It is easy to specify a correlation between these outcomes using much the same syntax we used before:
 
 ```{r echo=TRUE, results="hide"}
 corr_data <- fabricate(
@@ -136,9 +185,9 @@ corr_data <- fabricate(
 )
 ```
 
-Here, we have changed the structure of our  [`join()`] function call. First, the variables we are joining on are `ps_quality` and `ss_quality`. Second, we specify a Spearman's (rank) correlation coefficient, `rho`, which will induce a correlation in the resulting data based on the join function. In this case, we want a correlation between `ps_quality` and `ss_quality` of 0.5. 
+Here, we have changed the structure of our  [`join()`] function call. First, the variables we are joining on are `ps_quality` and `ss_quality`. **fabricatr** locates these variables within the data frames they come from. Second we specify a Spearman's (rank) correlation coefficient, `rho`, which will induce a correlation in the resulting data based on the join function. In this case, we want a correlation between `ps_quality` and `ss_quality` of 0.5. 
 
-Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that `rho` can be any value from -1 to 1, and that the resulting correlation will be approximately equal to `rho`. *Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated from the specified `rho`. There is no general purpose correction to compensate for this attenuation.*
+Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that `rho` can be any value from -1 to 1, and that the resulting correlation will be approximately equal to `rho`. *Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated (smaller in magnitude) from the specified `rho`. There is no general purpose correction to compensate for this attenuation.*
 
 We can check the resulting correlation here:
 ```{r echo=TRUE, results="hide"}
@@ -148,7 +197,9 @@ cor(corr_data$ps_quality, corr_data$ss_quality)
 
 It should be noted that the specified correlation exists only within the variables on which a join was specified: other variables from either data source will not be explicitly connected except through the joined variables.
 
-# Joining more than two levels
+Correlation is only possible for cross-classified data, not panel data.
+
+## Joining more than two levels
 
 All of the functions specified above work when joining more than two levels. We could extend our student example to include, for example, college quality. Nothing changes about the join syntax beyond the addition of the third or subsequent variable names:
 
@@ -169,7 +220,7 @@ three_data <- fabricate(
 )
 ```
 
-One potential source for failure is specifying an invalid `rho`. If you specify a `rho` that makes the correlation between the three variables impossible to obtain, the [`fabricate()`] call will fail. A common case of this occurring is specifying a negative `rho` with three or more levels -- it is clear that if A is negative correlated with B, and B is negatively correlated with C, then A and C cannot be negatively correlated.
+One potential source for failure is specifying an invalid `rho`. If you specify a `rho` that makes the correlation between the three variables impossible to obtain, the [`fabricate()`] call will fail. A common case of this occurring is specifying a negative `rho` with three or more levels -- it is clear that if A is negatively correlated with B, and B is negatively correlated with C, then A and C cannot be negatively correlated. 
 
 Instead of specifying a `rho` correlation coefficient, users can specify a `sigma` correlation matrix to make the resulting correlations more sophisticated. Consider the following setup:
 
@@ -197,7 +248,7 @@ adv_data <- fabricate(
 
 `sigma` must be specified as a symmetric square matrix with a diagonal of all 1s and a feasible correlation structure.
 
-# Technical appendix: Implementation of correlated joins.
+## Technical appendix: Implementation of correlated joins.
 
 The implementation of the correlated join is done via the Gaussian copula. Mathematically, what is occurring is as follows:
 

@@ -28,9 +28,10 @@ of units in a specific level of a hierarchical dataset.}
 \code{add_level()} or \code{modify_level()} arguments, which define a level
 of a multi-level dataset. See examples.}
 
-\item{nest}{(Default TRUE) Boolean determining whether data in an \code{add_level()} call
-will be nested under the current working data frame or create a separate hierarchy of levels.
-See our vignette for cross-classified, non-nested data for details.}
+\item{nest}{(Default TRUE) Boolean determining whether data in an
+\code{add_level()} call will be nested under the current working data frame
+or create a separate hierarchy of levels. See our vignette for
+cross-classified, non-nested data for details.}
 
 \item{data}{(optional) user-provided data that forms the basis of the
 fabrication, e.g. you can add variables to existing data. Provide either
@@ -104,4 +105,7 @@ cross_classified <- fabricate(
   students = cross_level(N = 2000,
                          by=join(ps_quality, ss_quality, rho = 0.5),
                          student_quality = ps_quality + 3*ss_quality + rnorm(N)))
+}
+\seealso{
+[cross_level()]
 }

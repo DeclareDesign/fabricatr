@@ -1,0 +1,27 @@
+---
+title: "Using other data generating packages with **fabricatr**"
+author: "Aaron Rudkin"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using other data generating packages with **fabricatr**}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+options(digits=2)
+set.seed(19861108)
+library(fabricatr)
+```
+
+# Coming soon.
+
+This vignette is coming soon and will be live on or about January 25th, 2018. You can view the most recent version of this vignette [online](http://fabricatr.declaredesign.org/articles/other_packages.html).
+
+In the mean time, you may be interested in any of these vignettes:
+
+* [Getting Started with **fabricatr**](http://fabricatr.declaredesign.org/articles/getting_started.html)
+* [Building and Importing Data](http://fabricatr.declaredesign.org/articles/building_importing.html)
+* [Generating Discrete Random Variables](http://fabricatr.declaredesign.org/articles/variable_generation.html)
+* [Panel and Cross-Classified Data](http://fabricatr.declaredesign.org/articles/cross_classified.html)
+* [Resampling and Bootstrapping Hierarchical Data](http://fabricatr.declaredesign.org/articles/resampling.html)

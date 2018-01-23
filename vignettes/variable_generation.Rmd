@@ -20,7 +20,7 @@ library(fabricatr)
 
 ## Binary and binomial outcomes 
 
-The simplest possible type of data is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `prob` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, [`draw_binary()`](../reference/draw_vbinary.html) will generate `N = length(prob)` draws. `N` can also be specified explicitly. Consider these examples:
+The simplest possible type of data is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `prob` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, `draw_binary()` will generate `N = length(prob)` draws. `N` can also be specified explicitly. Consider these examples:
 
 ```{r}
 draw_binary_ex = fabricate(N = 3, p = c(0, .5, 1),
@@ -28,7 +28,7 @@ draw_binary_ex = fabricate(N = 3, p = c(0, .5, 1),
                            binary_2 = draw_binary(N = 3, prob = 0.5))
 ```
 
-In addition to binary variables, you can make data from repeated Bernoulli trials ("binomial" data). This requires using the [`draw_binomial()`](../reference/draw_binomial.html) function and specifying an argument `trials`, equal to the number of trials.
+In addition to binary variables, you can make data from repeated Bernoulli trials ("binomial" data). This requires using the `draw_binomial()` function and specifying an argument `trials`, equal to the number of trials.
 
 ```{r}
 binomial_ex = fabricate(N = 3, 
@@ -48,7 +48,7 @@ bernoulli_probit = fabricate(N = 3, x = 10*rnorm(N),
 
 ## Ordered outcomes
 
-Some researchers may be interested in generating ordered outcomes -- for example, Likert scale outcomes. You can do this with the [`draw_ordered()`](../reference/draw_ordered.html) function. Ordered variables require a vector of breakpoints, supplied as the argument `breaks` -- points at which the underlying latent variable switches from category to category. The first break should always be below the lower bound of the data, while the final break should always be above the upper bound of the data -- if breaks do not cover the data, [`draw_ordered()`](../reference/draw_ordered.html) will attempt to correct this by adding breaks where appropriate.
+Some researchers may be interested in generating ordered outcomes -- for example, Likert scale outcomes. You can do this with the `draw_ordered()` function. Ordered variables require a vector of breakpoints, supplied as the argument `breaks` -- points at which the underlying latent variable switches from category to category. The first break should always be below the lower bound of the data, while the final break should always be above the upper bound of the data -- if breaks do not cover the data, `draw_ordered()` will attempt to correct this by adding breaks where appropriate.
 
 In the following example, each of three observations has a latent variable `x` which is continuous and unbounded. The variable `ordered` transforms `x` into three numeric categories: 1, 2, and 3. All values of `x` below -1 result in `ordered` 1; all values of `x` between -1 and 1 result in `ordered` 2; all values of `x` above 1 result in `ordered` 3:
 
@@ -73,9 +73,46 @@ ordered_probit_example = fabricate(N = 3,
                                    )
 ```
 
+## Likert variables
+
+Likert variables are a special case of ordered variables. Users can use `draw_ordered()` with properly specified breaks and break labels to generate Likert data, or use the `draw_likert()` function as a convenient alias:
+
+```{r}
+survey_data = fabricate(N = 100,
+                        Q1 = draw_likert(x = rnorm(N)),
+                        Q2 = draw_likert(x = rnorm(N)),
+                        Q3 = draw_likert(x = rnorm(N)))
+```
+
+`draw_likert()` takes one compulsory argument (`x`, which represents the latent variable being transformed into ordered data). By default, `draw_likert()` provides a 7-item Likert scale with breaks at [-$\infty$, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, $\infty$]. Users can explicitly specify the `type` argument to use other types of Likert data. Supported types are 4, 5, and 7. Default breaks for 5-item Likert scales are [-$\infty$, -1.5, -0.5, 0.5, 1.5, $\infty$]. Default breaks for 4-item Likert scales are [-$\infty$, -1, 0, 1, $\infty$].
+
+Optionally, users can specify their own breaks. These will override the `type` command and scale type will be detected based on the length of the `break` argument. As above, a `break` argument with 8 values will produce a 7-item Likert scale, one with 6 values will produce a 5-item Likert scale, and one with 5 values will produce a 4-item Likert scale.
+
+Labels are automatically provided by `draw_likert()`. The default 7-item Likert scale uses the labels ["Strongly Disagree", "Disagree", "Lean Disagree", "Don't Know / Neutral", "Lean Agree", "Agree", "Strongly Agree"].
+
+Examples of how users might use the function are available below:
+
+```{r echo=TRUE, results="hide"}
+survey_data = fabricate(N = 100,
+                        Q1 = draw_likert(x = rnorm(N), type = 7),
+                        Q2 = draw_likert(x = rnorm(N), type = 5),
+                        Q3 = draw_likert(x = rnorm(N), type = 4),
+                        Q4 = draw_likert(x = rnorm(N), 
+                                         breaks = c(-Inf, -0.8, 0, 1, 2, Inf))
+)
+
+table(survey_data$Q2)
+```
+```{r echo=FALSE}
+knitr::kable(as.matrix(t(table(survey_data$Q2))))
+```
+
+
+This function is a convenient, quick alias for creating likert variables with these labels. Users who want more flexibility with respect to break labels or number of breaks should use `draw_ordered()` and specify breaks and break labels explicitly.
+
 ## Count outcomes
 
-[`draw_count()`](../reference/draw_count.html) allows you to create Poisson-distributed count outcomes. These require that the user specify the parameter `mean`, equal to the Poisson distribution mean (often referred to as `lambda` in statistical formulations of count data).
+`draw_count()` allows you to create Poisson-distributed count outcomes. These require that the user specify the parameter `mean`, equal to the Poisson distribution mean (often referred to as `lambda` in statistical formulations of count data).
 
 ```{r}
 count_outcome_example = fabricate(N = 3, 
@@ -85,7 +122,7 @@ count_outcome_example = fabricate(N = 3,
 
 ## Categorical data
 
-[`draw_categorical()`](../reference/draw_categorical.html) can generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities).
+`draw_categorical()` can generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities).
 
 If probabilities do not sum to exactly one, they will be normalized, but negative probabilities will cause an error.
 
@@ -101,7 +138,7 @@ categorical_example = fabricate(N = 6,
                                 )
 ```
 
-In the second example, each unit has the same probability of getting a given category. [`draw_categorical()`](../reference/draw_categorical.html) will issue a warning to remind you that it is interpreting the vector in this way.
+In the second example, each unit has the same probability of getting a given category. `draw_categorical()` will issue a warning to remind you that it is interpreting the vector in this way.
 ```{r}
 warn_draw_cat_example = fabricate(N = 6,
                                   cat = draw_categorical(N = N,
@@ -194,9 +231,15 @@ knitr::kable(table(clusters, letter_grade))
 
 It is obvious upon inspection that some clusters are higher performing than others despite having identical cluster means in expectation. 
 
-## Technical Appendix
+# Next Steps
 
-When generating binary data with a fixed ICC, we follow this formula, where $i$ is a cluster and $j$ is a unit in a cluster:
+If you are interested in reading more about how to generate specific variables with **fabricatr**, you can read our tutorial on [common social science variables](http://fabricatr.declaredesign.org/articles/common_social.html), or learn how to [use other data-generating packages with **fabricatr**](http://fabricatr.declaredesign.org/articles/other_packages.html).
+
+If you are interested in learning how to import or build data, you can read our [introduction to building and importing data](http://fabricatr.declaredesign.org/articles/building_importing.html). More advanced users can read our tutorial on [generating panel or cross-classified data](http://fabricatr.declaredesign.org/articles/cross_classified.html). You can also learn about [bootstrapping and resampling hierarchical data](http://fabricatr.declaredesign.org/articles/resampling.html).
+
+# Technical Appendix
+
+When generating binary data with a fixed ICC, we use this formula, where $i$ is a cluster and $j$ is a unit in a cluster:
 
 $$
 \begin{aligned}

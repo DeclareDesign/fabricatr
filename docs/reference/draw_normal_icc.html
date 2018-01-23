@@ -62,13 +62,16 @@
       <a href="../articles/getting_started.html">Getting Started</a>
     </li>
     <li>
+      <a href="../articles/building_importing.html">Building and Importing Data</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
-      <a href="../articles/resampling.html">Resampling</a>
+      <a href="../articles/cross_classified.html">Panel and Cross-Classified Data</a>
     </li>
     <li>
-      <a href="../articles/cross_classified.html">Cross-classified Data</a>
+      <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -132,13 +135,14 @@ used in this function is specified at the following URL:
 <a href='https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc'>https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc</a></p>
     
 
-    <pre class="usage"><span class='fu'>draw_normal_icc</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>clusters</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
+    <pre class="usage"><span class='fu'>draw_normal_icc</span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>clusters</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>sd_between</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>mean</th>
       <td><p>A number or vector of numbers, one mean per cluster. If none is
 provided, will default to 0.</p></td>
     </tr>
@@ -155,12 +159,16 @@ clusters; the length will determine the length of the generated data.</p></td>
     <tr>
       <th>sd</th>
       <td><p>A number or vector of numbers, indicating the standard deviation of
-each cluster's error terms</p></td>
+each cluster's error terms -- standard deviation within a cluster (default 1)</p></td>
+    </tr>
+    <tr>
+      <th>sd_between</th>
+      <td><p>A number or vector of numbers, indicating the standard deviation
+between clusters.</p></td>
     </tr>
     <tr>
       <th>ICC</th>
-      <td><p>A number indicating the desired ICC. If none is provided,
-will default to 0.</p></td>
+      <td><p>A number indicating the desired ICC.</p></td>
     </tr>
     </table>
     
@@ -169,18 +177,27 @@ will default to 0.</p></td>
     <p>A vector of numbers corresponding to the observations from
 the supplied cluster IDs.</p>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The typical use for this function is for a user to provide an <code>ICC</code> and,
+optionally, a set of within-cluster standard deviations, <code>sd</code>. If the
+user does not provide <code>sd</code>, the default value is 1. These arguments
+imply a fixed between-cluster standard deviation.</p>
+<p>An alternate mode for the function is to provide between-cluster standard
+deviations, <code>sd_between</code>, and an <code>ICC</code>. These arguments imply
+a fixed within-cluster standard deviation.</p>
+<p>If users provide all three of <code>ICC</code>, <code>sd_between</code>, and
+<code>sd</code>, the function will warn the user and use the provided standard
+deviations for generating the data.</p>
+    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>clusters</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
-<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>)</div><div class='output co'>#&gt;  [1] -1.05057219 -0.94630671 -0.07517996  0.18792650  1.24910764 -0.54872690
-#&gt;  [7] -1.71033113 -0.70098598  1.89782704  1.11426860  0.84696175  0.39087260
-#&gt; [13]  1.05365534 -0.55548426 -0.62941268  0.30336454 -0.03803220  1.76272950
-#&gt; [19]  0.61462929 -1.66058679 -1.04845809 -0.92936450  1.54100663  0.17928638
-#&gt; [25] -1.34494038 -0.74890428 -0.98942495 -0.84796718 -0.91029604  0.40996180
-#&gt; [31] -2.82005204  0.32521078 -0.82326653 -0.09100570  0.49405516  1.04161559
-#&gt; [37]  0.09354927 -0.52194444 -0.50994176  0.57820522 -2.06716149  0.53088578
-#&gt; [43] -1.79744671 -0.32449648 -0.02025971  0.49643123 -0.31644161  1.66884891
-#&gt; [49] -0.14304240  1.59574669</div><div class='input'>
+<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</div><div class='output co'>#&gt;  [1]  1.325  0.606 -2.153  0.657  0.619  0.948  3.217 -3.402  1.442  0.108
+#&gt; [11] -0.112  0.686 -0.806  0.389  1.615  0.299 -0.907 -2.726 -1.029 -0.288
+#&gt; [21]  0.401  1.742  0.945  3.344 -0.555  0.584 -0.036 -2.008  0.295  1.147
+#&gt; [31]  0.305 -0.775 -1.806 -1.002  0.869  1.085  0.764 -0.329  0.645  1.071
+#&gt; [41]  0.530  0.215 -1.862  0.386  0.572  1.712  1.183  1.050  1.157 -1.534</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -189,6 +206,8 @@ the supplied cluster IDs.</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -198,7 +217,7 @@ the supplied cluster IDs.</p>
 
       <footer>
       <div class="copyright" style="flex:2;">
-  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin.</p>
+  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin, Neal Fultz.</p>
   <p>Code is licensed under <a href="https://opensource.org/licenses/mit-license.php">MIT</a> license.</p>
 </div>
 
