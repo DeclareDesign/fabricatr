@@ -60,6 +60,13 @@ draw_normal_icc <- function(mean = 0,
                             ICC = NULL) {
 
   # Let's not worry about how clusters are provided
+  if(!is.null(dim(clusters))) {
+    stop(
+      "You must provide cluster IDs for draw_normal_icc as a vector, not a ",
+      "higher dimensional object like a data frame or similar."
+    )
+  }
+
   tryCatch({
     clusters <- as.numeric(as.factor(clusters))
   }, error = function(e) {
