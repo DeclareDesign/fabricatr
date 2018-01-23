@@ -14,33 +14,26 @@ set.seed(19861108)
 library(fabricatr)
 ```
 
-**fabricatr** is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, **fabricatr** is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine *correlated* data and *hierarchical* data. **fabricatr** is designed to integrate into a [tidyverse](https://www.tidyverse.org/) workflow, and to allow users to imagine data from scratch or by modifying existing data.
-
-**fabricatr** is a member of the **DeclareDesign** software suite that also includes the `r` packages [randomizr](randomizr.declaredesign.org), [estimatr](estimatr.declaredesign.org), and [DeclareDesign](declaredesign.org). 
-
-# Simulating "resampling" from existing data.
-
 One way to imagine new data is to take data you already have and resample it, ensuring that existing inter-correlations between variables are preserved, while generating new data or expanding the size of the dataset. **fabricatr** offers several options to simulate resampling.
 
 # Bootstrapping
 
-The simplest option in **fabricatr** is to "bootstrap" data. Taking data with N observations, the "bootstrap" resamples these observations with replacement and generates N new observations. Existing observations may be used zero times, once, or more than once. Bootstrapping is very simple with the [`resample_data()`](../reference/resample_data.html) function:
+The simplest option in **fabricatr** is to "bootstrap" data. Taking data with N observations, the "bootstrap" resamples these observations with replacement and generates N new observations. Existing observations may be used zero times, once, or more than once. Bootstrapping is very simple with the `resample_data()` function:
 
 ```{r echo=TRUE, results="hide"}
-survey_data = fabricate(N=10, 
-                        voted_republican = draw_binary(prob=0.5, N=N))
+survey_data = fabricate(N = 10, voted_republican = draw_binary(prob = 0.5, N = N))
 
 survey_data_new = resample_data(survey_data)
-survey_data
+head(survey_data_new)
 ```
 ```{r echo=FALSE}
-knitr::kable(survey_data)
+knitr::kable(head(survey_data_new))
 ```
 
-It is also possible to resample fewer or greater number of observations from your existing data. We can do this by specifying the argument `N` to [`resample_data()`](../reference/resample_data.html). Consider expanding a small dataset to allow for better imagination of larger data to be collected later.
+It is also possible to resample fewer or greater number of observations from your existing data. We can do this by specifying the argument `N` to `resample_data()`. Consider expanding a small dataset to allow for better imagination of larger data to be collected later.
 
 ```{r echo=TRUE, results="hide"}
-large_survey_data = resample_data(survey_data, N=100)
+large_survey_data = resample_data(survey_data, N = 100)
 nrow(large_survey_data)
 ```
 `r nrow(large_survey_data)`
@@ -58,16 +51,14 @@ my_data <-
     citizens = add_level(N = 3, age = runif(N, 18, 70))
   )
 
-my_data_2 <- resample_data(my_data, 
-                           N = c(3, 5), 
-                           ID_labels = c("cities", "citizens"))
-my_data_2
+my_data_2 <- resample_data(my_data, N = c(3, 5), ID_labels = c("cities", "citizens"))
+head(my_data_2)
 ```
 ```{r echo=FALSE}
-knitr::kable(my_data_2)
+knitr::kable(head(my_data_2))
 ```
 
-[`resample_data()`](../reference/resample_data.html) will first select the cities to be resampled. Then, for each city, it will continue by selecting the citizens to be resampled. If a higher level unit is used more than once (for example, the same city being chosen twice), and a lower level is subsequently resampled, the choices of which units to keep for the lower level will differ for each copy of the higher level. In this example, if city 1 is chosen twice, then the sets of five citizens chosen for each copy of the city 1 will differ.
+`resample_data()` will first select the cities to be resampled. Then, for each city, it will continue by selecting the citizens to be resampled. If a higher level unit is used more than once (for example, the same city being chosen twice), and a lower level is subsequently resampled, the choices of which units to keep for the lower level will differ for each copy of the higher level. In this example, if city 1 is chosen twice, then the sets of five citizens chosen for each copy of the city 1 will differ.
 
 You can also specify the levels you wish to resample from using the name arguents to the `N` parameter, like in this example which does exactly the same thing as the previous example, but specifies the level names in a different way:
 
@@ -78,10 +69,27 @@ my_data <-
     citizens = add_level(N = 3, age = runif(N, 18, 70))
   )
 
-my_data_2 <- resample_data(my_data, 
-                           N = c(cities=3, citizens=5))
-my_data_2
+my_data_2 <- resample_data(my_data, N = c(cities=3, citizens=5))
+head(my_data_2)
 ```
 ```{r echo=FALSE}
-knitr::kable(my_data_2)
+knitr::kable(head(my_data_2))
+```
+
+# "Passthrough" Resampling
+
+In some cases it may make sense to resample each unit at a given level. For example, there may be value in resampling 1 citizen in each and every city represented in the data set. **fabricatr** allows the user to specify `ALL` for the `N` argument to a given level to accomplish this:
+
+```{r echo=TRUE, results="hide"}
+my_data <-
+  fabricate(
+    cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
+    citizens = add_level(N = 3, age = runif(N, 18, 70))
+  )
+
+my_data_3 <- resample_data(my_data, N = c(ALL, 1), ID_labels = c("cities", "citizens"))
+head(my_data_3)
+```
+```{r echo=FALSE}
+knitr::kable(head(my_data_3))
 ```

@@ -116,19 +116,17 @@
 <div id="creating-common-variable-types" class="section level2">
 <h2 class="hasAnchor">
 <a href="#creating-common-variable-types" class="anchor"></a>1. Creating common variable types</h2>
-<p><strong>fabricatr</strong> allows you to quickly create variables that mimic those you plan to collect when conducting your final experiment. The current version supports common experimental variables including assignment to treatment, count data, ordinal data (including “Likert scale” data, popular in surveys and survey experiments), categorical data (popular for modeling demographic characteristics). In addition, we support the creation of data with fixed intra-cluster correlations, so individual observations can be modelled as being part of groups or regions.</p>
+<p><strong>fabricatr</strong> allows you to quickly create variables that mimic those you plan to collect during the course of observational or experimental work. The current version supports common variable types including assignment to treatment, count data, ordinal data (including “Likert scale” data, popular in surveys and survey experiments), categorical data (popular for modeling demographic characteristics). In addition, we support the creation of data with fixed intra-cluster correlations, so individual observations can be modelled as being part of groups or regions.</p>
 <p>Imagine a survey experiment of voters from across social groups. With <strong>fabricatr</strong>, we can model voters as part of social groups, each of whom has characteristics like ideology and income, opinions about political issues. We can assign these voters to a treatment encouraging them to vote for a proposition, and model the results of the experiment:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
 
 voters =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">N =</span> <span class="dv">1000</span>,
-  <span class="dt">demographic_group =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">100</span>),
-  <span class="dt">ideology =</span> <span class="kw"><a href="../reference/draw_normal_icc.html">draw_normal_icc</a></span>(<span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">N =</span> N, <span class="dt">clusters =</span> demographic_group, <span class="dt">ICC =</span> <span class="fl">0.7</span>),
+  <span class="dt">group_id =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">100</span>),
+  <span class="dt">ideology =</span> <span class="kw"><a href="../reference/draw_normal_icc.html">draw_normal_icc</a></span>(<span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">N =</span> N, <span class="dt">clusters =</span> group_id, <span class="dt">ICC =</span> <span class="fl">0.7</span>),
   <span class="dt">ideological_label =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(<span class="dt">x =</span> ideology,
-                                   <span class="dt">break_labels =</span> <span class="kw">c</span>(<span class="st">"Very Conservative"</span>,
-                                                    <span class="st">"Conservative"</span>,
-                                                    <span class="st">"Liberal"</span>,
-                                                    <span class="st">"Very Liberal"</span>)),
+                                   <span class="dt">break_labels =</span> <span class="kw">c</span>(<span class="st">"Very Conservative"</span>, <span class="st">"Conservative"</span>,
+                                                    <span class="st">"Liberal"</span>, <span class="st">"Very Liberal"</span>)),
   <span class="dt">income =</span> <span class="kw">exp</span>(<span class="kw">rlnorm</span>(<span class="dt">n =</span> N, <span class="dt">meanlog =</span> <span class="fl">2.4</span> <span class="op">-</span><span class="st"> </span>(ideology <span class="op">*</span><span class="st"> </span><span class="fl">0.1</span>), <span class="dt">sdlog =</span> <span class="fl">0.12</span>)),
   <span class="dt">Q1_immigration =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> ideology, <span class="dt">type =</span> <span class="dv">7</span>),
   <span class="dt">Q2_defence =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span>, <span class="dt">type =</span> <span class="dv">7</span>),
@@ -138,56 +136,56 @@ voters =<span class="st"> </span><span class="kw"><a href="../reference/fabricat
 <p>Let’s look at a small fraction of the data generated this way:</p>
 <table class="table">
 <thead><tr class="header">
-<th></th>
-<th align="right">demographic_group</th>
+<th align="right">group_id</th>
 <th align="right">ideology</th>
 <th align="left">ideological_label</th>
 <th align="left">Q1_immigration</th>
+<th align="left">Q2_defence</th>
 <th align="right">treatment</th>
 <th align="right">proposition_vote</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>680</td>
 <td align="right">10</td>
 <td align="right">-1.39</td>
 <td align="left">Very Conservative</td>
+<td align="left">Lean Disagree</td>
 <td align="left">Lean Disagree</td>
 <td align="right">1</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
-<td>607</td>
 <td align="right">7</td>
 <td align="right">0.10</td>
 <td align="left">Liberal</td>
 <td align="left">Don’t Know / Neutral</td>
+<td align="left">Lean Agree</td>
 <td align="right">0</td>
 <td align="right">1</td>
 </tr>
 <tr class="odd">
-<td>563</td>
 <td align="right">3</td>
 <td align="right">-2.69</td>
 <td align="left">Very Conservative</td>
 <td align="left">Strongly Disagree</td>
+<td align="left">Disagree</td>
 <td align="right">0</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
-<td>356</td>
 <td align="right">6</td>
 <td align="right">-0.28</td>
 <td align="left">Conservative</td>
+<td align="left">Don’t Know / Neutral</td>
 <td align="left">Don’t Know / Neutral</td>
 <td align="right">1</td>
 <td align="right">1</td>
 </tr>
 <tr class="odd">
-<td>743</td>
 <td align="right">3</td>
 <td align="right">0.67</td>
 <td align="left">Liberal</td>
+<td align="left">Lean Agree</td>
 <td align="left">Lean Agree</td>
 <td align="right">1</td>
 <td align="right">1</td>
@@ -205,11 +203,8 @@ voters =<span class="st"> </span><span class="kw"><a href="../reference/fabricat
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
 
 panel =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-  <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">150</span>,
-                        <span class="dt">country_fe =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
-  <span class="dt">years =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">25</span>,
-                    <span class="dt">year_shock =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>),
-                    <span class="dt">nest =</span> <span class="ot">FALSE</span>),
+  <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">150</span>, <span class="dt">country_fe =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
+  <span class="dt">years =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">25</span>, <span class="dt">year_shock =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
   <span class="dt">observations =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(countries, years),
                              <span class="dt">outcome_it =</span> country_fe <span class="op">+</span><span class="st"> </span>year_shock <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">2</span>))
 )</code></pre></div>

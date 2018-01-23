@@ -32,18 +32,14 @@ In addition to binary variables, you can make data from repeated Bernoulli trial
 
 ```{r}
 binomial_ex = fabricate(N = 3, 
-                        freethrows = draw_binomial(N = N, 
-                                                   prob = 0.5, 
-                                                   trials = 10)
-                        )
+                        freethrows = draw_binomial(N = N, prob = 0.5, trials = 10))
 ```
 
 Some researchers may be interested in specifying probabilities through a "link function". This can be done in any of your data generating functions through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.
 
 ```{r}
-bernoulli_probit = fabricate(N = 3, x = 10*rnorm(N), 
-                             binary = draw_binary(prob = x,
-                                                  link = "probit"))
+bernoulli_probit = fabricate(N = 3, x = 10 * rnorm(N), 
+                             binary = draw_binary(prob = x, link = "probit"))
 ```
 
 ## Ordered outcomes
@@ -55,10 +51,7 @@ In the following example, each of three observations has a latent variable `x` w
 ```{r}
 ordered_example = fabricate(N = 3, 
                             x = 5 * rnorm(N), 
-                            ordered = draw_ordered(x,
-                                                   breaks = c(-Inf, -1, 1, Inf)
-                                                  )
-                            )
+                            ordered = draw_ordered(x, breaks = c(-Inf, -1, 1, Inf)))
 ```
 
 Ordered data also supports link functions including "logit" or "probit":
@@ -66,11 +59,8 @@ Ordered data also supports link functions including "logit" or "probit":
 ```{r}
 ordered_probit_example = fabricate(N = 3, 
                                    x = 5 * rnorm(N), 
-                                   ordered = draw_ordered(x,
-                                                          breaks = c(-Inf, -1, 1, Inf), 
-                                                          link = "probit"
-                                                         )
-                                   )
+                                   ordered = draw_ordered(x, breaks = c(-Inf, -1, 1, Inf), 
+                                                          link = "probit"))
 ```
 
 ## Likert variables
@@ -97,8 +87,7 @@ survey_data = fabricate(N = 100,
                         Q1 = draw_likert(x = rnorm(N), type = 7),
                         Q2 = draw_likert(x = rnorm(N), type = 5),
                         Q3 = draw_likert(x = rnorm(N), type = 4),
-                        Q4 = draw_likert(x = rnorm(N), 
-                                         breaks = c(-Inf, -0.8, 0, 1, 2, Inf))
+                        Q4 = draw_likert(x = rnorm(N), breaks = c(-Inf, -0.8, 0, 1, 2, Inf))
 )
 
 table(survey_data$Q2)
@@ -133,17 +122,13 @@ categorical_example = fabricate(N = 6,
                                 p1 = runif(N, 0, 1),
                                 p2 = runif(N, 0, 1),
                                 p3 = runif(N, 0, 1),
-                                cat = draw_categorical(N = N, 
-                                                       prob = cbind(p1, p2, p3))
-                                )
+                                cat = draw_categorical(N = N, prob = cbind(p1, p2, p3)))
 ```
 
 In the second example, each unit has the same probability of getting a given category. `draw_categorical()` will issue a warning to remind you that it is interpreting the vector in this way.
 ```{r}
 warn_draw_cat_example = fabricate(N = 6,
-                                  cat = draw_categorical(N = N,
-                                                         prob = c(0.2, 0.4, 0.4))
-                                  )
+                                  cat = draw_categorical(N = N, prob = c(0.2, 0.4, 0.4)))
 ```
 
 "categorical" variables can also use link functions, for example to generate multinomial probit data.
@@ -159,17 +144,15 @@ We also provide helper functions to generate cluster-correlated random variables
 Consider the following example, which models whether individuals smoke:
 
 ```{r echo=FALSE}
-set.seed(19861108)
+set.seed(456)
 ```
 ```{r echo=TRUE, results="hide"}
-# 100 individual population, 10 each in each of 10 clusters
-clusters = rep(1:10, 10)
+# 100 individual population, 20 each in each of 5 clusters
+clusters = rep(1:5, 20)
 
 # Individuals have a 20% chance of smoking, but clusters are highly correlated
 # in their tendency to smoke
-smoker = draw_binary_icc(prob = 0.2,
-                         clusters = clusters,
-                         ICC = 0.7)
+smoker = draw_binary_icc(prob = 0.2, clusters = clusters, ICC = 0.5)
 
 # Observe distribution of smokers and non-smokers
 table(smoker)
@@ -187,7 +170,7 @@ table(clusters, smoker)
 knitr::kable(table(clusters, smoker))
 ```
 
-We observe that 7 clusters have no smokers at all, two clusters are overwhelming smokers, and one cluster is overwhelmingly non-smokers.
+Here we learn that of our 5 clusters, 4 are overwhelmingly non-smokers, while a fifth is composed of 80% smokers.
 
 We can also specify separate mean for each cluster; but it is worth noting that the higher the ICC, the more the cluster mean will depart from the nominal cluster mean. 
 
@@ -205,12 +188,9 @@ set.seed(19861108)
 ```
 ```{r echo=TRUE, results="hide"}
 # 100 students, 10 each in 10 clusters
-clusters = rep(1:10, 10)
+clusters = rep(1:5, 20)
 
-numeric_grade = draw_normal_icc(mean = 80,
-                               clusters = clusters,
-                               ICC = 0.5,
-                               sd = 15)
+numeric_grade = draw_normal_icc(mean = 80, clusters = clusters, ICC = 0.5, sd = 15)
 
 letter_grade = draw_ordered(x = numeric_grade,
                             breaks = c(-Inf, 60, 70, 80, 90, Inf),
@@ -229,7 +209,7 @@ table(letter_grade, clusters)
 knitr::kable(table(clusters, letter_grade))
 ```
 
-It is obvious upon inspection that some clusters are higher performing than others despite having identical cluster means in expectation. 
+It is obvious upon inspection that two of the clusters contain academic high-performers, while two of the clusters have a substantial failure rate. Although each cluster has the same mean in expectation, the induced intra-cluster correlation forces some clusters higher and others lower. 
 
 # Next Steps
 

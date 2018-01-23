@@ -123,14 +123,10 @@
                            <span class="dt">binary_2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">prob =</span> <span class="fl">0.5</span>))</code></pre></div>
 <p>In addition to binary variables, you can make data from repeated Bernoulli trials (“binomial” data). This requires using the <code><a href="../reference/draw_binomial.html">draw_binomial()</a></code> function and specifying an argument <code>trials</code>, equal to the number of trials.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">binomial_ex =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
-                        <span class="dt">freethrows =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binomial</a></span>(<span class="dt">N =</span> N, 
-                                                   <span class="dt">prob =</span> <span class="fl">0.5</span>, 
-                                                   <span class="dt">trials =</span> <span class="dv">10</span>)
-                        )</code></pre></div>
+                        <span class="dt">freethrows =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binomial</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">trials =</span> <span class="dv">10</span>))</code></pre></div>
 <p>Some researchers may be interested in specifying probabilities through a “link function”. This can be done in any of your data generating functions through the <code>link</code> argument. The default link function is “identity”, but we also support “logit”, and “probit”. These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bernoulli_probit =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="dv">10</span><span class="op">*</span><span class="kw">rnorm</span>(N), 
-                             <span class="dt">binary =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> x,
-                                                  <span class="dt">link =</span> <span class="st">"probit"</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bernoulli_probit =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="dv">10</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N), 
+                             <span class="dt">binary =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> x, <span class="dt">link =</span> <span class="st">"probit"</span>))</code></pre></div>
 </div>
 <div id="ordered-outcomes" class="section level2">
 <h2 class="hasAnchor">
@@ -139,18 +135,12 @@
 <p>In the following example, each of three observations has a latent variable <code>x</code> which is continuous and unbounded. The variable <code>ordered</code> transforms <code>x</code> into three numeric categories: 1, 2, and 3. All values of <code>x</code> below -1 result in <code>ordered</code> 1; all values of <code>x</code> between -1 and 1 result in <code>ordered</code> 2; all values of <code>x</code> above 1 result in <code>ordered</code> 3:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
                             <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N), 
-                            <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x,
-                                                   <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>)
-                                                  )
-                            )</code></pre></div>
+                            <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>)))</code></pre></div>
 <p>Ordered data also supports link functions including “logit” or “probit”:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_probit_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
                                    <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N), 
-                                   <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x,
-                                                          <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>), 
-                                                          <span class="dt">link =</span> <span class="st">"probit"</span>
-                                                         )
-                                   )</code></pre></div>
+                                   <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>), 
+                                                          <span class="dt">link =</span> <span class="st">"probit"</span>))</code></pre></div>
 </div>
 <div id="likert-variables" class="section level2">
 <h2 class="hasAnchor">
@@ -168,8 +158,7 @@
                         <span class="dt">Q1 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">7</span>),
                         <span class="dt">Q2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">5</span>),
                         <span class="dt">Q3 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">4</span>),
-                        <span class="dt">Q4 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), 
-                                         <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="ot">Inf</span>))
+                        <span class="dt">Q4 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="ot">Inf</span>))
 )
 
 <span class="kw">table</span>(survey_data<span class="op">$</span>Q2)</code></pre></div>
@@ -209,14 +198,10 @@
                                 <span class="dt">p1 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
                                 <span class="dt">p2 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
                                 <span class="dt">p3 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
-                                <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(<span class="dt">N =</span> N, 
-                                                       <span class="dt">prob =</span> <span class="kw">cbind</span>(p1, p2, p3))
-                                )</code></pre></div>
+                                <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="kw">cbind</span>(p1, p2, p3)))</code></pre></div>
 <p>In the second example, each unit has the same probability of getting a given category. <code><a href="../reference/draw_binomial.html">draw_categorical()</a></code> will issue a warning to remind you that it is interpreting the vector in this way.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">warn_draw_cat_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">6</span>,
-                                  <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(<span class="dt">N =</span> N,
-                                                         <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.4</span>))
-                                  )</code></pre></div>
+                                  <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.4</span>)))</code></pre></div>
 <pre><code>## Warning in draw_categorical(N = N, prob = c(0.2, 0.4, 0.4)): For a
 ## categorical (multinomial) distribution, a matrix of probabilities should
 ## be provided. The data below is generated by interpreting the vector of
@@ -233,14 +218,12 @@
 <a href="#binary-data-with-fixed-iccs" class="anchor"></a>Binary data with fixed ICCs</h2>
 <p><code><a href="../reference/draw_binary_icc.html">draw_binary_icc()</a></code> takes three required arguments: <code>prob</code>, a probability or vector of probabilities which determine the chance a given observation will be a 1; <code>clusters</code>, a map of units to clusters (required to generate the correlation structure); and <code>ICC</code>, the fixed intra-cluster correlation (from 0 to 1). Users may optionally specify <code>N</code>; if it is not specified, <code><a href="../reference/draw_binary_icc.html">draw_binary_icc()</a></code> will determine it based on the length of the <code>clusters</code> vector.</p>
 <p>Consider the following example, which models whether individuals smoke:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 100 individual population, 10 each in each of 10 clusters</span>
-clusters =<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">10</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 100 individual population, 20 each in each of 5 clusters</span>
+clusters =<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">20</span>)
 
 <span class="co"># Individuals have a 20% chance of smoking, but clusters are highly correlated</span>
 <span class="co"># in their tendency to smoke</span>
-smoker =<span class="st"> </span><span class="kw"><a href="../reference/draw_binary_icc.html">draw_binary_icc</a></span>(<span class="dt">prob =</span> <span class="fl">0.2</span>,
-                         <span class="dt">clusters =</span> clusters,
-                         <span class="dt">ICC =</span> <span class="fl">0.7</span>)
+smoker =<span class="st"> </span><span class="kw"><a href="../reference/draw_binary_icc.html">draw_binary_icc</a></span>(<span class="dt">prob =</span> <span class="fl">0.2</span>, <span class="dt">clusters =</span> clusters, <span class="dt">ICC =</span> <span class="fl">0.5</span>)
 
 <span class="co"># Observe distribution of smokers and non-smokers</span>
 <span class="kw">table</span>(smoker)</code></pre></div>
@@ -250,8 +233,8 @@ smoker =<span class="st"> </span><span class="kw"><a href="../reference/draw_bin
 <th align="right">1</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td align="right">83</td>
-<td align="right">17</td>
+<td align="right">76</td>
+<td align="right">24</td>
 </tr></tbody>
 </table>
 <p>We see that approximately 20% of the population smokes, in line with our specification, but what patterns of heterogeneity do we see by cluster?</p>
@@ -263,48 +246,28 @@ smoker =<span class="st"> </span><span class="kw"><a href="../reference/draw_bin
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">10</td>
-<td align="right">0</td>
+<td align="right">16</td>
+<td align="right">4</td>
 </tr>
 <tr class="even">
-<td align="right">10</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="right">10</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="right">10</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="right">10</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="right">1</td>
-<td align="right">9</td>
-</tr>
-<tr class="odd">
-<td align="right">10</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="right">9</td>
+<td align="right">19</td>
 <td align="right">1</td>
 </tr>
 <tr class="odd">
-<td align="right">3</td>
-<td align="right">7</td>
+<td align="right">18</td>
+<td align="right">2</td>
 </tr>
 <tr class="even">
-<td align="right">10</td>
-<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">16</td>
+</tr>
+<tr class="odd">
+<td align="right">19</td>
+<td align="right">1</td>
 </tr>
 </tbody>
 </table>
-<p>We observe that 7 clusters have no smokers at all, two clusters are overwhelming smokers, and one cluster is overwhelmingly non-smokers.</p>
+<p>Here we learn that of our 5 clusters, 4 are overwhelmingly non-smokers, while a fifth is composed of 80% smokers.</p>
 <p>We can also specify separate mean for each cluster; but it is worth noting that the higher the ICC, the more the cluster mean will depart from the nominal cluster mean.</p>
 <p>If you do not specify a vector of probabilities or a correlation coefficient, the default values are probability 0.5 for each cluster and ICC of 0.5. If you do not specify cluster IDs, the function will return an error.</p>
 </div>
@@ -315,19 +278,16 @@ smoker =<span class="st"> </span><span class="kw"><a href="../reference/draw_bin
 <p>If <code>sd</code> is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1. If <code>mean</code> is not supplied, each cluster will be assumed to be mean zero. If <code>ICC</code> is not supplied, it will be set to 0.5.</p>
 <p>Here, we model student academic performance by cluster:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 100 students, 10 each in 10 clusters</span>
-clusters =<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">10</span>)
+clusters =<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">20</span>)
 
-numeric_grade =<span class="st"> </span><span class="kw"><a href="../reference/draw_normal_icc.html">draw_normal_icc</a></span>(<span class="dt">mean =</span> <span class="dv">80</span>,
-                               <span class="dt">clusters =</span> clusters,
-                               <span class="dt">ICC =</span> <span class="fl">0.5</span>,
-                               <span class="dt">sd =</span> <span class="dv">15</span>)
+numeric_grade =<span class="st"> </span><span class="kw"><a href="../reference/draw_normal_icc.html">draw_normal_icc</a></span>(<span class="dt">mean =</span> <span class="dv">80</span>, <span class="dt">clusters =</span> clusters, <span class="dt">ICC =</span> <span class="fl">0.5</span>, <span class="dt">sd =</span> <span class="dv">15</span>)
 
 letter_grade =<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(<span class="dt">x =</span> numeric_grade,
                             <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="dv">60</span>, <span class="dv">70</span>, <span class="dv">80</span>, <span class="dv">90</span>, <span class="ot">Inf</span>),
                             <span class="dt">break_labels =</span> <span class="kw">c</span>(<span class="st">"F"</span>, <span class="st">"D"</span>, <span class="st">"C"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>))
 
 <span class="kw">mean</span>(numeric_grade)</code></pre></div>
-<p>82.77</p>
+<p>84.12</p>
 <p>The mean grade matches the population mean. Now let’s look at the relationship between cluster and letter grade to observe the cluster pattern:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(letter_grade, clusters)</code></pre></div>
 <table class="table">
@@ -342,76 +302,41 @@ letter_grade =<span class="st"> </span><span class="kw"><a href="../reference/dr
 <tr class="odd">
 <td align="right">0</td>
 <td align="right">0</td>
+<td align="right">3</td>
 <td align="right">2</td>
-<td align="right">2</td>
-<td align="right">6</td>
+<td align="right">15</td>
 </tr>
 <tr class="even">
-<td align="right">0</td>
-<td align="right">2</td>
-<td align="right">4</td>
-<td align="right">2</td>
-<td align="right">2</td>
-</tr>
-<tr class="odd">
-<td align="right">4</td>
-<td align="right">0</td>
-<td align="right">4</td>
-<td align="right">0</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="right">2</td>
-<td align="right">5</td>
 <td align="right">0</td>
 <td align="right">3</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">1</td>
+<td align="right">5</td>
 <td align="right">9</td>
-</tr>
-<tr class="even">
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">4</td>
-<td align="right">0</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">2</td>
-<td align="right">6</td>
-</tr>
-<tr class="even">
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">4</td>
-<td align="right">2</td>
 <td align="right">3</td>
 </tr>
 <tr class="odd">
-<td align="right">1</td>
-<td align="right">2</td>
-<td align="right">1</td>
-<td align="right">1</td>
 <td align="right">5</td>
+<td align="right">3</td>
+<td align="right">8</td>
+<td align="right">2</td>
+<td align="right">2</td>
 </tr>
 <tr class="even">
-<td align="right">0</td>
-<td align="right">1</td>
 <td align="right">4</td>
-<td align="right">3</td>
+<td align="right">7</td>
 <td align="right">2</td>
+<td align="right">5</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">18</td>
 </tr>
 </tbody>
 </table>
-<p>It is obvious upon inspection that some clusters are higher performing than others despite having identical cluster means in expectation.</p>
+<p>It is obvious upon inspection that two of the clusters contain academic high-performers, while two of the clusters have a substantial failure rate. Although each cluster has the same mean in expectation, the induced intra-cluster correlation forces some clusters higher and others lower.</p>
 </div>
 </div>
 <div id="next-steps" class="section level1">

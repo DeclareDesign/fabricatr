@@ -16,8 +16,8 @@ generated. Must be equal to length(clusters) if provided.}
 \item{clusters}{A vector of factors or items that can be coerced to
 clusters; the length will determine the length of the generated data.}
 
-\item{ICC}{A number indicating the desired ICC, if none is provided will
-default to 0.}
+\item{ICC}{A number indicating the desired \code{ICC}, if none is provided
+the default ICC will be 0.}
 }
 \value{
 A vector of binary numbers corresponding to the observations from
@@ -31,8 +31,16 @@ Generation, and Estimation of Intracluster Correlation Coefficient (ICC)
 for Binary Data".
 }
 \examples{
+# Divide units into clusters
 clusters = rep(1:5, 10)
+
+# Default probability 0.5, default ICC 0
 draw_binary_icc(clusters = clusters)
-draw_binary_icc(prob = 0.5, clusters = clusters, ICC = 0.5)
+
+# Specify probability or ICC
+corr_draw = draw_binary_icc(prob = 0.5, clusters = clusters, ICC = 0.5)
+
+# Verify ICC of data.
+summary(lm(corr_draw ~ as.factor(clusters)))$r.squared
 
 }

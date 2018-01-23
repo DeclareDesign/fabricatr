@@ -130,22 +130,17 @@
 <p><strong>fabricatr</strong> is easy to learn and easy to read. Consider this example which generates data modeling the United States House of Representatives:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
 
-house_members =<span class="st"> </span><span class="kw"><a href="reference/fabricate.html">fabricate</a></span>(
+house_members &lt;-<span class="st"> </span><span class="kw"><a href="reference/fabricate.html">fabricate</a></span>(
   <span class="dt">party_id =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
-    <span class="dt">N =</span> <span class="dv">2</span>, 
-    <span class="dt">party_names =</span> <span class="kw">c</span>(<span class="st">"Republican"</span>, <span class="st">"Democrat"</span>),
-    <span class="dt">party_ideology =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>), 
-    <span class="dt">in_power =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), 
-    <span class="dt">party_incumbents =</span> <span class="kw">c</span>(<span class="dv">241</span>, <span class="dv">194</span>)),
+    <span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">party_names =</span> <span class="kw">c</span>(<span class="st">"Republican"</span>, <span class="st">"Democrat"</span>), <span class="dt">party_ideology =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>), 
+    <span class="dt">in_power =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="dt">party_incumbents =</span> <span class="kw">c</span>(<span class="dv">241</span>, <span class="dv">194</span>)),
   <span class="dt">rep_id =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
-    <span class="dt">N =</span> party_incumbents, 
-    <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology, <span class="dt">sd=</span><span class="fl">0.5</span>),
-    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">mean =</span> <span class="dv">4</span>),
+    <span class="dt">N =</span> party_incumbents, <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology, <span class="dt">sd =</span> <span class="fl">0.5</span>),
+    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">mean =</span> <span class="dv">4</span>), 
     <span class="dt">female =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.198</span>))
   )</code></pre></div>
 <table class="table">
 <thead><tr class="header">
-<th></th>
 <th align="left">party_names</th>
 <th align="right">party_ideology</th>
 <th align="right">in_power</th>
@@ -155,7 +150,6 @@ house_members =<span class="st"> </span><span class="kw"><a href="reference/fabr
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>339</td>
 <td align="left">Democrat</td>
 <td align="right">-0.5</td>
 <td align="right">0</td>
@@ -164,7 +158,6 @@ house_members =<span class="st"> </span><span class="kw"><a href="reference/fabr
 <td align="right">0</td>
 </tr>
 <tr class="even">
-<td>217</td>
 <td align="left">Republican</td>
 <td align="right">0.5</td>
 <td align="right">1</td>
@@ -173,7 +166,6 @@ house_members =<span class="st"> </span><span class="kw"><a href="reference/fabr
 <td align="right">0</td>
 </tr>
 <tr class="odd">
-<td>233</td>
 <td align="left">Republican</td>
 <td align="right">0.5</td>
 <td align="right">1</td>
@@ -182,7 +174,6 @@ house_members =<span class="st"> </span><span class="kw"><a href="reference/fabr
 <td align="right">1</td>
 </tr>
 <tr class="even">
-<td>263</td>
 <td align="left">Democrat</td>
 <td align="right">-0.5</td>
 <td align="right">0</td>
@@ -191,7 +182,6 @@ house_members =<span class="st"> </span><span class="kw"><a href="reference/fabr
 <td align="right">0</td>
 </tr>
 <tr class="odd">
-<td>140</td>
 <td align="left">Republican</td>
 <td align="right">0.5</td>
 <td align="right">1</td>

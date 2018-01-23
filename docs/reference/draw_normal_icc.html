@@ -192,12 +192,30 @@ deviations for generating the data.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>clusters</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
-<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</div><div class='output co'>#&gt;  [1]  1.325  0.606 -2.153  0.657  0.619  0.948  3.217 -3.402  1.442  0.108
-#&gt; [11] -0.112  0.686 -0.806  0.389  1.615  0.299 -0.907 -2.726 -1.029 -0.288
-#&gt; [21]  0.401  1.742  0.945  3.344 -0.555  0.584 -0.036 -2.008  0.295  1.147
-#&gt; [31]  0.305 -0.775 -1.806 -1.002  0.869  1.085  0.764 -0.329  0.645  1.071
-#&gt; [41]  0.530  0.215 -1.862  0.386  0.572  1.712  1.183  1.050  1.157 -1.534</div><div class='input'>
+    <pre class="examples"><div class='input'>
+<span class='co'># Divide observations into clusters</span>
+<span class='no'>clusters</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
+
+<span class='co'># Default: unit variance within each cluster</span>
+<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</div><div class='output co'>#&gt;  [1] -1.026  0.624 -2.319 -0.834  0.558  1.538 -0.223  1.147 -0.653  2.174
+#&gt; [11]  0.930 -0.990 -0.761 -2.469  1.197  1.376 -0.949  0.517 -1.176  1.382
+#&gt; [21] -0.476 -0.745 -0.126 -0.265  3.196  0.304  0.678 -1.761 -1.400 -0.932
+#&gt; [31]  0.456 -1.460 -1.098  0.717  1.039 -0.033 -0.156 -1.010 -0.044  0.802
+#&gt; [41]  0.476  0.221 -0.154  0.099  1.493  1.537  0.471 -1.670  0.432  1.577</div><div class='input'>
+<span class='co'># Alternatively, you can specify characteristics:</span>
+<span class='fu'>draw_normal_icc</span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.3</span>)</div><div class='output co'>#&gt;  [1]  9.2  6.9  7.3  2.7 15.4 13.1  9.9  6.4  7.3 11.5 11.2 10.9  9.9  6.6  7.3
+#&gt; [16] 11.2  8.8  8.3 10.7  7.7  9.4  6.3  9.4  8.3  6.4 10.6  7.1 10.2 13.0 12.7
+#&gt; [31] 10.4  8.8 10.7  7.4  9.2 15.4  4.7  8.9  8.9 12.1  6.4  9.5  4.9 14.7  7.2
+#&gt; [46] 11.1 12.6  5.2  4.7  7.7</div><div class='input'>
+<span class='co'># Can specify between-cluster standard deviation instead:</span>
+<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>sd_between</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.2</span>)</div><div class='output co'>#&gt;  [1]  13.63  -9.40 -10.19  -4.40  15.64   1.99  -0.31   7.63   2.17  17.24
+#&gt; [11]   6.87  -4.67  -1.74   5.58   5.78   5.62 -12.81  12.73  -9.29  12.78
+#&gt; [21]   9.49 -10.06  10.52   4.09 -13.98  -1.57 -11.34   9.78  -1.12  14.13
+#&gt; [31]   7.65 -13.07   4.00   6.27   0.91   7.10 -17.48  -6.47  -0.36  12.31
+#&gt; [41]   2.37 -19.16   3.76  -0.28  -7.50  -1.27  -8.99  -0.12  -5.24  -7.23</div><div class='input'>
+<span class='co'># Verify that ICC generated is accurate</span>
+<span class='no'>corr_draw</span> <span class='kw'>=</span> <span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.4</span>)
+<span class='fu'>summary</span>(<span class='fu'>lm</span>(<span class='no'>corr_draw</span> ~ <span class='fu'>as.factor</span>(<span class='no'>clusters</span>)))$<span class='no'>r.squared</span></div><div class='output co'>#&gt; [1] 0.39</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

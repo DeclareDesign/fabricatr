@@ -3,13 +3,16 @@
 #'
 #' Drawing discrete data based on probabilities or latent traits is a common
 #' task that can be cumbersome. Each function in our discrete drawing set creates
-#' a different type of discrete data: `draw_binary` creates binary 0/1 data,
-#' `draw_binomial` creates binomial data (repeated trial binary data),
-#' `draw_categorical` creates categorical data, `draw_ordered` transforms latent
-#' data into observed ordered categories, `draw_count` creates count data
-#' (poisson-distributed). `draw_liket` is an alias to `draw_ordered` that
-#' pre-specifies break labels and offers default breaks appropriate for a likert
-#' survey question.
+#' a different type of discrete data: \code{draw_binary} creates binary 0/1 data,
+#' \code{draw_binomial} creates binomial data (repeated trial binary data),
+#' \code{draw_categorical} creates categorical data, \code{draw_ordered}
+#' transforms latent data into observed ordered categories, \code{draw_count}
+#' creates count data (poisson-distributed). \code{draw_likert} is an alias to
+#' \code{draw_ordered} that pre-specifies break labels and offers default breaks
+#' appropriate for a likert survey question.
+#'
+#' For variables with intra-cluster correlations, see
+#' \code{\link{draw_binary_icc}} and \code{\link{draw_normal_icc}}
 #'
 #' @param prob A number or vector of numbers representing the probability for
 #' binary or binomial outcomes; or a number, vector, or matrix of numbers
@@ -17,42 +20,65 @@
 #' function, these underlying probabilities will be transformed.
 #' @param trials for `draw_binomial`, the number of trials for each observation
 #' @param mean for `draw_count`, the mean number of count units for each observation
-#' @param x for `draw_ordered`, the latent data for each observation.
-#' @param breaks vector of breaks to cut a latent outcome into ordered categories
+#' @param x for `draw_ordered` or `draw_likert`, the latent data for each
+#' observation.
+#' @param breaks vector of breaks to cut a latent outcome into ordered
+#' categories with `draw_ordered` or `draw_likert`
 #' @param break_labels vector of labels for the breaks to cut a latent outcome
-#' into ordered categories.
+#' into ordered categories with `draw_ordered`.
 #' @param type Type of Likert scale data for `draw_likert`. Valid options are 4,
-#' 5, and 7.
+#' 5, and 7. Type corresponds to the number of categories in the Likert scale.
 #' @param N number of units to draw. Defaults to the length of the vector of
-#' probabilities or latent data you provided
+#' probabilities or latent data you provided.
 #' @param link link function between the latent variable and the probability of
 #' a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 #' link, the latent variable must be a probability.
 #'
 #' @examples
+#'
+#' # Drawing binary values (success or failure, treatment assignment)
 #' fabricate(N = 3,
 #'    p = c(0, .5, 1),
 #'    binary = draw_binary(prob = p))
 #'
-#'
+#' # Drawing binary values with probit link (transforming continuous data
+#' # into a probability range).
 #' fabricate(N = 3,
 #'    x = 10 * rnorm(N),
 #'    binary = draw_binary(prob = x, link = "probit"))
 #'
+#' # Repeated trials: `draw_binomial`
 #' fabricate(N = 3,
 #'    p = c(0, .5, 1),
 #'    binomial = draw_binomial(prob = p, trials = 10))
 #'
+#' # Ordered data: transforming latent data into observed, ordinal data.
+#' # useful for survey responses.
 #' fabricate(N = 3,
 #'    x = 5 * rnorm(N),
-#'    ordered = draw_ordered(x=x,
+#'    ordered = draw_ordered(x = x,
 #'                           breaks = c(-Inf, -1, 1, Inf)))
 #'
+#' # Providing break labels for latent data.
 #' fabricate(N = 3,
-#'    x = c(0,5,100),
-#'    count = draw_count(mean=x))
+#'    x = 5 * rnorm(N),
+#'    ordered = draw_ordered(x = x,
+#'                           breaks = c(-Inf, -1, 1, Inf),
+#'                           break_labels = c("Not at all concerned",
+#'                                            "Somewhat concerned",
+#'                                            "Very concerned")))
 #'
-#' # Categorical
+#' # Likert data: often used for survey data
+#' fabricate(N = 10,
+#'           support_free_college = draw_likert(x = rnorm(N),
+#'                                              type = 5))
+#'
+#' # Count data: useful for rates of occurrences over time.
+#' fabricate(N = 5,
+#'    x = c(0, 5, 25, 50, 100),
+#'    theft_rate = draw_count(mean=x))
+#'
+#' # Categorical data: useful for demographic data.
 #' fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),
 #'           cat = draw_categorical(cbind(p1, p2, p3)))
 #'
