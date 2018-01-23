@@ -345,4 +345,7 @@ test_that("Likert alias", {
   # Errors: bad breaks, bad types
   expect_error(draw_likert(x = rnorm(100), breaks=c(-Inf, -1, 0, Inf)))
   expect_error(draw_likert(x = rnorm(100), type = 3))
+
+  # Duhhhh
+  expect_error(draw_likert(x = rnorm(100), type = NULL))
 })
