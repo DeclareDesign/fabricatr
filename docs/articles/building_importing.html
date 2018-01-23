@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>fabricatr - Getting started with fabricatr</title>
+<title>fabricatr - Building and Importing Data</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -108,7 +108,7 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>Getting started with fabricatr</h1>
+      <h1>Building and Importing Data</h1>
                         <h4 class="author">Aaron Rudkin</h4>
             
           </div>
@@ -116,12 +116,11 @@
     
     
 <div class="contents">
-<p><strong>fabricatr</strong> is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, <strong>fabricatr</strong> is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine <strong>correlated</strong> data and <strong>hierarchical</strong> data. <strong>fabricatr</strong> is designed to integrate into a <a href="https://www.tidyverse.org/">tidyverse</a> workflow, and to allow users to imagine data from scratch or by modifying existing data.</p>
-<p><strong>fabricatr</strong> is a member of the <strong>DeclareDesign</strong> software suite that also includes the <code>r</code> packages <a href="randomizr.declaredesign.org">randomizr</a>, <a href="estimatr.declaredesign.org">estimatr</a>, and <a href="declaredesign.org">DeclareDesign</a>.</p>
+<p><strong>fabricatr</strong> is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, <strong>fabricatr</strong> is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine <em>correlated</em> data and <em>hierarchical</em> data.</p>
 <div id="basics" class="section level1">
 <h1 class="hasAnchor">
 <a href="#basics" class="anchor"></a>Basics</h1>
-<p>Using <strong>fabricatr</strong> begins by calling the function <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a>. <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a> can be used to create single-level of hierarchical data. There are three main ways to call <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a>:</p>
+<p>Using <strong>fabricatr</strong> begins by calling the function <code><a href="../reference/fabricate.html">fabricate()</a></code>. <code><a href="../reference/fabricate.html">fabricate()</a></code> can be used to create single-level of hierarchical data. There are three main ways to call <code><a href="../reference/fabricate.html">fabricate()</a></code>:</p>
 <ul>
 <li>Making a single-level dataset by specifying how many observations you would like</li>
 <li>Making a single-level dataset by importing data and optionally modifying it by creating new variables</li>
@@ -202,7 +201,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">41</td>
 <td align="left">0001</td>
 <td align="right">611</td>
-<td align="right">1.0e+09</td>
+<td align="right">1,025,606,193</td>
 </tr>
 <tr class="even">
 <td align="right">-21</td>
@@ -212,7 +211,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">15</td>
 <td align="left">0002</td>
 <td align="right">290</td>
-<td align="right">3.0e+08</td>
+<td align="right">297,296,739</td>
 </tr>
 <tr class="odd">
 <td align="right">-26</td>
@@ -222,7 +221,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">43</td>
 <td align="left">0003</td>
 <td align="right">427</td>
-<td align="right">7.8e+08</td>
+<td align="right">781,383,594</td>
 </tr>
 <tr class="even">
 <td align="right">-18</td>
@@ -232,7 +231,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">19</td>
 <td align="left">0004</td>
 <td align="right">470</td>
-<td align="right">5.2e+08</td>
+<td align="right">523,884,824</td>
 </tr>
 <tr class="odd">
 <td align="right">-20</td>
@@ -242,7 +241,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">11</td>
 <td align="left">0005</td>
 <td align="right">456</td>
-<td align="right">7.2e+08</td>
+<td align="right">716,487,843</td>
 </tr>
 <tr class="even">
 <td align="right">-20</td>
@@ -252,7 +251,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">12</td>
 <td align="left">0006</td>
 <td align="right">390</td>
-<td align="right">7.0e+08</td>
+<td align="right">696,587,098</td>
 </tr>
 </tbody>
 </table>
@@ -332,14 +331,14 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 </tr>
 </tbody>
 </table>
-<p>Several things can be observed in this example. First, fabricate knows that your second <a href="../reference/add_level.html"><code><a href="../reference/fabricate.html">add_level()</a></code></a> command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable “N” changes. During the <a href="../reference/add_level.html"><code><a href="../reference/fabricate.html">add_level()</a></code></a> call for countries, N is 5. During the <a href="../reference/level.html"><code><a href="../reference/fabricate.html">add_level()</a></code></a> call for provinces, N is 10. And the resulting data, of course, has 50 observations.</p>
-<p>Finally, the province-level variables are created using the <a href="../reference/draw_inary.html"><code><a href="../reference/draw_binomial.html">draw_binary()</a></code></a> function. This is a function provided by <strong>fabricatr</strong> to make simulating discrete random variables simple. When you simulate your own data, you can use <strong>fabricatr</strong>’s functions, R’s built-ins, or any custom functions you wish. <a href="../reference/draw_binary.html"><code><a href="../reference/draw_binomial.html">draw_binary()</a></code></a> is explained in <a href="variable_generation.html">our tutorial on variable generation using <strong>fabricatr</strong></a></p>
+<p>Several things can be observed in this example. First, fabricate knows that your second <code><a href="../reference/fabricate.html">add_level()</a></code> command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable “N” changes. During the <code><a href="../reference/fabricate.html">add_level()</a></code> call for countries, N is 5. During the <code><a href="../reference/fabricate.html">add_level()</a></code> call for provinces, N is 10. And the resulting data, of course, has 50 observations.</p>
+<p>Finally, the province-level variables are created using the <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> function. This is a function provided by <strong>fabricatr</strong> to make simulating discrete random variables simple. When you simulate your own data, you can use <strong>fabricatr</strong>’s functions, R’s built-ins, or any custom functions you wish. <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> is explained in <a href="http://fabricator.declaredesign.org/articles/variable_generation.html">our tutorial on variable generation using <strong>fabricatr</strong></a></p>
 </div>
 <div id="adding-hierarchy-to-existing-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#adding-hierarchy-to-existing-data" class="anchor"></a>Adding hierarchy to existing data</h1>
 <p><strong>fabricatr</strong> is also able to import existing data and nest hierarchical data under it. This maybe be useful if, for example, you have existing country-level data but wish to simulate data at lower geographical levels for the purposes of an experiment you plan to conduct.</p>
-<p>Imagine importing the country-province data simulated in the previous example. Because <a href="../reference/fabricate.html"><code><a href="../reference/fabricate.html">fabricate()</a></code></a> returns a data frame, this simulated data can be re-imported into a subsequent fabricate call, just like external data can be.</p>
+<p>Imagine importing the country-province data simulated in the previous example. Because <code><a href="../reference/fabricate.html">fabricate()</a></code> returns a data frame, this simulated data can be re-imported into a subsequent fabricate call, just like external data can be.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">citizen_data &lt;-<span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">data =</span> country_data,
@@ -430,7 +429,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <div id="modifying-existing-levels" class="section level1">
 <h1 class="hasAnchor">
 <a href="#modifying-existing-levels" class="anchor"></a>Modifying existing levels</h1>
-<p>Suppose you have hierarchical data, and wish to simulate variables at a higher level of aggregation. For example, imagine you import a dataset containing citizens within countries, but you wish to simulate additional country-level variables. In <strong>fabricatr</strong>, you can do this using the <a href="../reference/modify_level.html"><code><a href="../reference/fabricate.html">modify_level()</a></code></a> command.</p>
+<p>Suppose you have hierarchical data, and wish to simulate variables at a higher level of aggregation. For example, imagine you import a dataset containing citizens within countries, but you wish to simulate additional country-level variables. In <strong>fabricatr</strong>, you can do this using the <code><a href="../reference/fabricate.html">modify_level()</a></code> command.</p>
 <p>Let’s use our country-province data from earlier:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">new_country_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
@@ -506,7 +505,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 </tr>
 </tbody>
 </table>
-<p>We can observe that the new variable is created at the level of aggregation you chose – countries. Also, although N is not specified anywhere, <a href="../reference/level.html"><code><a href="../reference/fabricate.html">modify_level()</a></code></a> knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the <a href="../reference/level.html"><code><a href="../reference/fabricate.html">modify_level()</a></code></a> command is correctly assigned to the level of interest.</p>
+<p>We can observe that the new variable is created at the level of aggregation you chose – countries. Also, although N is not specified anywhere, <code><a href="../reference/fabricate.html">modify_level()</a></code> knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the <code><a href="../reference/fabricate.html">modify_level()</a></code> command is correctly assigned to the level of interest.</p>
 <p>We can also modify more than one level. Recalling our country-province-citizen data from above, the following process is possible:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">new_citizen_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
@@ -522,14 +521,14 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
                                                          )
                             )
   )</code></pre></div>
-<p>Before assessing what this tells us about <a href="../reference/modify_level.html"><code><a href="../reference/fabricate.html">modify_level()</a></code></a>, let’s consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on “resource curses”. The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizens access to education is also random, but depends on whether they live in a conflict area.</p>
-<p>There are a lot of things to learn from this example. First, it’s possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according – by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one <a href="../reference/level.html"><code><a href="../reference/fabricate.html">modify_level()</a></code></a> call can be used in subsequent variables of the same call, or subsequent calls.</p>
-<p>Again, we see the use of <a href="../reference/draw_binary.html"><code><a href="../reference/draw_binomial.html">draw_binary()</a></code></a>. Using this function is covered in our tutorial on <a href="variable_generation.html">generating discrete random variables</a>, linked below.</p>
+<p>Before assessing what this tells us about <code><a href="../reference/fabricate.html">modify_level()</a></code>, let’s consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on “resource curses”. The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizens access to education is also random, but depends on whether they live in a conflict area.</p>
+<p>There are a lot of things to learn from this example. First, it’s possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according – by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one <code><a href="../reference/fabricate.html">modify_level()</a></code> call can be used in subsequent variables of the same call, or subsequent calls.</p>
+<p>Again, we see the use of <code><a href="../reference/draw_binomial.html">draw_binary()</a></code>. Using this function is covered in our tutorial on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">generating discrete random variables</a>, linked below.</p>
 </div>
 <div id="next-steps" class="section level1">
 <h1 class="hasAnchor">
 <a href="#next-steps" class="anchor"></a>Next Steps</h1>
-<p>You’ve seen <strong>fabricatr</strong>’s ability to generate single-level and hierarchical data, which is enough to get you started on using the package. From here, you can learn about <a href="variable_generation.html">generating discrete random variables</a>, <a href="resampling.html">using <strong>fabricatr</strong> to bootstrap or resample hierarchical data</a>, <a href="cross_classified.html">using <strong>fabricatr</strong> to generate cross-classified data</a>, or <a href="advanced_features.html">advanced features</a>.</p>
+<p>You’ve seen <strong>fabricatr</strong>’s ability to generate single-level and hierarchical data, which is enough to get you started on using the package. From here, you can explore more about modeling the structure of data by reading our <a href="http://fabricatr.declaredesign.org/articles/cross_classified.html">tutorial on panel and cross-classified data</a> or <a href="http://fabricatr.declaredesign.org/articles/resampling.html">using <strong>fabricatr</strong> to bootstrap or resample hierarchical data</a>. Or, if you would like to learn about modeling specific variables using <strong>fabricatr</strong>, you can read our tutorial on <a href="http://fabricatr.declaredesign.org/articles/common_social.html">common social science variables</a>; our technical manual on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">generating discrete random variables</a>; or our guide on <a href="http://fabricatr.declaredesign.org/articles/other_packages.html">using other data generation packages</a> with <strong>fabricatr</strong>.</p>
 </div>
 </div>
   </div>

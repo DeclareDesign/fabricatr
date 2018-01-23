@@ -201,14 +201,25 @@ voters =<span class="st"> </span><span class="kw"><a href="../reference/fabricat
 </tbody>
 </table>
 <p>Modeling data like this allows common analyses in advance of conducting your experiment. This data can also be included in a pre-analysis plan to add clarity to your experimental design and contribute to improving transparency and replicability. <strong>fabricatr</strong> also allows you to import existing data and modify it easily, or to resample existing data into new, simulated populations.</p>
-<p>If you’d like to read more about using <strong>fabricatr</strong> to model the variables you plan to collect in your experiment, see our guide on <a href="http://fabricatr.declaredesign.org/articles/common_social.html">common social science variables</a>, our technical manual on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">generating variables with <strong>fabricatr</strong></a>, or our tutorials on <a href="http://fabricatr.declaredesign.org/articles/resampling.html">resampling data</a> <a href="http://fabricatr.declaredesign.org/articles/other_packages.html">integrating other data-generating packages into a <strong>fabricatr</strong> workflow.</a>.</p>
+<p>If you’d like to read more about using <strong>fabricatr</strong> to model the variables you plan to collect in your experiment, see our guide on <a href="http://fabricatr.declaredesign.org/articles/common_social.html">common social science variables</a>, our technical manual on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">generating variables with <strong>fabricatr</strong></a>, or our tutorials on <a href="http://fabricatr.declaredesign.org/articles/resampling.html">resampling data</a> or <a href="http://fabricatr.declaredesign.org/articles/other_packages.html">integrating other data-generating packages into a <strong>fabricatr</strong> workflow.</a>.</p>
 </div>
 <div id="structuring-your-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#structuring-your-data" class="anchor"></a>2. Structuring your data</h2>
-<p><strong>fabricatr</strong> also allows you to structure your data in the shape your real experimental data will be. Although many experimental data are individual observations, like the example above, other popular data structures include multi-level (hierarchical or “nested”) data and cross-classified data. <strong>fabricatr</strong> supports both of these cases.</p>
-<p>Here’s an example</p>
-<p>If you’d like to read more about using <strong>fabricatr</strong> to structure your data, see our guides on <a href="http://fabricatr.declaredesign.org/articles/building_importing.html">building and importing datasets</a> in <strong>fabricatr</strong>, <a href="http://fabricatr.declaredesign.org/articles/cross_classified.html">generating cross-classified data</a>, or <a href="http://fabricatr.declaredesign.org/articles/resampling.html">resampling data</a> with <strong>fabricatr</strong>.</p>
+<p><strong>fabricatr</strong> also allows you to structure your data in the shape your real experimental data will be. Although many experimental data are individual observations, like the example above, other popular data structures include panel data, multi-level (hierarchical or “nested”) data and cross-classified data. <strong>fabricatr</strong> supports both of these cases.</p>
+<p>One common example in the social sciences is panel data, which is easy to create with <strong>fabricatr</strong>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
+
+panel =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">150</span>,
+                        <span class="dt">country_fe =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
+  <span class="dt">years =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">25</span>,
+                    <span class="dt">year_shock =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>),
+                    <span class="dt">nest =</span> <span class="ot">FALSE</span>),
+  <span class="dt">observations =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(countries, years),
+                             <span class="dt">outcome_it =</span> country_fe <span class="op">+</span><span class="st"> </span>year_shock <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">2</span>))
+)</code></pre></div>
+<p>If you’d like to read more about using <strong>fabricatr</strong> to structure your data, see our guides on <a href="http://fabricatr.declaredesign.org/articles/building_importing.html">building and importing datasets</a> in <strong>fabricatr</strong>, <a href="http://fabricatr.declaredesign.org/articles/cross_classified.html">generating cross-classified and panel data</a>, or <a href="http://fabricatr.declaredesign.org/articles/resampling.html">resampling data</a> with <strong>fabricatr</strong>.</p>
 </div>
 <div id="declaredesign" class="section level2">
 <h2 class="hasAnchor">
