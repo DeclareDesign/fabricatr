@@ -8,7 +8,9 @@ correlation structure.}
 cross_level(N = NULL, by = NULL, ...)
 }
 \arguments{
-\item{N}{(required) The number of observations in the resulting data frame}
+\item{N}{The number of observations in the resulting data frame.
+If N is NULL or not provided, the join will be an "outer join" -- creating a
+full panel of each of the rows from each data frame provided.}
 
 \item{by}{The result of a call to \code{join()} which specifies how the
 cross-classified data will be created}
@@ -24,6 +26,14 @@ Creates cross-classified (partially non-nested, joined data) with a fixed
 correlation structure.
 }
 \examples{
+
+# Generate full panel data
+
+panel <- fabricate(
+ countries = add_level(N = 20, country_shock = runif(N, 1, 10)),
+ years = add_level(N = 20, year_shock = runif(N, 1, 10), nest=FALSE),
+ obs = cross_level(by=join(countries, years), GDP_it = country_shock + year_shock)
+)
 
 # Generate cross-classified data and merge, no correlation
 students <- fabricate(

@@ -1,5 +1,36 @@
 context("Fabricate")
 
+test_that("Panel data", {
+  set.seed(19861108)
+
+  # Well formed
+  panel <- fabricate(
+    year = add_level(N = 20, year_shock = runif(N, 1, 10)),
+    country = add_level(N = 20, country_shock = runif(N, 1, 10), nest=FALSE),
+    obs = cross_level(by = join(year, country),
+                      GDP_it = country_shock + year_shock)
+  )
+  expect_equal(nrow(panel), 20 * 20)
+  expect_equal(panel[1, ]$GDP_it,
+               panel[1, ]$country_shock + panel[1, ]$year_shock)
+
+  # Error: Specified correlation with a panel
+  expect_error(fabricate(
+    year = add_level(N = 20, year_shock = runif(N, 1, 10)),
+    country = add_level(N = 20, country_shock = runif(N, 1, 10), nest=FALSE),
+    obs = cross_level(by = join(year, country, rho=0.5),
+                      GDP_it = country_shock + year_shock)
+  ))
+
+  # Error: Only one join
+  expect_error(fabricate(
+    year = add_level(N = 20, year_shock = runif(N, 1, 10)),
+    country = add_level(N = 20, country_shock = runif(N, 1, 10), nest=FALSE),
+    obs = cross_level(by = join(year),
+                      GDP_it = country_shock + year_shock)
+    ))
+})
+
 test_that("Cross-classified data", {
   set.seed(19861108)
 

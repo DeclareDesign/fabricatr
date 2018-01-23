@@ -1,3 +1,18 @@
+panel_dfs = function(dfs) {
+  # Error handling
+  if(is.data.frame(dfs) || length(dfs) < 2) {
+    stop("You must specify at least two data frames in a `cross_level()` call.")
+  }
+
+  # Do repeated merges
+  base = dfs[[1]]
+  for(i in seq.int(from=2, to=length(dfs))) {
+    base = merge(base, dfs[[i]], by=NULL, all=TRUE)
+  }
+
+  base
+}
+
 join_dfs = function(dfs, variables, N, sigma=NULL, rho=0) {
   # Error handling
   if(is.data.frame(dfs)) {

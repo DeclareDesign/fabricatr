@@ -2,7 +2,9 @@
 #' Creates cross-classified (partially non-nested, joined data) with a fixed
 #' correlation structure.
 #'
-#' @param N (required) The number of observations in the resulting data frame
+#' @param N The number of observations in the resulting data frame.
+#' If N is NULL or not provided, the join will be an "outer join" -- creating a
+#' full panel of each of the rows from each data frame provided.
 #' @param by The result of a call to \code{join()} which specifies how the
 #' cross-classified data will be created
 #' @param ... A variable or series of variables to add to the resulting data
@@ -11,6 +13,14 @@
 #' @return data.frame
 #'
 #' @examples
+#'
+#' # Generate full panel data
+#'
+#' panel <- fabricate(
+#'  countries = add_level(N = 20, country_shock = runif(N, 1, 10)),
+#'  years = add_level(N = 20, year_shock = runif(N, 1, 10), nest=FALSE),
+#'  obs = cross_level(by=join(countries, years), GDP_it = country_shock + year_shock)
+#' )
 #'
 #' # Generate cross-classified data and merge, no correlation
 #' students <- fabricate(
@@ -128,8 +138,20 @@ cross_level_internal = function(N = NULL,
                               simplify = FALSE
   )
 
+  if(is.null(N) && (!is.null(by$sigma) || by$rho)) {
+    stop("When `N` is null in a `cross_level()` call, the data generated is a ",
+         "complete panel of all observations in each data frame and cannot have ",
+         "a specified correlation structure. Please remove the correlation structure ",
+         "from the `by` argument.")
+  }
+
   # Do the join.
-  out = join_dfs(data_frame_objects, variable_names, N, by$sigma, by$rho)
+  if(!is.null(N)) {
+    out = join_dfs(data_frame_objects, variable_names, N, by$sigma, by$rho)
+  } else {
+    out = panel_dfs(data_frame_objects)
+    N = nrow(out)
+  }
   working_environment_$variable_names_ = names(out)
 
   # Staple in an ID column onto the data list.
