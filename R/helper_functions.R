@@ -35,20 +35,24 @@ import_data <- function(data,
   return(working_environment_)
 }
 
-shelf_working_data = function(working_environment_) {
-  if("data_frame_output_" %in% names(working_environment_)) {
+shelf_working_data <- function(working_environment_) {
+  if ("data_frame_output_" %in% names(working_environment_)) {
     # Construct the shelved version
-    package_df = list(data_frame_output_ = working_environment_$data_frame_output_,
-                      level_ids_ = working_environment_$level_ids_,
-                      variable_names_ = names(working_environment_$data_frame_output_))
+    package_df <- list(
+      data_frame_output_ = working_environment_$data_frame_output_,
+      level_ids_ = working_environment_$level_ids_,
+      variable_names_ = names(working_environment_$data_frame_output_)
+    )
 
     # Append it to the existing shelf
-    if("shelved_df" %in% names(working_environment_)) {
-      working_environment_$shelved_df = append(working_environment_$shelved_df,
-                                               list(package_df))
+    if ("shelved_df" %in% names(working_environment_)) {
+      working_environment_$shelved_df <- append(
+        working_environment_$shelved_df,
+        list(package_df)
+      )
     } else {
       # Create a shelf just for this
-      working_environment_$shelved_df = list(package_df)
+      working_environment_$shelved_df <- list(package_df)
     }
 
     # Clear the current work-space.
