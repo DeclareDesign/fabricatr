@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>fabricatr - Panel and Cross-classifieddata</title>
+<title>fabricatr - Panel and Cross-classified data</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -102,7 +102,7 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>Panel and Cross-classifieddata</h1>
+      <h1>Panel and Cross-classified data</h1>
                         <h4 class="author">Aaron Rudkin</h4>
             
           </div>
@@ -120,7 +120,7 @@
 <p>The steps for generating a panel in <strong>fabricatr</strong> are as follows:</p>
 <ol style="list-style-type: decimal">
 <li>Generate multiple non-nested data frames (Countries and Years)</li>
-<li>Use the [<code><a href="../reference/cross_level.html">cross_level()</a></code>] function to join the non-nested data frames to make a panel.</li>
+<li>Use the <code><a href="../reference/cross_level.html">cross_level()</a></code> function to join the non-nested data frames to make a panel.</li>
 <li>Optionally, add new variables or further levels in the resulting cross-classified data. (Observation-level variables)</li>
 </ol>
 <div id="generating-multiple-non-nested-levels-in-fabricatr" class="section level3">
@@ -138,25 +138,25 @@
 <div id="importing-non-nested-data-frames" class="section level3">
 <h3 class="hasAnchor">
 <a href="#importing-non-nested-data-frames" class="anchor"></a>Importing non-nested data frames</h3>
-<p>It is also possible to import multiple non-nested data frames; this will allow you to assemble pre-existing data sources however you would like. Recall that the first argument to a [<code><a href="../reference/fabricate.html">fabricate()</a></code>] call is the data you wish to import. We have previously seen that it is possible to import a single data frame this way, but it is also possible to import a list of data frames, staging them all for use for cross-classifying data. Data imported in this manner looks like this:</p>
+<p>It is also possible to import multiple non-nested data frames; this will allow you to assemble pre-existing data sources however you would like. Recall that the first argument to a <code><a href="../reference/fabricate.html">fabricate()</a></code> call is the data you wish to import. We have previously seen that it is possible to import a single data frame this way, but it is also possible to import a list of data frames, staging them all for use for cross-classifying data. Data imported in this manner looks like this:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">example_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="kw">list</span>(data_frame_<span class="dv">1</span>, data_frame_<span class="dv">2</span>),
   ...
 )</code></pre></div>
-<p>Again, the [<code><a href="../reference/fabricate.html">fabricate()</a></code>] call is incomplete – we have imported the data we wish to cross-classify on, but not yet learned how to merge the data. If you do not specify how to merge the data, [<code><a href="../reference/fabricate.html">fabricate()</a></code>] will simply return the most recent data frame imported or generated, unmodified.</p>
+<p>Again, the <code><a href="../reference/fabricate.html">fabricate()</a></code> call is incomplete – we have imported the data we wish to cross-classify on, but not yet learned how to merge the data. If you do not specify how to merge the data, <code><a href="../reference/fabricate.html">fabricate()</a></code> will simply return the most recent data frame imported or generated, unmodified.</p>
 </div>
 <div id="specifying-a-merge-function" class="section level3">
 <h3 class="hasAnchor">
 <a href="#specifying-a-merge-function" class="anchor"></a>Specifying a merge function</h3>
-<p>Specifying a merge function to create a panel is simple. You need only to tell <strong>fabricatr</strong> which levels you wish to merge, and then you will have an assembled panel and can generate new variables at the observation-level. We do this using a call to [<code><a href="../reference/cross_level.html">cross_level()</a></code>]:</p>
+<p>Specifying a merge function to create a panel is simple. You need only to tell <strong>fabricatr</strong> which levels you wish to merge, and then you will have an assembled panel and can generate new variables at the observation-level. We do this using a call to <code><a href="../reference/cross_level.html">cross_level()</a></code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">panels &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">150</span>, <span class="dt">country_fe =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
   <span class="dt">years =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">25</span>, <span class="dt">year_shock =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
   <span class="dt">obs =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(countries, years), 
                     <span class="dt">new_variable =</span> country_fe <span class="op">+</span><span class="st"> </span>year_shock <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">2</span>))
 )</code></pre></div>
-<p>Note that [<code><a href="../reference/cross_level.html">cross_level()</a></code>] takes a single required argument, which is of the form <code>by = join(...)</code>. This join command tells <strong>fabricatr</strong> how to assemble your data. In this case, we are telling it to join the countries data frame to the years data frame, resulting in country-year observations.</p>
-<p>Just like with regular [<code><a href="../reference/fabricate.html">add_level()</a></code>] commands, you can add new variables which have full access to the existing columns.</p>
+<p>Note that <code><a href="../reference/cross_level.html">cross_level()</a></code> takes a single required argument, which is of the form <code>by = join(...)</code>. This join command tells <strong>fabricatr</strong> how to assemble your data. In this case, we are telling it to join the countries data frame to the years data frame, resulting in country-year observations.</p>
+<p>Just like with regular <code><a href="../reference/fabricate.html">add_level()</a></code> commands, you can add new variables which have full access to the existing columns.</p>
 </div>
 </div>
 <div id="cross-classified-or-correlated-data-joins" class="section level2">
@@ -168,20 +168,20 @@
 <p>The main steps involved in generating cross-classified data are as follows:</p>
 <ol style="list-style-type: decimal">
 <li>Generate multiple non-nested data frames (Primary and Secondary Schools)</li>
-<li>Use the [<code><a href="../reference/cross_level.html">cross_level()</a></code>] function to join the non-nested data frames on <em>particular variables</em>, optionally specifying a desired correlation outcome.</li>
+<li>Use the <code><a href="../reference/cross_level.html">cross_level()</a></code> function to join the non-nested data frames on <em>particular variables</em>, optionally specifying a desired correlation outcome.</li>
 <li>Optionally, add new variables or further levels in the resulting cross-classified data. (Student-level characteristics)</li>
 </ol>
 <p>We have already learned above how to generate multiple non-nested data frames; now we example how to specify a merge function for cross-classified data.</p>
 <div id="specifying-a-merge-function-for-cross-classified-data-" class="section level3">
 <h3 class="hasAnchor">
 <a href="#specifying-a-merge-function-for-cross-classified-data-" class="anchor"></a>Specifying a merge function for cross-classified data.</h3>
-<p>One difference between panel data and cross-classified data is that we need to specify the number of observations we will create by combining the existing levels of data. For example, there may be 20 primary schools and 15 secondary schools in a mid-sized city, but several thousand students. Specifying this is as easy as providing an <code>N</code> argument to the [<code><a href="../reference/cross_level.html">cross_level()</a></code>] call. At this juncture, we will assume there is no relationship between the primary school a student attends and the secondary school a student attends:</p>
+<p>One difference between panel data and cross-classified data is that we need to specify the number of observations we will create by combining the existing levels of data. For example, there may be 20 primary schools and 15 secondary schools in a mid-sized city, but several thousand students. Specifying this is as easy as providing an <code>N</code> argument to the <code><a href="../reference/cross_level.html">cross_level()</a></code> call. At this juncture, we will assume there is no relationship between the primary school a student attends and the secondary school a student attends:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">schools_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">primary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">20</span>, <span class="dt">ps_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
   <span class="dt">secondary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">15</span>, <span class="dt">ss_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
   <span class="dt">students =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">N =</span> <span class="dv">1500</span>, <span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(primary_schools, secondary_schools))
 )</code></pre></div>
-<p>We see that the only change here is providing an <code>N</code> argument to [<code><a href="../reference/cross_level.html">cross_level()</a></code>] call. The result is, predictably, a data frame containing 1500 observations, each of five columns: primary_schools (ID), ps_quality, secondary_schools (ID), ss_quality, and students (ID).</p>
+<p>We see that the only change here is providing an <code>N</code> argument to <code><a href="../reference/cross_level.html">cross_level()</a></code> call. The result is, predictably, a data frame containing 1500 observations, each of five columns: primary_schools (ID), ps_quality, secondary_schools (ID), ss_quality, and students (ID).</p>
 </div>
 <div id="adding-additional-variables" class="section level3">
 <h3 class="hasAnchor">
@@ -191,9 +191,7 @@
   <span class="dt">primary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">20</span>, <span class="dt">ps_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
   <span class="dt">secondary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">15</span>, <span class="dt">ss_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
   <span class="dt">students =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">N =</span> <span class="dv">1500</span>, <span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(primary_schools, secondary_schools),
-                         <span class="dt">SAT_score =</span> <span class="dv">800</span> <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">13</span> <span class="op">*</span><span class="st"> </span>ps_quality <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">26</span> <span class="op">*</span><span class="st"> </span>ss_quality <span class="op">+</span><span class="st"> </span>
+                         <span class="dt">SAT_score =</span> <span class="dv">800</span> <span class="op">+</span><span class="st"> </span><span class="dv">13</span> <span class="op">*</span><span class="st"> </span>ps_quality <span class="op">+</span><span class="st"> </span><span class="dv">26</span> <span class="op">*</span><span class="st"> </span>ss_quality <span class="op">+</span><span class="st"> </span>
 <span class="st">                           </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">50</span>))
 )</code></pre></div>
 <p>Here, each student is assigned a standardized testing score, equal to a baseline, plus an additive effect from the quality of their primary school, plus a large additive effect from the quality of their secondary school, plus a stochastic component.</p>
@@ -241,13 +239,12 @@
   <span class="dt">primary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">20</span>, <span class="dt">ps_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
   <span class="dt">secondary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">15</span>, <span class="dt">ss_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
   <span class="dt">students =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">N =</span> <span class="dv">1500</span>, <span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(ps_quality, ss_quality, <span class="dt">rho =</span> <span class="fl">0.5</span>),
-                         <span class="dt">SAT_score =</span> <span class="dv">800</span> <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">13</span> <span class="op">*</span><span class="st"> </span>ps_quality <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">26</span> <span class="op">*</span><span class="st"> </span>ss_quality <span class="op">+</span><span class="st"> </span>
+                         <span class="dt">SAT_score =</span> <span class="dv">800</span> <span class="op">+</span><span class="st"> </span><span class="dv">13</span> <span class="op">*</span><span class="st"> </span>ps_quality <span class="op">+</span><span class="st"> </span><span class="dv">26</span> <span class="op">*</span><span class="st"> </span>ss_quality <span class="op">+</span><span class="st"> </span>
 <span class="st">                           </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">50</span>))
 )</code></pre></div>
-<p>Here, we have changed the structure of our [<code><a href="../reference/join.html">join()</a></code>] function call. First, the variables we are joining on are <code>ps_quality</code> and <code>ss_quality</code>. <strong>fabricatr</strong> locates these variables within the data frames they come from. Second we specify a Spearman’s (rank) correlation coefficient, <code>rho</code>, which will induce a correlation in the resulting data based on the join function. In this case, we want a correlation between <code>ps_quality</code> and <code>ss_quality</code> of 0.5.</p>
-<p>Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that <code>rho</code> can be any value from -1 to 1, and that the resulting correlation will be approximately equal to <code>rho</code>. <em>Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated (smaller in magnitude) from the specified <code>rho</code>. There is no general purpose correction to compensate for this attenuation.</em></p>
+<p>Here, we have changed the structure of our <code><a href="../reference/join.html">join()</a></code> function call. First, the variables we are joining on are <code>ps_quality</code> and <code>ss_quality</code>. <strong>fabricatr</strong> locates these variables within the data frames they come from. Second we specify a Spearman’s (rank) correlation coefficient, <code>rho</code>, which will induce a correlation in the resulting data based on the join function. In this case, we want a correlation between <code>ps_quality</code> and <code>ss_quality</code> of 0.5.</p>
+<p>Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that <code>rho</code> can be any value from -1 to 1, and that the resulting correlation will be approximately equal to <code>rho</code>.</p>
+<p><em>Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated (smaller in magnitude) from the specified <code>rho</code>. There is no general purpose correction to compensate for this attenuation.</em></p>
 <p>We can check the resulting correlation here:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cor</span>(corr_data<span class="op">$</span>ps_quality, corr_data<span class="op">$</span>ss_quality)</code></pre></div>
 <p>0.47</p>
@@ -263,17 +260,14 @@
   <span class="dt">primary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">20</span>, <span class="dt">ps_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
   <span class="dt">secondary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">15</span>, <span class="dt">ss_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
   <span class="dt">colleges =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">50</span>, <span class="dt">c_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
-  <span class="dt">students =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">N =</span> <span class="dv">1500</span>, <span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(ps_quality, 
-                                             ss_quality, 
-                                             c_quality,
-                                             <span class="dt">rho =</span> <span class="fl">0.2</span>),
-                         <span class="dt">earning_potential =</span> <span class="dv">20000</span> <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">2000</span> <span class="op">*</span><span class="st"> </span>ps_quality <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">6000</span> <span class="op">*</span><span class="st"> </span>ss_quality <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">10000</span> <span class="op">*</span><span class="st"> </span>c_quality <span class="op">+</span><span class="st"> </span>
+  <span class="dt">students =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">N =</span> <span class="dv">1500</span>, 
+                         <span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(ps_quality, ss_quality, c_quality,
+                                   <span class="dt">rho =</span> <span class="fl">0.2</span>),
+                         <span class="dt">earning_potential =</span> <span class="dv">20000</span> <span class="op">+</span><span class="st"> </span>(<span class="dv">2000</span> <span class="op">*</span><span class="st"> </span>ps_quality) <span class="op">+</span><span class="st"> </span>
+<span class="st">                           </span>(<span class="dv">6000</span> <span class="op">*</span><span class="st"> </span>ss_quality) <span class="op">+</span><span class="st"> </span>(<span class="dv">10000</span> <span class="op">*</span><span class="st"> </span>c_quality) <span class="op">+</span><span class="st"> </span>
 <span class="st">                           </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">5000</span>))
 )</code></pre></div>
-<p>One potential source for failure is specifying an invalid <code>rho</code>. If you specify a <code>rho</code> that makes the correlation between the three variables impossible to obtain, the [<code><a href="../reference/fabricate.html">fabricate()</a></code>] call will fail. A common case of this occurring is specifying a negative <code>rho</code> with three or more levels – it is clear that if A is negatively correlated with B, and B is negatively correlated with C, then A and C cannot be negatively correlated.</p>
+<p>One potential source for failure is specifying an invalid <code>rho</code>. If you specify a <code>rho</code> that makes the correlation between the three variables impossible to obtain, the <code><a href="../reference/fabricate.html">fabricate()</a></code> call will fail. A common case of this occurring is specifying a negative <code>rho</code> with three or more levels – it is clear that if A is negatively correlated with B, and B is negatively correlated with C, then A and C cannot be negatively correlated.</p>
 <p>Instead of specifying a <code>rho</code> correlation coefficient, users can specify a <code>sigma</code> correlation matrix to make the resulting correlations more sophisticated. Consider the following setup:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sigma =<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="fl">0.4</span>, <span class="fl">0.2</span>,
                  <span class="fl">0.4</span>, <span class="dv">1</span>, <span class="fl">0.8</span>,
@@ -284,14 +278,11 @@ adv_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fa
   <span class="dt">primary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">20</span>, <span class="dt">ps_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)),
   <span class="dt">secondary_schools =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">15</span>, <span class="dt">ss_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
   <span class="dt">colleges =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">50</span>, <span class="dt">c_quality =</span> <span class="kw">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>), <span class="dt">nest =</span> <span class="ot">FALSE</span>),
-  <span class="dt">students =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">N =</span> <span class="dv">1500</span>, <span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(ps_quality, 
-                                             ss_quality, 
-                                             c_quality,
-                                             <span class="dt">sigma =</span> sigma),
-                         <span class="dt">earning_potential =</span> <span class="dv">20000</span> <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">2000</span> <span class="op">*</span><span class="st"> </span>ps_quality <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">6000</span> <span class="op">*</span><span class="st"> </span>ss_quality <span class="op">+</span><span class="st"> </span>
-<span class="st">                           </span><span class="dv">10000</span> <span class="op">*</span><span class="st"> </span>c_quality <span class="op">+</span><span class="st"> </span>
+  <span class="dt">students =</span> <span class="kw"><a href="../reference/cross_level.html">cross_level</a></span>(<span class="dt">N =</span> <span class="dv">1500</span>, 
+                         <span class="dt">by =</span> <span class="kw"><a href="../reference/join.html">join</a></span>(ps_quality, ss_quality, c_quality,
+                                   <span class="dt">sigma =</span> sigma),
+                         <span class="dt">earning_potential =</span> <span class="dv">20000</span> <span class="op">+</span><span class="st"> </span>(<span class="dv">2000</span> <span class="op">*</span><span class="st"> </span>ps_quality) <span class="op">+</span><span class="st"> </span>
+<span class="st">                           </span>(<span class="dv">6000</span> <span class="op">*</span><span class="st"> </span>ss_quality) <span class="op">+</span><span class="st"> </span>(<span class="dv">10000</span> <span class="op">*</span><span class="st"> </span>c_quality) <span class="op">+</span><span class="st"> </span>
 <span class="st">                           </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">5000</span>))
 )</code></pre></div>
 <p><code>sigma</code> must be specified as a symmetric square matrix with a diagonal of all 1s and a feasible correlation structure.</p>

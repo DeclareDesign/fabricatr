@@ -15,11 +15,12 @@ order to create cross-classified data.}
 variables being joined on: note that if it is not possible to make a
 correlation matrix from this coefficient (e.g. if you are joining on three
 or more variables and rho is negative) then the \code{cross_level()} call
-will fail.}
+will fail. Do not provide \code{rho} if making panel data.}
 
 \item{sigma}{A matrix with dimensions equal to the number of variables you
 are joining on, specifying the correlation for the resulting joined data.
-Only one of rho and sigma should be provided.}
+Only one of rho and sigma should be provided. Do not provide \code{sigma} if
+making panel data.}
 }
 \description{
 Helper function handling specification of which variables to join a

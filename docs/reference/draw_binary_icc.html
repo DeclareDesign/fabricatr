@@ -158,8 +158,8 @@ clusters; the length will determine the length of the generated data.</p></td>
     </tr>
     <tr>
       <th>ICC</th>
-      <td><p>A number indicating the desired ICC, if none is provided will
-default to 0.</p></td>
+      <td><p>A number indicating the desired <code>ICC</code>, if none is provided
+the default ICC will be 0.</p></td>
     </tr>
     </table>
     
@@ -170,10 +170,17 @@ the supplied cluster IDs.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>clusters</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
+    <pre class="examples"><div class='input'><span class='co'># Divide units into clusters</span>
+<span class='no'>clusters</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
+
+<span class='co'># Default probability 0.5, default ICC 0</span>
 <span class='fu'>draw_binary_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>)</div><div class='output co'>#&gt;  [1] 0 0 0 1 1 0 1 0 1 1 1 0 1 0 0 0 1 0 0 1 0 0 1 0 0 0 0 0 1 0 1 1 1 1 0 1 0 0
-#&gt; [39] 1 0 0 0 1 0 1 0 1 0 0 1</div><div class='input'><span class='fu'>draw_binary_icc</span>(<span class='kw'>prob</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</div><div class='output co'>#&gt;  [1] 1 1 0 1 0 1 1 0 1 0 0 1 0 1 0 1 1 0 0 1 1 1 1 0 1 1 1 0 1 1 1 1 1 1 0 1 0 0
-#&gt; [39] 1 0 1 1 0 1 0 1 1 1 1 0</div><div class='input'>
+#&gt; [39] 1 0 0 0 1 0 1 0 1 0 0 1</div><div class='input'>
+<span class='co'># Specify probability or ICC</span>
+<span class='no'>corr_draw</span> <span class='kw'>=</span> <span class='fu'>draw_binary_icc</span>(<span class='kw'>prob</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
+
+<span class='co'># Verify ICC of data.</span>
+<span class='fu'>summary</span>(<span class='fu'>lm</span>(<span class='no'>corr_draw</span> ~ <span class='fu'>as.factor</span>(<span class='no'>clusters</span>)))$<span class='no'>r.squared</span></div><div class='output co'>#&gt; [1] 0.34</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

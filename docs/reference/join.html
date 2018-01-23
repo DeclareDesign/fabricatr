@@ -151,13 +151,14 @@ order to create cross-classified data.</p></td>
 variables being joined on: note that if it is not possible to make a
 correlation matrix from this coefficient (e.g. if you are joining on three
 or more variables and rho is negative) then the <code><a href='cross_level.html'>cross_level()</a></code> call
-will fail.</p></td>
+will fail. Do not provide <code>rho</code> if making panel data.</p></td>
     </tr>
     <tr>
       <th>sigma</th>
       <td><p>A matrix with dimensions equal to the number of variables you
 are joining on, specifying the correlation for the resulting joined data.
-Only one of rho and sigma should be provided.</p></td>
+Only one of rho and sigma should be provided. Do not provide <code>sigma</code> if
+making panel data.</p></td>
     </tr>
     </table>
     

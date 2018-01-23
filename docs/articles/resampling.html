@@ -110,22 +110,15 @@
     
     
 <div class="contents">
-<p><strong>fabricatr</strong> is a package designed to help you imagine your data before you collect it. While many solutions exist for creating simulated datasets, <strong>fabricatr</strong> is specifically designed to make the creation of realistic social science datasets easy. In particular, we need to be able to imagine <em>correlated</em> data and <em>hierarchical</em> data. <strong>fabricatr</strong> is designed to integrate into a <a href="https://www.tidyverse.org/">tidyverse</a> workflow, and to allow users to imagine data from scratch or by modifying existing data.</p>
-<p><strong>fabricatr</strong> is a member of the <strong>DeclareDesign</strong> software suite that also includes the <code>r</code> packages <a href="randomizr.declaredesign.org">randomizr</a>, <a href="estimatr.declaredesign.org">estimatr</a>, and <a href="declaredesign.org">DeclareDesign</a>.</p>
-<div id="simulating-resampling-from-existing-data-" class="section level1">
-<h1 class="hasAnchor">
-<a href="#simulating-resampling-from-existing-data-" class="anchor"></a>Simulating “resampling” from existing data.</h1>
 <p>One way to imagine new data is to take data you already have and resample it, ensuring that existing inter-correlations between variables are preserved, while generating new data or expanding the size of the dataset. <strong>fabricatr</strong> offers several options to simulate resampling.</p>
-</div>
 <div id="bootstrapping" class="section level1">
 <h1 class="hasAnchor">
 <a href="#bootstrapping" class="anchor"></a>Bootstrapping</h1>
-<p>The simplest option in <strong>fabricatr</strong> is to “bootstrap” data. Taking data with N observations, the “bootstrap” resamples these observations with replacement and generates N new observations. Existing observations may be used zero times, once, or more than once. Bootstrapping is very simple with the <a href="../reference/resample_data.html"><code><a href="../reference/resample_data.html">resample_data()</a></code></a> function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N=</span><span class="dv">10</span>, 
-                        <span class="dt">voted_republican =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob=</span><span class="fl">0.5</span>, <span class="dt">N=</span>N))
+<p>The simplest option in <strong>fabricatr</strong> is to “bootstrap” data. Taking data with N observations, the “bootstrap” resamples these observations with replacement and generates N new observations. Existing observations may be used zero times, once, or more than once. Bootstrapping is very simple with the <code><a href="../reference/resample_data.html">resample_data()</a></code> function:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">10</span>, <span class="dt">voted_republican =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N))
 
 survey_data_new =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data)
-survey_data</code></pre></div>
+<span class="kw">head</span>(survey_data_new)</code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">ID</th>
@@ -133,28 +126,12 @@ survey_data</code></pre></div>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">01</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
 <td align="left">02</td>
 <td align="right">0</td>
 </tr>
-<tr class="odd">
-<td align="left">03</td>
-<td align="right">1</td>
-</tr>
 <tr class="even">
-<td align="left">04</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="left">05</td>
+<td align="left">08</td>
 <td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">06</td>
-<td align="right">1</td>
 </tr>
 <tr class="odd">
 <td align="left">07</td>
@@ -165,17 +142,17 @@ survey_data</code></pre></div>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
-<td align="left">09</td>
+<td align="left">06</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
-<td align="left">10</td>
+<td align="left">05</td>
 <td align="right">0</td>
 </tr>
 </tbody>
 </table>
-<p>It is also possible to resample fewer or greater number of observations from your existing data. We can do this by specifying the argument <code>N</code> to <a href="../reference/resample_data.html"><code><a href="../reference/resample_data.html">resample_data()</a></code></a>. Consider expanding a small dataset to allow for better imagination of larger data to be collected later.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">large_survey_data =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data, <span class="dt">N=</span><span class="dv">100</span>)
+<p>It is also possible to resample fewer or greater number of observations from your existing data. We can do this by specifying the argument <code>N</code> to <code><a href="../reference/resample_data.html">resample_data()</a></code>. Consider expanding a small dataset to allow for better imagination of larger data to be collected later.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">large_survey_data =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data, <span class="dt">N =</span> <span class="dv">100</span>)
 <span class="kw">nrow</span>(large_survey_data)</code></pre></div>
 <p>100</p>
 </div>
@@ -190,10 +167,8 @@ survey_data</code></pre></div>
     <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   )
 
-my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, 
-                           <span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">5</span>), 
-                           <span class="dt">ID_labels =</span> <span class="kw">c</span>(<span class="st">"cities"</span>, <span class="st">"citizens"</span>))
-my_data_<span class="dv">2</span></code></pre></div>
+my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">5</span>), <span class="dt">ID_labels =</span> <span class="kw">c</span>(<span class="st">"cities"</span>, <span class="st">"citizens"</span>))
+<span class="kw">head</span>(my_data_<span class="dv">2</span>)</code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">cities</th>
@@ -238,63 +213,9 @@ my_data_<span class="dv">2</span></code></pre></div>
 <td align="left">3</td>
 <td align="right">26</td>
 </tr>
-<tr class="odd">
-<td align="left">1</td>
-<td align="right">1493</td>
-<td align="left">2</td>
-<td align="right">35</td>
-</tr>
-<tr class="even">
-<td align="left">1</td>
-<td align="right">1493</td>
-<td align="left">2</td>
-<td align="right">35</td>
-</tr>
-<tr class="odd">
-<td align="left">1</td>
-<td align="right">1493</td>
-<td align="left">1</td>
-<td align="right">33</td>
-</tr>
-<tr class="even">
-<td align="left">1</td>
-<td align="right">1493</td>
-<td align="left">3</td>
-<td align="right">26</td>
-</tr>
-<tr class="odd">
-<td align="left">2</td>
-<td align="right">1971</td>
-<td align="left">4</td>
-<td align="right">44</td>
-</tr>
-<tr class="even">
-<td align="left">2</td>
-<td align="right">1971</td>
-<td align="left">5</td>
-<td align="right">19</td>
-</tr>
-<tr class="odd">
-<td align="left">2</td>
-<td align="right">1971</td>
-<td align="left">5</td>
-<td align="right">19</td>
-</tr>
-<tr class="even">
-<td align="left">2</td>
-<td align="right">1971</td>
-<td align="left">6</td>
-<td align="right">45</td>
-</tr>
-<tr class="odd">
-<td align="left">2</td>
-<td align="right">1971</td>
-<td align="left">4</td>
-<td align="right">44</td>
-</tr>
 </tbody>
 </table>
-<p><a href="../reference/resample_data.html"><code><a href="../reference/resample_data.html">resample_data()</a></code></a> will first select the cities to be resampled. Then, for each city, it will continue by selecting the citizens to be resampled. If a higher level unit is used more than once (for example, the same city being chosen twice), and a lower level is subsequently resampled, the choices of which units to keep for the lower level will differ for each copy of the higher level. In this example, if city 1 is chosen twice, then the sets of five citizens chosen for each copy of the city 1 will differ.</p>
+<p><code><a href="../reference/resample_data.html">resample_data()</a></code> will first select the cities to be resampled. Then, for each city, it will continue by selecting the citizens to be resampled. If a higher level unit is used more than once (for example, the same city being chosen twice), and a lower level is subsequently resampled, the choices of which units to keep for the lower level will differ for each copy of the higher level. In this example, if city 1 is chosen twice, then the sets of five citizens chosen for each copy of the city 1 will differ.</p>
 <p>You can also specify the levels you wish to resample from using the name arguents to the <code>N</code> parameter, like in this example which does exactly the same thing as the previous example, but specifies the level names in a different way:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
@@ -302,9 +223,8 @@ my_data_<span class="dv">2</span></code></pre></div>
     <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   )
 
-my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, 
-                           <span class="dt">N =</span> <span class="kw">c</span>(<span class="dt">cities=</span><span class="dv">3</span>, <span class="dt">citizens=</span><span class="dv">5</span>))
-my_data_<span class="dv">2</span></code></pre></div>
+my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dt">cities=</span><span class="dv">3</span>, <span class="dt">citizens=</span><span class="dv">5</span>))
+<span class="kw">head</span>(my_data_<span class="dv">2</span>)</code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">cities</th>
@@ -349,59 +269,40 @@ my_data_<span class="dv">2</span></code></pre></div>
 <td align="left">4</td>
 <td align="right">41</td>
 </tr>
+</tbody>
+</table>
+</div>
+<div id="passthrough-resampling" class="section level1">
+<h1 class="hasAnchor">
+<a href="#passthrough-resampling" class="anchor"></a>“Passthrough” Resampling</h1>
+<p>In some cases it may make sense to resample each unit at a given level. For example, there may be value in resampling 1 citizen in each and every city represented in the data set. <strong>fabricatr</strong> allows the user to specify <code>ALL</code> for the <code>N</code> argument to a given level to accomplish this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
+  )
+
+my_data_<span class="dv">3</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(ALL, <span class="dv">1</span>), <span class="dt">ID_labels =</span> <span class="kw">c</span>(<span class="st">"cities"</span>, <span class="st">"citizens"</span>))
+<span class="kw">head</span>(my_data_<span class="dv">3</span>)</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">cities</th>
+<th align="right">elevation</th>
+<th align="left">citizens</th>
+<th align="right">age</th>
+</tr></thead>
+<tbody>
 <tr class="odd">
-<td align="left">2</td>
-<td align="right">1014</td>
-<td align="left">6</td>
+<td align="left">1</td>
+<td align="right">1122</td>
+<td align="left">1</td>
 <td align="right">39</td>
 </tr>
 <tr class="even">
 <td align="left">2</td>
-<td align="right">1014</td>
-<td align="left">5</td>
-<td align="right">51</td>
-</tr>
-<tr class="odd">
-<td align="left">2</td>
-<td align="right">1014</td>
-<td align="left">4</td>
-<td align="right">41</td>
-</tr>
-<tr class="even">
-<td align="left">2</td>
-<td align="right">1014</td>
-<td align="left">5</td>
-<td align="right">51</td>
-</tr>
-<tr class="odd">
-<td align="left">1</td>
-<td align="right">1421</td>
-<td align="left">1</td>
-<td align="right">64</td>
-</tr>
-<tr class="even">
-<td align="left">1</td>
-<td align="right">1421</td>
-<td align="left">2</td>
-<td align="right">66</td>
-</tr>
-<tr class="odd">
-<td align="left">1</td>
-<td align="right">1421</td>
-<td align="left">3</td>
-<td align="right">43</td>
-</tr>
-<tr class="even">
-<td align="left">1</td>
-<td align="right">1421</td>
-<td align="left">3</td>
-<td align="right">43</td>
-</tr>
-<tr class="odd">
-<td align="left">1</td>
-<td align="right">1421</td>
-<td align="left">2</td>
-<td align="right">66</td>
+<td align="right">1438</td>
+<td align="left">6</td>
+<td align="right">23</td>
 </tr>
 </tbody>
 </table>
@@ -414,9 +315,9 @@ my_data_<span class="dv">2</span></code></pre></div>
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#simulating-resampling-from-existing-data-">Simulating “resampling” from existing data.</a></li>
-      <li><a href="#bootstrapping">Bootstrapping</a></li>
+<li><a href="#bootstrapping">Bootstrapping</a></li>
       <li><a href="#resampling-hierarchical-data">Resampling hierarchical data</a></li>
+      <li><a href="#passthrough-resampling">“Passthrough” Resampling</a></li>
       </ul>
 </div>
       </div>
