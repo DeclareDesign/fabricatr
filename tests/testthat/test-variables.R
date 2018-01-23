@@ -215,6 +215,8 @@ test_that("Binary ICCs", {
   # Probability = length(cluster ids)
   draw_binary_icc(prob = c(0.3, 0.5, 0.7, 0.8, 0.9), clusters = clusters)
 
+  # No clusters at all.
+  expect_error(draw_binary_icc(clusters = NULL))
   # Invalid cluster IDs
   expect_error(draw_binary_icc(clusters = data.frame(X = 1:10, Y = 1:10)))
   # X doesn't match cluster IDs
