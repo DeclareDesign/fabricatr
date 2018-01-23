@@ -39,24 +39,20 @@ Once you have installed **fabricatr**, you can easily import your own data or ge
 ```{r}
 library(fabricatr)
 
-house_members = fabricate(
+house_members <- fabricate(
   party_id = add_level(
-    N = 2, 
-    party_names = c("Republican", "Democrat"),
-    party_ideology = c(0.5, -0.5), 
-    in_power = c(1, 0), 
-    party_incumbents = c(241, 194)),
+    N = 2, party_names = c("Republican", "Democrat"), party_ideology = c(0.5, -0.5), 
+    in_power = c(1, 0), party_incumbents = c(241, 194)),
   rep_id = add_level(
-    N = party_incumbents, 
-    member_ideology = rnorm(N, party_ideology, sd=0.5),
-    terms_served = draw_count(N = N, mean = 4),
+    N = party_incumbents, member_ideology = rnorm(N, party_ideology, sd = 0.5),
+    terms_served = draw_count(N = N, mean = 4), 
     female = draw_binary(N = N, prob = 0.198))
   )
 ```
 
 ```{r echo=FALSE}
 set.seed(19861108)
-knitr::kable(house_members[sample.int(nrow(house_members), 5, replace=FALSE), c(2, 3, 4, 7, 8, 9)])
+knitr::kable(house_members[sample.int(nrow(house_members), 5, replace=FALSE), c(2, 3, 4, 7, 8, 9)], row.names = FALSE)
 ```
 
 ### Next Steps

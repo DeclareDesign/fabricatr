@@ -113,7 +113,7 @@
 <div id="more-complicated-level-creation-with-variable-numbers-of-observations" class="section level1">
 <h1 class="hasAnchor">
 <a href="#more-complicated-level-creation-with-variable-numbers-of-observations" class="anchor"></a>More complicated level creation with variable numbers of observations</h1>
-<p><a href="../reference/add_level.html"><code><a href="../reference/fabricate.html">add_level()</a></code></a> can be used to create more complicated patterns of nesting. For example, when creating lower level data, it is possible to use a different <code>N</code> for each of the values of the higher level data:</p>
+<p><code><a href="../reference/fabricate.html">add_level()</a></code> can be used to create more complicated patterns of nesting. For example, when creating lower level data, it is possible to use a different <code>N</code> for each of the values of the higher level data:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">variable_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
@@ -166,13 +166,12 @@ variable_data</code></pre></div>
 </tr>
 </tbody>
 </table>
-<p>Here, each city has a different number of citizens. And the value of <code>N</code> used to create the age variable automatically updates as needed. The result is a dataset with 6 citizens, 2 in the first city and 4 in the second. As long as N is either a number, or a vector of the same length of the current lowest level of the data, <a href="../reference/add_level.html"><code><a href="../reference/fabricate.html">add_level()</a></code></a> will know what to do.</p>
+<p>Here, each city has a different number of citizens. And the value of <code>N</code> used to create the age variable automatically updates as needed. The result is a dataset with 6 citizens, 2 in the first city and 4 in the second. As long as N is either a number, or a vector of the same length of the current lowest level of the data, <code><a href="../reference/fabricate.html">add_level()</a></code> will know what to do.</p>
 <p>It is also possible to provide a function to N, enabling a <em>random</em> number of citizens per city:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>, <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>), 
-                         <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>, <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>), <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   )
 my_data</code></pre></div>
 <table class="table">
@@ -223,11 +222,10 @@ my_data</code></pre></div>
 </table>
 <p>Here, each city is given a random number of citizens between 1 and 6. Since the <code><a href="http://dplyr.tidyverse.org/reference/sample.html">sample()</a></code> function returns a vector of length 2, this is like specifying 2 separate <code>N</code>s as in the example above.</p>
 <p>Finally, it is possible to define <code>N</code> on the basis of higher level variables themselves. Consider the following example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">variable_n_function =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">variable_n =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">population =</span> <span class="kw">runif</span>(N, <span class="dv">10</span>, <span class="dv">200</span>)),
   <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="kw">round</span>(population <span class="op">*</span><span class="st"> </span><span class="fl">0.3</span>))
-)
-<span class="kw">head</span>(variable_n_function)</code></pre></div>
+)</code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">cities</th>
@@ -275,8 +273,7 @@ my_data</code></pre></div>
 <p>You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with <code>ave()</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ave_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, 
-                         <span class="dt">income =</span> <span class="kw">rnorm</span>(N), 
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dt">income =</span> <span class="kw">rnorm</span>(N), 
                          <span class="dt">income_mean_city =</span> <span class="kw">ave</span>(income, cities))
     ) 
 ave_example</code></pre></div>
@@ -312,10 +309,8 @@ ave_example</code></pre></div>
 <div id="tidyverse-integration" class="section level1">
 <h1 class="hasAnchor">
 <a href="#tidyverse-integration" class="anchor"></a>Tidyverse integration</h1>
-<p>Because the functions in <strong>fabricatr</strong> take data and return data, they are cross-compatible with a <code>tidyverse</code> workflow:</p>
+<p>Because the functions in <strong>fabricatr</strong> take data and return data, they are cross-compatible with a <code>tidyverse</code> workflow. Here is an example of using <strong>magrittr</strong>’s pipe operator (<code>%&gt;%</code>) and <strong>dplyr</strong>’s <code>group_by</code> and <code>mutate</code> verbs to add new data.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
-
-<span class="co"># letting higher levels depend on lower levels</span>
 
 my_data &lt;-<span class="st"> </span>
 <span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
@@ -372,6 +367,7 @@ my_data</code></pre></div>
 </tr>
 </tbody>
 </table>
+<p>It is also possible to use the pipe operator (<code>%&gt;%</code>) to direct the flow of data between <code><a href="../reference/fabricate.html">fabricate()</a></code> calls. Remember that every <code><a href="../reference/fabricate.html">fabricate()</a></code> call can import existing data frames, and every call returns a single data frame.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-<span class="st"> </span>
 <span class="kw"><a href="http://dplyr.tidyverse.org/reference/reexports.html">data_frame</a></span>(<span class="dt">Y =</span> <span class="kw"><a href="http://dplyr.tidyverse.org/reference/sample.html">sample</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">2</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">lower_level =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">Y2 =</span> Y <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N)))
