@@ -1,7 +1,6 @@
 context("hierarchical")
 
-test_that("hierarchical data is created correctly when you have a vector variable that is of length N per level",{
-
+test_that("hierarchical data is created correctly when you have a vector variable that is of length N per level", {
   hierarchy <- fabricate(
     regions = add_level(N = 3, gdp = rnorm(N)),
     districts = add_level(
@@ -12,7 +11,7 @@ test_that("hierarchical data is created correctly when you have a vector variabl
     cities = add_level(N = 2, subways = rnorm(N, mean = gdp))
   )
 
-df_2 <- unique(hierarchy[,c("regions", "var2")])
+  df_2 <- unique(hierarchy[, c("regions", "var2")])
 
   expect_equivalent(
     sapply(split(df_2, df_2$regions), function(x) length(x$var2)),
@@ -20,7 +19,6 @@ df_2 <- unique(hierarchy[,c("regions", "var2")])
   )
 
   expect_equal(hierarchy$var2[hierarchy$var1 == "ancient"], rep(5, 6))
-
 })
 
 test_that("creating variables", {

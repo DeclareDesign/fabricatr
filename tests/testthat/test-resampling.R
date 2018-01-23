@@ -7,13 +7,17 @@ test_that("Resampling", {
   )
 
   # Example with data.table codepath
-  resampled_two_levels <- resample_data(two_levels, N = c(2, 2),
-                                        ID_labels = c("regions", "cities"))
+  resampled_two_levels <- resample_data(
+    two_levels, N = c(2, 2),
+    ID_labels = c("regions", "cities")
+  )
 
   # Example without data.table codepath
-  resampled_two_levels <- .resample_data_internal(two_levels, N = c(2, 2),
-                                                  ID_labels = c("regions", "cities"),
-                                                  use_dt=FALSE)
+  resampled_two_levels <- .resample_data_internal(
+    two_levels, N = c(2, 2),
+    ID_labels = c("regions", "cities"),
+    use_dt = FALSE
+  )
 
   expect_equal(nrow(resampled_two_levels), 4)
 
@@ -41,9 +45,9 @@ test_that("Error handling of Resampling", {
   # Non-numeric N in direct call of resample_single_level. This is unlikely to
   # arise normally since we don't export it and the code paths that call it have
   # separate error handling
-  expect_error(resample_single_level(two_levels, N=c(1, 2), ID_label = "regions"))
-  expect_error(resample_single_level(two_levels, N=1.5, ID_label = "regions"))
-  expect_error(resample_single_level(two_levels, N="hello", ID_label = "regions"))
+  expect_error(resample_single_level(two_levels, N = c(1, 2), ID_label = "regions"))
+  expect_error(resample_single_level(two_levels, N = 1.5, ID_label = "regions"))
+  expect_error(resample_single_level(two_levels, N = "hello", ID_label = "regions"))
 })
 
 test_that("Direct resample_single_level", {
@@ -52,17 +56,17 @@ test_that("Direct resample_single_level", {
     cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
-  null_data = two_levels[two_levels$gdp > 100, ]
+  null_data <- two_levels[two_levels$gdp > 100, ]
   # Trying to resample null data
   expect_equal(dim(null_data)[1], 0)
-  expect_error(resample_single_level(null_data, ID_label="regions", N=10))
+  expect_error(resample_single_level(null_data, ID_label = "regions", N = 10))
 
   # Trying to resample single level with an invalid ID.
-  expect_error(resample_single_level(two_levels, ID_label="invalid-id", N=10))
+  expect_error(resample_single_level(two_levels, ID_label = "invalid-id", N = 10))
 })
 
 test_that("Extremely deep resampling", {
-  rect_data = fabricate(
+  rect_data <- fabricate(
     N = 10,
     xA = 1:10,
     xB = 11:20,
@@ -77,34 +81,40 @@ test_that("Extremely deep resampling", {
     xK = 101:110
   )
 
-  expect_error(resample_data(rect_data,
-                             N = c(xA = 5,
-                                   xB = 3,
-                                   xC = 6,
-                                   xD = 7,
-                                   xE = 3,
-                                   xF = 1,
-                                   xG = 2,
-                                   xH = ALL,
-                                   xI = 2,
-                                   xJ = 4,
-                                   xK = 9)))
+  expect_error(resample_data(
+    rect_data,
+    N = c(
+      xA = 5,
+      xB = 3,
+      xC = 6,
+      xD = 7,
+      xE = 3,
+      xF = 1,
+      xG = 2,
+      xH = ALL,
+      xI = 2,
+      xJ = 4,
+      xK = 9
+    )
+  ))
 })
 
 test_that("Extremely high volume data creation.", {
   skip("Slows build substantially.")
-  deep_dive_data = fabricate(
+  deep_dive_data <- fabricate(
     countries = add_level(N = 100, gdp = rlnorm(N)),
     states = add_level(N = 50, population = rlnorm(N)),
     cities = add_level(N = 50, holiday = runif(N, 1, 365)),
-    neighborhoods = add_level(N = 5, stoplights = draw_binary(x=0.5, N)),
+    neighborhoods = add_level(N = 5, stoplights = draw_binary(x = 0.5, N)),
     houses = add_level(N = 5, population = runif(N, 1, 5)),
-    people = add_level(N = population, sex = ifelse(draw_binary(x=0.5, N), "M", "F"))
+    people = add_level(N = population, sex = ifelse(draw_binary(x = 0.5, N), "M", "F"))
   )
 
-  test_resample = resample_data(deep_dive_data,
-                                ID_labels=c("countries", "states", "cities"),
-                                N=c(100, 50, 50))
+  test_resample <- resample_data(
+    deep_dive_data,
+    ID_labels = c("countries", "states", "cities"),
+    N = c(100, 50, 50)
+  )
 })
 
 test_that("Providing ID_labels through names of N.", {
@@ -113,19 +123,27 @@ test_that("Providing ID_labels through names of N.", {
     cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
-  resample_data(two_levels, N=c(regions=3, cities=5))
-  expect_error(resample_data(two_levels,
-                             N=c(3, cities=5),
-                             ID_labels=c("regions", "cities")))
+  resample_data(two_levels, N = c(regions = 3, cities = 5))
+  expect_error(resample_data(
+    two_levels,
+    N = c(3, cities = 5),
+    ID_labels = c("regions", "cities")
+  ))
 
-  expect_error(resample_data(two_levels,
-                             N=c(invalidid=3, cities=5)))
+  expect_error(resample_data(
+    two_levels,
+    N = c(invalidid = 3, cities = 5)
+  ))
 
-  expect_error(resample_data(two_levels,
-                             N=c(3, cities=5)))
+  expect_error(resample_data(
+    two_levels,
+    N = c(3, cities = 5)
+  ))
 
-  expect_error(resample_data(two_levels,
-                             N=c(3, 5)))
+  expect_error(resample_data(
+    two_levels,
+    N = c(3, 5)
+  ))
 })
 
 test_that("Passthrough resampling.", {
@@ -134,10 +152,8 @@ test_that("Passthrough resampling.", {
     cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
-  resample_data(two_levels, N=c(regions=ALL, cities=3))
+  resample_data(two_levels, N = c(regions = ALL, cities = 3))
 
   # Warning when final level resampled has passthrough -- this is superfluous
-  expect_warning(resample_data(two_levels, N=c(regions=ALL, cities=ALL)))
-
-
+  expect_warning(resample_data(two_levels, N = c(regions = ALL, cities = ALL)))
 })

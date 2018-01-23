@@ -6,50 +6,63 @@ test_that("Panel data", {
   # Well formed
   panel <- fabricate(
     year = add_level(N = 20, year_shock = runif(N, 1, 10)),
-    country = add_level(N = 20, country_shock = runif(N, 1, 10), nest=FALSE),
-    obs = cross_level(by = join(year, country),
-                      GDP_it = country_shock + year_shock)
+    country = add_level(N = 20, country_shock = runif(N, 1, 10), nest = FALSE),
+    obs = cross_level(
+      by = join(year, country),
+      GDP_it = country_shock + year_shock
+    )
   )
   expect_equal(nrow(panel), 20 * 20)
-  expect_equal(panel[1, ]$GDP_it,
-               panel[1, ]$country_shock + panel[1, ]$year_shock)
+  expect_equal(
+    panel[1, ]$GDP_it,
+    panel[1, ]$country_shock + panel[1, ]$year_shock
+  )
 
   # Error: Specified correlation with a panel
   expect_error(fabricate(
     year = add_level(N = 20, year_shock = runif(N, 1, 10)),
-    country = add_level(N = 20, country_shock = runif(N, 1, 10), nest=FALSE),
-    obs = cross_level(by = join(year, country, rho=0.5),
-                      GDP_it = country_shock + year_shock)
+    country = add_level(N = 20, country_shock = runif(N, 1, 10), nest = FALSE),
+    obs = cross_level(
+      by = join(year, country, rho = 0.5),
+      GDP_it = country_shock + year_shock
+    )
   ))
 
   # Error: Only one join
   expect_error(fabricate(
     year = add_level(N = 20, year_shock = runif(N, 1, 10)),
-    country = add_level(N = 20, country_shock = runif(N, 1, 10), nest=FALSE),
-    obs = cross_level(by = join(year),
-                      GDP_it = country_shock + year_shock)
-    ))
+    country = add_level(N = 20, country_shock = runif(N, 1, 10), nest = FALSE),
+    obs = cross_level(
+      by = join(year),
+      GDP_it = country_shock + year_shock
+    )
+  ))
 })
 
 test_that("Cross-classified data", {
   set.seed(19861108)
 
   # Example draw setup
-  students = fabricate(
-    primary_schools = add_level(N = 100,
-                                ps_quality = runif(n=N, 1, 100),
-                                ps_hasband = draw_binary(0.5, N=N),
-                                ps_testscores = ps_quality * 5 + rnorm(N, 30, 5)),
-    secondary_schools = add_level(N = 50,
-                                  ss_quality = runif(n=N, 1, 100),
-                                  ss_hascomputers = draw_binary(ss_quality/100, N=N),
-                                  ss_testscores = ss_quality * 5 + rnorm(N, 30, 5),
-                                  nest = FALSE),
-    students = cross_level(N = 1000,
-                           by = join(ps_quality, ss_quality, rho=0.5),
-                           student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
-                           student_score_2 = student_score * 2,
-                           extracurricular = ps_hasband + ss_hascomputers
+  students <- fabricate(
+    primary_schools = add_level(
+      N = 100,
+      ps_quality = runif(n = N, 1, 100),
+      ps_hasband = draw_binary(0.5, N = N),
+      ps_testscores = ps_quality * 5 + rnorm(N, 30, 5)
+    ),
+    secondary_schools = add_level(
+      N = 50,
+      ss_quality = runif(n = N, 1, 100),
+      ss_hascomputers = draw_binary(ss_quality / 100, N = N),
+      ss_testscores = ss_quality * 5 + rnorm(N, 30, 5),
+      nest = FALSE
+    ),
+    students = cross_level(
+      N = 1000,
+      by = join(ps_quality, ss_quality, rho = 0.5),
+      student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
+      student_score_2 = student_score * 2,
+      extracurricular = ps_hasband + ss_hascomputers
     )
   )
 
@@ -58,21 +71,26 @@ test_that("Cross-classified data", {
   expect_lte(cor(students$ps_quality, students$ss_quality), 0.7)
 
   # Uncorrelated
-  students_uncorr = fabricate(
-    primary_schools = add_level(N = 100,
-                                ps_quality = runif(n=N, 1, 100),
-                                ps_hasband = draw_binary(0.5, N=N),
-                                ps_testscores = ps_quality * 5 + rnorm(N, 30, 5)),
-    secondary_schools = add_level(N = 50,
-                                  ss_quality = runif(n=N, 1, 100),
-                                  ss_hascomputers = draw_binary(ss_quality/100, N=N),
-                                  ss_testscores = ss_quality * 5 + rnorm(N, 30, 5),
-                                  nest = FALSE),
-    students = cross_level(N = 1000,
-                           by = join(ps_quality, ss_quality, rho=0),
-                           student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
-                           student_score_2 = student_score * 2,
-                           extracurricular = ps_hasband + ss_hascomputers
+  students_uncorr <- fabricate(
+    primary_schools = add_level(
+      N = 100,
+      ps_quality = runif(n = N, 1, 100),
+      ps_hasband = draw_binary(0.5, N = N),
+      ps_testscores = ps_quality * 5 + rnorm(N, 30, 5)
+    ),
+    secondary_schools = add_level(
+      N = 50,
+      ss_quality = runif(n = N, 1, 100),
+      ss_hascomputers = draw_binary(ss_quality / 100, N = N),
+      ss_testscores = ss_quality * 5 + rnorm(N, 30, 5),
+      nest = FALSE
+    ),
+    students = cross_level(
+      N = 1000,
+      by = join(ps_quality, ss_quality, rho = 0),
+      student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
+      student_score_2 = student_score * 2,
+      extracurricular = ps_hasband + ss_hascomputers
     )
   )
 
@@ -82,11 +100,13 @@ test_that("Cross-classified data", {
 
 
   # Specifying sigma in lieu of rho
-  test_next = fabricate(
+  test_next <- fabricate(
     l1 = add_level(N = 50, j1 = rnorm(N)),
-    l2 = add_level(N = 50, j2 = rnorm(N), nest=FALSE),
-    joined = cross_level(N = 200,
-                         by = join(j1, j2, sigma=matrix(c(1, 0.5, 0.5, 1), ncol=2)))
+    l2 = add_level(N = 50, j2 = rnorm(N), nest = FALSE),
+    joined = cross_level(
+      N = 200,
+      by = join(j1, j2, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))
+    )
   )
 
   expect_gte(cor(test_next$j1, test_next$j2), 0.3)
@@ -98,63 +118,76 @@ test_that("Code path without mvnfast", {
 
   # Need to directly call joint_draw_ecdf because we don't let users voluntarily
   # override the use_f argument
-  dl = list(j1 = rnorm(100),
-            j2 = rnorm(500))
-  result = fabricatr:::joint_draw_ecdf(dl, N = 100, rho = 0.3, use_f = FALSE)
-  data = cbind(dl$j1[result[[1]]],
-               dl$j2[result[[2]]])
+  dl <- list(
+    j1 = rnorm(100),
+    j2 = rnorm(500)
+  )
+  result <- fabricatr:::joint_draw_ecdf(dl, N = 100, rho = 0.3, use_f = FALSE)
+  data <- cbind(
+    dl$j1[result[[1]]],
+    dl$j2[result[[2]]]
+  )
   expect_gte(cor(data[, 1], data[, 2]), 0.1)
   expect_lte(cor(data[, 1], data[, 2]), 0.5)
 })
 
 test_that("Deliberate failures in join_dfs", {
-  df1 = fabricate(N=100, j1 = rnorm(100))
-  df2 = fabricate(N=100, j2 = rnorm(100))
-  df3 = fabricate(N=100, j3 = rnorm(100))
+  df1 <- fabricate(N = 100, j1 = rnorm(100))
+  df2 <- fabricate(N = 100, j2 = rnorm(100))
+  df3 <- fabricate(N = 100, j3 = rnorm(100))
 
-  expect_error(fabricatr:::join_dfs(df1, c("j1"), N=100, rho=0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N=100, rho=0.5))
-  expect_error(fabricatr:::join_dfs(list(df1), c("j1"), N=100, rho=0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N=-1, rho=0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N=c(3, 10), rho=0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2, df3), c("j1", "j2", "j3"), N=100, rho=-0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N=100, rho=c(0.5, 0.3)))
+  expect_error(fabricatr:::join_dfs(df1, c("j1"), N = 100, rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N = 100, rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1), c("j1"), N = 100, rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N = -1, rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N = c(3, 10), rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2, df3), c("j1", "j2", "j3"), N = 100, rho = -0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N = 100, rho = c(0.5, 0.3)))
 
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"),
-                                   N=100,
-                                   sigma=matrix(c(1, 0.3, 0.3, 0.3, 1, 0.3, 0.3, 0.3, 1),
-                                                ncol = 3
-                                                )))
+  expect_error(fabricatr:::join_dfs(
+    list(df1, df2), c("j1", "j2"),
+    N = 100,
+    sigma = matrix(
+      c(1, 0.3, 0.3, 0.3, 1, 0.3, 0.3, 0.3, 1),
+      ncol = 3
+    )
+  ))
 })
 
 test_that("Deliberate failures in cross_level", {
   expect_error(
     fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
-      l2 = add_level(N = 50, j2 = rnorm(N), nest=FALSE),
-      joined = cross_level(N = 200,
-                           by = join(j1,
-                                     j_error,
-                                     sigma=matrix(c(1, 0.5, 0.5, 1),
-                                                  ncol=2)
-                                     )
-                           )
+      l2 = add_level(N = 50, j2 = rnorm(N), nest = FALSE),
+      joined = cross_level(
+        N = 200,
+        by = join(
+          j1,
+          j_error,
+          sigma = matrix(
+            c(1, 0.5, 0.5, 1),
+            ncol = 2
+          )
+        )
+      )
     )
   )
 
   expect_error(
     fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
-      l2 = add_level(N = 50, j_var = rnorm(N), j1 = runif(N, 1, 3), nest=FALSE),
-      joined = cross_level(N = 200,
-                           by = join(j1, j_var, sigma=matrix(c(1, 0.5, 0.5, 1), ncol=2)))
+      l2 = add_level(N = 50, j_var = rnorm(N), j1 = runif(N, 1, 3), nest = FALSE),
+      joined = cross_level(
+        N = 200,
+        by = join(j1, j_var, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))
+      )
     )
   )
 
   expect_error(
     fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
-      l2 = add_level(N = 50, j2 = rnorm(N), nest=FALSE),
+      l2 = add_level(N = 50, j2 = rnorm(N), nest = FALSE),
       joined = cross_level(N = 200)
     )
   )
@@ -169,16 +202,16 @@ test_that("Deliberate failures in cross_level", {
   expect_error(
     fabricate(
       l1 = add_level(N = 50, v1 = rnorm(N), v2 = rnorm(N), v3 = rnorm(N)),
-      l2 = add_level(N = 30, v4 = rnorm(N), nest=FALSE),
-      joined = cross_level(N = 100, by=join(v1, v2))
+      l2 = add_level(N = 30, v4 = rnorm(N), nest = FALSE),
+      joined = cross_level(N = 100, by = join(v1, v2))
     )
   )
 
   expect_error(
     fabricate(
       l1 = add_level(N = 50, v1 = rnorm(N), v2 = rnorm(N), v3 = rnorm(N)),
-      l2 = add_level(N = 30, v4 = rnorm(N), nest=FALSE),
-      joined = cross_level(N = 100, by=join(v1, v4, v1))
+      l2 = add_level(N = 30, v4 = rnorm(N), nest = FALSE),
+      joined = cross_level(N = 100, by = join(v1, v4, v1))
     )
   )
 })
@@ -186,24 +219,29 @@ test_that("Deliberate failures in cross_level", {
 test_that("Cross-classified with double import", {
   set.seed(19861108)
 
-  primary_schools = fabricate(N = 100,
-                              ps_quality = runif(n=N, 1, 100),
-                              ps_hasband = draw_binary(0.5, N=N),
-                              ps_testscores = ps_quality * 5 + rnorm(N, 30, 5),
-                              ID_label = "primary_schools")
-  secondary_schools = fabricate(N = 50,
-                                ss_quality = runif(n=N, 1, 100),
-                                ss_hascomputers = draw_binary(ss_quality/100, N=N),
-                                ss_testscores = ss_quality * 5 + rnorm(N, 30, 5),
-                                ID_label = "secondary_schools")
+  primary_schools <- fabricate(
+    N = 100,
+    ps_quality = runif(n = N, 1, 100),
+    ps_hasband = draw_binary(0.5, N = N),
+    ps_testscores = ps_quality * 5 + rnorm(N, 30, 5),
+    ID_label = "primary_schools"
+  )
+  secondary_schools <- fabricate(
+    N = 50,
+    ss_quality = runif(n = N, 1, 100),
+    ss_hascomputers = draw_binary(ss_quality / 100, N = N),
+    ss_testscores = ss_quality * 5 + rnorm(N, 30, 5),
+    ID_label = "secondary_schools"
+  )
 
-  students = fabricate(
+  students <- fabricate(
     list(primary_schools, secondary_schools),
-    students = cross_level(N = 1000,
-                           by = join(ps_quality, ss_quality, rho=0.5),
-                           student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
-                           student_score_2 = student_score * 2,
-                           extracurricular = ps_hasband + ss_hascomputers
+    students = cross_level(
+      N = 1000,
+      by = join(ps_quality, ss_quality, rho = 0.5),
+      student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
+      student_score_2 = student_score * 2,
+      extracurricular = ps_hasband + ss_hascomputers
     )
   )
 

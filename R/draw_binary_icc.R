@@ -24,82 +24,92 @@
 #' @importFrom stats rbinom
 #'
 #' @export
-draw_binary_icc = function(prob = 0.5, N = NULL, clusters, ICC = 0) {
+draw_binary_icc <- function(prob = 0.5, N = NULL, clusters, ICC = 0) {
   # Let's not worry about how clusters are provided
   tryCatch({
-    clusters = as.numeric(as.factor(clusters))
-  }, error=function(e) {
-    stop("Error coercing cluster IDs to factor levels. Please ensure the `clusters` ",
-         "argument is numeric, factor, or can be coerced into being a factor.")
+    clusters <- as.numeric(as.factor(clusters))
+  }, error = function(e) {
+    stop(
+      "Error coercing cluster IDs to factor levels. Please ensure the `clusters` ",
+      "argument is numeric, factor, or can be coerced into being a factor."
+    )
   })
-  number_of_clusters = length(unique(clusters))
+  number_of_clusters <- length(unique(clusters))
 
   # Sanity check N
-  if(!is.null(N) && !is.numeric(N)) {
+  if (!is.null(N) && !is.numeric(N)) {
     stop("If you provide an N for `draw_binary_icc()`, it must be numeric.")
   }
-  if(!is.null(N) && N != length(clusters)) {
-    stop("If you provide an N for `draw_binary_icc()`, it must be equal to the ",
-         "length of provided cluster ids")
+  if (!is.null(N) && N != length(clusters)) {
+    stop(
+      "If you provide an N for `draw_binary_icc()`, it must be equal to the ",
+      "length of provided cluster ids"
+    )
   }
 
   # Sanity check prob
-  if(!is.vector(prob)) {
+  if (!is.vector(prob)) {
     stop("`prob` must be a number or vector of numbers.")
   }
-  if(!length(prob) %in% c(1, number_of_clusters, length(clusters))) {
+  if (!length(prob) %in% c(1, number_of_clusters, length(clusters))) {
     stop("`prob` must be either one number or one number per cluster.")
   }
-  if(length(prob) == length(clusters) &&
-     nrow(unique(cbind(prob, clusters))) != number_of_clusters) {
+  if (length(prob) == length(clusters) &&
+    nrow(unique(cbind(prob, clusters))) != number_of_clusters) {
     stop("If `prob` is provided for each observation, it must be unique per cluster.")
   }
 
-  if(any(!is.numeric(prob))) {
+  if (any(!is.numeric(prob))) {
     stop("`prob` must be a number or vector of numbers.")
   }
-  if(any(prob > 1 | prob < 0)) {
+  if (any(prob > 1 | prob < 0)) {
     stop("`prob` must be numeric probabilities between 0 and 1 inclusive.")
   }
 
   # Sanity check ICC
-  if(length(ICC) > 1) {
+  if (length(ICC) > 1) {
     stop("The ICC provided to `draw_binary_icc()` must be a single number.")
   }
-  if(!is.numeric(ICC)) {
+  if (!is.numeric(ICC)) {
     stop("The ICC provided to `draw_binary_icc()` must be a number.")
   }
-  if(ICC > 1 | ICC < 0) {
+  if (ICC > 1 | ICC < 0) {
     stop("The ICC provided to `draw_binary_icc()` must be a number between 0 and 1.")
   }
 
   # Generate cluster and individual probabilities
-  if(length(prob) == 1) {
-    cluster_prob = rep(prob, number_of_clusters)
+  if (length(prob) == 1) {
+    cluster_prob <- rep(prob, number_of_clusters)
   } else {
-    cluster_prob = prob
+    cluster_prob <- prob
   }
   # Individual probabilities: subset operator maps cluster probs to units.
-  individual_prob = cluster_prob[clusters]
+  individual_prob <- cluster_prob[clusters]
 
   # Draw the z_ijs
-  cluster_draw = rbinom(n = number_of_clusters,
-                        size = 1,
-                        prob = cluster_prob)[clusters]
+  cluster_draw <- rbinom(
+    n = number_of_clusters,
+    size = 1,
+    prob = cluster_prob
+  )[clusters]
 
   # Draw the y_ijs
-  individual_draw = rbinom(n = length(clusters),
-                           size = 1,
-                           prob = individual_prob)
+  individual_draw <- rbinom(
+    n = length(clusters),
+    size = 1,
+    prob = individual_prob
+  )
 
   # Draw the u_ijs -- sqrt(ICC) because the actual ICC for this data will be
   # ICC^2 -- sqrt(ICC^2) = ICC, to ensure users can enter in the terms they feel
   # most comfortable in
-  switch_draw = rbinom(n = length(clusters),
-                       size = 1,
-                       prob = sqrt(ICC))
+  switch_draw <- rbinom(
+    n = length(clusters),
+    size = 1,
+    prob = sqrt(ICC)
+  )
 
   # Return either the cluster outcome or individual outcome depending on the
   # switch
   ifelse(switch_draw, cluster_draw, individual_draw)
-  }
+}
