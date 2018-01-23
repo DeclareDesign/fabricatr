@@ -325,7 +325,7 @@ handle_data = function(data) {
 
     # Convert user data to a data frame
     tryCatch({
-      data = data.frame(data)
+      data = data.frame(data, stringsAsFactors=FALSE)
     }, error=function(e) {
       # We can't make it a data frame -- this should probably never happen,
       # since it relies on something with a dim attribute not converting to

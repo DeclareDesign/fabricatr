@@ -11,7 +11,7 @@ test_that("Weird edge cases: importing", {
 })
 
 test_that("Weird edge cases: missingness in draw_binomial", {
-  # Missing data in probs -> still runs.
+  # Missing data in prob -> still runs.
   expect_warning(draw_binomial(c(rep(0.5, 5), NA), trials = 8))
 })
 

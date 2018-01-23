@@ -1,3 +1,3 @@
-# fabricatr 1.0.0
+# **fabricatr** 1.0.1
 
-first CRAN release
+First CRAN submission for **fabricatr**

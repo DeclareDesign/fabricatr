@@ -13,8 +13,8 @@ test_that("Error handlers: handle_data", {
   # example -- this is also a working use case.
   handle_data(data = matrix(1:9, nrow=3, ncol=3))
 
-  # Really stupid test -- object has dimensionality but won't coerce to df
-  # this should almost never happen except for very poorly behaved objects
+  # Silly test -- object has dimensionality but won't coerce to df this should
+  # almost never happen except for very poorly behaved objects
   X = 1:10
   Y = X*2 + rnorm(10)
   df = data.frame(X = X, Y=Y)
@@ -24,7 +24,7 @@ test_that("Error handlers: handle_data", {
 })
 
 test_that("Error handlers: handle_id", {
-  # Cartoon scenario where we're asked to generate an ID
+  # Unlikely scenario where we're asked to generate an ID
   # but our 6 default variables are all taken
   data = data.frame(ID = 1:10,
                     fab_ID_1 = 11:20,

@@ -92,15 +92,15 @@ modify_level_internal = function(N = NULL, ID_label = NULL,
 
   index_maps = as.numeric(factor(working_environment_$data_frame_output_[[ID_label]],
                                  levels = unique_values_of_level,
-                                 labels = 1:length(unique_values_of_level)))
-
+                                 labels = seq_len(length(unique_values_of_level))))
 
   # Now, which variables are we going to write to (do we need to subset)?
   write_variables = unname(unlist(get_symbols_from_quosure(data_arguments)))
   # Remove the ID label from the variables we are going to write to.
   write_variables = setdiff(write_variables, ID_label)
   # Let's also remove anything that doesn't seem to be a valid variable
-  write_variables = write_variables[write_variables %in% names(working_environment_$data_frame_output_)]
+  write_variables = write_variables[write_variables %in%
+                                      names(working_environment_$data_frame_output_)]
 
   # Level unique variables:
   level_unique_variables = get_unique_variables_by_level(

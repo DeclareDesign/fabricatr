@@ -25,9 +25,10 @@
 #' \code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass
 #' \code{add_level()} or \code{modify_level()} arguments, which define a level
 #' of a multi-level dataset. See examples.
-#' @param nest (Default TRUE) Boolean determining whether data in an \code{add_level()} call
-#' will be nested under the current working data frame or create a separate hierarchy of levels.
-#' See our vignette for cross-classified, non-nested data for details.
+#' @param nest (Default TRUE) Boolean determining whether data in an
+#' \code{add_level()} call will be nested under the current working data frame
+#' or create a separate hierarchy of levels. See our vignette for
+#' cross-classified, non-nested data for details.
 #'
 #' @return data.frame
 #'

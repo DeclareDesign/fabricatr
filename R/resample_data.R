@@ -73,7 +73,7 @@ ALL = -20171101L
   if(outer_level) {
     # Optional usage of data.table to speed up functionality
     # Short-circuit on the is.na to only attempt the package load if necessary.
-    use_dt = use_dt && requireNamespace("data.table", quietly=T)
+    use_dt = use_dt && requireNamespace("data.table", quietly=TRUE)
 
     # User didn't provide an N or an ID label, it's clear they just want a regular bootstrap
     # of N units by row.
@@ -84,28 +84,33 @@ ALL = -20171101L
     # No negative or non-numeric Ns unless they are ALL
     if (any(!is.numeric(N) | N%%1 | (N<=0 & N!=ALL))) {
       stop(
-        "All specified Ns must be numeric and at least 1, or the constant ALL to keep all units at a level and pass through."
+        "All specified Ns must be numeric and at least 1, or the constant ALL to ",
+        "keep all units at a level and pass through."
       )
     }
 
     # Provided names for ID labels AND for names attributes of N vector
     if(!is.null(ID_labels) & !is.null(names(N))) {
       stop(
-        "You may provide names of ID_labels as part of N or as part of the argument ID_labels but not both."
+        "You may provide names of ID_labels as part of N or as part of the argument ",
+        "ID_labels but not both."
       )
     }
 
     # N doesn't match ID labels
     if (!is.null(ID_labels) & (length(N) != length(ID_labels))) {
       stop(
-        "If you provide more than one ID_labels to resample data for multilevel data, please provide a vector for N of the same length representing the number to resample at each level."
+        "If you provide more than one ID_labels to resample data for multilevel data, ",
+        "please provide a vector for N of the same length representing the ",
+        "number to resample at each level."
       )
     }
 
     # Some of the names provided for N are null
     if (!is.null(names(N)) && any(is.na(names(N)) | names(N) == "")) {
       stop(
-        "If you provide names of levels to resample through the N argument, you must provide a name for every level"
+        "If you provide names of levels to resample through the N argument, you ",
+        "must provide a name for every level"
       )
     }
 
@@ -117,7 +122,8 @@ ALL = -20171101L
     # ID_labels looking for some columns we don't have
     if (any(!ID_labels %in% names(data))) {
       stop(
-        "One or more of the ID labels you provided are not columns in the data frame provided."
+        "One or more of the ID labels you provided are not columns in the data ",
+        "frame provided."
       )
     }
 
@@ -160,7 +166,7 @@ ALL = -20171101L
     # if data.table is around.
     # The list subset on the split is faster than unlisting
     .resample_data_internal(
-      data[split_data_on_resample_id[i][[1]], ],
+      data[split_data_on_resample_id[i][[1]], , drop=FALSE],
       N=N[2:length(N)],
       ID_labels=ID_labels[2:length(ID_labels)],
       outer_level=0,
@@ -195,7 +201,7 @@ resample_single_level <- function(data, ID_label = NULL, N) {
 
   if (is.null(ID_label)) {
     # Simple bootstrap
-    return(data[sample(seq_len(dim(data)[1]), N, replace = TRUE), , drop = F])
+    return(data[sample(seq_len(dim(data)[1]), N, replace = TRUE), , drop = FALSE])
   } else if(!ID_label %in% colnames(data)) {
     stop("`ID_label` provided (", ID_label, ") is not a column in the data being resampled.")
   }
@@ -226,9 +232,11 @@ resample_single_level <- function(data, ID_label = NULL, N) {
   }
 
   # Get all row indices associated with every cluster ID combined
-  resample_indices = unlist(indices_split[resample_ids], recursive=F, use.names=F)
+  resample_indices = unlist(indices_split[resample_ids],
+                            recursive=FALSE,
+                            use.names=FALSE)
   # Only take the indices we want (repeats will be handled properly)
-  return(data[resample_indices, , drop=F])
+  return(data[resample_indices, , drop=FALSE])
 }
 
 

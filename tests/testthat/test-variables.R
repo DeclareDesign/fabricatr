@@ -346,6 +346,7 @@ test_that("Likert alias", {
   expect_error(draw_likert(x = rnorm(100), breaks=c(-Inf, -1, 0, Inf)))
   expect_error(draw_likert(x = rnorm(100), type = 3))
 
-  # Duhhhh
+  # Should be impossible, but verify if someone accidentally overrides type.
+  # and doesn't provide breaks.
   expect_error(draw_likert(x = rnorm(100), type = NULL))
 })
