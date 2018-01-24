@@ -183,15 +183,6 @@ cross_levels_internal <- function(N = NULL,
     simplify = FALSE
   )
 
-  if (is.null(N) && (!is.null(by$sigma) || by$rho)) {
-    stop(
-      "When `N` is null in a `cross_levels()` call, the data generated is a ",
-      "complete panel of all observations in each data frame and cannot have ",
-      "a specified correlation structure. Please remove the correlation structure ",
-      "from the `by` argument."
-    )
-  }
-
   # Do the join.
   if (!is.null(N)) {
     out <- join_dfs(data_frame_objects, variable_names, N, by$sigma, by$rho)

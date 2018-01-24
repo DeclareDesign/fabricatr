@@ -217,8 +217,10 @@ test_that("Binary ICCs", {
 
   # No clusters at all.
   expect_error(draw_binary_icc(clusters = NULL))
-  # Invalid cluster IDs
+  # Invalid cluster IDs: dimensional
   expect_error(draw_binary_icc(clusters = data.frame(X = 1:10, Y = 1:10)))
+  # Invalid cluster IDs: mixed list
+  expect_error(draw_binary_icc(clusters = list("abc", 7)))
   # X doesn't match cluster IDs
   expect_error(draw_binary_icc(prob = c(0.5, 0.8), clusters = clusters))
   # X isn't a vector
@@ -303,8 +305,10 @@ test_that("Normal ICC", {
   # Provided all three, how can they possibly agree?
   expect_warning(draw_normal_icc(clusters = clusters, ICC = 0.5, sd = 1, sd_between = 1))
 
-  # Invalid cluster IDs
+  # Invalid cluster IDs: dimensional
   expect_error(draw_normal_icc(clusters = data.frame(X = 1:10, Y = 1:10)))
+  # Invalid cluster IDs: mixed list
+  expect_error(draw_normal_icc(clusters = list("abc", 7)))
   # X doesn't match cluster IDs
   expect_error(draw_normal_icc(mean = c(0.5, 0.8), clusters = clusters, ICC = 0.5))
   # X isn't a vector
