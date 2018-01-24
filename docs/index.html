@@ -128,17 +128,20 @@
 <li>Generating data that are structured like the real thing, including panel data, multi-level (“nested”) data or cross-classified data.</li>
 </ol>
 <p><strong>fabricatr</strong> is easy to learn and easy to read. Consider this example which generates data modeling the United States House of Representatives:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fabricatr)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
+<span class="kw">library</span>(fabricatr)
 
 house_members &lt;-<span class="st"> </span><span class="kw"><a href="reference/fabricate.html">fabricate</a></span>(
   <span class="dt">party_id =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
-    <span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">party_names =</span> <span class="kw">c</span>(<span class="st">"Republican"</span>, <span class="st">"Democrat"</span>), <span class="dt">party_ideology =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>), 
-    <span class="dt">in_power =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="dt">party_incumbents =</span> <span class="kw">c</span>(<span class="dv">241</span>, <span class="dv">194</span>)),
+    <span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">party_names =</span> <span class="kw">c</span>(<span class="st">"Republican"</span>, <span class="st">"Democrat"</span>), <span class="dt">party_ideology =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>),
+    <span class="dt">in_power =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="dt">party_incumbents =</span> <span class="kw">c</span>(<span class="dv">241</span>, <span class="dv">194</span>)
+  ),
   <span class="dt">rep_id =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> party_incumbents, <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology, <span class="dt">sd =</span> <span class="fl">0.5</span>),
-    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">mean =</span> <span class="dv">4</span>), 
-    <span class="dt">female =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.198</span>))
-  )</code></pre></div>
+    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">mean =</span> <span class="dv">4</span>),
+    <span class="dt">female =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.198</span>)
+  )
+)</code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">party_names</th>
@@ -153,40 +156,40 @@ house_members &lt;-<span class="st"> </span><span class="kw"><a href="reference/
 <td align="left">Democrat</td>
 <td align="right">-0.5</td>
 <td align="right">0</td>
-<td align="right">0.11</td>
-<td align="right">3</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Republican</td>
-<td align="right">0.5</td>
-<td align="right">1</td>
-<td align="right">-0.37</td>
-<td align="right">1</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Republican</td>
-<td align="right">0.5</td>
-<td align="right">1</td>
-<td align="right">0.71</td>
-<td align="right">2</td>
+<td align="right">-1.21</td>
+<td align="right">4</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">Democrat</td>
 <td align="right">-0.5</td>
 <td align="right">0</td>
-<td align="right">-1.05</td>
+<td align="right">-0.82</td>
 <td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Democrat</td>
+<td align="right">-0.5</td>
+<td align="right">0</td>
+<td align="right">-0.42</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Republican</td>
+<td align="right">0.5</td>
+<td align="right">1</td>
+<td align="right">-0.23</td>
+<td align="right">7</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">Republican</td>
 <td align="right">0.5</td>
 <td align="right">1</td>
-<td align="right">0.24</td>
-<td align="right">4</td>
+<td align="right">0.40</td>
+<td align="right">2</td>
 <td align="right">0</td>
 </tr>
 </tbody>

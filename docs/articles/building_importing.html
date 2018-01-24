@@ -162,18 +162,18 @@ my_data</code></pre></div>
 </tr>
 </tbody>
 </table>
+<p>This simple example makes use of <code>R</code>’s built-in <code>runif</code> command. The rest of the tutorial assumes a familiarity with <code>R</code> and its basic data generating processes.</p>
 </div>
 <div id="single-level-datasets-using-existing-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#single-level-datasets-using-existing-data" class="anchor"></a>Single-level datasets using existing data</h1>
-<p>Instead of specifying the argument <code>N</code>, users can specify the argument <code>data</code> to import existing datasets. Once a dataset is imported, subsequent variables have access to <code>N</code>, representing the number of observations in the imported data. This makes it easy to augment existing data with simulations based on that data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># This example makes use of the "quakes" dataset, built into R</span>
-<span class="co"># which describes earthquakes off the coast of Fiji. The "mag"</span>
-<span class="co"># variable contains the richter magnitude of the earthquakes.</span>
-
-simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">data =</span> quakes,
-                                 <span class="dt">fatalities =</span> <span class="kw">round</span>(<span class="kw">pmax</span>(<span class="dv">0</span>, <span class="kw">rnorm</span>(N, <span class="dt">mean=</span>mag)) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>),
-                                 <span class="dt">insurance_cost =</span> fatalities <span class="op">*</span><span class="st"> </span><span class="kw">runif</span>(N, <span class="dv">1000000</span>, <span class="dv">2000000</span>))
+<p>Instead of specifying the argument <code>N</code>, users can specify the argument <code>data</code> to import existing datasets. Once a dataset is imported, subsequent variables have access to <code>N</code>, representing the number of observations in the imported data. This makes it easy to augment existing data with simulations based on that data.</p>
+<p>In this example, we make use of the <code>quakes</code> dataset, built into <code>R</code>, which describes characteristics of earthquakes off the coast of Fiji. The <code>mag</code> variable in this dataset contains the richter magnitude of the earthquakes. We will expand this data to add variables modelling hypothetical fatalities and insurance costs:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">simulated_quake_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">data =</span> quakes,
+  <span class="dt">fatalities =</span> <span class="kw">round</span>(<span class="kw">pmax</span>(<span class="dv">0</span>, <span class="kw">rnorm</span>(N, <span class="dt">mean =</span> mag)) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>),
+  <span class="dt">insurance_cost =</span> fatalities <span class="op">*</span><span class="st"> </span><span class="kw">runif</span>(N, <span class="dv">1000000</span>, <span class="dv">2000000</span>)
+)
 <span class="kw">head</span>(simulated_quake_data)</code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -182,7 +182,6 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <th align="right">depth</th>
 <th align="right">mag</th>
 <th align="right">stations</th>
-<th align="left">ID</th>
 <th align="right">fatalities</th>
 <th align="right">insurance_cost</th>
 </tr></thead>
@@ -193,7 +192,6 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">562</td>
 <td align="right">4.8</td>
 <td align="right">41</td>
-<td align="left">0001</td>
 <td align="right">611</td>
 <td align="right">1,025,606,193</td>
 </tr>
@@ -203,7 +201,6 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">650</td>
 <td align="right">4.2</td>
 <td align="right">15</td>
-<td align="left">0002</td>
 <td align="right">290</td>
 <td align="right">297,296,739</td>
 </tr>
@@ -213,7 +210,6 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">42</td>
 <td align="right">5.4</td>
 <td align="right">43</td>
-<td align="left">0003</td>
 <td align="right">427</td>
 <td align="right">781,383,594</td>
 </tr>
@@ -223,7 +219,6 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">626</td>
 <td align="right">4.1</td>
 <td align="right">19</td>
-<td align="left">0004</td>
 <td align="right">470</td>
 <td align="right">523,884,824</td>
 </tr>
@@ -233,7 +228,6 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">649</td>
 <td align="right">4.0</td>
 <td align="right">11</td>
-<td align="left">0005</td>
 <td align="right">456</td>
 <td align="right">716,487,843</td>
 </tr>
@@ -243,7 +237,6 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <td align="right">195</td>
 <td align="right">4.0</td>
 <td align="right">12</td>
-<td align="left">0006</td>
 <td align="right">390</td>
 <td align="right">696,587,098</td>
 </tr>
@@ -254,15 +247,19 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <div id="hierarchical-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#hierarchical-data" class="anchor"></a>Hierarchical data</h1>
-<p>The most powerful use of <strong>fabricatr</strong> is to create hierarchical (“nested”) data. In the example below, we create 5 countries, each of which has 10 provinces:</p>
+<p>The most powerful use of <strong>fabricatr</strong> is to create hierarchical (“nested”) data. In the example below, we create 5 countries, each of which has 10 provinces. We also have covariates at the country level (GDP per capita and life expectancy) and at the provincial level (presence of natural resources, and presence of manufacturing industry):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">country_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-    <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, 
-                      <span class="dt">gdp_per_capita =</span> <span class="kw">runif</span>(N, <span class="dt">min=</span><span class="dv">10000</span>, <span class="dt">max=</span><span class="dv">50000</span>),
-                      <span class="dt">life_expectancy =</span> <span class="dv">50</span> <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(N, <span class="dv">10</span>, <span class="dv">20</span>) <span class="op">+</span><span class="st"> </span>((gdp_per_capita <span class="op">&gt;</span><span class="st"> </span><span class="dv">30000</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>)),
-    <span class="dt">provinces =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">10</span>,
-                      <span class="dt">has_nat_resources =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.3</span>, <span class="dt">N =</span> N),
-                      <span class="dt">has_manufacturing =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.7</span>, <span class="dt">N =</span> N))
+    <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(
+      <span class="dt">N =</span> <span class="dv">5</span>,
+      <span class="dt">gdp_per_capita =</span> <span class="kw">runif</span>(N, <span class="dt">min =</span> <span class="dv">10000</span>, <span class="dt">max =</span> <span class="dv">50000</span>),
+      <span class="dt">life_expectancy =</span> <span class="dv">50</span> <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(N, <span class="dv">10</span>, <span class="dv">20</span>) <span class="op">+</span><span class="st"> </span>((gdp_per_capita <span class="op">&gt;</span><span class="st"> </span><span class="dv">30000</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>)
+    ),
+    <span class="dt">provinces =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(
+      <span class="dt">N =</span> <span class="dv">10</span>,
+      <span class="dt">natural_resources =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.3</span>, <span class="dt">N =</span> N),
+      <span class="dt">manufacturing =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.7</span>, <span class="dt">N =</span> N)
+    )
   )
 <span class="kw">head</span>(country_data)</code></pre></div>
 <table class="table">
@@ -271,8 +268,8 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <th align="right">gdp_per_capita</th>
 <th align="right">life_expectancy</th>
 <th align="left">provinces</th>
-<th align="right">has_nat_resources</th>
-<th align="right">has_manufacturing</th>
+<th align="right">natural_resources</th>
+<th align="right">manufacturing</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -326,21 +323,25 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 </tbody>
 </table>
 <p>Several things can be observed in this example. First, fabricate knows that your second <code><a href="../reference/fabricate.html">add_level()</a></code> command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable “N” changes. During the <code><a href="../reference/fabricate.html">add_level()</a></code> call for countries, N is 5. During the <code><a href="../reference/fabricate.html">add_level()</a></code> call for provinces, N is 10. And the resulting data, of course, has 50 observations.</p>
-<p>Finally, the province-level variables are created using the <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> function. This is a function provided by <strong>fabricatr</strong> to make simulating discrete random variables simple. When you simulate your own data, you can use <strong>fabricatr</strong>’s functions, R’s built-ins, or any custom functions you wish. <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> is explained in <a href="http://fabricator.declaredesign.org/articles/variable_generation.html">our tutorial on variable generation using <strong>fabricatr</strong></a></p>
+<p>Finally, the province-level variables are created using the <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> function. This is a function provided by <strong>fabricatr</strong> to make simulating discrete random variables simple. When you simulate your own data, you can use <strong>fabricatr</strong>’s functions, R’s built-ins, or any custom functions you wish. <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> is explained in <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">our tutorial on variable generation using <strong>fabricatr</strong></a></p>
 </div>
 <div id="adding-hierarchy-to-existing-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#adding-hierarchy-to-existing-data" class="anchor"></a>Adding hierarchy to existing data</h1>
 <p><strong>fabricatr</strong> is also able to import existing data and nest hierarchical data under it. This maybe be useful if, for example, you have existing country-level data but wish to simulate data at lower geographical levels for the purposes of an experiment you plan to conduct.</p>
 <p>Imagine importing the country-province data simulated in the previous example. Because <code><a href="../reference/fabricate.html">fabricate()</a></code> returns a data frame, this simulated data can be re-imported into a subsequent fabricate call, just like external data can be.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">citizen_data &lt;-<span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">citizen_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">data =</span> country_data,
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N=</span><span class="dv">10</span>, 
-                         <span class="dt">salary =</span> <span class="kw">rnorm</span>(N, <span class="dt">mean =</span> gdp_per_capita <span class="op">+</span><span class="st"> </span>
-<span class="st">                                          </span>has_nat_resources <span class="op">*</span><span class="st"> </span><span class="dv">5000</span> <span class="op">+</span><span class="st"> </span>has_manufacturing <span class="op">*</span><span class="st"> </span><span class="dv">5000</span>,
-                                        <span class="dt">sd =</span> <span class="dv">10000</span>))
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(
+      <span class="dt">N =</span> <span class="dv">10</span>,
+      <span class="dt">salary =</span> <span class="kw">rnorm</span>(
+        N,
+        <span class="dt">mean =</span> gdp_per_capita <span class="op">+</span><span class="st"> </span>natural_resources <span class="op">*</span><span class="st"> </span><span class="dv">5000</span> <span class="op">+</span><span class="st"> </span>manufacturing <span class="op">*</span><span class="st"> </span><span class="dv">5000</span>,
+        <span class="dt">sd =</span> <span class="dv">10000</span>
+      )
     )
+  )
 <span class="kw">head</span>(citizen_data)</code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -348,8 +349,8 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <th align="right">gdp_per_capita</th>
 <th align="right">life_expectancy</th>
 <th align="left">provinces</th>
-<th align="right">has_nat_resources</th>
-<th align="right">has_manufacturing</th>
+<th align="right">natural_resources</th>
+<th align="right">manufacturing</th>
 <th align="left">citizens</th>
 <th align="right">salary</th>
 </tr></thead>
@@ -427,7 +428,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">new_country_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">data =</span> country_data,
-    <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">avg_temp =</span> <span class="kw">runif</span>(N, <span class="dv">30</span>, <span class="dv">80</span>))
+    <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">average_temperature =</span> <span class="kw">runif</span>(N, <span class="dv">30</span>, <span class="dv">80</span>))
   )
 
 <span class="kw">head</span>(new_country_data)</code></pre></div>
@@ -437,9 +438,9 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 <th align="right">gdp_per_capita</th>
 <th align="right">life_expectancy</th>
 <th align="left">provinces</th>
-<th align="right">has_nat_resources</th>
-<th align="right">has_manufacturing</th>
-<th align="right">avg_temp</th>
+<th align="right">natural_resources</th>
+<th align="right">manufacturing</th>
+<th align="right">average_temperature</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -498,20 +499,67 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
 </tr>
 </tbody>
 </table>
-<p>We can observe that the new variable is created at the level of aggregation you chose – countries. Also, although N is not specified anywhere, <code><a href="../reference/fabricate.html">modify_level()</a></code> knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the <code><a href="../reference/fabricate.html">modify_level()</a></code> command is correctly assigned to the level of interest.</p>
-<p>We can also modify more than one level. Recalling our country-province-citizen data from above, the following process is possible:</p>
+<p>We can observe that the new variable is created at the level of aggregation you chose – countries. Also, although N is not specified anywhere, <code><a href="../reference/fabricate.html">modify_level()</a></code> knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the <code><a href="../reference/fabricate.html">modify_level()</a></code> command is correctly assigned to the level of interest. We can also modify more than one level.</p>
+<p>Here, we modify our country-province-citizen data from above:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">new_citizen_data &lt;-
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">data =</span> citizen_data,
-    <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">avg_temp =</span> <span class="kw">runif</span>(N, <span class="dv">30</span>, <span class="dv">80</span>)),
-    <span class="dt">provinces =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">conflict_zone =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(N, <span class="dt">prob =</span> <span class="fl">0.2</span> <span class="op">+</span><span class="st"> </span>has_nat_resources <span class="op">*</span><span class="st"> </span><span class="fl">0.3</span>),
-                             <span class="dt">infant_mortality =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">10</span>) <span class="op">+</span><span class="st"> </span>conflict_zone <span class="op">*</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span>
-<span class="st">                               </span>(avg_temp <span class="op">&gt;</span><span class="st"> </span><span class="dv">70</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">college_degree =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(N, <span class="dt">prob =</span> <span class="fl">0.4</span> <span class="op">-</span><span class="st"> </span>(<span class="fl">0.3</span> <span class="op">*</span><span class="st"> </span>conflict_zone)))
+    <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">average_temperature =</span> <span class="kw">runif</span>(N, <span class="dv">30</span>, <span class="dv">80</span>)),
+    <span class="dt">provinces =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(
+      <span class="dt">conflict_zone =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(N, <span class="dt">prob =</span> <span class="fl">0.2</span> <span class="op">+</span><span class="st"> </span>natural_resources <span class="op">*</span><span class="st"> </span><span class="fl">0.3</span>),
+      <span class="dt">infant_mortality =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">10</span>) <span class="op">+</span><span class="st"> </span>conflict_zone <span class="op">*</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span>
+<span class="st">        </span>(average_temperature <span class="op">&gt;</span><span class="st"> </span><span class="dv">70</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>
+    ),
+    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(
+      <span class="dt">college_degree =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(N, <span class="dt">prob =</span> <span class="fl">0.4</span> <span class="op">-</span><span class="st"> </span>(<span class="fl">0.3</span> <span class="op">*</span><span class="st"> </span>conflict_zone))
+    )
   )</code></pre></div>
-<p>Before assessing what this tells us about <code><a href="../reference/fabricate.html">modify_level()</a></code>, let’s consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on “resource curses”. The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizens access to education is also random, but depends on whether they live in a conflict area.</p>
+<p>Before assessing what this tells us about <code><a href="../reference/fabricate.html">modify_level()</a></code>, let’s consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on “resource curses”. The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizen access to education is also random, but depends on whether they live in a conflict area.</p>
 <p>There are a lot of things to learn from this example. First, it’s possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according – by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one <code><a href="../reference/fabricate.html">modify_level()</a></code> call can be used in subsequent variables of the same call, or subsequent calls.</p>
 <p>Again, we see the use of <code><a href="../reference/draw_binomial.html">draw_binary()</a></code>. Using this function is covered in our tutorial on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">generating discrete random variables</a>, linked below.</p>
+</div>
+<div id="averages-within-higher-levels-of-hierarchy" class="section level1">
+<h1 class="hasAnchor">
+<a href="#averages-within-higher-levels-of-hierarchy" class="anchor"></a>Averages within higher levels of hierarchy</h1>
+<p>A powerful feature of nested data and <strong>fabricatr</strong>’s setup is that variable creating can access variables from higher in</p>
+<p>You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with <code>ave()</code>, a built-in <code>R</code> command:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ave_example &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>),
+  <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(
+    <span class="dt">N =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dt">income =</span> <span class="kw">rnorm</span>(N),
+    <span class="dt">income_mean_city =</span> <span class="kw">ave</span>(income, cities)
+  )
+)
+ave_example</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">cities</th>
+<th align="left">citizens</th>
+<th align="right">income</th>
+<th align="right">income_mean_city</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="right">0.03</td>
+<td align="right">0.03</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">2</td>
+<td align="right">0.65</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="left">3</td>
+<td align="right">-0.65</td>
+<td align="right">0.00</td>
+</tr>
+</tbody>
+</table>
+<p>Here, we can create citizen-level data which relies on the data of other citizens within the same city. <code>ave()</code> takes two arguments: first, the name of the variable we are averaging on (in this case, <code>income</code>), and second, the name of the level we are grouping by (in this case <code>cities</code>). Other <code>R</code> functions which are able to group by variables to compute statistics of interest are also compatible with <strong>fabricatr</strong>.</p>
 </div>
 <div id="next-steps" class="section level1">
 <h1 class="hasAnchor">
@@ -532,6 +580,7 @@ simulated_quake_data =<span class="st"> </span><span class="kw"><a href="../refe
       <li><a href="#hierarchical-data">Hierarchical data</a></li>
       <li><a href="#adding-hierarchy-to-existing-data">Adding hierarchy to existing data</a></li>
       <li><a href="#modifying-existing-levels">Modifying existing levels</a></li>
+      <li><a href="#averages-within-higher-levels-of-hierarchy">Averages within higher levels of hierarchy</a></li>
       <li><a href="#next-steps">Next Steps</a></li>
       </ul>
 </div>

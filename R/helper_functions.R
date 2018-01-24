@@ -383,7 +383,8 @@ check_all_levels <- function(options) {
       "add_level",
       "nest_level",
       "modify_level",
-      "cross_level"
+      "cross_levels",
+      "link_levels"
     )
   })
 

@@ -26,7 +26,7 @@
 #' panel <- fabricate(
 #'  countries = add_level(N = 20, country_shock = runif(N, 1, 10)),
 #'  years = add_level(N = 20, year_shock = runif(N, 1, 10), nest=FALSE),
-#'  obs = cross_level(by=join(countries, years), GDP_it = country_shock + year_shock)
+#'  obs = cross_levels(by=join(countries, years), GDP_it = country_shock + year_shock)
 #' )
 #'
 #' # Include an "N" argument to allow for cross-classified
@@ -34,7 +34,7 @@
 #' students <- fabricate(
 #'  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
 #'  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
-#'  students = cross_level(N = 500, by = join(primary_school, secondary_school))
+#'  students = link_levels(N = 500, by = join(primary_school, secondary_school))
 #' )
 #' head(students)
 #'
@@ -43,13 +43,35 @@
 #' students <- fabricate(
 #'  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
 #'  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
-#'  students = cross_level(N = 500, by = join(ps_quality, ss_quality, rho = 0.5))
+#'  students = link_levels(N = 500, by = join(ps_quality, ss_quality, rho = 0.5))
 #' )
 #' cor(students$ps_quality, students$ss_quality)
 #'
-#' @importFrom rlang quos get_expr
+#' @importFrom rlang quos
 #' @export
-cross_level <- function(N = NULL,
+cross_levels <- function(by = NULL,
+                         ...) {
+  data_arguments <- quos(...)
+  if ("N" %in% names(data_arguments) ||
+    !is.null(by$sigma) || by$rho) {
+    stop(
+      "`cross_levels()` calls are used to create full panels and cannot take ",
+      "`N` arguments or correlation structures."
+    )
+  }
+
+  link_levels(
+    N = NULL,
+    by = by,
+    ...
+  )
+}
+
+#' @importFrom rlang quos get_expr
+#'
+#' @rdname cross_levels
+#' @export
+link_levels <- function(N = NULL,
                         by = NULL,
                         ...) {
   data_arguments <- quos(...)
@@ -60,14 +82,17 @@ cross_level <- function(N = NULL,
     # This happens if either an add_level call is run external to a fabricate
     # call OR if add_level is the only argument to a fabricate call and
     # the data argument tries to resolve an add_level call.
-    stop("`cross_level()` calls must be run inside `fabricate()` calls.")
+    stop(
+      "`cross_levels()` and `link_levels()` calls must be run inside ",
+      "`fabricate()` calls."
+    )
   }
   if ("ID_label" %in% names(data_arguments)) {
     ID_label <- get_expr(data_arguments[["ID_label"]])
     data_arguments[["ID_label"]] <- NULL
   }
 
-  return(cross_level_internal(
+  return(cross_levels_internal(
     N = N, ID_label = ID_label, by = by,
     working_environment_ = working_environment_,
     data_arguments = data_arguments
@@ -75,11 +100,11 @@ cross_level <- function(N = NULL,
 }
 
 #' @importFrom rlang quo_text eval_tidy
-cross_level_internal <- function(N = NULL,
-                                 ID_label = NULL,
-                                 working_environment_ = NULL,
-                                 by = NULL,
-                                 data_arguments = NULL) {
+cross_levels_internal <- function(N = NULL,
+                                  ID_label = NULL,
+                                  working_environment_ = NULL,
+                                  by = NULL,
+                                  data_arguments = NULL) {
   if (any(!c("data_frame_output_", "shelved_df") %in%
     names(working_environment_))) {
     stop(
@@ -139,7 +164,7 @@ cross_level_internal <- function(N = NULL,
       stop(
         "The variable name ",
         variable_names[i],
-        " that you specified as part of your `cross_level()` join was not ",
+        " that you specified as part of your `cross_levels()` join was not ",
         "found in any of the level hierarchies"
       )
     }
@@ -157,15 +182,6 @@ cross_level_internal <- function(N = NULL,
     },
     simplify = FALSE
   )
-
-  if (is.null(N) && (!is.null(by$sigma) || by$rho)) {
-    stop(
-      "When `N` is null in a `cross_level()` call, the data generated is a ",
-      "complete panel of all observations in each data frame and cannot have ",
-      "a specified correlation structure. Please remove the correlation structure ",
-      "from the `by` argument."
-    )
-  }
 
   # Do the join.
   if (!is.null(N)) {
@@ -200,13 +216,16 @@ cross_level_internal <- function(N = NULL,
 }
 
 #' Helper function handling specification of which variables to join a
-#' cross-classified data on, and what kind of correlation structure needed
+#' cross-classified data on, and what kind of correlation structure needed.
+#' Correlation structures can only be provided if the underlying call is
+#' a `link_levels()` call.
+#'
 #' @param ... A series of two or more variable names, unquoted, to join on in
 #' order to create cross-classified data.
 #' @param rho A fixed (Spearman's rank) correlation coefficient between the
 #' variables being joined on: note that if it is not possible to make a
 #' correlation matrix from this coefficient (e.g. if you are joining on three
-#' or more variables and rho is negative) then the \code{cross_level()} call
+#' or more variables and rho is negative) then the \code{cross_levels()} call
 #' will fail. Do not provide \code{rho} if making panel data.
 #' @param sigma A matrix with dimensions equal to the number of variables you
 #' are joining on, specifying the correlation for the resulting joined data.

@@ -39,6 +39,13 @@ draw_binary_icc <- function(prob = 0.5, N = NULL, clusters, ICC = 0) {
   }
 
   # Let's not worry about how clusters are provided
+  if(!is.null(dim(clusters))) {
+    stop(
+      "You must provide cluster IDs for draw_normal_icc as a vector, not a ",
+      "higher dimensional object like a data frame or similar."
+    )
+  }
+
   tryCatch({
     clusters <- as.numeric(as.factor(clusters))
   }, error = function(e) {
@@ -47,6 +54,7 @@ draw_binary_icc <- function(prob = 0.5, N = NULL, clusters, ICC = 0) {
       "argument is numeric, factor, or can be coerced into being a factor."
     )
   })
+
   number_of_clusters <- length(unique(clusters))
 
   # Sanity check N
