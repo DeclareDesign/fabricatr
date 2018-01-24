@@ -119,14 +119,14 @@ draw_binomial <- function(prob, trials=1, N = length(prob), link = "identity") {
   }
 
   # Error handle trials
-  if (is.vector(trials) & length(trials) > 1) {
-    if (N %% length(trials)) {
+  if (is.vector(trials) && length(trials) > 1) {
+    if (N %% length(trials) != 0) {
       stop(
         "`N` is not an even multiple of the length of the number of
         trials, `trials`."
       )
     }
-    if (!all(is.numeric(trials) & (is.integer(trials) | !trials %% 1))) {
+    if (!is.integer(trials) && is.numeric(trials) && any(trials %% 1 != 0)) {
       stop(
         "All numbers of trials should be integer numbers."
       )
@@ -137,12 +137,12 @@ draw_binomial <- function(prob, trials=1, N = length(prob), link = "identity") {
       "Number of trials must be an integer or vector, not higher-dimensional."
     )
   }
-  if (is.null(trials) | is.na(trials)) {
+  if (is.null(trials) || any(is.na(trials))) {
     stop(
       "Number of trials must be specified, not null or NA."
     )
   }
-  if (is.numeric(trials) & !is.integer(trials) & trials %% 1) {
+  if (!is.integer(trials) && is.numeric(trials) && any(trials %% 1 != 0)) {
     stop(
       "Number of trials must be an integer."
     )
@@ -164,7 +164,7 @@ draw_categorical <- function(prob, N=NULL, link = "identity") {
   }
 
   if (is.null(dim(prob))) {
-    if (is.vector(prob) & all(is.numeric(prob)) & length(prob) > 1) {
+    if (is.vector(prob) && is.numeric(prob) && length(prob) > 1) {
       if (is.null(N)) {
         stop(
           "If `prob` is a vector of category probabilities, you must provide ",
@@ -219,13 +219,13 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
   }
 
   # Error handling breaks
-  if (is.null(breaks) | any(is.na(breaks))) {
+  if (is.null(breaks) || any(is.na(breaks))) {
     stop("You must specify numeric breaks for ordered data.")
   }
-  if (any(!is.numeric(breaks))) {
+  if (!is.numeric(breaks)) {
     stop("All breaks specified for ordered data must be numeric.")
   }
-  if (is.matrix(breaks) | is.data.frame(breaks)) {
+  if (is.matrix(breaks) || is.data.frame(breaks)) {
     stop("Numeric breaks must be a vector.")
   }
   if (is.unsorted(breaks)) {
@@ -233,7 +233,7 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
   }
 
   # Check N/x
-  if (N %% length(x)) {
+  if (N %% length(x) != 0) {
     stop("`N` must be an even multiple of the length of `x`.")
   }
 
@@ -248,9 +248,9 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
 
   # Make sure break labels are concordant with breaks.
   if (!is.null(break_labels) &&
-    (is.vector(break_labels) &
-      !is.logical(break_labels) &
-      all(!is.na(break_labels)) &
+    (is.vector(break_labels) &&
+      !is.logical(break_labels) &&
+      all(!is.na(break_labels)) &&
       length(break_labels) != length(breaks) - 1)) {
     stop(
       "Break labels should be of length one less than breaks. ",
@@ -283,7 +283,7 @@ draw_count <- function(mean, N = length(mean), link = "identity") {
     )
   }
 
-  if (N %% length(mean)) {
+  if (N %% length(mean) != 0) {
     stop("`N` must be an even multiple of the length of mean.")
   }
 
