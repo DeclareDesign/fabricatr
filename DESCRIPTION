@@ -10,7 +10,8 @@ Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@ucla.edu", role = c
 	     person("Neal", "Fultz", email = "nfultz@gmail.com", role = c("ctb")))
 Description: Helps you imagine your data before you collect it. Hierarchical data structures
    and correlated data can be easily simulated, either from random number generators or 
-   by resampling from existing data sources. 
+   by resampling from existing data sources. This package is faster with 'data.table' and
+   'mvnfast' installed.
 URL: http://fabricatr.declaredesign.org, https://github.com/DeclareDesign/fabricatr
 BugReports: https://github.com/DeclareDesign/fabricatr/issues
 Depends: R (>= 3.3.0)
@@ -26,5 +27,4 @@ Suggests:
     data.table,
     mvnfast,
     diagram
-FasterWith: data.table, mvnfast
 VignetteBuilder: knitr
