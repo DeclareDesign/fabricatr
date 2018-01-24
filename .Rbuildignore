@@ -15,4 +15,4 @@ _pkgdown.yml
 cran-comments.md
 ^NEWS\.md$
 ^_pkgdown\.yml$
-fabricatr_*.tar.gz
+fabricatr_*\.tar\.gz
