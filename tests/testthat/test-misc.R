@@ -23,7 +23,8 @@ test_that("Weird edge cases: Running level calls externally", {
   expect_error(add_level(N = 20, x = rnorm(N)))
   expect_error(nest_level(N = 20, x = rnorm(N)))
   expect_error(modify_level(N = 20, x = rnorm(N)))
-  expect_error(cross_level(N = 20, x = rnorm(N)))
+  expect_error(cross_levels(N = 20, x = rnorm(N)))
+  expect_error(link_levels(N = 20, x = rnorm(N)))
 
   # The weird case where it thinks the unnamed add level call is data.
   expect_error(fabricatr(add_level(N = 20, x = rnorm(N))))

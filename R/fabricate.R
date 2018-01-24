@@ -6,8 +6,9 @@
 #' \code{N}. Create hierarchical data with multiple levels of data such as
 #' citizens within cities within states using \code{add_level()} or modify
 #' existing hierarchical data using \code{modify_level()}. You can use any R
-#' function to create each variable. Use \code{cross_level()} to make more
-#' complex designs such as panel or cross-classified data.
+#' function to create each variable. Use \code{cross_levels()} and
+#' \code{link_levels()} to make more complex designs such as panel or
+#' cross-classified data.
 #'
 #' We also provide several built-in options to easily create variables, including
 #' \code{\link{draw_binary}}, \code{\link{draw_count}}, \code{\link{draw_likert}},
@@ -75,14 +76,14 @@
 #'
 #' # fabricatr can also make panel or cross-classified data. For more
 #' # information about syntax for this functionality please read our vignette
-#' # or check documentation for \code{cross_level}:
+#' # or check documentation for \code{link_levels}:
 #' cross_classified <- fabricate(
 #'   primary_schools = add_level(N = 50, ps_quality = runif(N, 0, 10)),
 #'   secondary_schools = add_level(N = 100, ss_quality = runif(N, 0, 10), nest=FALSE),
-#'   students = cross_level(N = 2000,
-#'                          by=join(ps_quality, ss_quality, rho = 0.5),
-#'                          student_quality = ps_quality + 3*ss_quality + rnorm(N)))
-#' @seealso [cross_level()]
+#'   students = link_levels(N = 2000,
+#'                           by=join(ps_quality, ss_quality, rho = 0.5),
+#'                           student_quality = ps_quality + 3*ss_quality + rnorm(N)))
+#' @seealso [link_levels()]
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args
 #' is_lang get_expr
 #'

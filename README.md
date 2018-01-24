@@ -26,26 +26,29 @@ Once you have installed **fabricatr**, you can easily import your own data or ge
 **fabricatr** is easy to learn and easy to read. Consider this example which generates data modeling the United States House of Representatives:
 
 ``` r
+set.seed(1)
 library(fabricatr)
 
 house_members <- fabricate(
   party_id = add_level(
-    N = 2, party_names = c("Republican", "Democrat"), party_ideology = c(0.5, -0.5), 
-    in_power = c(1, 0), party_incumbents = c(241, 194)),
+    N = 2, party_names = c("Republican", "Democrat"), party_ideology = c(0.5, -0.5),
+    in_power = c(1, 0), party_incumbents = c(241, 194)
+  ),
   rep_id = add_level(
     N = party_incumbents, member_ideology = rnorm(N, party_ideology, sd = 0.5),
-    terms_served = draw_count(N = N, mean = 4), 
-    female = draw_binary(N = N, prob = 0.198))
+    terms_served = draw_count(N = N, mean = 4),
+    female = draw_binary(N = N, prob = 0.198)
   )
+)
 ```
 
 | party\_names |  party\_ideology|  in\_power|  member\_ideology|  terms\_served|  female|
 |:-------------|----------------:|----------:|-----------------:|--------------:|-------:|
-| Democrat     |             -0.5|          0|              0.11|              3|       0|
-| Republican   |              0.5|          1|             -0.37|              1|       0|
-| Republican   |              0.5|          1|              0.71|              2|       1|
-| Democrat     |             -0.5|          0|             -1.05|              3|       0|
-| Republican   |              0.5|          1|              0.24|              4|       0|
+| Democrat     |             -0.5|          0|             -1.21|              4|       1|
+| Democrat     |             -0.5|          0|             -0.82|              3|       0|
+| Democrat     |             -0.5|          0|             -0.42|              6|       1|
+| Republican   |              0.5|          1|             -0.23|              7|       0|
+| Republican   |              0.5|          1|              0.40|              2|       0|
 
 ### Next Steps
 

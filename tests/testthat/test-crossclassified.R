@@ -7,7 +7,7 @@ test_that("Panel data", {
   panel <- fabricate(
     year = add_level(N = 20, year_shock = runif(N, 1, 10)),
     country = add_level(N = 20, country_shock = runif(N, 1, 10), nest = FALSE),
-    obs = cross_level(
+    obs = cross_levels(
       by = join(year, country),
       GDP_it = country_shock + year_shock
     )
@@ -22,7 +22,7 @@ test_that("Panel data", {
   expect_error(fabricate(
     year = add_level(N = 20, year_shock = runif(N, 1, 10)),
     country = add_level(N = 20, country_shock = runif(N, 1, 10), nest = FALSE),
-    obs = cross_level(
+    obs = cross_levels(
       by = join(year, country, rho = 0.5),
       GDP_it = country_shock + year_shock
     )
@@ -32,7 +32,7 @@ test_that("Panel data", {
   expect_error(fabricate(
     year = add_level(N = 20, year_shock = runif(N, 1, 10)),
     country = add_level(N = 20, country_shock = runif(N, 1, 10), nest = FALSE),
-    obs = cross_level(
+    obs = cross_levels(
       by = join(year),
       GDP_it = country_shock + year_shock
     )
@@ -57,7 +57,7 @@ test_that("Cross-classified data", {
       ss_testscores = ss_quality * 5 + rnorm(N, 30, 5),
       nest = FALSE
     ),
-    students = cross_level(
+    students = link_levels(
       N = 1000,
       by = join(ps_quality, ss_quality, rho = 0.5),
       student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
@@ -85,7 +85,7 @@ test_that("Cross-classified data", {
       ss_testscores = ss_quality * 5 + rnorm(N, 30, 5),
       nest = FALSE
     ),
-    students = cross_level(
+    students = link_levels(
       N = 1000,
       by = join(ps_quality, ss_quality, rho = 0),
       student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
@@ -103,7 +103,7 @@ test_that("Cross-classified data", {
   test_next <- fabricate(
     l1 = add_level(N = 50, j1 = rnorm(N)),
     l2 = add_level(N = 50, j2 = rnorm(N), nest = FALSE),
-    joined = cross_level(
+    joined = link_levels(
       N = 200,
       by = join(j1, j2, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))
     )
@@ -154,12 +154,12 @@ test_that("Deliberate failures in join_dfs", {
   ))
 })
 
-test_that("Deliberate failures in cross_level", {
+test_that("Deliberate failures in link_levels", {
   expect_error(
     fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
       l2 = add_level(N = 50, j2 = rnorm(N), nest = FALSE),
-      joined = cross_level(
+      joined = link_levels(
         N = 200,
         by = join(
           j1,
@@ -177,7 +177,7 @@ test_that("Deliberate failures in cross_level", {
     fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
       l2 = add_level(N = 50, j_var = rnorm(N), j1 = runif(N, 1, 3), nest = FALSE),
-      joined = cross_level(
+      joined = link_levels(
         N = 200,
         by = join(j1, j_var, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))
       )
@@ -188,14 +188,14 @@ test_that("Deliberate failures in cross_level", {
     fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
       l2 = add_level(N = 50, j2 = rnorm(N), nest = FALSE),
-      joined = cross_level(N = 200)
+      joined = link_levels(N = 200)
     )
   )
 
   expect_error(
     fabricate(
       l1 = add_level(N = 50),
-      joined = cross_level(N = 200)
+      joined = link_levels(N = 200)
     )
   )
 
@@ -203,7 +203,7 @@ test_that("Deliberate failures in cross_level", {
     fabricate(
       l1 = add_level(N = 50, v1 = rnorm(N), v2 = rnorm(N), v3 = rnorm(N)),
       l2 = add_level(N = 30, v4 = rnorm(N), nest = FALSE),
-      joined = cross_level(N = 100, by = join(v1, v2))
+      joined = link_levels(N = 100, by = join(v1, v2))
     )
   )
 
@@ -211,7 +211,7 @@ test_that("Deliberate failures in cross_level", {
     fabricate(
       l1 = add_level(N = 50, v1 = rnorm(N), v2 = rnorm(N), v3 = rnorm(N)),
       l2 = add_level(N = 30, v4 = rnorm(N), nest = FALSE),
-      joined = cross_level(N = 100, by = join(v1, v4, v1))
+      joined = link_levels(N = 100, by = join(v1, v4, v1))
     )
   )
 })
@@ -236,7 +236,7 @@ test_that("Cross-classified with double import", {
 
   students <- fabricate(
     list(primary_schools, secondary_schools),
-    students = cross_level(
+    students = link_levels(
       N = 1000,
       by = join(ps_quality, ss_quality, rho = 0.5),
       student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
@@ -248,4 +248,35 @@ test_that("Cross-classified with double import", {
   # Within a reasonable "tolerance"
   expect_gte(cor(students$ps_quality, students$ss_quality), 0.3)
   expect_lte(cor(students$ps_quality, students$ss_quality), 0.7)
+})
+
+test_that("Cross_levels wrapper.", {
+  expect_error(fabricate(
+    l1 = add_level(N = 10),
+    l2 = add_level(N = 10, nest = FALSE),
+    l3 = cross_levels(N = 10, by = join(l1, l2))
+  ))
+
+  expect_error(fabricate(
+    l1 = add_level(N = 10),
+    l2 = add_level(N = 10, nest = FALSE),
+    l3 = cross_levels(by = join(l1, l2, rho = 0.2))
+  ))
+
+  expect_error(fabricate(
+    l1 = add_level(N = 10),
+    l2 = add_level(N = 10, nest = FALSE),
+    l3 = cross_levels(N = 10, by = join(
+      l1, l2,
+      sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2)
+    ))
+  ))
+
+  z <- fabricate(
+    l1 = add_level(N = 10),
+    l2 = add_level(N = 10, nest = FALSE),
+    l3 = cross_levels(by = join(l1, l2))
+  )
+  expect_equal(nrow(z), 100)
+  expect_equal(ncol(z), 3)
 })
