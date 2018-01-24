@@ -254,7 +254,7 @@
 <p><em>Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated (smaller in magnitude) from the specified <code>rho</code>. There is no general purpose correction to compensate for this attenuation.</em></p>
 <p>We can check the resulting correlation here:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cor</span>(corr_data<span class="op">$</span>ps_quality, corr_data<span class="op">$</span>ss_quality)</code></pre></div>
-<p>0.47</p>
+<p>0.45</p>
 <p>It should be noted that the specified correlation exists only within the variables on which a join was specified: other variables from either data source will not be explicitly connected except through the joined variables.</p>
 <p>Correlation is only possible for cross-classified data, not panel data.</p>
 </div>
