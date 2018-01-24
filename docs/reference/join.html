@@ -7,7 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>fabricatr - Helper function handling specification of which variables to join a
-cross-classified data on, and what kind of correlation structure needed — join</title>
+cross-classified data on, and what kind of correlation structure needed.
+Correlation structures can only be provided if the underlying call is
+a `link_levels()` call. — join</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -127,12 +129,16 @@ cross-classified data on, and what kind of correlation structure needed — join
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Helper function handling specification of which variables to join a
-cross-classified data on, and what kind of correlation structure needed</h1>
+cross-classified data on, and what kind of correlation structure needed.
+Correlation structures can only be provided if the underlying call is
+a `link_levels()` call.</h1>
     </div>
 
     
     <p>Helper function handling specification of which variables to join a
-cross-classified data on, and what kind of correlation structure needed</p>
+cross-classified data on, and what kind of correlation structure needed.
+Correlation structures can only be provided if the underlying call is
+a `link_levels()` call.</p>
     
 
     <pre class="usage"><span class='fu'>join</span>(<span class='no'>...</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
@@ -150,7 +156,7 @@ order to create cross-classified data.</p></td>
       <td><p>A fixed (Spearman's rank) correlation coefficient between the
 variables being joined on: note that if it is not possible to make a
 correlation matrix from this coefficient (e.g. if you are joining on three
-or more variables and rho is negative) then the <code><a href='cross_level.html'>cross_level()</a></code> call
+or more variables and rho is negative) then the <code><a href='cross_levels.html'>cross_levels()</a></code> call
 will fail. Do not provide <code>rho</code> if making panel data.</p></td>
     </tr>
     <tr>

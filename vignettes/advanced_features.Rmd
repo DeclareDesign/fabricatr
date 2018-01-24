@@ -51,7 +51,7 @@ Here, each city is given a random number of citizens between 1 and 6. Since the 
 Finally, it is possible to define `N` on the basis of higher level variables themselves. Consider the following example:
 
 ```{r echo=TRUE, results="hide"}
-variable_n = fabricate(
+variable_n <- fabricate(
   cities = add_level(N = 5, population = runif(N, 10, 200)),
   citizens = add_level(N = round(population * 0.3))
 )
@@ -60,23 +60,7 @@ variable_n = fabricate(
 knitr::kable(head(variable_n))
 ```
 
-Here, the city has a defined population, and the number of citizens in our simulated data reflects a sample of 30% of that population. Each city has a different population, so each city gets a different number of citizens in this example.
-
-# Averages within higher levels of hierarchy
-
-You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with `ave()`:
-
-```{r echo=TRUE, results="hide"}
-ave_example = fabricate(
-    cities = add_level(N = 2),
-    citizens = add_level(N = 1:2, income = rnorm(N), 
-                         income_mean_city = ave(income, cities))
-    ) 
-ave_example
-```
-```{r echo=FALSE}
-knitr::kable(ave_example)
-```
+Here, the city has a defined population, and the number of citizens in our simulated data reflects a sample of 30% of that population. Although we only display the first 6 rows for brevity's sake, the first city would have 27 rows in total.
 
 # Tidyverse integration
 
@@ -85,8 +69,8 @@ Because the functions in **fabricatr** take data and return data, they are cross
 ```{r, message=FALSE, echo=TRUE, results="hide"}
 library(dplyr)
 
-my_data <- 
-fabricate(
+my_data <-
+  fabricate(
     cities = add_level(N = 2, elevation = runif(n = N, min = 1000, max = 2000)),
     citizens = add_level(N = c(2, 3), age = runif(N, 18, 70))
   ) %>%
@@ -102,8 +86,8 @@ knitr::kable(my_data)
 It is also possible to use the pipe operator (`%>%`) to direct the flow of data between `fabricate()` calls. Remember that every `fabricate()` call can import existing data frames, and every call returns a single data frame.
 
 ```{r echo=TRUE, results="hide"}
-my_data <- 
-data_frame(Y = sample(1:10, 2)) %>% 
+my_data <-
+  data_frame(Y = sample(1:10, 2)) %>%
   fabricate(lower_level = add_level(N = 3, Y2 = Y + rnorm(N)))
 my_data
 ```

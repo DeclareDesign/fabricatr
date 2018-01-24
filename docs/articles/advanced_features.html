@@ -222,7 +222,7 @@ my_data</code></pre></div>
 </table>
 <p>Here, each city is given a random number of citizens between 1 and 6. Since the <code><a href="http://dplyr.tidyverse.org/reference/sample.html">sample()</a></code> function returns a vector of length 2, this is like specifying 2 separate <code>N</code>s as in the example above.</p>
 <p>Finally, it is possible to define <code>N</code> on the basis of higher level variables themselves. Consider the following example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">variable_n =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">variable_n &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">5</span>, <span class="dt">population =</span> <span class="kw">runif</span>(N, <span class="dv">10</span>, <span class="dv">200</span>)),
   <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="kw">round</span>(population <span class="op">*</span><span class="st"> </span><span class="fl">0.3</span>))
 )</code></pre></div>
@@ -265,46 +265,7 @@ my_data</code></pre></div>
 </tr>
 </tbody>
 </table>
-<p>Here, the city has a defined population, and the number of citizens in our simulated data reflects a sample of 30% of that population. Each city has a different population, so each city gets a different number of citizens in this example.</p>
-</div>
-<div id="averages-within-higher-levels-of-hierarchy" class="section level1">
-<h1 class="hasAnchor">
-<a href="#averages-within-higher-levels-of-hierarchy" class="anchor"></a>Averages within higher levels of hierarchy</h1>
-<p>You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with <code>ave()</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ave_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-    <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>),
-    <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dt">income =</span> <span class="kw">rnorm</span>(N), 
-                         <span class="dt">income_mean_city =</span> <span class="kw">ave</span>(income, cities))
-    ) 
-ave_example</code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="left">cities</th>
-<th align="left">citizens</th>
-<th align="right">income</th>
-<th align="right">income_mean_city</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">1</td>
-<td align="left">1</td>
-<td align="right">-1.22</td>
-<td align="right">-1.2</td>
-</tr>
-<tr class="even">
-<td align="left">2</td>
-<td align="left">2</td>
-<td align="right">-0.46</td>
-<td align="right">0.2</td>
-</tr>
-<tr class="odd">
-<td align="left">2</td>
-<td align="left">3</td>
-<td align="right">0.86</td>
-<td align="right">0.2</td>
-</tr>
-</tbody>
-</table>
+<p>Here, the city has a defined population, and the number of citizens in our simulated data reflects a sample of 30% of that population. Although we only display the first 6 rows for brevity’s sake, the first city would have 27 rows in total.</p>
 </div>
 <div id="tidyverse-integration" class="section level1">
 <h1 class="hasAnchor">
@@ -312,8 +273,8 @@ ave_example</code></pre></div>
 <p>Because the functions in <strong>fabricatr</strong> take data and return data, they are cross-compatible with a <code>tidyverse</code> workflow. Here is an example of using <strong>magrittr</strong>’s pipe operator (<code>%&gt;%</code>) and <strong>dplyr</strong>’s <code>group_by</code> and <code>mutate</code> verbs to add new data.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
 
-my_data &lt;-<span class="st"> </span>
-<span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+my_data &lt;-
+<span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
     <span class="dt">cities =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">2</span>, <span class="dt">elevation =</span> <span class="kw">runif</span>(<span class="dt">n =</span> N, <span class="dt">min =</span> <span class="dv">1000</span>, <span class="dt">max =</span> <span class="dv">2000</span>)),
     <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   ) <span class="op">%&gt;%</span>
@@ -332,44 +293,44 @@ my_data</code></pre></div>
 <tbody>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">1715</td>
+<td align="right">1112</td>
 <td align="left">1</td>
-<td align="right">45</td>
+<td align="right">35</td>
 <td align="right">2</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
-<td align="right">1715</td>
+<td align="right">1112</td>
 <td align="left">2</td>
-<td align="right">48</td>
+<td align="right">31</td>
 <td align="right">2</td>
 </tr>
 <tr class="odd">
 <td align="left">2</td>
-<td align="right">1573</td>
+<td align="right">1633</td>
 <td align="left">3</td>
-<td align="right">65</td>
+<td align="right">60</td>
 <td align="right">3</td>
 </tr>
 <tr class="even">
 <td align="left">2</td>
-<td align="right">1573</td>
+<td align="right">1633</td>
 <td align="left">4</td>
-<td align="right">41</td>
+<td align="right">59</td>
 <td align="right">3</td>
 </tr>
 <tr class="odd">
 <td align="left">2</td>
-<td align="right">1573</td>
+<td align="right">1633</td>
 <td align="left">5</td>
-<td align="right">61</td>
+<td align="right">55</td>
 <td align="right">3</td>
 </tr>
 </tbody>
 </table>
 <p>It is also possible to use the pipe operator (<code>%&gt;%</code>) to direct the flow of data between <code><a href="../reference/fabricate.html">fabricate()</a></code> calls. Remember that every <code><a href="../reference/fabricate.html">fabricate()</a></code> call can import existing data frames, and every call returns a single data frame.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-<span class="st"> </span>
-<span class="kw"><a href="http://dplyr.tidyverse.org/reference/reexports.html">data_frame</a></span>(<span class="dt">Y =</span> <span class="kw"><a href="http://dplyr.tidyverse.org/reference/sample.html">sample</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">2</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-
+<span class="st">  </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/reexports.html">data_frame</a></span>(<span class="dt">Y =</span> <span class="kw"><a href="http://dplyr.tidyverse.org/reference/sample.html">sample</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">2</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">lower_level =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">Y2 =</span> Y <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N)))
 my_data</code></pre></div>
 <table class="table">
@@ -382,32 +343,32 @@ my_data</code></pre></div>
 <tr class="odd">
 <td align="right">6</td>
 <td align="left">1</td>
-<td align="right">6.6</td>
+<td align="right">6.2</td>
 </tr>
 <tr class="even">
 <td align="right">6</td>
 <td align="left">2</td>
-<td align="right">5.5</td>
+<td align="right">5.9</td>
 </tr>
 <tr class="odd">
 <td align="right">6</td>
 <td align="left">3</td>
-<td align="right">5.3</td>
+<td align="right">6.1</td>
 </tr>
 <tr class="even">
-<td align="right">8</td>
+<td align="right">5</td>
 <td align="left">4</td>
-<td align="right">7.8</td>
+<td align="right">5.6</td>
 </tr>
 <tr class="odd">
-<td align="right">8</td>
+<td align="right">5</td>
 <td align="left">5</td>
-<td align="right">8.6</td>
+<td align="right">4.5</td>
 </tr>
 <tr class="even">
-<td align="right">8</td>
+<td align="right">5</td>
 <td align="left">6</td>
-<td align="right">8.0</td>
+<td align="right">4.3</td>
 </tr>
 </tbody>
 </table>
@@ -421,7 +382,6 @@ my_data</code></pre></div>
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#more-complicated-level-creation-with-variable-numbers-of-observations">More complicated level creation with variable numbers of observations</a></li>
-      <li><a href="#averages-within-higher-levels-of-hierarchy">Averages within higher levels of hierarchy</a></li>
       <li><a href="#tidyverse-integration">Tidyverse integration</a></li>
       </ul>
 </div>

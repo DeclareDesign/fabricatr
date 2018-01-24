@@ -23,23 +23,29 @@ library(fabricatr)
 The simplest possible type of data is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter `prob` which specifies the probability that outcomes drawn from this variable are equal to 1. By default, `draw_binary()` will generate `N = length(prob)` draws. `N` can also be specified explicitly. Consider these examples:
 
 ```{r}
-draw_binary_ex = fabricate(N = 3, p = c(0, .5, 1),
-                           binary_1 = draw_binary(prob = p),
-                           binary_2 = draw_binary(N = 3, prob = 0.5))
+draw_binary_ex <- fabricate(
+  N = 3, p = c(0, .5, 1),
+  binary_1 = draw_binary(prob = p),
+  binary_2 = draw_binary(N = 3, prob = 0.5)
+)
 ```
 
 In addition to binary variables, you can make data from repeated Bernoulli trials ("binomial" data). This requires using the `draw_binomial()` function and specifying an argument `trials`, equal to the number of trials.
 
 ```{r}
-binomial_ex = fabricate(N = 3, 
-                        freethrows = draw_binomial(N = N, prob = 0.5, trials = 10))
+binomial_ex <- fabricate(
+  N = 3,
+  freethrows = draw_binomial(N = N, prob = 0.5, trials = 10)
+)
 ```
 
 Some researchers may be interested in specifying probabilities through a "link function". This can be done in any of your data generating functions through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.
 
 ```{r}
-bernoulli_probit = fabricate(N = 3, x = 10 * rnorm(N), 
-                             binary = draw_binary(prob = x, link = "probit"))
+bernoulli_probit <- fabricate(
+  N = 3, x = 10 * rnorm(N),
+  binary = draw_binary(prob = x, link = "probit")
+)
 ```
 
 ## Ordered outcomes
@@ -49,18 +55,24 @@ Some researchers may be interested in generating ordered outcomes -- for example
 In the following example, each of three observations has a latent variable `x` which is continuous and unbounded. The variable `ordered` transforms `x` into three numeric categories: 1, 2, and 3. All values of `x` below -1 result in `ordered` 1; all values of `x` between -1 and 1 result in `ordered` 2; all values of `x` above 1 result in `ordered` 3:
 
 ```{r}
-ordered_example = fabricate(N = 3, 
-                            x = 5 * rnorm(N), 
-                            ordered = draw_ordered(x, breaks = c(-Inf, -1, 1, Inf)))
+ordered_example <- fabricate(
+  N = 3,
+  x = 5 * rnorm(N),
+  ordered = draw_ordered(x, breaks = c(-Inf, -1, 1, Inf))
+)
 ```
 
 Ordered data also supports link functions including "logit" or "probit":
 
 ```{r}
-ordered_probit_example = fabricate(N = 3, 
-                                   x = 5 * rnorm(N), 
-                                   ordered = draw_ordered(x, breaks = c(-Inf, -1, 1, Inf), 
-                                                          link = "probit"))
+ordered_probit_example <- fabricate(
+  N = 3,
+  x = 5 * rnorm(N),
+  ordered = draw_ordered(
+    x, breaks = c(-Inf, -1, 1, Inf),
+    link = "probit"
+  )
+)
 ```
 
 ## Likert variables
@@ -68,10 +80,12 @@ ordered_probit_example = fabricate(N = 3,
 Likert variables are a special case of ordered variables. Users can use `draw_ordered()` with properly specified breaks and break labels to generate Likert data, or use the `draw_likert()` function as a convenient alias:
 
 ```{r}
-survey_data = fabricate(N = 100,
-                        Q1 = draw_likert(x = rnorm(N)),
-                        Q2 = draw_likert(x = rnorm(N)),
-                        Q3 = draw_likert(x = rnorm(N)))
+survey_data <- fabricate(
+  N = 100,
+  Q1 = draw_likert(x = rnorm(N)),
+  Q2 = draw_likert(x = rnorm(N)),
+  Q3 = draw_likert(x = rnorm(N))
+)
 ```
 
 `draw_likert()` takes one compulsory argument (`x`, which represents the latent variable being transformed into ordered data). By default, `draw_likert()` provides a 7-item Likert scale with breaks at [-$\infty$, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, $\infty$]. Users can explicitly specify the `type` argument to use other types of Likert data. Supported types are 4, 5, and 7. Default breaks for 5-item Likert scales are [-$\infty$, -1.5, -0.5, 0.5, 1.5, $\infty$]. Default breaks for 4-item Likert scales are [-$\infty$, -1, 0, 1, $\infty$].
@@ -83,11 +97,12 @@ Labels are automatically provided by `draw_likert()`. The default 7-item Likert 
 Examples of how users might use the function are available below:
 
 ```{r echo=TRUE, results="hide"}
-survey_data = fabricate(N = 100,
-                        Q1 = draw_likert(x = rnorm(N), type = 7),
-                        Q2 = draw_likert(x = rnorm(N), type = 5),
-                        Q3 = draw_likert(x = rnorm(N), type = 4),
-                        Q4 = draw_likert(x = rnorm(N), breaks = c(-Inf, -0.8, 0, 1, 2, Inf))
+survey_data <- fabricate(
+  N = 100,
+  Q1 = draw_likert(x = rnorm(N), type = 7),
+  Q2 = draw_likert(x = rnorm(N), type = 5),
+  Q3 = draw_likert(x = rnorm(N), type = 4),
+  Q4 = draw_likert(x = rnorm(N), breaks = c(-Inf, -0.8, 0, 1, 2, Inf))
 )
 
 table(survey_data$Q2)
@@ -118,17 +133,21 @@ If probabilities do not sum to exactly one, they will be normalized, but negativ
 In the first example, each unit has a different set of probabilities and the probabilities are provided as a matrix:
 
 ```{r}
-categorical_example = fabricate(N = 6, 
-                                p1 = runif(N, 0, 1),
-                                p2 = runif(N, 0, 1),
-                                p3 = runif(N, 0, 1),
-                                cat = draw_categorical(N = N, prob = cbind(p1, p2, p3)))
+categorical_example <- fabricate(
+  N = 6,
+  p1 = runif(N, 0, 1),
+  p2 = runif(N, 0, 1),
+  p3 = runif(N, 0, 1),
+  cat = draw_categorical(N = N, prob = cbind(p1, p2, p3))
+)
 ```
 
 In the second example, each unit has the same probability of getting a given category. `draw_categorical()` will issue a warning to remind you that it is interpreting the vector in this way.
 ```{r}
-warn_draw_cat_example = fabricate(N = 6,
-                                  cat = draw_categorical(N = N, prob = c(0.2, 0.4, 0.4)))
+warn_draw_cat_example <- fabricate(
+  N = 6,
+  cat = draw_categorical(N = N, prob = c(0.2, 0.4, 0.4))
+)
 ```
 
 "categorical" variables can also use link functions, for example to generate multinomial probit data.
@@ -188,13 +207,15 @@ set.seed(19861108)
 ```
 ```{r echo=TRUE, results="hide"}
 # 100 students, 10 each in 10 clusters
-clusters = rep(1:5, 20)
+clusters <- rep(1:5, 20)
 
-numeric_grade = draw_normal_icc(mean = 80, clusters = clusters, ICC = 0.5, sd = 15)
+numeric_grade <- draw_normal_icc(mean = 80, clusters = clusters, ICC = 0.5, sd = 15)
 
-letter_grade = draw_ordered(x = numeric_grade,
-                            breaks = c(-Inf, 60, 70, 80, 90, Inf),
-                            break_labels = c("F", "D", "C", "B", "A"))
+letter_grade <- draw_ordered(
+  x = numeric_grade,
+  breaks = c(-Inf, 60, 70, 80, 90, Inf),
+  break_labels = c("F", "D", "C", "B", "A")
+)
 
 mean(numeric_grade)
 ```

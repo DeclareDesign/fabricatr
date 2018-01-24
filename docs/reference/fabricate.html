@@ -135,8 +135,9 @@ either start with your own data and add simulated variables to it (by passing
 <code>N</code>. Create hierarchical data with multiple levels of data such as
 citizens within cities within states using <code>add_level()</code> or modify
 existing hierarchical data using <code>modify_level()</code>. You can use any R
-function to create each variable. Use <code><a href='cross_level.html'>cross_level()</a></code> to make more
-complex designs such as panel or cross-classified data.</p>
+function to create each variable. Use <code><a href='cross_levels.html'>cross_levels()</a></code> and
+<code><a href='cross_levels.html'>link_levels()</a></code> to make more complex designs such as panel or
+cross-classified data.</p>
     
 
     <pre class="usage"><span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>nest</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
@@ -198,7 +199,7 @@ and intra-cluster correlated variables <code><a href='draw_binary_icc.html'>draw
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>[cross_level()]</p>
+    <p>[link_levels()]</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -227,13 +228,13 @@ and intra-cluster correlated variables <code><a href='draw_binary_icc.html'>draw
 <span class='no'>multi_level_df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
  <span class='kw'>regions</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>),
  <span class='kw'>cities</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>pollution</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>, <span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>5</span>)))
-<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;    x     x2
-#&gt; 1 01  0.043
-#&gt; 2 02  1.794
-#&gt; 3 03  0.474
-#&gt; 4 04 -0.551
-#&gt; 5 05 -0.207
-#&gt; 6 06  1.412</div><div class='input'>
+<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;                                               
+#&gt; 1 function (x, df1, df2, ncp, log = FALSE)    
+#&gt; 2 {                                           
+#&gt; 3     if (missing(ncp))                       
+#&gt; 4         .Call(C_df, x, df1, df2, log)       
+#&gt; 5     else .Call(C_dnf, x, df1, df2, ncp, log)
+#&gt; 6 }                                           </div><div class='input'>
 <span class='co'># Start with existing data and add a nested level:</span>
 <span class='no'>company_df</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>building_df</span>,
@@ -251,13 +252,13 @@ and intra-cluster correlated variables <code><a href='draw_binary_icc.html'>draw
 
 <span class='co'># fabricatr can also make panel or cross-classified data. For more</span>
 <span class='co'># information about syntax for this functionality please read our vignette</span>
-<span class='co'># or check documentation for \code{cross_level}:</span>
+<span class='co'># or check documentation for \code{link_levels}:</span>
 <span class='no'>cross_classified</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
   <span class='kw'>primary_schools</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>ps_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>0</span>, <span class='fl'>10</span>)),
   <span class='kw'>secondary_schools</span> <span class='kw'>=</span> <span class='fu'>add_level</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>ss_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>0</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
-  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'><a href='cross_level.html'>cross_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>2000</span>,
-                         <span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='join.html'>join</a></span>(<span class='no'>ps_quality</span>, <span class='no'>ss_quality</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>),
-                         <span class='kw'>student_quality</span> <span class='kw'>=</span> <span class='no'>ps_quality</span> + <span class='fl'>3</span>*<span class='no'>ss_quality</span> + <span class='fu'>rnorm</span>(<span class='no'>N</span>)))</div></pre>
+  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'><a href='cross_levels.html'>link_levels</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>2000</span>,
+                          <span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='join.html'>join</a></span>(<span class='no'>ps_quality</span>, <span class='no'>ss_quality</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>),
+                          <span class='kw'>student_quality</span> <span class='kw'>=</span> <span class='no'>ps_quality</span> + <span class='fl'>3</span>*<span class='no'>ss_quality</span> + <span class='fu'>rnorm</span>(<span class='no'>N</span>)))</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

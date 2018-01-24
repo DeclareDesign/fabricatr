@@ -9,9 +9,9 @@ vignette: >
 ---
 
 ```{r, echo=FALSE}
-options(digits=2, scipen=8)
+options(digits = 2, scipen = 8)
 knitr::knit_hooks$set(inline = function(x) {
-  prettyNum(x, decimal.mark=".", big.mark=",")
+  prettyNum(x, decimal.mark = ".", big.mark = ",")
 })
 set.seed(19861108)
 library(fabricatr)
@@ -40,40 +40,45 @@ my_data
 knitr::kable(my_data)
 ```
 
+This simple example makes use of `R`'s built-in `runif` command. The rest of the tutorial assumes a familiarity with `R` and its basic data generating processes.
+
 # Single-level datasets using existing data
 
-Instead of specifying the argument `N`, users can specify the argument `data` to import existing datasets. Once a dataset is imported, subsequent variables have access to `N`, representing the number of observations in the imported data. This makes it easy to augment existing data with simulations based on that data:
+Instead of specifying the argument `N`, users can specify the argument `data` to import existing datasets. Once a dataset is imported, subsequent variables have access to `N`, representing the number of observations in the imported data. This makes it easy to augment existing data with simulations based on that data.
+
+In this example, we make use of the `quakes` dataset, built into `R`, which describes characteristics of earthquakes off the coast of Fiji. The `mag` variable in this dataset contains the richter magnitude of the earthquakes. We will expand this data to add variables modelling hypothetical fatalities and insurance costs:
 
 ```{r echo=TRUE, results="hide"}
-# This example makes use of the "quakes" dataset, built into R
-# which describes earthquakes off the coast of Fiji. The "mag"
-# variable contains the richter magnitude of the earthquakes.
-
-simulated_quake_data = fabricate(data = quakes,
-                                 fatalities = round(pmax(0, rnorm(N, mean=mag)) * 100),
-                                 insurance_cost = fatalities * runif(N, 1000000, 2000000))
+simulated_quake_data <- fabricate(
+  data = quakes,
+  fatalities = round(pmax(0, rnorm(N, mean = mag)) * 100),
+  insurance_cost = fatalities * runif(N, 1000000, 2000000)
+)
 head(simulated_quake_data)
 ```
 ```{r echo=FALSE}
-knitr::kable(head(simulated_quake_data), format.args=list(big.mark = ","))
+knitr::kable(head(simulated_quake_data[, c(1, 2, 3, 4, 5, 7, 8)]), format.args = list(big.mark = ","))
 ```
-
 
 Notice that variable creation calls are able to make reference to both the variables in the imported data set, and newly created variables. Also, function calls can be arbitrarily nested -- the variable fatalities uses several nested function calls.
 
 # Hierarchical data
 
-The most powerful use of **fabricatr** is to create hierarchical ("nested") data. In the example below, we create 5 countries, each of which has 10 provinces:
+The most powerful use of **fabricatr** is to create hierarchical ("nested") data. In the example below, we create 5 countries, each of which has 10 provinces. We also have covariates at the country level (GDP per capita and life expectancy) and at the provincial level (presence of natural resources, and presence of manufacturing industry):
 
 ```{r echo=TRUE, results="hide"}
 country_data <-
   fabricate(
-    countries = add_level(N = 5, 
-                      gdp_per_capita = runif(N, min=10000, max=50000),
-                      life_expectancy = 50 + runif(N, 10, 20) + ((gdp_per_capita > 30000) * 10)),
-    provinces = add_level(N = 10,
-                      has_nat_resources = draw_binary(prob = 0.3, N = N),
-                      has_manufacturing = draw_binary(prob = 0.7, N = N))
+    countries = add_level(
+      N = 5,
+      gdp_per_capita = runif(N, min = 10000, max = 50000),
+      life_expectancy = 50 + runif(N, 10, 20) + ((gdp_per_capita > 30000) * 10)
+    ),
+    provinces = add_level(
+      N = 10,
+      natural_resources = draw_binary(prob = 0.3, N = N),
+      manufacturing = draw_binary(prob = 0.7, N = N)
+    )
   )
 head(country_data)
 ```
@@ -84,7 +89,7 @@ knitr::kable(head(country_data), format.args=list(big.mark = ","))
 
 Several things can be observed in this example. First, fabricate knows that your second `add_level()` command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable "N" changes. During the `add_level()` call for countries, N is 5. During the `add_level()` call for provinces, N is 10. And the resulting data, of course, has 50 observations.
 
-Finally, the province-level variables are created using the `draw_binary()` function. This is a function provided by **fabricatr** to make simulating discrete random variables simple. When you simulate your own data, you can use **fabricatr**'s functions, R's built-ins, or any custom functions you wish. `draw_binary()` is explained in [our tutorial on variable generation using **fabricatr**](http://fabricator.declaredesign.org/articles/variable_generation.html)
+Finally, the province-level variables are created using the `draw_binary()` function. This is a function provided by **fabricatr** to make simulating discrete random variables simple. When you simulate your own data, you can use **fabricatr**'s functions, R's built-ins, or any custom functions you wish. `draw_binary()` is explained in [our tutorial on variable generation using **fabricatr**](http://fabricatr.declaredesign.org/articles/variable_generation.html)
 
 # Adding hierarchy to existing data
 
@@ -93,14 +98,18 @@ Finally, the province-level variables are created using the `draw_binary()` func
 Imagine importing the country-province data simulated in the previous example. Because `fabricate()` returns a data frame, this simulated data can be re-imported into a subsequent fabricate call, just like external data can be.
 
 ```{r echo=TRUE, results="hide"}
-citizen_data <- 
+citizen_data <-
   fabricate(
     data = country_data,
-    citizens = add_level(N=10, 
-                         salary = rnorm(N, mean = gdp_per_capita + 
-                                          has_nat_resources * 5000 + has_manufacturing * 5000,
-                                        sd = 10000))
+    citizens = add_level(
+      N = 10,
+      salary = rnorm(
+        N,
+        mean = gdp_per_capita + natural_resources * 5000 + manufacturing * 5000,
+        sd = 10000
+      )
     )
+  )
 head(citizen_data)
 ```
 ```{r echo=FALSE}
@@ -121,7 +130,7 @@ Let's use our country-province data from earlier:
 new_country_data <-
   fabricate(
     data = country_data,
-    countries = modify_level(avg_temp = runif(N, 30, 80))
+    countries = modify_level(average_temperature = runif(N, 30, 80))
   )
 
 head(new_country_data)
@@ -131,27 +140,53 @@ knitr::kable(head(new_country_data), format.args=list(big.mark = ","))
 ```
 
 
-We can observe that the new variable is created at the level of aggregation you chose -- countries. Also, although N is not specified anywhere, `modify_level()` knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the `modify_level()` command is correctly assigned to the level of interest.
+We can observe that the new variable is created at the level of aggregation you chose -- countries. Also, although N is not specified anywhere, `modify_level()` knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the `modify_level()` command is correctly assigned to the level of interest. We can also modify more than one level. 
 
-We can also modify more than one level. Recalling our country-province-citizen data from above, the following process is possible:
+Here, we modify our country-province-citizen data from above:
 
 ```{r echo=TRUE, results="hide"}
 new_citizen_data <-
   fabricate(
     data = citizen_data,
-    countries = modify_level(avg_temp = runif(N, 30, 80)),
-    provinces = modify_level(conflict_zone = draw_binary(N, prob = 0.2 + has_nat_resources * 0.3),
-                             infant_mortality = runif(N, 0, 10) + conflict_zone * 10 + 
-                               (avg_temp > 70) * 10),
-    citizens = modify_level(college_degree = draw_binary(N, prob = 0.4 - (0.3 * conflict_zone)))
+    countries = modify_level(average_temperature = runif(N, 30, 80)),
+    provinces = modify_level(
+      conflict_zone = draw_binary(N, prob = 0.2 + natural_resources * 0.3),
+      infant_mortality = runif(N, 0, 10) + conflict_zone * 10 +
+        (average_temperature > 70) * 10
+    ),
+    citizens = modify_level(
+      college_degree = draw_binary(N, prob = 0.4 - (0.3 * conflict_zone))
+    )
   )
 ```                        
 
-Before assessing what this tells us about `modify_level()`, let's consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on "resource curses". The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizens access to education is also random, but depends on whether they live in a conflict area.
+Before assessing what this tells us about `modify_level()`, let's consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on "resource curses". The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizen access to education is also random, but depends on whether they live in a conflict area.
 
 There are a lot of things to learn from this example. First, it's possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according -- by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one `modify_level()` call can be used in subsequent variables of the same call, or subsequent calls.
 
 Again, we see the use of `draw_binary()`. Using this function is covered in our tutorial on [generating discrete random variables](http://fabricatr.declaredesign.org/articles/variable_generation.html), linked below.
+
+# Averages within higher levels of hierarchy
+
+A powerful feature of nested data and **fabricatr**'s setup is that variable creating can access variables from higher in 
+
+You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with `ave()`, a built-in `R` command:
+
+```{r echo=TRUE, results="hide"}
+ave_example <- fabricate(
+  cities = add_level(N = 2),
+  citizens = add_level(
+    N = 1:2, income = rnorm(N),
+    income_mean_city = ave(income, cities)
+  )
+)
+ave_example
+```
+```{r echo=FALSE}
+knitr::kable(ave_example)
+```
+
+Here, we can create citizen-level data which relies on the data of other citizens within the same city. `ave()` takes two arguments: first, the name of the variable we are averaging on (in this case, `income`), and second, the name of the level we are grouping by (in this case `cities`). Other `R` functions which are able to group by variables to compute statistics of interest are also compatible with **fabricatr**.
 
 # Next Steps
 

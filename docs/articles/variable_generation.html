@@ -118,47 +118,62 @@
 <h2 class="hasAnchor">
 <a href="#binary-and-binomial-outcomes" class="anchor"></a>Binary and binomial outcomes</h2>
 <p>The simplest possible type of data is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter <code>prob</code> which specifies the probability that outcomes drawn from this variable are equal to 1. By default, <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> will generate <code>N = length(prob)</code> draws. <code>N</code> can also be specified explicitly. Consider these examples:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draw_binary_ex =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">p =</span> <span class="kw">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>),
-                           <span class="dt">binary_1 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> p),
-                           <span class="dt">binary_2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">prob =</span> <span class="fl">0.5</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draw_binary_ex &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">p =</span> <span class="kw">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>),
+  <span class="dt">binary_1 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> p),
+  <span class="dt">binary_2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">prob =</span> <span class="fl">0.5</span>)
+)</code></pre></div>
 <p>In addition to binary variables, you can make data from repeated Bernoulli trials (“binomial” data). This requires using the <code><a href="../reference/draw_binomial.html">draw_binomial()</a></code> function and specifying an argument <code>trials</code>, equal to the number of trials.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">binomial_ex =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
-                        <span class="dt">freethrows =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binomial</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">trials =</span> <span class="dv">10</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">binomial_ex &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">3</span>,
+  <span class="dt">freethrows =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binomial</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">trials =</span> <span class="dv">10</span>)
+)</code></pre></div>
 <p>Some researchers may be interested in specifying probabilities through a “link function”. This can be done in any of your data generating functions through the <code>link</code> argument. The default link function is “identity”, but we also support “logit”, and “probit”. These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bernoulli_probit =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="dv">10</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N), 
-                             <span class="dt">binary =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> x, <span class="dt">link =</span> <span class="st">"probit"</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bernoulli_probit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="dv">10</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N),
+  <span class="dt">binary =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> x, <span class="dt">link =</span> <span class="st">"probit"</span>)
+)</code></pre></div>
 </div>
 <div id="ordered-outcomes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#ordered-outcomes" class="anchor"></a>Ordered outcomes</h2>
 <p>Some researchers may be interested in generating ordered outcomes – for example, Likert scale outcomes. You can do this with the <code><a href="../reference/draw_binomial.html">draw_ordered()</a></code> function. Ordered variables require a vector of breakpoints, supplied as the argument <code>breaks</code> – points at which the underlying latent variable switches from category to category. The first break should always be below the lower bound of the data, while the final break should always be above the upper bound of the data – if breaks do not cover the data, <code><a href="../reference/draw_binomial.html">draw_ordered()</a></code> will attempt to correct this by adding breaks where appropriate.</p>
 <p>In the following example, each of three observations has a latent variable <code>x</code> which is continuous and unbounded. The variable <code>ordered</code> transforms <code>x</code> into three numeric categories: 1, 2, and 3. All values of <code>x</code> below -1 result in <code>ordered</code> 1; all values of <code>x</code> between -1 and 1 result in <code>ordered</code> 2; all values of <code>x</code> above 1 result in <code>ordered</code> 3:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
-                            <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N), 
-                            <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_example &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">3</span>,
+  <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N),
+  <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>))
+)</code></pre></div>
 <p>Ordered data also supports link functions including “logit” or “probit”:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_probit_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, 
-                                   <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N), 
-                                   <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>), 
-                                                          <span class="dt">link =</span> <span class="st">"probit"</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_probit_example &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">3</span>,
+  <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N),
+  <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(
+    x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>),
+    <span class="dt">link =</span> <span class="st">"probit"</span>
+  )
+)</code></pre></div>
 </div>
 <div id="likert-variables" class="section level2">
 <h2 class="hasAnchor">
 <a href="#likert-variables" class="anchor"></a>Likert variables</h2>
 <p>Likert variables are a special case of ordered variables. Users can use <code><a href="../reference/draw_binomial.html">draw_ordered()</a></code> with properly specified breaks and break labels to generate Likert data, or use the <code><a href="../reference/draw_binomial.html">draw_likert()</a></code> function as a convenient alias:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">100</span>,
-                        <span class="dt">Q1 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N)),
-                        <span class="dt">Q2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N)),
-                        <span class="dt">Q3 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">100</span>,
+  <span class="dt">Q1 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N)),
+  <span class="dt">Q2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N)),
+  <span class="dt">Q3 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N))
+)</code></pre></div>
 <p><code><a href="../reference/draw_binomial.html">draw_likert()</a></code> takes one compulsory argument (<code>x</code>, which represents the latent variable being transformed into ordered data). By default, <code><a href="../reference/draw_binomial.html">draw_likert()</a></code> provides a 7-item Likert scale with breaks at [-<span class="math inline">\(\infty\)</span>, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, <span class="math inline">\(\infty\)</span>]. Users can explicitly specify the <code>type</code> argument to use other types of Likert data. Supported types are 4, 5, and 7. Default breaks for 5-item Likert scales are [-<span class="math inline">\(\infty\)</span>, -1.5, -0.5, 0.5, 1.5, <span class="math inline">\(\infty\)</span>]. Default breaks for 4-item Likert scales are [-<span class="math inline">\(\infty\)</span>, -1, 0, 1, <span class="math inline">\(\infty\)</span>].</p>
 <p>Optionally, users can specify their own breaks. These will override the <code>type</code> command and scale type will be detected based on the length of the <code>break</code> argument. As above, a <code>break</code> argument with 8 values will produce a 7-item Likert scale, one with 6 values will produce a 5-item Likert scale, and one with 5 values will produce a 4-item Likert scale.</p>
 <p>Labels are automatically provided by <code><a href="../reference/draw_binomial.html">draw_likert()</a></code>. The default 7-item Likert scale uses the labels [“Strongly Disagree”, “Disagree”, “Lean Disagree”, “Don’t Know / Neutral”, “Lean Agree”, “Agree”, “Strongly Agree”].</p>
 <p>Examples of how users might use the function are available below:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">100</span>,
-                        <span class="dt">Q1 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">7</span>),
-                        <span class="dt">Q2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">5</span>),
-                        <span class="dt">Q3 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">4</span>),
-                        <span class="dt">Q4 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="ot">Inf</span>))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">100</span>,
+  <span class="dt">Q1 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">7</span>),
+  <span class="dt">Q2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">5</span>),
+  <span class="dt">Q3 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">4</span>),
+  <span class="dt">Q4 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="ot">Inf</span>))
 )
 
 <span class="kw">table</span>(survey_data<span class="op">$</span>Q2)</code></pre></div>
@@ -194,14 +209,18 @@
 <p><code><a href="../reference/draw_binomial.html">draw_categorical()</a></code> can generate non-ordered, categorical data. Users must provide a vector of probabilities for each category (or a matrix, if each observation should have separate probabilities).</p>
 <p>If probabilities do not sum to exactly one, they will be normalized, but negative probabilities will cause an error.</p>
 <p>In the first example, each unit has a different set of probabilities and the probabilities are provided as a matrix:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">categorical_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">6</span>, 
-                                <span class="dt">p1 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
-                                <span class="dt">p2 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
-                                <span class="dt">p3 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
-                                <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="kw">cbind</span>(p1, p2, p3)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">categorical_example &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">6</span>,
+  <span class="dt">p1 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
+  <span class="dt">p2 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
+  <span class="dt">p3 =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">1</span>),
+  <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="kw">cbind</span>(p1, p2, p3))
+)</code></pre></div>
 <p>In the second example, each unit has the same probability of getting a given category. <code><a href="../reference/draw_binomial.html">draw_categorical()</a></code> will issue a warning to remind you that it is interpreting the vector in this way.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">warn_draw_cat_example =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">6</span>,
-                                  <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.4</span>)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">warn_draw_cat_example &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">6</span>,
+  <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.4</span>))
+)</code></pre></div>
 <pre><code>## Warning in draw_categorical(N = N, prob = c(0.2, 0.4, 0.4)): For a
 ## categorical (multinomial) distribution, a matrix of probabilities should
 ## be provided. The data below is generated by interpreting the vector of
@@ -278,13 +297,15 @@ smoker =<span class="st"> </span><span class="kw"><a href="../reference/draw_bin
 <p>If <code>sd</code> is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1. If <code>mean</code> is not supplied, each cluster will be assumed to be mean zero. If <code>ICC</code> is not supplied, it will be set to 0.5.</p>
 <p>Here, we model student academic performance by cluster:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 100 students, 10 each in 10 clusters</span>
-clusters =<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">20</span>)
+clusters &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">20</span>)
 
-numeric_grade =<span class="st"> </span><span class="kw"><a href="../reference/draw_normal_icc.html">draw_normal_icc</a></span>(<span class="dt">mean =</span> <span class="dv">80</span>, <span class="dt">clusters =</span> clusters, <span class="dt">ICC =</span> <span class="fl">0.5</span>, <span class="dt">sd =</span> <span class="dv">15</span>)
+numeric_grade &lt;-<span class="st"> </span><span class="kw"><a href="../reference/draw_normal_icc.html">draw_normal_icc</a></span>(<span class="dt">mean =</span> <span class="dv">80</span>, <span class="dt">clusters =</span> clusters, <span class="dt">ICC =</span> <span class="fl">0.5</span>, <span class="dt">sd =</span> <span class="dv">15</span>)
 
-letter_grade =<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(<span class="dt">x =</span> numeric_grade,
-                            <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="dv">60</span>, <span class="dv">70</span>, <span class="dv">80</span>, <span class="dv">90</span>, <span class="ot">Inf</span>),
-                            <span class="dt">break_labels =</span> <span class="kw">c</span>(<span class="st">"F"</span>, <span class="st">"D"</span>, <span class="st">"C"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>))
+letter_grade &lt;-<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(
+  <span class="dt">x =</span> numeric_grade,
+  <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="dv">60</span>, <span class="dv">70</span>, <span class="dv">80</span>, <span class="dv">90</span>, <span class="ot">Inf</span>),
+  <span class="dt">break_labels =</span> <span class="kw">c</span>(<span class="st">"F"</span>, <span class="st">"D"</span>, <span class="st">"C"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>)
+)
 
 <span class="kw">mean</span>(numeric_grade)</code></pre></div>
 <p>84.12</p>

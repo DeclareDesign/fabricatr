@@ -25,24 +25,28 @@ Imagine a survey experiment of voters from across social groups. With **fabricat
 ```{r}
 library(fabricatr)
 
-voters = fabricate(
+voters <- fabricate(
   N = 1000,
   group_id = rep(1:10, 100),
   ideology = draw_normal_icc(mean = 0, N = N, clusters = group_id, ICC = 0.7),
-  ideological_label = draw_ordered(x = ideology,
-                                   break_labels = c("Very Conservative", "Conservative",
-                                                    "Liberal", "Very Liberal")),
+  ideological_label = draw_ordered(
+    x = ideology,
+    break_labels = c(
+      "Very Conservative", "Conservative",
+      "Liberal", "Very Liberal"
+    )
+  ),
   income = exp(rlnorm(n = N, meanlog = 2.4 - (ideology * 0.1), sdlog = 0.12)),
   Q1_immigration = draw_likert(x = ideology, type = 7),
   Q2_defence = draw_likert(x = ideology + 0.5, type = 7),
-  treatment = draw_binary(0.5, N=N),
+  treatment = draw_binary(0.5, N = N),
   proposition_vote = draw_binary(prob = ideology + 1.2 * treatment, link = "probit")
 )
 ```
 
 Let's look at a small fraction of the data generated this way:
 ```{r echo=FALSE}
-knitr::kable(voters[sample.int(nrow(voters), 5, replace=FALSE), c(2, 3, 4, 6, 7, 8, 9)], row.names = FALSE)
+knitr::kable(voters[sample.int(nrow(voters), 5, replace = FALSE), c(2, 3, 4, 6, 7, 8, 9)], row.names = FALSE)
 ```
 
 Modeling data like this allows common analyses in advance of conducting your experiment. This data can also be included in a pre-analysis plan to add clarity to your experimental design and contribute to improving transparency and replicability. **fabricatr** also allows you to import existing data and modify it easily, or to resample existing data into new, simulated populations.
@@ -57,11 +61,13 @@ One common example in the social sciences is panel data, which is easy to create
 ```{r}
 library(fabricatr)
 
-panel = fabricate(
+panel <- fabricate(
   countries = add_level(N = 150, country_fe = runif(N, 1, 10)),
   years = add_level(N = 25, year_shock = runif(N, 1, 10), nest = FALSE),
-  observations = cross_level(by = join(countries, years),
-                             outcome_it = country_fe + year_shock + rnorm(N, 0, 2))
+  observations = cross_levels(
+    by = join(countries, years),
+    outcome_it = country_fe + year_shock + rnorm(N, 0, 2)
+  )
 )
 ```
 

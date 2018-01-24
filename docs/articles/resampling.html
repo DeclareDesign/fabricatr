@@ -115,9 +115,9 @@
 <h1 class="hasAnchor">
 <a href="#bootstrapping" class="anchor"></a>Bootstrapping</h1>
 <p>The simplest option in <strong>fabricatr</strong> is to “bootstrap” data. Taking data with N observations, the “bootstrap” resamples these observations with replacement and generates N new observations. Existing observations may be used zero times, once, or more than once. Bootstrapping is very simple with the <code><a href="../reference/resample_data.html">resample_data()</a></code> function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data =<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">10</span>, <span class="dt">voted_republican =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">10</span>, <span class="dt">voted_republican =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N))
 
-survey_data_new =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data)
+survey_data_new &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data)
 <span class="kw">head</span>(survey_data_new)</code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -152,7 +152,7 @@ survey_data_new =<span class="st"> </span><span class="kw"><a href="../reference
 </tbody>
 </table>
 <p>It is also possible to resample fewer or greater number of observations from your existing data. We can do this by specifying the argument <code>N</code> to <code><a href="../reference/resample_data.html">resample_data()</a></code>. Consider expanding a small dataset to allow for better imagination of larger data to be collected later.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">large_survey_data =<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data, <span class="dt">N =</span> <span class="dv">100</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">large_survey_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data, <span class="dt">N =</span> <span class="dv">100</span>)
 <span class="kw">nrow</span>(large_survey_data)</code></pre></div>
 <p>100</p>
 </div>
@@ -223,7 +223,7 @@ my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"
     <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">70</span>))
   )
 
-my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dt">cities=</span><span class="dv">3</span>, <span class="dt">citizens=</span><span class="dv">5</span>))
+my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dt">cities =</span> <span class="dv">3</span>, <span class="dt">citizens =</span> <span class="dv">5</span>))
 <span class="kw">head</span>(my_data_<span class="dv">2</span>)</code></pre></div>
 <table class="table">
 <thead><tr class="header">
