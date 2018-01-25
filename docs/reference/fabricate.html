@@ -210,13 +210,13 @@ and intra-cluster correlated variables <code><a href='draw_binary_icc.html'>draw
   <span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>height_ft</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>300</span>, <span class='fl'>800</span>)
 )
-<span class='fu'>head</span>(<span class='no'>building_df</span>)</div><div class='output co'>#&gt;    ID   height_ft
-#&gt; 1 001 384.8900576
-#&gt; 2 002 439.0971089
-#&gt; 3 003 481.9884958
-#&gt; 4 004 334.9467616
-#&gt; 5 005 594.5487348
-#&gt; 6 006 342.0681332</div><div class='input'>
+<span class='fu'>head</span>(<span class='no'>building_df</span>)</div><div class='output co'>#&gt;    ID height_ft
+#&gt; 1 001  384.8901
+#&gt; 2 002  439.0971
+#&gt; 3 003  481.9885
+#&gt; 4 004  334.9468
+#&gt; 5 005  594.5487
+#&gt; 6 006  342.0681</div><div class='input'>
 <span class='co'># Start with existing data instead</span>
 <span class='no'>building_modified</span> <span class='kw'>&lt;-</span> <span class='fu'>fabricate</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>building_df</span>,
