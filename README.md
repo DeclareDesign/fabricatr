@@ -3,17 +3,23 @@
 fabricatr: Imagine your data before you collect it
 ==================================================
 
-[![Travis-CI Build Status](https://travis-ci.org/DeclareDesign/fabricatr.svg?branch=master)](https://travis-ci.org/DeclareDesign/fabricatr) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/DeclareDesign/fabricatr?branch=master&svg=true)](https://ci.appveyor.com/project/DeclareDesign/fabricatr) [![Coverage Status](https://coveralls.io/repos/github/DeclareDesign/fabricatr/badge.svg?branch=master)](https://coveralls.io/github/DeclareDesign/fabricatr?branch=master)
+[![CRAN Status](http://www.r-pkg.org/badges/version/fabricatr)](https://cran.r-project.org/package=fabricatr) [![Travis-CI Build Status](https://travis-ci.org/DeclareDesign/fabricatr.svg?branch=master)](https://travis-ci.org/DeclareDesign/fabricatr) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/DeclareDesign/fabricatr?branch=master&svg=true)](https://ci.appveyor.com/project/DeclareDesign/fabricatr) [![Coverage Status](https://coveralls.io/repos/github/DeclareDesign/fabricatr/badge.svg?branch=master)](https://coveralls.io/github/DeclareDesign/fabricatr?branch=master)
 
 Making decisions about research design and analysis strategies is often difficult before data is collected, because it is hard to imagine the exact form data will take. Instead, researchers typically modify analysis strategies to fit the data. **fabricatr** helps researchers imagine what data will look like before they collect it. Researchers can evaluate alternative analysis strategies, find the best one given how the data will look, and precommit before looking at the realized data.
 
 ### Installing fabricatr
 
+To install the latest stable release of **fabricatr**, please ensure that you are running version 3.3 or later of R and run the following code:
+
+``` r
+install.packages("fabricatr")
+```
+
 To install the latest development release of **fabricatr**, please ensure that you are running version 3.3 or later of R and run the following code:
 
 ``` r
 install.packages("fabricatr", dependencies = TRUE,
-                 repos = c("http://R.declaredesign.org", "https://cloud.r-project.org"))
+                 repos = c("http://r.declaredesign.org", "https://cloud.r-project.org"))
 ```
 
 ### Getting started
