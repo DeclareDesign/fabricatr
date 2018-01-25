@@ -197,37 +197,41 @@ deviations for generating the data.</p>
 <span class='no'>clusters</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
 
 <span class='co'># Default: unit variance within each cluster</span>
-<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</div><div class='output co'>#&gt;  [1] -1.02554590  0.62443504 -2.31939115 -0.83443824  0.55794551  1.53804683
-#&gt;  [7] -0.22289235  1.14690447 -0.65298416  2.17395191  0.93017782 -0.99045081
-#&gt; [13] -0.76061979 -2.46877160  1.19729849  1.37574171 -0.94850980  0.51731007
-#&gt; [19] -1.17555277  1.38167859 -0.47570412 -0.74476059 -0.12639827 -0.26539863
-#&gt; [25]  3.19550217  0.30373915  0.67777768 -1.76081700 -1.40004144 -0.93182015
-#&gt; [31]  0.45643320 -1.46012658 -1.09803959  0.71703320  1.03944986 -0.03334539
-#&gt; [37] -0.15605976 -1.01039834 -0.04367906  0.80156012  0.47585110  0.22116711
-#&gt; [43] -0.15391441  0.09899335  1.49281217  1.53738284  0.47059085 -1.67012692
-#&gt; [49]  0.43175770  1.57700318</div><div class='input'>
+<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</div><div class='output co'>#&gt;  [1] -1.02554589555  0.62443504160 -2.31939115286 -0.83443824172  0.55794551023
+#&gt;  [6]  1.53804682512 -0.22289234807  1.14690446594 -0.65298415590  2.17395191327
+#&gt; [11]  0.93017781910 -0.99045080885 -0.76061978747 -2.46877159639  1.19729849372
+#&gt; [16]  1.37574171129 -0.94850979858  0.51731006607 -1.17555276582  1.38167859134
+#&gt; [21] -0.47570412346 -0.74476058897 -0.12639826632 -0.26539863033  3.19550216981
+#&gt; [26]  0.30373914727  0.67777767630 -1.76081700260 -1.40004144012 -0.93182015081
+#&gt; [31]  0.45643319619 -1.46012657635 -1.09803959382  0.71703320070  1.03944986387
+#&gt; [36] -0.03334539499 -0.15605976028 -1.01039833808 -0.04367905912  0.80156012155
+#&gt; [41]  0.47585110047  0.22116711398 -0.15391440827  0.09899335053  1.49281216714
+#&gt; [46]  1.53738284473  0.47059084961 -1.67012691508  0.43175769886  1.57700317990</div><div class='input'>
 <span class='co'># Alternatively, you can specify characteristics:</span>
-<span class='fu'>draw_normal_icc</span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.3</span>)</div><div class='output co'>#&gt;  [1]  9.209539  6.946955  7.280875  2.663388 15.406216 13.109010  9.931105
-#&gt;  [8]  6.439851  7.340947 11.535676 11.219845 10.889006  9.943836  6.589445
-#&gt; [15]  7.329716 11.209727  8.794985  8.253895 10.731750  7.722170  9.411930
-#&gt; [22]  6.296899  9.374113  8.337104  6.355048 10.574635  7.147801 10.207142
-#&gt; [29] 12.951676 12.653866 10.357931  8.776974 10.735098  7.420525  9.172164
-#&gt; [36] 15.434823  4.686745  8.902265  8.857391 12.050750  6.447235  9.464802
-#&gt; [43]  4.916680 14.715999  7.217758 11.054769 12.617152  5.155777  4.699359
-#&gt; [50]  7.700490</div><div class='input'>
+<span class='fu'>draw_normal_icc</span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.3</span>)</div><div class='output co'>#&gt;  [1]  9.209538912  6.946955079  7.280875456  2.663388150 15.406216374
+#&gt;  [6] 13.109009661  9.931104635  6.439850524  7.340946553 11.535675521
+#&gt; [11] 11.219845289 10.889005790  9.943836409  6.589445159  7.329716280
+#&gt; [16] 11.209727037  8.794985299  8.253895225 10.731749801  7.722170255
+#&gt; [21]  9.411929542  6.296898979  9.374113345  8.337103771  6.355048089
+#&gt; [26] 10.574635252  7.147800959 10.207142467 12.951675524 12.653866245
+#&gt; [31] 10.357931418  8.776974347 10.735098329  7.420525160  9.172163731
+#&gt; [36] 15.434822568  4.686744939  8.902265146  8.857391358 12.050750197
+#&gt; [41]  6.447235044  9.464802213  4.916679553 14.715998765  7.217758120
+#&gt; [46] 11.054768770 12.617152323  5.155776608  4.699358851  7.700490168</div><div class='input'>
 <span class='co'># Can specify between-cluster standard deviation instead:</span>
-<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>sd_between</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.2</span>)</div><div class='output co'>#&gt;  [1]  13.6348820  -9.3986100 -10.1894901  -4.3994492  15.6367316   1.9925917
-#&gt;  [7]  -0.3076630   7.6256722   2.1741504  17.2390780   6.8659439  -4.6678638
-#&gt; [13]  -1.7383786   5.5829177   5.7807091   5.6198047 -12.8067743  12.7308042
-#&gt; [19]  -9.2940687  12.7807675   9.4914447 -10.0633085  10.5242161   4.0939280
-#&gt; [25] -13.9777692  -1.5699654 -11.3426364   9.7798558  -1.1224243  14.1309119
-#&gt; [31]   7.6503185 -13.0704663   3.9990677   6.2734686   0.9106016   7.0969074
-#&gt; [37] -17.4752527  -6.4680375  -0.3626732  12.3058826   2.3691358 -19.1565832
-#&gt; [43]   3.7634140  -0.2841549  -7.4997532  -1.2743522  -8.9896589  -0.1177371
-#&gt; [49]  -5.2378603  -7.2251413</div><div class='input'>
+<span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>sd_between</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.2</span>)</div><div class='output co'>#&gt;  [1]  13.6348820404  -9.3986100071 -10.1894901391  -4.3994492021  15.6367316440
+#&gt;  [6]   1.9925917184  -0.3076630385   7.6256721944   2.1741503757  17.2390779570
+#&gt; [11]   6.8659438811  -4.6678638151  -1.7383785970   5.5829176814   5.7807090978
+#&gt; [16]   5.6198046791 -12.8067743251  12.7308042072  -9.2940686647  12.7807675030
+#&gt; [21]   9.4914446968 -10.0633084774  10.5242160976   4.0939279532 -13.9777691778
+#&gt; [26]  -1.5699653734 -11.3426364373   9.7798558438  -1.1224243256  14.1309119449
+#&gt; [31]   7.6503184899 -13.0704663298   3.9990677369   6.2734685647   0.9106015725
+#&gt; [36]   7.0969074263 -17.4752527076  -6.4680374534  -0.3626732194  12.3058826153
+#&gt; [41]   2.3691357569 -19.1565832185   3.7634139973  -0.2841548969  -7.4997531889
+#&gt; [46]  -1.2743521664  -8.9896589122  -0.1177370598  -5.2378603460  -7.2251413074</div><div class='input'>
 <span class='co'># Verify that ICC generated is accurate</span>
 <span class='no'>corr_draw</span> <span class='kw'>=</span> <span class='fu'>draw_normal_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.4</span>)
-<span class='fu'>summary</span>(<span class='fu'>lm</span>(<span class='no'>corr_draw</span> ~ <span class='fu'>as.factor</span>(<span class='no'>clusters</span>)))$<span class='no'>r.squared</span></div><div class='output co'>#&gt; [1] 0.3853618</div><div class='input'>
+<span class='fu'>summary</span>(<span class='fu'>lm</span>(<span class='no'>corr_draw</span> ~ <span class='fu'>as.factor</span>(<span class='no'>clusters</span>)))$<span class='no'>r.squared</span></div><div class='output co'>#&gt; [1] 0.3853618356</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

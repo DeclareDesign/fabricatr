@@ -187,13 +187,13 @@ function call, it is possible to induce correlation in cross-classified data.</p
  <span class='kw'>secondary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>ss_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>link_levels</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>primary_school</span>, <span class='no'>secondary_school</span>))
 )
-<span class='fu'>head</span>(<span class='no'>students</span>)</div><div class='output co'>#&gt;   primary_school ps_quality secondary_school ss_quality students
-#&gt; 1             01   7.121466               13   1.252549      001
-#&gt; 2             08   9.916411               14   5.193885      002
-#&gt; 3             12   3.837176               11   5.020322      003
-#&gt; 4             18   7.420576               06   2.723662      004
-#&gt; 5             08   9.916411               01   8.426795      005
-#&gt; 6             11   5.150678               07   9.529875      006</div><div class='input'>
+<span class='fu'>head</span>(<span class='no'>students</span>)</div><div class='output co'>#&gt;   primary_school  ps_quality secondary_school  ss_quality students
+#&gt; 1             01 7.121466258               13 1.252548769      001
+#&gt; 2             08 9.916410811               14 5.193884718      002
+#&gt; 3             12 3.837175772               11 5.020322222      003
+#&gt; 4             18 7.420575510               06 2.723662284      004
+#&gt; 5             08 9.916410811               01 8.426794789      005
+#&gt; 6             11 5.150678182               07 9.529875440      006</div><div class='input'>
 <span class='co'># Induce a correlation structure in cross-classified data by providing</span>
 <span class='co'># rho.</span>
 <span class='no'>students</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
@@ -201,7 +201,7 @@ function call, it is possible to induce correlation in cross-classified data.</p
  <span class='kw'>secondary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>ss_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>link_levels</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>ps_quality</span>, <span class='no'>ss_quality</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>))
 )
-<span class='fu'>cor</span>(<span class='no'>students</span>$<span class='no'>ps_quality</span>, <span class='no'>students</span>$<span class='no'>ss_quality</span>)</div><div class='output co'>#&gt; [1] 0.4652544</div><div class='input'>
+<span class='fu'>cor</span>(<span class='no'>students</span>$<span class='no'>ps_quality</span>, <span class='no'>students</span>$<span class='no'>ss_quality</span>)</div><div class='output co'>#&gt; [1] 0.4652543922</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
