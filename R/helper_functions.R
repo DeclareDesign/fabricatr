@@ -422,7 +422,9 @@ check_rectangular <- function(working_data_list, N) {
       working_data_list[[i]] <- rep(working_data_list[[i]], N)
     } else if (length(working_data_list[[i]]) != N) {
       # Variable is not of length N. Oops.
-      stop("Variable lengths must all be equal to `N.`")
+      stop("Variable lengths must all be equal to `N.` ",
+           "In this call, `N` = ", N, " while the variable `",
+           i, "` is equal to length ", length(i))
     }
   }
   return(working_data_list)
