@@ -52,3 +52,9 @@ test_that("Ragged nested data length", {
     k = add_level(N = 3, y = 1:6)
   ))
 })
+
+test_that("Using recycle to fill out a vector", {
+  fabricate(N = 20, months = recycle(month.abb))
+
+  expect_error(fabricate(N = 20, months = month.abb))
+})

@@ -39,3 +39,18 @@ test_that("creating variables", {
     )
   ))
 })
+
+
+test_that("Nested level where inner level N depends on outer level N", {
+  # Test the implicit N
+  nl_test = fabricate(
+    outer = add_level(N = 25),
+    inner = add_level(N = sample(1:100, N))
+  )
+
+  # Verify the sample worked
+  nr = unlist(lapply(split(nl_test, nl_test$outer), function(x) { nrow(x) }))
+  expect_true(var(nr) != 0)
+  expect_lte(max(nr), 100)
+  expect_gte(min(nr), 1)
+})
