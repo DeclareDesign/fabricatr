@@ -33,7 +33,9 @@
 #' @param link link function between the latent variable and the probability of
 #' a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 #' link, the latent variable must be a probability.
-#'
+#' @return A vector of data in accordance with the specification; generally
+#' numeric but for some functions, including `draw_ordered`, may be factor if
+#' break labels are provided.
 #' @examples
 #'
 #' # Drawing binary values (success or failure, treatment assignment)
@@ -266,7 +268,7 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
       levels = break_labels
     ))
   } else {
-    return(factor(findInterval(x, breaks)))
+    return(findInterval(x, breaks))
   }
 }
 

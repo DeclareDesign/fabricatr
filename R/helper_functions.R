@@ -1,3 +1,32 @@
+#' Expands data to a given length through recycling.
+#'
+#' This function is a helper function designed call `rep_len` to expand the
+#' length of a data vector, but which can dynamically retrieve N from the
+#' surrounding level call for use in fabricatr.
+#'
+#' @param x Data to recycle into length `N`
+#' @param .N the length to recycle the data to, typically provided implicitly by
+#' a or fabricate call wrapped around the function call.
+#' @return A vector of data padded to length `N`
+#' @keywords internal
+#' @export
+recycle <- function(x, .N = NULL) {
+  if(is.null(.N)) {
+    .N = tryCatch({
+      dynGet("N")
+    }, error = function(e) {
+      NULL
+    })
+
+    if(is.null(.N)) {
+      stop("You must supply a `.N` argument to `recycle` or run ",
+           "`recycle` inside a level call to implicit supply `.N`.")
+    }
+  }
+
+  rep_len(x, length.out = .N)
+}
+
 import_data_list <- function(data) {
   working_environment_ <- new_working_environment()
 
@@ -249,7 +278,10 @@ handle_n <- function(N, add_level=TRUE, working_environment=NULL,
     # frame, we just get the symbol used for N from the outside functions, which would just be N
     # This ensures we get the expression passed to N in the outer function call.
     temp_N_expr <- substitute(N, parent.frame(parent_frame_levels))
-    N <- eval_tidy(temp_N_expr, data = working_environment$data_frame_output_)
+    N <- eval_tidy(temp_N_expr, data = append(
+      working_environment$data_frame_output_,
+      list(N = nrow(working_environment$data_frame_output_))
+      ))
   }
 
   # User provided an unevaluated function
@@ -422,7 +454,9 @@ check_rectangular <- function(working_data_list, N) {
       working_data_list[[i]] <- rep(working_data_list[[i]], N)
     } else if (length(working_data_list[[i]]) != N) {
       # Variable is not of length N. Oops.
-      stop("Variable lengths must all be equal to `N.`")
+      stop("Variable lengths must all be equal to `N.` ",
+           "In this call, `N` = ", N, " while the variable `",
+           i, "` is equal to length ", length(i))
     }
   }
   return(working_data_list)

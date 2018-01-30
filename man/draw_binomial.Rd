@@ -53,6 +53,11 @@ into ordered categories with `draw_ordered`.}
 \item{type}{Type of Likert scale data for `draw_likert`. Valid options are 4,
 5, and 7. Type corresponds to the number of categories in the Likert scale.}
 }
+\value{
+A vector of data in accordance with the specification; generally
+numeric but for some functions, including `draw_ordered`, may be factor if
+break labels are provided.
+}
 \description{
 Drawing discrete data based on probabilities or latent traits is a common
 task that can be cumbersome. Each function in our discrete drawing set creates
