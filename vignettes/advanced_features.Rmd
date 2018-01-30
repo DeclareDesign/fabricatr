@@ -42,13 +42,14 @@ my_data <-
   )
 my_data
 ```
+
 ```{r echo=FALSE}
 knitr::kable(my_data)
 ```
 
 Here, each city is given a random number of citizens between 1 and 6. Since the `sample()` function returns a vector of length 2, this is like specifying 2 separate `N`s as in the example above.
 
-Finally, it is possible to define `N` on the basis of higher level variables themselves. Consider the following example:
+It is also possible to define `N` on the basis of higher level variables themselves. Consider the following example:
 
 ```{r echo=TRUE, results="hide"}
 variable_n <- fabricate(
@@ -61,6 +62,18 @@ knitr::kable(head(variable_n))
 ```
 
 Here, the city has a defined population, and the number of citizens in our simulated data reflects a sample of 30% of that population. Although we only display the first 6 rows for brevity's sake, the first city would have 27 rows in total.
+
+Finally, it is possible to define `N` on the basis of higher level `N`:
+
+```{r echo=TRUE, results="hide"}
+n_inherit <- fabricate(
+  cities = add_level(N = 5, population = runif(N, 10, 200)),
+  citizens = add_level(N = sample(1:10, N, replace=TRUE))
+)
+```
+
+Here, each city has a random number of citizens from 1 to 10, but we need to supply N
+to the sample function to ensure that one draw is made per city.
 
 # Tidyverse integration
 

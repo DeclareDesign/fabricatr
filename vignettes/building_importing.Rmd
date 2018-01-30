@@ -42,6 +42,20 @@ knitr::kable(my_data)
 
 This simple example makes use of `R`'s built-in `runif` command. The rest of the tutorial assumes a familiarity with `R` and its basic data generating processes.
 
+# Filling out observations.
+
+`fabricate` is intended to make rectangular data frames: this means that each variable added at a level needs to be the same length. Failure to provide equal-length variables will result in an error. We provide a convenient helper function, `recycle`, to help expand existing data to fit the length of your level. Here, let's use the existing `month` variable from `R` to generate data using a month:
+
+```{r echo=TRUE, results="hide"}
+month_gdp <- fabricate(
+  N = 20,
+  month_name = recycle(month.abb),
+  gdp_growth = rnorm(N, 0.5, 0.5)
+)
+```
+
+`month.abb` contains the months of the year: ["Jan", "Feb", "Mar", ..., "Dec"]. It is obvious that although we are asking for 20 observations, there are only twelve months in the year. `recycle` will automatically wrap the month text resulting in a data frame with the 12 months "Jan" through "Dec", followed by 8 months "Jan" through "Aug".
+
 # Single-level datasets using existing data
 
 Instead of specifying the argument `N`, users can specify the argument `data` to import existing datasets. Once a dataset is imported, subsequent variables have access to `N`, representing the number of observations in the imported data. This makes it easy to augment existing data with simulations based on that data.
@@ -85,7 +99,6 @@ head(country_data)
 ```{r echo=FALSE}
 knitr::kable(head(country_data), format.args=list(big.mark = ","))
 ```
-
 
 Several things can be observed in this example. First, fabricate knows that your second `add_level()` command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable "N" changes. During the `add_level()` call for countries, N is 5. During the `add_level()` call for provinces, N is 10. And the resulting data, of course, has 50 observations.
 
@@ -138,7 +151,6 @@ head(new_country_data)
 ```{r echo=FALSE}
 knitr::kable(head(new_country_data), format.args=list(big.mark = ","))
 ```
-
 
 We can observe that the new variable is created at the level of aggregation you chose -- countries. Also, although N is not specified anywhere, `modify_level()` knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the `modify_level()` command is correctly assigned to the level of interest. We can also modify more than one level. 
 
