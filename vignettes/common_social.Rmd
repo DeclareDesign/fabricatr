@@ -14,14 +14,255 @@ set.seed(19861108)
 library(fabricatr)
 ```
 
-# Coming soon.
+**fabricatr** makes it easy to generate common social science variables. While our other online tutorials focus on exploring the full extent of **fabricatr**'s capabilities, this tutorial focuses on simple plain-English introductions to common variable types used in social science research, along with an introduction to the statistical terminology associated with them. Examples are drawn from pre-analysis plans filed with [http://egap.org/](Evidence in Governance and Politics) (EGAP). 
 
-This vignette is coming soon and will be live on or about January 25th, 2018. You can view the most recent version of this vignette [online](http://fabricatr.declaredesign.org/articles/common_social.html).
+**If you already feel comfortable understanding these concepts and would prefer a technical manual for our variable creation functions, please consult our [Generating Variables](http://fabricatr.declaredesign.org/articles/variable_generation.html) tutorial.**
 
-In the mean time, you may be interested in any of these vignettes:
+## Data about Treatments
 
-* [Getting Started with **fabricatr**](http://fabricatr.declaredesign.org/articles/getting_started.html)
-* [Building and Importing Data](http://fabricatr.declaredesign.org/articles/building_importing.html)
-* [Generating Discrete Random Variables](http://fabricatr.declaredesign.org/articles/variable_generation.html)
-* [Panel and Cross-Classified Data](http://fabricatr.declaredesign.org/articles/cross_classified.html)
-* [Resampling and Bootstrapping Hierarchical Data](http://fabricatr.declaredesign.org/articles/resampling.html)
+The experimental method requires the assignment of units to control and treatment wings (potentially with multiple treatments). Simulating treatment assignment requires thinking about two questions: what are the possible treatments a unit can be assigned to, and how will assignment work? This section of the tutorial will briefly discuss some of the simplest forms of treatment assignment. More information about treatment assignment in experimental design can be found in CITE GOES HERE.
+
+### Simple treatment and control designs: Binary variables
+
+The simplest possible design for an experiment is the random assignment of units to either a Control group or a Treatment group by simple random assignment. Because the treatment variable can only take two possible outcomes ("Control" or "Treatment"), we think of it as a "binary" variable. Typically we represent "Control" as a 0 and "Treatment" as a 1. For the purposes of simple random assignment, which each unit gets the same probability of being in the treatment group, we simply need to decide what probability that is. One common design puts an equal number of units in treatment and control wings, so the probability of a unit to receive treatment is $\frac{1}{2} = 0.5$. In other words, for each unit in the study, we are going to flip a coin to decide whether they are in the treatment or control group. Simple random assignment is easy with **fabricatr**'s `draw_binary` function.
+
+```{r}
+unit_in_treatment <- draw_binary(prob = 0.5, N = 100)
+
+table(unit_in_treatment)
+```
+
+### Complete random assignment
+
+Another common design is "complete" random assignment. Complete random assignment allows control of exactly how many units appear in each group. One way of thinking about how we might do complete random assignment is to take 100 scraps of paper, with 50 marked "treatment" and 50 marked "control", and then put them all in a bag. Each unit is assigned by taking one scrap of paper out, reading it, and then discarding it. As a result, if the first five units are assigned to treatment, there will be 45 remaining "treatment" scraps and 50 remaining "control" scraps. We can make use of `R`'s `sample` function for this:
+
+```{r}
+unit_in_treatment <- sample(c(rep(0, 50), rep(1, 50)))
+```
+
+The `rep` function repeats each number 50 times, the `c` function aggregates the two sets of numbers together, and the `sample` command draws each number in a random order. Although `sample` is a part of `R`'s basic functionality, not a part of **fabricatr**, it -- along with every other built-in `R` function -- can be used as part of a **fabricatr** workflow.
+
+### Cluster random assignment
+
+Sometimes true random assignment to treatment can be difficult. Imagine a study that delivers public health education regarding hygiene to a population in hopes of reducing subsequent illness. Random assignment might require making a list of every possible person, selecting half for treatment, and then sending instructors to deliver pamphlets or instructional talks to those selected. This may prove costly and difficult. Instead, imagine that the researchers choose to pick neighborhoods at random; in some neighborhoods, all residents receive the pamphlets. Other neighborhoods act as controls. This lowers the total cost of administering the experiment, since now only half as many neighborhoods need to be traversed.
+
+To measure data related to this experiment, we must think of a hierarchical data set, where individuals live in neighborhoods. To tell if an individual is treated, we simply check if their neighborhood is treated. **fabricatr** makes this kind of design very simple.
+
+```{r}
+public_health_experiment <- fabricate(
+  neighborhoods = add_level(
+    N = 10,
+    treated = sample(c(rep(0, 5), rep(1, 5)))
+  ),
+  citizens = add_level(N = 20)
+)
+```
+
+This code creates a set of 10 neighborhoods and assigns them to treatment using complete random assignment. Then, within each neighborhood, a set of 20 citizens is created. Here we see the `fabricate` outer wrapper, which allows users to combine variable creation, and data structuring. We see two `add_level` functions: each creates a distinct "level" of data. Because we have two nested levels of data, we first create the neighborhood level, and then the citizens level inside it. And we see that each level needs a variable called `N` which specifies how many units to create, and then can optionally specify other variables -- like we did with the treatment assignment variable. 
+
+More information about `fabricate`, and building single or multiple level data can be found in our [Building and Importing Data](http://fabricatr.declaredesign.org/articles/building_importing.html) guide.
+
+### Using **randomizr** for more complicated random assignment
+
+Although **fabricatr** can help specify any types of asssignment to treatment you desire, you may find it quicker and easier to use our sister package, [**randomizr**](http://randomizr.declaredesign.org) to implement more complicated random assignment mechanisms. **randomizr**'s assignment functions can be used inside `fabricate` calls to implement common designs including the above examples, blocked assignment, and more complex designs like blocked, clustered assignment.
+
+## Survey Data
+
+Many social science investigations of human behavior implement surveys, either as part of a survey experiment or as part of gathering descriptive information about their target population before or after an experimental intervention.
+
+### Ordered data
+
+The type of data generated for many survey questions is "ordered". Ordered data includes the "Likert scale", and is used when respondents to a survey report an outcome which has a logical ordering from lowest to highest but is not necessarily measured in numerically comparable terms. Consider a basic question like "Do you approve of your mayor's job performance?". There are many ways you could measure a respondent's answer to this question, but one of the most common is by offering the respondent the choice to "Strongly Disapprove", "Disapprove", feel "Neutral", "Approve", or "Strongly Approve". This five point scale is ordered data.
+
+When simulating ordered data, we typically think of the problem differently, as a two-step process. The first step is to assign a respondent a score over some range, and the second step is to translate that score into the categories of the ordered variable. We call the first step a "latent variable". In the real survey, we never see the latent variable, only the ordered data outcome. But we can rely on the latent variable to help shape our simulated data.
+
+We generate a simulated latent variable and then translate it into a simulated ordered variable, like so:
+
+```{r echo=FALSE, fig.width=7, fig.height=3}
+latent_example = function(x, density_x) {
+  current_margins = par("mar")
+  density_x = 0.4 * (density_x / max(density_x))
+  par(mar=c(1,1,1,1))
+  plot(x,
+       density_x,
+       main="",
+       xaxt="n",
+       yaxt="n",
+       type="l",
+       bty="n",
+       xlim=c(-3, 3),
+       ylim=c(-0.2, 0.5)
+  )
+  text(0, -0.1, "Latent Variable")
+  
+  for(x in c(-1.5, -0.5, 0.5, 1.5)) {
+    lines(c(x, x), c(-0.03, 0.5), lty=2, col="lightgrey")
+  }
+  text(-2, 0.45, "Strongly Disagree")
+  text(-1, 0.45, "Disagree")
+  text(0, 0.45, "Neutral")
+  text(1, 0.45, "Agree")
+  text(2, 0.45, "Strongly Agree")
+
+  lines(c(-2.8, 2.8), c(-0.03, -0.03))
+  lines(c(-2.7, -2.8, -2.7), c(0, -0.03, -0.06))
+  lines(c(2.7, 2.8, 2.7), c(0, -0.03, -0.06))
+  par(mar=current_margins)
+}
+
+latent_example(x = seq(-2.8, 2.8, 0.001), density_x = dnorm(seq(-2.8, 2.8, 0.001)))
+```
+
+In the above graph, most respondents (the "density" represented by the height of the curve) are neutral about the mayor, and relatively few hold extreme opinions. We generated a "normal" latent variable for our respondents and then translate this to the ordered outcome. The simplest normal variable is the "standard normal", a random variable whose mean (center) is 0, and whose standard deviation (spread) is 1. So, although it is not shown in the graph above, the dashed lines which divide the ordered outcomes are located at -1.5, -0.5, 0.5, and 1.5. 
+
+Of course it would also be possible to affect the center and spread of this question:
+
+```{r echo=FALSE, fig.width=7, fig.height=3}
+latent_example(x = seq(-2.8, 2.8, 0.001), density_x = dnorm(seq(-3.8, 1.8, 0.001), sd=0.5))
+```
+
+Although thinking about ordered data in this latent context may seem strange at first, actually generating an ordered data outcome in **fabricatr** is quite easy:
+
+```{r}
+mayor_approval <- draw_ordered(x = rnorm(n = 100),
+                               breaks = c(-1.5, -0.5, 0.5, 1.5),
+                               break_labels = c("Strongly Disagree", "Disagree",
+                                                "Neutral", "Agree",
+                                                "Strongly Agree"))
+
+table(mayor_approval)
+```
+
+Let's look at this `draw_ordered` example. `draw_ordered` requires three pieces of information from us: `x` (the latent variable), `breaks` (the places in the latent variable which divide the categories in the ordered outcome), and `break_labels` (which label the resulting ordered outcome). 
+
+For `x`, we use the `rnorm` command to generate 100 standard normal draws representing our respondents. For `breaks` and `break_labels`, we mark and label the breaks as we did above.
+
+The appeal of **fabricatr** is that we can create relationships between variables, so let's imagine a slightly more complex data where in general the mayor is well liked by members of her political party, but not by members of the opposite political party. To do this, we'll need to assign respondents to a political party (we'll mark the mayor's political party with "1" and the opposition political party with "0") and then generate our latent variable.
+
+First, let's visualize the latent variable:
+
+```{r echo=FALSE, fig.width=7, fig.height=3}
+latent_example_parties = function(x, density_x, density_x2) {
+  current_margins = par("mar")
+  max_density = max(max(density_x), max(density_x2))
+  density_x = 0.4 * (density_x / max_density)
+  density_x2 = 0.4 * (density_x2 / max_density)
+  par(mar=c(1,1,1,1))
+  plot(x,
+       density_x,
+       col="red",
+       main="",
+       xaxt="n",
+       yaxt="n",
+       type="l",
+       bty="n",
+       xlim=c(-3, 3),
+       ylim=c(-0.2, 0.5)
+  )
+  lines(x, density_x2, col="blue")
+  text(0, -0.1, "Latent Variable")
+  
+  for(x in c(-1.5, -0.5, 0.5, 1.5)) {
+    lines(c(x, x), c(-0.03, 0.5), lty=2, col="lightgrey")
+  }
+  text(-2, 0.45, "Strongly Disagree")
+  text(-1, 0.45, "Disagree")
+  text(0, 0.45, "Neutral")
+  text(1, 0.45, "Agree")
+  text(2, 0.45, "Strongly Agree")
+
+  lines(c(-2.8, 2.8), c(-0.03, -0.03))
+  lines(c(-2.7, -2.8, -2.7), c(0, -0.03, -0.06))
+  lines(c(2.7, 2.8, 2.7), c(0, -0.03, -0.06))
+  par(mar=current_margins)
+}
+
+latent_example_parties(x = seq(-2.8, 2.8, 0.001), 
+               density_x = dnorm(seq(-3.8, 1.8, 0.001), sd=0.7),
+               density_x2 = dnorm(seq(-1.8, 3.8, 0.001), sd=0.7)
+               )
+```
+
+Here, colors indicate the two parties. We see that some members of the red party do disagree with the mayor, but the overwhelming majority do not, and vice versa for the blue party. Now, let's put our visualization into action:
+
+```{r}
+respondent_data <- fabricate(
+  N = 100,
+  mayor_copartisan = draw_binary(prob = 0.6, N),
+  mayor_approval = draw_ordered(
+    x = rnorm(N, mean = -1 + 2 * mayor_copartisan),
+    breaks = c(-1.5, -0.5, 0.5, 1.5),
+    break_labels = c("Strongly Disagree", "Disagree", "Neutral",
+                     "Agree", "Strongly Agree")
+  )
+)
+
+table(respondent_data$mayor_approval, respondent_data$mayor_copartisan)
+```
+
+This example is a little more complex. You can see the use of the `fabricate` wrapper function, which is described in more detail in our [Building and Importing Data](http://fabricatr.declaredesign.org/articles/building_importing.html) guide. Additionally, the latent variable `x` is more complex. Let's consider the formula for how this variable is specified. We know that the latent variable space from -1.5 to -0.5 indicates "Disagree". For respondents who have `mayor_copartisan` equal to 0 (they are not in the mayor's political party), their preference will be a standard normal draw centered at $-1 + (2 * 0) = -1$. For respondents who have `mayor_copartisan` equal to 1 (they are in the mayor's political party), their preference will be a standard normal draw centered at $-1 + (2 * 1) = 1$ -- "Agree".
+
+It is easy to play with the location of breaks, labels for breaks, and format of the underlying latent variable. Here's an example where the latent variable is "uniform" -- there is an equal likelihood of choosing each of the options:
+
+```{r}
+mayor_approval <- draw_ordered(x = runif(n = 100, min = -2.5, max = 2.5),
+                               breaks = c(-1.5, -0.5, 0.5, 1.5),
+                               break_labels = c("Strongly Disagree", "Disagree",
+                                                "Neutral", "Agree",
+                                                "Strongly Agree"))
+```
+
+Users who are new to the `R` programmming language and want to know more about other statistical distributions beyond the `norm` and `unif` distributions used here, should run the command `?Distributions` in the R console. 
+
+### Likert Data
+
+Many survey responses that focus on labeling agreement, support, or quality evaluation, including the example above, are called "Likert" data after the psychologist Rensis Likert. These scales are typically 4, 5, or 7 point scales of a measure. **fabricatr** includes a simple shortcut to make Likert variables without needing to fill out the `breaks` and `break_labels` each time.
+
+By using `draw_likert`, users only need to specify the `x` latent variable -- assumed to be distributed with breaks spaced 1 unit apart and with the data centered on 0 -- and the `type` of Likert they would like (the number of categories). In this example, we examine the same data above, but with a 4-category Likert scale where the options are "Strongly Agree", "Agree", "Disagree", and "Strongly Disagree", with no neutral category.
+
+```{r}
+mayor_approval <- draw_likert(x = rnorm(n = 100),
+                              type = 4)
+
+table(mayor_approval)
+```
+
+### Demographic (categorical) data
+
+Surveys often collect demographic information from respondents, including age, gender, and ethnicity. By this point in our guide, you have begun to see how you might generate a continuous numerical variable like age, or how you traditional binary measures of gender might be specified. But some variables, like inclusive measures of gender, or ethnicity, (or hair color, eye color, city of residence, or many other possible variables of interest) are not "ordered" in any sense.
+
+These data are often called "categorical" data -- a given person has a probability to belong to each of the possible categories.
+
+Imagine that researchers are conducting a survey in Kenya. They wish to capture the country's four largest ethnic groups: Kikuyu, Luhya, Kalenjin, Luo, and are also interested in capturing the smaller Maasai group. Other respondents are identified as "Other". When preparing their research, the researchers must simulate the ethnicity of their expected respondents, so they first gather the proportions of each group,
+
+```{r echo=FALSE}
+total_pop = 38610097 
+group_counts = c(6622576, 5338666, 4967328, 4044440, 841622)
+other_count = total_pop - sum(group_counts)
+display_counts = c(group_counts, other_count)
+names(display_counts) = c("Kikuyu", "Luhya", "Kalenjin", "Luo", "Maasai", "Other")
+prop.table(display_counts)
+```
+
+**fabricatr** makes it easy to generate data based on specifications like these using `draw_categorical`:
+
+```{r echo=FALSE}
+respondent_ethnicity <- draw_categorical(
+  prob = c(0.172, 0.138, 0.129, 0.105, 0.022, 0.435),
+  category_labels = c("Kikuyu", "Luhya", "Kalenjin", "Luo", "Maasai", "Other"),
+  N = 100)
+
+table(respondent_ethnicity)
+```
+
+### Income data
+
+(more here)
+
+### Data with fixed minimum and maximum values
+
+(more here)
+
+## Next Steps
+
+(go here)

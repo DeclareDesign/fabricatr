@@ -140,6 +140,11 @@ test_that("Categorical invalid tests", {
       matrix(rep(c(0.3, 0.3, 0.4), 3), byrow = TRUE, ncol = 3),
     N = 4
   ))
+
+  # Wrong number of labels if specified.
+  expect_error(draw_categorical(prob = c(0.3, 0.3, 0.4),
+                                category_labels = c("A", "B"),
+                                N = 10))
 })
 
 test_that("Categorical valid tests", {
@@ -148,8 +153,14 @@ test_that("Categorical valid tests", {
     byrow = TRUE, ncol = 3, nrow = 3
   ))
 
+  draw_categorical(prob = matrix(
+    rep(c(0.3, 0.3, 0.4), 3),
+    byrow = TRUE, ncol = 3, nrow = 3
+  ),
+  category_labels = c("A", "B", "C"))
+
   # Convert vector of probabilities to matrix of probabilities
-  expect_warning(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
+  expect_message(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
 })
 
 test_that("Ordered data invalid tests", {
