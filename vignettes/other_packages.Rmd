@@ -16,7 +16,7 @@ library(fabricatr)
 
 In general, **fabricatr** is going to be compatible with any existing packages you use to generate synthetic data in one of two ways: either using those packages to create variables within a `fabricate` call, or using those packages to make complete data frames which are then imported into a `fabricate`. Below we provide examples for some of the most popular packages that serve this purpose. Please feel free to [http://discuss.declaredesign.org/](Contact Us) if you have any questions about using another package in concert with **fabricatr**.
 
-## Using **fabricatr** with **wakefield**
+## **wakefield**: simulating common demographic features
 
 **wakefield** (by [Tyler Rinker](https://github.com/trinker)) is a popular `R` package for creating synthetic data. **wakefield**'s strength is that it can quickly generate common variables, especially for human demographic features. **wakefield** can easily be integrated into a **fabricatr** workflow in one of two ways: using **wakefield** to create individual variables within a `fabricate` call, or using **wakefield** to make a data frame and importing that data frame into a `fabricate` call.
 
@@ -51,7 +51,7 @@ fabricatr_df <- fabricate(
 )
 ```
 
-## Using **fabricatr** with **randomNames**
+## **randomNames**: Plausible names for human subjects
 
 **randomNames** (by [Damian Betebenner](https://github.com/dbetebenner)) is a package that does one thing well: generate random names for human subjects (including with specified genders and ethnicities). The primary use case would be to use this as part of generating a variable within a `fabricate` call. In the below example, we use `fabricate` to generate some other demographic data, and then `randomNames` to generate matching names.
 
@@ -68,7 +68,7 @@ experiment_data <- fabricate(
 
 Note that we make use of the existing `is_female` variable from the `fabricate` call to ensure `randomNames` generates gender-typical names.
 
-## Using **fabricatr** with **simcausal**
+## Modeling causality with DAGs and **simcausal**
 
 Users who are familiar with the DAGS (directed acyclic graphs) model of causal inference may have interest in using the **simcausal** package, which allows users to specify a DAGS model and then sample from it. Integrating this package with **fabricatr** is likely to involve using **simcausal** first to specify a model, simulating data from the model, and then importing data into a `fabricate` call for further user with **fabricatr**.
 
@@ -101,7 +101,7 @@ fabricate(df,
           eligible_for_snap = wealth < 25000)
 ```
 
-## Using **fabricatr** with **simsurv**
+## Survival and duration models with **simsurv**
 
 **simsurv** is a package dedicated to generating panel survival data. The most likely way you might integrate **simsurv** with **fabricatr** would be to use **fabricatr** to generating covariates which can then be imported into **simsurv** to model in a hazard or duration context.
 
@@ -111,7 +111,6 @@ Survival data creates a ragged longitudinal survey; some patients will die durin
 
 ```{r eval=FALSE}
 library(simsurv)
-library(survival)
 
 # Simulate patient data in a clinical trial
 participant_data <- fabricate(
