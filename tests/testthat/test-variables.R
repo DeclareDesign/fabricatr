@@ -419,3 +419,28 @@ test_that("Likert alias", {
   # and doesn't provide breaks.
   expect_error(draw_likert(x = rnorm(100), type = NULL))
 })
+
+test_that("Quantile and quantile split", {
+
+  # Null N
+  expect_error(draw_quantile(type = 4, N = NULL))
+  # Non-numeric N
+  expect_error(draw_quantile(type = 4, N = "hello"))
+  # N of length
+  expect_error(draw_quantile(type = 4, N = c(1, 2, 3)))
+  # Negative N
+  expect_error(draw_quantile(type = 4, N = -1))
+  # Null type
+  expect_error(draw_quantile(type = NULL, N = 100))
+  # Non-numeric type
+  expect_error(draw_quantile(type = "hello", N = 100))
+  # type of length
+  expect_error(draw_quantile(type = c(1, 2), N = 100))
+  # Type 0 or negative
+  expect_error(draw_quantile(type = -1, N = 100))
+  # Type too high
+  expect_error(draw_quantile(type = 200, N = 100))
+
+  quantile_draws = draw_quantile(type = 5, N = 100)
+
+})

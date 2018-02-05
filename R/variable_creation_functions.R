@@ -382,3 +382,75 @@ draw_likert <- function(x,
     break_labels = break_labels
   ))
 }
+
+#' @rdname draw_binomial
+#' @importFrom stats runif
+#' @export
+draw_quantile <- function(type = NULL,
+                          N = NULL) {
+
+  if(is.null(N) || !is.numeric(N)) {
+    stop("`N` must be provided to `draw_quantile()` and must be numeric.")
+  }
+  if(!is.null(dim(N)) || length(N) > 1) {
+    stop("`N` must be a single number.")
+  }
+  if(N <= 0) {
+    stop("`N` provided to `draw_quantile()` must be positive.")
+  }
+
+  if(is.null(type) || !is.numeric(type)) {
+    stop("`type` must be provided to `draw_quantile()` and must be numeric.")
+  }
+  if(!is.null(dim(type)) || length(type) > 1) {
+    stop("`type` must be a single number.")
+  }
+  if(type <= 1) {
+    stop("`type` provided to `draw_quantile()` must be at least 2.")
+  }
+  if(type >= N) {
+    stop("`type` provided to `draw_quantile()` must be less than `N`.")
+  }
+
+  latent_data = runif(n = N, min = 0, max = 1)
+  split_quantile(latent_data, type = type)
+}
+
+#' Split data into quantile buckets (e.g. terciles, quartiles, quantiles,
+#' deciles).
+#'
+#' Survey data is often presented in aggregated, depersonalized form, which
+#' can involve binning underlying data into quantile buckets; for example,
+#' rather than reporting underlying income, a survey might report income by
+#' decile. `split_quantile` can automatically produce this split using any
+#' data `x` and any number of splits `type.
+#'
+#' @param x A vector of any type that can be ordered -- i.e. numeric or factor
+#' where factor levels are ordered.
+#' @param type The number of buckets to split data into. For a median split,
+#' enter 2; for terciles, enter 3; for quartiles, enter 4; for quintiles, 5;
+#' for deciles, 10.
+#'
+#' @examples
+#'
+#' # Divide this arbitrary data set in 3.
+#' data_input <- rnorm(n = 100)
+#' split_quantile(x = data_input, type = 3)
+#'
+#' @importFrom stats quantile
+#' @export
+split_quantile <- function(x = NULL,
+                           type = NULL) {
+  if(is.null(x) || length(x) < 2) {
+    stop("The `x` argument provided to quantile split must be non-null and ",
+         "length at least 2.")
+  }
+  if(is.null(type) || !is.numeric(type)) {
+    stop("The `type` argument provided to quantile split must be non-null and ",
+         "numeric.")
+  }
+
+  cut(x, breaks = quantile(x, probs = seq(0, 1, length.out = type + 1)),
+      labels = 1:type,
+      include.lowest = TRUE)
+}

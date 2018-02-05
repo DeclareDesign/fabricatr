@@ -7,6 +7,7 @@
 \alias{draw_count}
 \alias{draw_binary}
 \alias{draw_likert}
+\alias{draw_quantile}
 \title{Draw discrete variables including binary, binomial count, poisson count,
 ordered, and categorical}
 \usage{
@@ -24,6 +25,8 @@ draw_binary(prob, N = length(prob), link = "identity")
 
 draw_likert(x, type = 7, breaks = NULL, N = length(x),
   link = "identity")
+
+draw_quantile(type = NULL, N = NULL)
 }
 \arguments{
 \item{prob}{A number or vector of numbers representing the probability for
