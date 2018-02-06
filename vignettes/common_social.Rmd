@@ -18,59 +18,38 @@ library(fabricatr)
 
 **If you already feel comfortable understanding these concepts and would prefer a technical manual for our variable creation functions, please consult our [Generating Variables](http://fabricatr.declaredesign.org/articles/variable_generation.html) tutorial.**
 
-## Data about Treatments
+## Binary outcomes (e.g. turnout)
 
-The experimental method requires the assignment of units to control and treatment wings (potentially with multiple treatments). Simulating treatment assignment requires thinking about two questions: what are the possible treatments a unit can be assigned to, and how will assignment work? This section of the tutorial will briefly discuss some of the simplest forms of treatment assignment. More information about treatment assignment in experimental design can be found in CITE GOES HERE.
+The simplest possible outcome of interest is a binary outcome: one that can be either true or false. An example of this sort of outcome in a social science research context is whether or not a subject performs an action: Does a person seek medical treatment? Does a person turn out to vote? Does a person write a letter to their congressional representative? Is an infrastructure project completed on time? These sorts of questions are typically modelled as binary outcomes. The "yes" or "no" answer to your question of interest is represented as 1 ("yes") or 0 ("no") numerically.
 
-### Simple treatment and control designs: Binary variables
+In **fabricatr**, binary data can easily be modeled with the `draw_binary()` function:
 
-The simplest possible design for an experiment is the random assignment of units to either a Control group or a Treatment group by simple random assignment. Because the treatment variable can only take two possible outcomes ("Control" or "Treatment"), we think of it as a "binary" variable. Typically we represent "Control" as a 0 and "Treatment" as a 1. For the purposes of simple random assignment, which each unit gets the same probability of being in the treatment group, we simply need to decide what probability that is. One common design puts an equal number of units in treatment and control wings, so the probability of a unit to receive treatment is $\frac{1}{2} = 0.5$. In other words, for each unit in the study, we are going to flip a coin to decide whether they are in the treatment or control group. Simple random assignment is easy with **fabricatr**'s `draw_binary` function.
+```{r echo=TRUE, results="hide"}
+voter_turnout = draw_binary(prob = 0.4, N = 100)
 
-```{r}
-unit_in_treatment <- draw_binary(prob = 0.5, N = 100)
-
-table(unit_in_treatment)
+table(voter_turnout)
+```
+```{r echo=FALSE}
+knitr::kable(table(voter_turnout))
 ```
 
-### Complete random assignment
+`draw_binary` requires that you supply two pieces of data: `prob`, which specifies either a single probability or a vector of probabilities (one for each unit), the probability of getting a "1" in your simulated data. For instance, here we are modeling a turnout rate of 40%. Second, it requires `N`, which specifies how many observations to create.
 
-Another common design is "complete" random assignment. Complete random assignment allows control of exactly how many units appear in each group. One way of thinking about how we might do complete random assignment is to take 100 scraps of paper, with 50 marked "treatment" and 50 marked "control", and then put them all in a bag. Each unit is assigned by taking one scrap of paper out, reading it, and then discarding it. As a result, if the first five units are assigned to treatment, there will be 45 remaining "treatment" scraps and 50 remaining "control" scraps. We can make use of `R`'s `sample` function for this:
-
-```{r}
-unit_in_treatment <- sample(c(rep(0, 50), rep(1, 50)))
-```
-
-The `rep` function repeats each number 50 times, the `c` function aggregates the two sets of numbers together, and the `sample` command draws each number in a random order. Although `sample` is a part of `R`'s basic functionality, not a part of **fabricatr**, it -- along with every other built-in `R` function -- can be used as part of a **fabricatr** workflow.
-
-### Cluster random assignment
-
-Sometimes true random assignment to treatment can be difficult. Imagine a study that delivers public health education regarding hygiene to a population in hopes of reducing subsequent illness. Random assignment might require making a list of every possible person, selecting half for treatment, and then sending instructors to deliver pamphlets or instructional talks to those selected. This may prove costly and difficult. Instead, imagine that the researchers choose to pick neighborhoods at random; in some neighborhoods, all residents receive the pamphlets. Other neighborhoods act as controls. This lowers the total cost of administering the experiment, since now only half as many neighborhoods need to be traversed.
-
-To measure data related to this experiment, we must think of a hierarchical data set, where individuals live in neighborhoods. To tell if an individual is treated, we simply check if their neighborhood is treated. **fabricatr** makes this kind of design very simple.
+It is also possible to specify the probability stochastically. Imagine if you wish to model a population where individuals under age 40 have a low turnout rate, while individuals above age 40 have a high turnout rate. This is very simple with **fabricatr**:
 
 ```{r}
-public_health_experiment <- fabricate(
-  neighborhoods = add_level(
-    N = 10,
-    treated = sample(c(rep(0, 5), rep(1, 5)))
-  ),
-  citizens = add_level(N = 20)
+population <- fabricate(
+  N = 100,
+  age = round(runif(N, 18, 85)),
+  turnout = draw_binary(prob = ifelse(age < 40, 0.4, 0.7), N=N)
 )
 ```
 
-This code creates a set of 10 neighborhoods and assigns them to treatment using complete random assignment. Then, within each neighborhood, a set of 20 citizens is created. Here we see the `fabricate` outer wrapper, which allows users to combine variable creation, and data structuring. We see two `add_level` functions: each creates a distinct "level" of data. Because we have two nested levels of data, we first create the neighborhood level, and then the citizens level inside it. And we see that each level needs a variable called `N` which specifies how many units to create, and then can optionally specify other variables -- like we did with the treatment assignment variable. 
+This example introduces you to a few new functions. First, we can wrap multiple variable creation commands in a `fabricate` call. This will ensure the result is a data frame, and that each variable creation command has access to the previous variables. Second, you see that we can model age using `R`'s built-in `runif` function. If you would like more information about modeling statistical distributions in R, see the `?Distributions` manual page. Third, you see that we model turnout probability statistically; if the user has an age below 40, they receive turnout probability 0.4. If not, they receive turnout probability 0.7.
 
-More information about `fabricate`, and building single or multiple level data can be found in our [Building and Importing Data](http://fabricatr.declaredesign.org/articles/building_importing.html) guide.
+As noted in the introduction for this tutorial, the target audience for this tutorial is someone interested in common social science outcome variables, but without a strong background in thinking about modelling these variables. If you feel comfortable modelling but need to learn how to specify the variables in **fabricatr**, please see our tutorial [on variable generation with **fabricatr**](http://fabricatr.declaredesign.org/articles/variable_generation.html). If you need more information about modeling the structure of data or implementing multi-level models, panel data, or cross-classified data with **fabricatr**, then please see our tutorial [on building and importing data](http://fabricatr.declaredesign.org/articles/building_importing.html).
 
-### Using **randomizr** for more complicated random assignment
-
-Although **fabricatr** can help specify any types of asssignment to treatment you desire, you may find it quicker and easier to use our sister package, [**randomizr**](http://randomizr.declaredesign.org) to implement more complicated random assignment mechanisms. **randomizr**'s assignment functions can be used inside `fabricate` calls to implement common designs including the above examples, blocked assignment, and more complex designs like blocked, clustered assignment.
-
-## Survey Data
-
-Many social science investigations of human behavior implement surveys, either as part of a survey experiment or as part of gathering descriptive information about their target population before or after an experimental intervention.
-
-### Ordered data
+### Ordered data (e.g. satisfaction)
 
 The type of data generated for many survey questions is "ordered". Ordered data includes the "Likert scale", and is used when respondents to a survey report an outcome which has a logical ordering from lowest to highest but is not necessarily measured in numerically comparable terms. Consider a basic question like "Do you approve of your mayor's job performance?". There are many ways you could measure a respondent's answer to this question, but one of the most common is by offering the respondent the choice to "Strongly Disapprove", "Disapprove", feel "Neutral", "Approve", or "Strongly Approve". This five point scale is ordered data.
 
@@ -227,7 +206,7 @@ mayor_approval <- draw_likert(x = rnorm(n = 100),
 table(mayor_approval)
 ```
 
-### Demographic (categorical) data
+### Categorical data (e.g. demographic measures)
 
 Surveys often collect demographic information from respondents, including age, gender, and ethnicity. By this point in our guide, you have begun to see how you might generate a continuous numerical variable like age, or how you traditional binary measures of gender might be specified. But some variables, like inclusive measures of gender, or ethnicity, (or hair color, eye color, city of residence, or many other possible variables of interest) are not "ordered" in any sense.
 
@@ -255,14 +234,7 @@ respondent_ethnicity <- draw_categorical(
 table(respondent_ethnicity)
 ```
 
-### Income data
-
-(more here)
-
 ### Data with fixed minimum and maximum values
 
-(more here)
+### 
 
-## Next Steps
-
-(go here)
