@@ -111,8 +111,32 @@ table(survey_data$Q2)
 knitr::kable(as.matrix(t(table(survey_data$Q2))))
 ```
 
-
 This function is a convenient, quick alias for creating likert variables with these labels. Users who want more flexibility with respect to break labels or number of breaks should use `draw_ordered()` and specify breaks and break labels explicitly.
+
+## Ordered quantile outcomes (e.g. quartile, decile, etc.)
+
+Some variables of interest are modeled as quantile outcomes; for example, income data in a survey might be reported or analyzed by income deciles. We provide two simple helper functions for this purpose: `draw_quantile()` which allows you to generate quantile outcomes without underlying data, and `split_quantile()` which allows you to transform underlying data into quantile outcomes. This is particularly relevant for survey data that has been made granular to protect respondent privacy.
+
+In this example, we will generate income data for a population and then transform it into deciles:
+
+```{r echo=FALSE}
+population <- fabricate(
+  N = 1000,
+  income = 20000 * rgamma(N, 1.4, 0.65),
+  income_decile = split_quantile(income, type = 10)
+)
+```
+
+The `type` paramater of the `split_quantile()` function specifies how many bins to split the data into. In the decile example, 10. Note that the resulting quantiles will be based on the sample data, not the parameterization of the population. It would also be possible to skip the step of characterizing the income data by directly modeling income deciles:
+
+```{r echo=FALSE}
+population <- fabricate(
+  N = 100,
+  income_decline = draw_quantile(N, type = 10)
+)
+```
+
+This parameterization of the income variable was derived by researching U.S. individual income data and using numerical optimization to derive the parameterization that best approximated a series of quantiles from that data. Many other data generation packages, including **wakefield**, implement automatic generation of income data. For more information about using **fabricatr** with other data generating packages, see [our online tutorial](http://fabricatr.declaredesign.org/articles/other_packages.Rmd)
 
 ## Count outcomes
 
