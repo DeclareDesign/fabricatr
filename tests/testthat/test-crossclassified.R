@@ -246,6 +246,7 @@ test_that("Cross-classified with double import", {
   )
 
   # Within a reasonable "tolerance"
+  expect_equal(nrow(students), 1000)
   expect_gte(cor(students$ps_quality, students$ss_quality), 0.3)
   expect_lte(cor(students$ps_quality, students$ss_quality), 0.7)
 })

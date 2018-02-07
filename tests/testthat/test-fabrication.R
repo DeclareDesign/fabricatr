@@ -53,13 +53,16 @@ test_that("Fabricate", {
 })
 
 test_that("choose N of a level based on data from higher levels", {
-  fabricate(
+  set.seed(19861108)
+  test_higher_n <- fabricate(
     regions = add_level(N = 2, gdp = runif(N)),
     cities = add_level(
       N = round(gdp) * 10 + 1,
       subways = rnorm(N, mean = 5)
     )
   )
+  expect_equal(dim(test_higher_n), c(12, 4))
+
 })
 
 test_that("Import data, single level var modification, with/without ID", {
@@ -191,12 +194,13 @@ test_that("nest_level call when there was no data to nest", {
 
 
 test_that("multiple non-nested data frames, again and again", {
-  fabricate(
+  multiple_nnest <- fabricate(
     l1 = add_level(N = 100),
     l2 = add_level(N = 200, nest = FALSE),
     l3 = add_level(N = 100, nest = FALSE),
     l4 = add_level(N = 300, nest = FALSE)
   )
+  expect_equal(dim(multiple_nnest), c(300, 1))
 })
 
 test_that("importing data and then specifying a level ID variable that is in data.", {

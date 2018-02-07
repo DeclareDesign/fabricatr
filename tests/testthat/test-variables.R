@@ -2,18 +2,25 @@ context("Variable functions")
 
 test_that("Variable functions", {
   # Single-level data, logit link, inherit or implicit N
-  fabricate(my_level = add_level(
-    N = 10,
+  set.seed(19861108)
+  check_binary_mean = fabricate(my_level = add_level(
+    N = 1000,
     Y1 = rnorm(N),
     Y2 = draw_binary(Y1, link = "logit")
   ))
+  implied_prob = 1 / (1 + exp(-check_binary_mean$Y1))
+  expect_gte(cor(implied_prob, check_binary_mean$Y2), 0.4)
 
   # Single level, count, inherit or implicit N
-  fabricate(my_level = add_level(
-    N = 10,
+  set.seed(19861108)
+  check_count_mean <- fabricate(my_level = add_level(
+    N = 1000,
     Y1 = rnorm(N, 5),
     Y2 = draw_count(mean = Y1)
   ))
+  model_check_fit <- lm(Y2 ~ Y1, data = check_count_mean)
+  expect_gte(model_check_fit$coefficients[2], 0.9)
+  expect_lte(model_check_fit$coefficients[2], 1.1)
 })
 
 test_that("Randomized data is random.", {
@@ -48,7 +55,8 @@ test_that("Binary invalid specification tests", {
 
 test_that("Binary valid tests", {
   # Valid binary data
-  draw_binary(prob = c(0.5, 0.9), N = 10)
+  basic_binary <- draw_binary(prob = c(0.5, 0.9), N = 10)
+  expect_equal(length(basic_binary), 10)
   # Logit link
   draw_binary(prob = rnorm(5), link = "logit")
   # Probit link
@@ -57,6 +65,7 @@ test_that("Binary valid tests", {
   draw_binary(prob = runif(5, 0, 1), link = "identity")
   # Draw binary, implicit N
   draw_binary(prob = runif(100))
+
 })
 
 test_that("Binomial invalid tests", {
@@ -114,10 +123,14 @@ test_that("Count invalid tests", {
 
 test_that("Count valid tests", {
   # Base case
-  draw_count(mean = 5, N = 25)
+  set.seed(19861108)
+  count_draw = draw_count(mean = 5, N = 250)
+  expect_gte(mean(count_draw), 4)
+  expect_lte(mean(count_draw), 6)
 
   # Draw count, implicit N
-  draw_count(mean = runif(100))
+  count_draw_implicit_n = draw_count(mean = runif(100))
+  expect_equal(length(count_draw_implicit_n), 100)
 
   # Count data, multiple means
   draw_count(mean = runif(5, 0, 5))
@@ -204,11 +217,13 @@ test_that("Ordered data invalid tests", {
 })
 
 test_that("Ordered data valid tests", {
-  draw_ordered(
-    rnorm(5),
+  base_ordered = draw_ordered(
+    rnorm(200),
     breaks = c(-Inf, -1, 0, 1, Inf),
     break_labels = c("A", "B", "C", "D")
   )
+  expect_equal(length(base_ordered), 200)
+  expect_equal(length(table(base_ordered)), 4)
 
   # Probit link
   draw_ordered(
@@ -421,7 +436,6 @@ test_that("Likert alias", {
 })
 
 test_that("Quantile and quantile split", {
-
   # Null N
   expect_error(draw_quantile(type = 4, N = NULL))
   # Non-numeric N
@@ -441,6 +455,21 @@ test_that("Quantile and quantile split", {
   # Type too high
   expect_error(draw_quantile(type = 200, N = 100))
 
+  # Valid draw
   quantile_draws = draw_quantile(type = 5, N = 100)
+  expect_equal(all(table(quantile_draws) == 20), TRUE)
 
+  # Draw of some data to quantile split
+  z = rnorm(n = 100)
+  # Null X
+  expect_error(split_quantile(x = NULL, type = 4))
+  # Null type
+  expect_error(split_quantile(x = z, type = NULL))
+  # Non-numeric type
+  expect_error(split_quantile(x = z, type = "hello"))
+  # Single x
+  expect_error(split_quantile(x = 4, type = 4))
+
+  split_quantile_data = split_quantile(x = z, type = 5)
+  expect_equal(all(table(split_quantile_data) == 20), TRUE)
 })
