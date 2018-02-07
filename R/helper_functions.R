@@ -147,20 +147,29 @@ get_symbols_from_quosure <- function(quosure) {
   return(meta_results)
 }
 
+
+#' Find which variables are unique at a given level in hierarchical data
+#'
+#' @param data a data.frame
+#' @param ID_label the ID label to split upon
+#' @param superset Superset contains a vector of character strings that contain variables
+#' the modify level call is going to write. Some of these may be columns
+#' in the data frame, others might not be. If superset is specified,
+#' then we definitely only want to check those variables
+#'
+#' @return a character vector enumerating the unique variables
+#'
+#' @export
 get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
-  # Superset contains a vector of character strings that contain variables
-  # the modify level call is going to write. Some of these may be columns
-  # in the data frame, others might not be. If superset is specified,
-  # then we definitely only want to check those variables
-  if (!is.null(superset)) {
+  if (is.character(superset)) {
     names_to_check <- intersect(colnames(data), superset)
   } else {
-    names_to_check <- colnames(data)[-which(colnames(data) == ID_label)]
+    names_to_check <- setdiff(colnames(data), ID_label)
   }
 
   # It turns out the call isn't going to use any variables at all!
-  if (!length(names_to_check)) {
-    return("")
+  if (length(names_to_check) == 0) {
+    return(c())
   }
 
   # Iterate through each column of interest
@@ -172,22 +181,24 @@ get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
   # Now extract the column names for the columns for which this was true. Return as a vector.
 
   # Performance is around 22% faster than existing code for small dataset
-  level_variables <- names_to_check[
-    unname(unlist(lapply(
-      names_to_check,
-      function(i) {
-        all(unlist(
-          lapply(
-            split(data[, i], data[, ID_label]),
+  level_variables <-
+    vapply(
+      data[names_to_check],
+      function(x) {
+        all(
+          vapply(
+            split(x, data[, ID_label]),
             function(x) {
               length(unique(x)) == 1
-            }
+            },
+            FALSE
           )
-        ))
-      }
-    )))
-  ]
-  return(level_variables)
+        )
+      },
+      FALSE
+    )
+
+  names_to_check[level_variables]
 }
 
 
