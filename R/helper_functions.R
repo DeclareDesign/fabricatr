@@ -158,8 +158,7 @@ get_symbols_from_quosure <- function(quosure) {
 #' then we definitely only want to check those variables
 #'
 #' @return a character vector enumerating the unique variables
-#'
-#' @export
+#' @keywords internal
 get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
   if (is.character(superset)) {
     names_to_check <- intersect(colnames(data), superset)
