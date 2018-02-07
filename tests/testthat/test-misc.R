@@ -58,3 +58,14 @@ test_that("Using recycle to fill out a vector", {
 
   expect_error(fabricate(N = 20, months = month.abb))
 })
+
+test_that("Unnamed level call for DD passthrough", {
+  # Did use a name for a passthrough
+  valid_inline_name <- fabricate(data = NULL, add_level(N = 10,
+                                                        ID_label="test"))
+  expect_equal(nrow(valid_inline_name), 10)
+  expect_equal(names(valid_inline_name), "test")
+
+  # Didn't use a name for a passthrough
+  expect_error(fabricate(data = NULL, add_level(N = 10)))
+})
