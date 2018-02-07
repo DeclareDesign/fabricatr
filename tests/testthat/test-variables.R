@@ -137,9 +137,8 @@ test_that("Count valid tests", {
 })
 
 test_that("Categorical invalid tests", {
-  expect_error(draw_categorical(
-    prob = c(-1, 0, -0.5),
-    N = 3
+  expect_error(suppressWarnings(
+    draw_categorical(prob = c(-1, 0, -0.5), N = 3)
   )) # Negative probability
   expect_error(draw_categorical(prob = "invalid", N = 3)) # Non-numeric probability
   expect_error(draw_categorical(prob = 0.3, N = 3)) # Only one class label
