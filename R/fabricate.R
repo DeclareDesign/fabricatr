@@ -85,6 +85,7 @@
 #'                           student_quality = ps_quality + 3*ss_quality + rnorm(N)))
 #' @seealso [link_levels()]
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args
+#' @importFrom rlang lang_args_names
 #' is_lang get_expr
 #'
 #' @export
@@ -120,7 +121,20 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL) {
   if (all_levels) {
     # Ensure the user provided a name for each level call.
     if (is.null(names(data_arguments)) | any(names(data_arguments) == "")) {
-      stop("You must provide a name for each level you create.")
+      # If they didn't, see if we can poach it out of the arguments
+      for(i in seq_len(length(data_arguments))) {
+        if(is.null(names(data_arguments[[i]])) ||
+           names(data_arguments[[i]]) == "") {
+
+          # Can't salvage this one
+          if(!"ID_label" %in% lang_args_names(data_arguments[[i]])) {
+            stop("You must provide a name for each level that you create.")
+          }
+
+          names(data_arguments)[i] <- lang_args(data_arguments[[i]])$ID_label
+
+        }
+      }
     }
 
     # User provided data, if any, should be preloaded into working environment
