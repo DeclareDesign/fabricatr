@@ -5,12 +5,15 @@ test_that("Resampling", {
     regions = add_level(N = 5, gdp = rnorm(N)),
     cities = add_level(N = 5, subways = rnorm(N, mean = gdp))
   )
+  expect_equal(nrow(two_levels), 25)
+  expect_equal(all(table(two_levels$regions) == 5), TRUE)
 
   # Example with data.table codepath
   resampled_two_levels <- resample_data(
     two_levels, N = c(2, 2),
     ID_labels = c("regions", "cities")
   )
+  expect_equal(dim(resampled_two_levels)[1], 4)
 
   # Example without data.table codepath
   resampled_two_levels <- .resample_data_internal(
@@ -18,6 +21,7 @@ test_that("Resampling", {
     ID_labels = c("regions", "cities"),
     use_dt = FALSE
   )
+  expect_equal(dim(resampled_two_levels)[1], 4)
 
   expect_equal(nrow(resampled_two_levels), 4)
 
@@ -33,6 +37,7 @@ test_that("Error handling of Resampling", {
   )
 
   resampled_two_levels <- resample_data(two_levels) # Missing N
+  expect_equal(nrow(resampled_two_levels), nrow(two_levels))
 
   # Invalid ID
   expect_error(resample_data(two_levels, c(100, 10), ID_labels = c("Invalid_ID", "Invalid_ID_2")))

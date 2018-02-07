@@ -54,7 +54,8 @@ test_that("Ragged nested data length", {
 })
 
 test_that("Using recycle to fill out a vector", {
-  fabricate(N = 20, months = recycle(month.abb))
+  recycle_test <- fabricate(N = 20, months = recycle(month.abb))
+  expect_equal(recycle_test$months, c(month.abb, month.abb[1:8]))
 
   expect_error(fabricate(N = 20, months = month.abb))
 })
