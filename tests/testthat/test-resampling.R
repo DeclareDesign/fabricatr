@@ -39,6 +39,11 @@ test_that("Resampling: Bootstrap call, no N provided", {
 })
 
 test_that("Bootstrapping error handling.", {
+  two_levels <- fabricate(
+    regions = add_level(N = 5, gdp = rnorm(N)),
+    cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
+  )
+
   # Invalid ID
   expect_error(resample_data(two_levels, c(100, 10), ID_labels = c("Invalid_ID", "Invalid_ID_2")))
   # ID length doesn't match n length
