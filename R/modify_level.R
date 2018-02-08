@@ -93,10 +93,12 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   }
 
   # If we're here, then at least some subsetting is used in the modify call
-  # first, subset to unique observations, then generate new data, then re-expand.
-  # To do this, we need a mapping between observations and unique observations.
-  # First, get the unique values of the level:
-  unique_values_of_level <- unique(working_environment_$data_frame_output_[[ID_label]])
+  # first, subset to unique observations, then generate new data, then
+  # re-expand. To do this, we need a mapping between observations and unique
+  # observations. First, get the unique values of the level:
+  unique_values_of_level <- unique(
+    working_environment_$data_frame_output_[[ID_label]]
+    )
 
   index_maps <- as.numeric(factor(
     working_environment_$data_frame_output_[[ID_label]],
@@ -123,13 +125,13 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   if (length(level_unique_variables) != length(write_variables) &
     length(write_variables) != 0) {
     stop(
-      "Your modify_level command attempts to generate a new variable at the level \"",
-      ID_label,
+      "Your modify_level command attempts to generate a new variable at the ",
+      "level \"", ID_label,
       "\" but requires reading from the existing variable(s) [",
       paste(setdiff(write_variables, level_unique_variables), collapse = ", "),
       "] which are not defined at the level \"", ID_label, "\"\n\n",
-      "To prevent this error, you may modify the data at the level of interest, ",
-      "or change the definition of your new variables."
+      "To prevent this error, you may modify the data at the level of ",
+      "interest, or change the definition of your new variables."
     )
   }
 
@@ -139,7 +141,8 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   merged_set <- unique(c(ID_label, setdiff(level_unique_variables, "")))
 
   # And these rows:
-  row_indices_keep <- !duplicated(working_environment_$data_frame_output_[[ID_label]])
+  row_indices_keep <- !duplicated(
+    working_environment_$data_frame_output_[[ID_label]])
 
   # Now subset it:
   working_subset <- working_environment_$data_frame_output_[
@@ -171,9 +174,9 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     # Write the variable name to the list of variable names
     add_variable_name(working_environment_, i)
 
-    # Expand the variable and store it in the actual, expanded working data list
-    # Why do we keep these in parallel? Because subsequent variables might need
-    # the non-expanded version to generate new variables.
+    # Expand the variable and store it in the actual, expanded working data
+    # list. Why do we keep these in parallel? Because subsequent variables
+    # might need the non-expanded version to generate new variables.
     super_working_data_list[[i]] <- working_data_list[[i]][index_maps]
 
     # Nuke the current data argument -- if we have the same variable name
@@ -182,7 +185,8 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   }
 
   # Before handing back data, ensure it's actually rectangular
-  super_working_data_list <- check_rectangular(super_working_data_list, super_N)
+  super_working_data_list <- check_rectangular(super_working_data_list,
+                                               super_N)
 
   # Overwrite the working data frame.
   working_environment_$data_frame_output_ <- data.frame(

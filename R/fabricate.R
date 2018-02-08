@@ -112,8 +112,10 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL) {
     stop(
       "You must do exactly one of: \n",
       "1) One or more level calls, with or without existing data \n",
-      "2) Import existing data and optionally, add new variables without adding a level \n",
-      "3) Provide an `N` without importing data and optionally, add new variables"
+      "2) Import existing data and optionally, add new variables without ",
+      "adding a level \n",
+      "3) Provide an `N` without importing data and optionally, add new ",
+      "variables"
     )
   }
 

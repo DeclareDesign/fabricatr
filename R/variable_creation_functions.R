@@ -216,7 +216,7 @@ draw_categorical <- function(prob, N = NULL, link = "identity",
   rcateg <- function(p)
     sample(1:m, 1, prob = p)
 
-  draws = apply(prob, 1, rcateg)
+  draws <- apply(prob, 1, rcateg)
 
   if(!is.null(category_labels)) {
     return(category_labels[draws])
@@ -233,7 +233,8 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
   if (link == "probit") {
     x <- x + rnorm(N)
   } else if (link != "identity") {
-    stop("`draw_ordered()` only accepts 'identity' and 'probit' link functions.")
+    stop("`draw_ordered()` only accepts 'identity' and 'probit' link ",
+         "functions.")
   }
 
   # Error handling breaks
@@ -327,7 +328,8 @@ draw_likert <- function(x,
                         N = length(x),
                         link = "identity") {
   if (is.null(breaks) && is.null(type)) {
-    stop("You must provide either `breaks` or `type` to a `draw_likert()` call.")
+    stop("You must provide either `breaks` or `type` to a `draw_likert()` ",
+         "call.")
   }
 
   if (is.null(breaks)) {
@@ -412,7 +414,7 @@ draw_quantile <- function(type = NULL,
     stop("`type` provided to `draw_quantile()` must be less than `N`.")
   }
 
-  latent_data = runif(n = N, min = 0, max = 1)
+  latent_data <- runif(n = N, min = 0, max = 1)
   split_quantile(latent_data, type = type)
 }
 

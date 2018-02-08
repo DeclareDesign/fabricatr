@@ -1,7 +1,8 @@
 panel_dfs <- function(dfs) {
   # Error handling
   if (is.data.frame(dfs) || length(dfs) < 2) {
-    stop("You must specify at least two data frames in a `cross_levels()` call.")
+    stop("You must specify at least two data frames in a `cross_levels()` ",
+         "call.")
   }
 
   # Do repeated merges
@@ -22,7 +23,8 @@ join_dfs <- function(dfs, variables, N, sigma=NULL, rho=0) {
     stop("You must define which variables to join in a `link_levels()` call.")
   }
   if (length(variables) < 2) {
-    stop("You must define at least two variables to join on in a `link_levels()` call.")
+    stop("You must define at least two variables to join on in a ",
+         "`link_levels()` call.")
   }
 
   # Create the data list -- the subset from the dfs of the variables we're
@@ -73,7 +75,8 @@ joint_draw_ecdf <- function(data_list, N, ndim=length(data_list),
 
   # Error handling for N
   if (is.null(N) || is.na(N) || !is.atomic(N) || length(N) > 1 || N <= 0) {
-    stop("N for `link_levels()` calls must be a single integer that is positive.")
+    stop("N for `link_levels()` calls must be a single integer that is ",
+         "positive.")
   }
 
   # Error handling for rho, if specified
@@ -81,9 +84,10 @@ joint_draw_ecdf <- function(data_list, N, ndim=length(data_list),
     if (is.atomic(rho) & length(rho) == 1) {
       if (ndim > 2 & rho < 0) {
         stop(
-          "The correlation matrix must be positive semi-definite. Specifically, ",
-          "if the number of variables being drawn from jointly is 3 or more, ",
-          "then the correlation coefficient rho must be non-negative."
+          "The correlation matrix must be positive semi-definite. ",
+          "Specifically, if the number of variables being drawn from jointly ",
+          "is 3 or more, then the correlation coefficient rho must be ",
+          "non-negative."
         )
       }
 
@@ -144,7 +148,9 @@ joint_draw_ecdf <- function(data_list, N, ndim=length(data_list),
     )
   } else {
     # Using mvnfast
-    correlated_sn <- mvnfast::rmvn(N, ncores = getOption("mc.cores", 2L), mu, sigma)
+    correlated_sn <- mvnfast::rmvn(N,
+                                   ncores = getOption("mc.cores", 2L),
+                                   mu, sigma)
   }
 
   # Z-scores to quantiles
