@@ -3,12 +3,12 @@ context("Variable functions")
 test_that("Variable functions", {
   # Single-level data, logit link, inherit or implicit N
   set.seed(19861108)
-  check_binary_mean = fabricate(my_level = add_level(
+  check_binary_mean <- fabricate(my_level = add_level(
     N = 1000,
     Y1 = rnorm(N),
     Y2 = draw_binary(Y1, link = "logit")
   ))
-  implied_prob = 1 / (1 + exp(-check_binary_mean$Y1))
+  implied_prob <- 1 / (1 + exp(-check_binary_mean$Y1))
   expect_gte(cor(implied_prob, check_binary_mean$Y2), 0.4)
 
   # Single level, count, inherit or implicit N
@@ -124,12 +124,12 @@ test_that("Count invalid tests", {
 test_that("Count valid tests", {
   # Base case
   set.seed(19861108)
-  count_draw = draw_count(mean = 5, N = 250)
+  count_draw <- draw_count(mean = 5, N = 250)
   expect_gte(mean(count_draw), 4)
   expect_lte(mean(count_draw), 6)
 
   # Draw count, implicit N
-  count_draw_implicit_n = draw_count(mean = runif(100))
+  count_draw_implicit_n <- draw_count(mean = runif(100))
   expect_equal(length(count_draw_implicit_n), 100)
 
   # Count data, multiple means
@@ -216,7 +216,7 @@ test_that("Ordered data invalid tests", {
 })
 
 test_that("Ordered data valid tests", {
-  base_ordered = draw_ordered(
+  base_ordered <- draw_ordered(
     rnorm(200),
     breaks = c(-Inf, -1, 0, 1, Inf),
     break_labels = c("A", "B", "C", "D")
@@ -455,11 +455,11 @@ test_that("Quantile and quantile split", {
   expect_error(draw_quantile(type = 200, N = 100))
 
   # Valid draw
-  quantile_draws = draw_quantile(type = 5, N = 100)
+  quantile_draws <- draw_quantile(type = 5, N = 100)
   expect_equal(all(table(quantile_draws) == 20), TRUE)
 
   # Draw of some data to quantile split
-  z = rnorm(n = 100)
+  z <- rnorm(n = 100)
   # Null X
   expect_error(split_quantile(x = NULL, type = 4))
   # Null type
@@ -469,6 +469,6 @@ test_that("Quantile and quantile split", {
   # Single x
   expect_error(split_quantile(x = 4, type = 4))
 
-  split_quantile_data = split_quantile(x = z, type = 5)
+  split_quantile_data <- split_quantile(x = z, type = 5)
   expect_equal(all(table(split_quantile_data) == 20), TRUE)
 })

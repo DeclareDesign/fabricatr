@@ -1,6 +1,6 @@
 context("Fabricate")
 
-test_that("Panel data", {
+test_that("Panel data, well-formed", {
   set.seed(19861108)
 
   # Well formed
@@ -17,6 +17,10 @@ test_that("Panel data", {
     panel[1, ]$GDP_it,
     panel[1, ]$country_shock + panel[1, ]$year_shock
   )
+})
+
+test_that("Panel data, errors.", {
+  set.seed(19861108)
 
   # Error: Specified correlation with a panel
   expect_error(fabricate(
@@ -69,6 +73,10 @@ test_that("Cross-classified data", {
   # Within a reasonable "tolerance"
   expect_gte(cor(students$ps_quality, students$ss_quality), 0.3)
   expect_lte(cor(students$ps_quality, students$ss_quality), 0.7)
+})
+
+test_that("Cross-classified data, uncorrelated", {
+  set.seed(19861108)
 
   # Uncorrelated
   students_uncorr <- fabricate(
@@ -97,8 +105,9 @@ test_that("Cross-classified data", {
   # Again, within tolerance
   expect_gte(cor(students_uncorr$ps_quality, students_uncorr$ss_quality), -0.15)
   expect_lte(cor(students_uncorr$ps_quality, students_uncorr$ss_quality), 0.15)
+})
 
-
+test_that("Cross-classified, sigma in lieu of rho.", {
   # Specifying sigma in lieu of rho
   test_next <- fabricate(
     l1 = add_level(N = 50, j1 = rnorm(N)),
@@ -113,7 +122,7 @@ test_that("Cross-classified data", {
   expect_lte(cor(test_next$j1, test_next$j2), 0.7)
 })
 
-test_that("Code path without mvnfast", {
+test_that("Cross-classified, code path without mvnfast", {
   set.seed(19861108)
 
   # Need to directly call joint_draw_ecdf because we don't let users voluntarily

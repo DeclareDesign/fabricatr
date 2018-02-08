@@ -23,14 +23,12 @@ test_that("Resampling", {
   )
   expect_equal(dim(resampled_two_levels)[1], 4)
 
-  expect_equal(nrow(resampled_two_levels), 4)
 
   resampled_two_levels <- resample_data(two_levels, 5)
-
   expect_equal(nrow(resampled_two_levels), 5)
 })
 
-test_that("Error handling of Resampling", {
+test_that("Resampling: Bootstrap call, no N provided", {
   two_levels <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),
     cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
@@ -38,7 +36,9 @@ test_that("Error handling of Resampling", {
 
   resampled_two_levels <- resample_data(two_levels) # Missing N
   expect_equal(nrow(resampled_two_levels), nrow(two_levels))
+})
 
+test_that("Bootstrapping error handling.", {
   # Invalid ID
   expect_error(resample_data(two_levels, c(100, 10), ID_labels = c("Invalid_ID", "Invalid_ID_2")))
   # ID length doesn't match n length
@@ -122,29 +122,55 @@ test_that("Extremely high volume data creation.", {
   )
 })
 
-test_that("Providing ID_labels through names of N.", {
+test_that("Multi-level Resample validity", {
+  set.seed(19861108)
+
   two_levels <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),
     cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
-  resample_data(two_levels, N = c(regions = 3, cities = 5))
+  resample_validity <- resample_data(two_levels, N = c(regions = 6, cities = 5))
+  # Region-level variables are still constant
+  expect_true(
+    all(lapply(
+      split(resample_validity$gdp, resample_validity$regions),
+      function(x) { length(unique(x)) }
+    ) == TRUE)
+  )
+
+  # Ensure that even as regions are resampled, cities are uniquely sampled
+  expect_equal(
+    length(unique(split(resample_validity$cities, rep(1:6, each=5)))),
+    6)
+})
+
+test_that("Resample errors", {
+  two_levels <- fabricate(
+    regions = add_level(N = 5, gdp = rnorm(N)),
+    cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
+  )
+
+  # Mixed specification of names
   expect_error(resample_data(
     two_levels,
     N = c(3, cities = 5),
     ID_labels = c("regions", "cities")
   ))
 
+  # Invalid IDs
   expect_error(resample_data(
     two_levels,
     N = c(invalidid = 3, cities = 5)
   ))
 
+  # Incomplete N specification
   expect_error(resample_data(
     two_levels,
     N = c(3, cities = 5)
   ))
 
+  # No N specification
   expect_error(resample_data(
     two_levels,
     N = c(3, 5)
@@ -157,7 +183,9 @@ test_that("Passthrough resampling.", {
     cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
-  resample_data(two_levels, N = c(regions = ALL, cities = 3))
+  passthrough <- resample_data(two_levels, N = c(regions = ALL, cities = 3))
+  expect_equal(length(unique(passthrough$regions)), 5)
+  expect_equal(nrow(passthrough), 15)
 
   # Warning when final level resampled has passthrough -- this is superfluous
   expect_warning(resample_data(two_levels, N = c(regions = ALL, cities = ALL)))

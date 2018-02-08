@@ -58,6 +58,8 @@ test_that("Using recycle to fill out a vector", {
   expect_equal(recycle_test$months, c(month.abb, month.abb[1:8]))
 
   expect_error(fabricate(N = 20, months = month.abb))
+
+  expect_error(recycle(month.abb))
 })
 
 test_that("Unnamed level call for DD passthrough", {
@@ -69,4 +71,8 @@ test_that("Unnamed level call for DD passthrough", {
 
   # Didn't use a name for a passthrough
   expect_error(fabricate(data = NULL, add_level(N = 10)))
+})
+
+test_that("Check that level is deprecated", {
+  expect_error(fabricate(test = level(N = 10)))
 })

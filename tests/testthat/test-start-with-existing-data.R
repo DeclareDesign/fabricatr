@@ -8,17 +8,9 @@ test_that("Import data plus single-level add variables.", {
 test_that("Start with existing multi-level data and add variables", {
   user_data <-
     fabricate(
-      regions = add_level(N = 5, gdp = rnorm(N))
-    )
-
-  expect_equal(dim(user_data), c(5, 2))
-
-  user_data <-
-    fabricate(
       regions = add_level(N = 5, gdp = rnorm(N)),
       cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
     )
-
   expect_equal(dim(user_data), c(15, 4))
 
   ## add a variable at the region level
@@ -28,7 +20,6 @@ test_that("Start with existing multi-level data and add variables", {
       data = user_data,
       regions = modify_level(rob = paste0(regions, "r"))
     )
-
   expect_equal(dim(user_data_2), c(15, 5))
 
   ## add a variable at the cities level
@@ -37,18 +28,18 @@ test_that("Start with existing multi-level data and add variables", {
       data = user_data,
       cities = modify_level(rob = paste0(cities, "c"))
     )
-
   expect_equal(dim(user_data_3), c(15, 5))
 
+  # Multiple modify calls
   user_data_4 <-
     fabricate(
       data = user_data,
       regions = modify_level(rob = paste0(regions, "r")),
       cities = modify_level(bob = paste0(cities, "c"))
     )
-
   expect_equal(dim(user_data_4), c(15, 6))
 
+  # Modify then add call
   user_data_5 <-
     fabricate(
       data = user_data,
@@ -56,11 +47,10 @@ test_that("Start with existing multi-level data and add variables", {
       cities = modify_level(bob = paste0(cities, "c")),
       neighborhoods = add_level(N = 10, tmp = rnorm(N))
     )
-
   expect_equal(dim(user_data_5), c(150, 8))
 })
 
-test_that("Modify var at wrong level", {
+test_that("Modify variable at wrong level", {
   df <- fabricate(
     country = add_level(N = 50, population = runif(N, 10000, 20000)),
     state = add_level(N = 10, latitude = runif(N, 40, 50)),
