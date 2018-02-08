@@ -146,12 +146,17 @@ test_that("Deliberate failures in join_dfs", {
   df3 <- fabricate(N = 100, j3 = rnorm(100))
 
   expect_error(fabricatr:::join_dfs(df1, c("j1"), N = 100, rho = 0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N = 100, rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"),
+                                    N = 100, rho = 0.5))
   expect_error(fabricatr:::join_dfs(list(df1), c("j1"), N = 100, rho = 0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N = -1, rho = 0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N = c(3, 10), rho = 0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2, df3), c("j1", "j2", "j3"), N = 100, rho = -0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N = 100, rho = c(0.5, 0.3)))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"),
+                                    N = -1, rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"),
+                                    N = c(3, 10), rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2, df3), c("j1", "j2", "j3"),
+                                    N = 100, rho = -0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"),
+                                    N = 100, rho = c(0.5, 0.3)))
 
   expect_error(fabricatr:::join_dfs(
     list(df1, df2), c("j1", "j2"),
@@ -185,7 +190,10 @@ test_that("Deliberate failures in link_levels", {
   expect_error(
     fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
-      l2 = add_level(N = 50, j_var = rnorm(N), j1 = runif(N, 1, 3), nest = FALSE),
+      l2 = add_level(N = 50,
+                     j_var = rnorm(N),
+                     j1 = runif(N, 1, 3),
+                     nest = FALSE),
       joined = link_levels(
         N = 200,
         by = join(j1, j_var, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))

@@ -325,11 +325,12 @@ handle_n <- function(N, add_level=TRUE, working_environment=NULL,
         # level of the last level variable
 
         # What's the last level variable?
-        name_of_last_level <- working_environment$level_ids_[length(working_environment$level_ids_)]
+        last_level_name <- working_environment$level_ids_[
+          length(working_environment$level_ids_)]
 
         # What are the unique values?
         unique_values_of_last_level <- unique(
-          working_environment$data_frame_output_[[name_of_last_level]]
+          working_environment$data_frame_output_[[last_level_name]]
         )
 
         if (length(N) != length(unique_values_of_last_level)) {
@@ -337,7 +338,7 @@ handle_n <- function(N, add_level=TRUE, working_environment=NULL,
             "`N` must be either a single number or a vector of length ",
             length(unique_values_of_last_level),
             " (one value for each possible level of ",
-            name_of_last_level,
+            last_level_name,
             ")"
           )
         }

@@ -56,5 +56,7 @@ test_that("Modify variable at wrong level", {
     state = add_level(N = 10, latitude = runif(N, 40, 50)),
     town = add_level(N = 5, stop_lights = draw_binary(prob = 0.7, N = N))
   )
-  expect_error(fabricate(df, state = modify_level(crime = 0.5 + stop_lights + latitude)))
+  expect_error(fabricate(df,
+                         state = modify_level(
+                           crime = 0.5 + stop_lights + latitude)))
 })

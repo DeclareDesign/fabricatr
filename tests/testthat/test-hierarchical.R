@@ -1,6 +1,6 @@
 context("hierarchical")
 
-test_that("hierarchical data is created correctly when you have a vector variable that is of length N per level", {
+test_that("Specifying N for each level.", {
   hierarchy <- fabricate(
     regions = add_level(N = 3, gdp = rnorm(N)),
     districts = add_level(

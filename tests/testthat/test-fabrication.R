@@ -113,7 +113,8 @@ test_that("Import data, single level var modification, with/without ID", {
 
 test_that("trigger errors", {
   # User didn't provide a name for a level, and let's make sure that we also
-  # didn't interpret the unnamed level as any of the special arguments contextually
+  # didn't interpret the unnamed level as any of the special arguments
+  # contextually
   expect_error(fabricate(
     data = NULL,
     N = NULL,
@@ -143,11 +144,13 @@ test_that("trigger errors", {
   # Character vector N
   expect_error(fabricate(
     regions = add_level(N = 2),
-    cities = add_level(N = "N that is a character vector", subways = rnorm(N, mean = 5))
+    cities = add_level(N = "N that is a character vector",
+                       subways = rnorm(N, mean = 5))
   ))
 
   # No N, no data
-  expect_error(fabricate(test1 = runif(10), test2 = test1 * 3 * runif(10, 1, 2)))
+  expect_error(fabricate(test1 = runif(10),
+                         test2 = test1 * 3 * runif(10, 1, 2)))
 
   # Non-integer N:
   expect_error(fabricate(N = 3.5, test1 = runif(3)))
@@ -165,17 +168,39 @@ test_that("trigger errors", {
   # Scalar as data
   expect_error(fabricate(data = c(5)))
   # Vector as ID_label
-  expect_error(fabricate(N = 10, test1 = rnorm(10), test2 = rpois(10, lambda = 2), ID_label = c("invalid", "id")))
+  expect_error(fabricate(N = 10,
+                         test1 = rnorm(10),
+                         test2 = rpois(10, lambda = 2),
+                         ID_label = c("invalid", "id")))
   # Matrix as ID_label
-  expect_error(fabricate(N = 10, test1 = rnorm(10), test2 = rpois(10, lambda = 2), ID_label = matrix(rep(c(1, 2, 3), 3), byrow = TRUE, ncol = 3, nrow = 3)))
+  expect_error(fabricate(N = 10,
+                         test1 = rnorm(10),
+                         test2 = rpois(10, lambda = 2),
+                         ID_label = matrix(rep(c(1, 2, 3), 3),
+                                           byrow = TRUE, ncol = 3, nrow = 3)))
   # Numeric as ID_label
-  expect_warning(fabricate(N = 10, test1 = rnorm(10), test2 = rpois(10, lambda = 2), ID_label = 7))
+  expect_warning(fabricate(N = 10,
+                           test1 = rnorm(10),
+                           test2 = rpois(10, lambda = 2),
+                           ID_label = 7))
   # Character as ID_label
-  fabricate(N = 10, test1 = rnorm(10), test2 = rpois(10, lambda = 2), ID_label = "hello")
-  fabricate(N = 10, test1 = rnorm(10), test2 = rpois(10, lambda = 2), ID_label = c("hello"))
+  fabricate(N = 10,
+            test1 = rnorm(10),
+            test2 = rpois(10, lambda = 2),
+            ID_label = "hello")
+  fabricate(N = 10,
+            test1 = rnorm(10),
+            test2 = rpois(10, lambda = 2),
+            ID_label = c("hello"))
   # Symbol as ID_label
-  expect_error(fabricate(N = 10, test1 = rnorm(10), test2 = rpois(10, lambda = 2), ID_label = test1))
-  expect_error(fabricate(N = 10, test1 = rnorm(10), test2 = rpois(10, lambda = 2), ID_label = test3))
+  expect_error(fabricate(N = 10,
+                         test1 = rnorm(10),
+                         test2 = rpois(10, lambda = 2),
+                         ID_label = test1))
+  expect_error(fabricate(N = 10,
+                         test1 = rnorm(10),
+                         test2 = rpois(10, lambda = 2),
+                         ID_label = test3))
 
   # Unusual test with implicit data argument
   expect_error(fabricate(N = 10, 1:N))
@@ -195,7 +220,7 @@ test_that("No name in level", {
     ))
 })
 
-test_that("unusual pass of add_level call to single level generation as data matrix", {
+test_that("Add level interpreted as data import to fabricate", {
   expect_error(fabricate(add_level(
     N = 5,
     gdp = rnorm(N)
@@ -233,7 +258,7 @@ test_that("multiple non-nested data frames, again and again", {
   expect_equal(dim(multiple_nnest), c(300, 1))
 })
 
-test_that("importing data and then specifying a level ID variable that is in data.", {
+test_that("If ID_label is in data, don't staple any more.", {
   df <- fabricate(N = 100, d1 = rnorm(N), ID_label = "hello")
   df2 <- fabricate(df, ID_label = "hello", new_var1 = d1 * 2)
   expect_equal(length(colnames(df2)), 3)

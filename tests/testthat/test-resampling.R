@@ -45,19 +45,24 @@ test_that("Bootstrapping error handling.", {
   )
 
   # Invalid ID
-  expect_error(resample_data(two_levels, c(100, 10), ID_labels = c("Invalid_ID", "Invalid_ID_2")))
+  expect_error(resample_data(two_levels, c(100, 10),
+                             ID_labels = c("Invalid_ID", "Invalid_ID_2")))
   # ID length doesn't match n length
   expect_error(resample_data(two_levels, c(100, 10), ID_labels = c("regions")))
   # Negative N
   expect_error(resample_data(two_levels, c(-1), ID_labels = c("regions")))
   # Non-numeric N
-  expect_error(resample_data(two_levels, c("hello world"), ID_labels = c("regions")))
+  expect_error(resample_data(two_levels, c("hello world"),
+                             ID_labels = c("regions")))
   # Non-numeric N in direct call of resample_single_level. This is unlikely to
   # arise normally since we don't export it and the code paths that call it have
   # separate error handling
-  expect_error(resample_single_level(two_levels, N = c(1, 2), ID_label = "regions"))
-  expect_error(resample_single_level(two_levels, N = 1.5, ID_label = "regions"))
-  expect_error(resample_single_level(two_levels, N = "hello", ID_label = "regions"))
+  expect_error(resample_single_level(two_levels, N = c(1, 2),
+                                     ID_label = "regions"))
+  expect_error(resample_single_level(two_levels, N = 1.5,
+                                     ID_label = "regions"))
+  expect_error(resample_single_level(two_levels, N = "hello",
+                                     ID_label = "regions"))
 })
 
 test_that("Direct resample_single_level", {
@@ -72,7 +77,8 @@ test_that("Direct resample_single_level", {
   expect_error(resample_single_level(null_data, ID_label = "regions", N = 10))
 
   # Trying to resample single level with an invalid ID.
-  expect_error(resample_single_level(two_levels, ID_label = "invalid-id", N = 10))
+  expect_error(resample_single_level(two_levels,
+                                     ID_label = "invalid-id", N = 10))
 })
 
 test_that("Extremely deep resampling", {
@@ -117,7 +123,8 @@ test_that("Extremely high volume data creation.", {
     cities = add_level(N = 50, holiday = runif(N, 1, 365)),
     neighborhoods = add_level(N = 5, stoplights = draw_binary(x = 0.5, N)),
     houses = add_level(N = 5, population = runif(N, 1, 5)),
-    people = add_level(N = population, sex = ifelse(draw_binary(x = 0.5, N), "M", "F"))
+    people = add_level(N = population,
+                       sex = ifelse(draw_binary(x = 0.5, N), "M", "F"))
   )
 
   test_resample <- resample_data(
@@ -135,7 +142,8 @@ test_that("Multi-level Resample validity", {
     cities = add_level(N = sample(1:5), subways = rnorm(N, mean = gdp))
   )
 
-  resample_validity <- resample_data(two_levels, N = c(regions = 6, cities = 5))
+  resample_validity <- resample_data(two_levels,
+                                     N = c(regions = 6, cities = 5))
   # Region-level variables are still constant
   expect_true(
     all(lapply(
