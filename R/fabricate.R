@@ -195,19 +195,48 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL) {
 
   # Single level -- maybe the user provided an ID_label, maybe they didn't.
   # Sanity check and/or construct an ID label for the new data.
+  explicit_ID_provided <- !is.null(ID_label)
   ID_label <- handle_id(ID_label, working_environment$data_frame_output_)
 
   # User passed data, not N
   # First, let's dynamically get N from the number of rows
   N <- nrow(working_environment$data_frame_output_)
 
-  # Now, see if we need to staple one on
+  # Now, see if we need to staple an ID column on. This is a bit of a mess.
   if (ID_label %in% names(working_environment$data_frame_output_)) {
+    # There's already an ID column named the thing we want to call the ID
+    # column, so keep it. If the user did not specify, then this shouldn't
+    # happen because handle_id would have moved to a fallback ID.
     add_level_id(working_environment, ID_label)
-  } else if (length(data_arguments)) {
+  } else if(explicit_ID_provided) {
+    # We explicitly asked for an ID column, so let's do it.
     working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
     add_level_id(working_environment, ID_label)
     add_variable_name(working_environment, ID_label)
+  } else if(length(data_arguments)) {
+    # We didn't explicitly ask for an ID column, but we are modifying the data
+    # so probably we should do it unless there's a column that's exactly this.
+    # Generate the ID label and check if there's a column that's exactly this.
+    temp_id <- generate_id_pad(N)
+    already_has_exact_id <- FALSE
+    for(i in seq_len(ncol(working_environment$data_frame_output_))) {
+      if(identical(working_environment$data_frame_output_[[i]], temp_id)) {
+        already_has_exact_id <- TRUE
+        break
+      }
+    }
+
+    # If we didn't find the exact ID label, then we have to add one.
+    if(!already_has_exact_id) {
+      working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
+      add_level_id(working_environment, ID_label)
+      add_variable_name(working_environment, ID_label)
+    } else {
+      # Just record the one we already have.
+      proximate_id <- names(working_environment$data_frame_output_)[[i]]
+      add_level_id(working_environment, proximate_id)
+      add_variable_name(working_environment, proximate_id)
+    }
   }
 
   # If the user does a passthrough for some reason, just return as is.
