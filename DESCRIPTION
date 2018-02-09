@@ -2,7 +2,6 @@ Package: fabricatr
 Type: Package
 Title: Imagine Your Data Before You Collect It 
 Version: 0.3.0
-Date: 2018-01-24
 Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@ucla.edu", role = c("aut", "cre")),
              person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut")),
              person("Alexander", "Coppock", email = "alex.coppock@yale.edu", role = c("aut")),

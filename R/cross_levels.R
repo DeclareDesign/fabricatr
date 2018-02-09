@@ -175,12 +175,11 @@ cross_levels_internal <- function(N = NULL,
   }
 
   # Actually fetch the df objects
-  data_frame_objects <- sapply(
+  data_frame_objects <- lapply(
     data_frame_indices,
     function(x) {
       working_environment_$shelved_df[[x]]$data_frame_output_
-    },
-    simplify = FALSE
+    }
   )
 
   # Do the join.
