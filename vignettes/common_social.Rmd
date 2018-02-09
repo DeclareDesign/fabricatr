@@ -233,8 +233,59 @@ respondent_ethnicity <- draw_categorical(
 
 table(respondent_ethnicity)
 ```
-
 ### Data with fixed minimum and maximum values
 
-### 
+It is often useful to generate data with fixed minimum or maximum values, but unclear how to best do so. In general the approach we would advocate to doing this is to generate a latent variable (described above) which might fall outside the minimum and maximum values, and then truncating the variable to the minimum and maximum values.
+
+Consider an experiment with a pre-post treatment design. A series of respondents are asked about their views on government efficacy, which will be measured by the respondents scoring their government from 0 to 100. Some respondents are then given a treatment intervention: for example, information about government service delivery, or a mechanism to report government fraud or waste. Finally, researchers ask the same respondents the same question about government efficacy.
+
+Researchers might simulate this experiment by choosing a population level Average Treatment Effect (in our example, assume a moderate treatment effect of 15 points), and adding a shock centered at this point to each treated unit's pre-treatment outcome (in addition to adding noise to the control group). A challenge with this data is that it is naturally truncated: individuals whose scores were already quite high may now be modeled as having post-treatment scores above 100.
+
+```{r results="hide"}
+set.seed(19861108)
+
+efficacy_experiment <- fabricate(
+  N = 1000,
+  treatment = draw_binary(0.5, N),
+  pre_outcome = rnorm(N, mean = 70, sd = 15),
+  post_outcome = pre_outcome + rnorm(N, 
+                                     mean = ifelse(treatment, 15, 0), 
+                                     sd = 10)
+)
+```
+
+
+In fact, in this example, some respondents have pre-treatment scores above 100! This matters because the real-world data gathered later will be truncated, and so the researchers power to detect effects may be compromised because of a high density of responses near the cutoff. As a result, it is important that researchers model the truncation directly. Doing so is simple using functionality provided by `R`: `pmin` and `pmax`.
+
+When used to truncate variables like this, `pmax` takes two arguments: a vector of numeric variables, and a minimum value you want to truncate to. Please note that, counter-intuitively, `pmax` is used to truncate to the **minimum** value and `pmin` is used to truncate to the **maximum** value. We see this design in action below:
+
+```{r results="hide"}
+set.seed(19861108)
+
+fixed_efficacy_experiment <- fabricate(
+  N = 1000,
+  treatment = draw_binary(0.5, N),
+  pre_outcome = pmin(
+    pmax(rnorm(N, mean = 70, sd = 15), 0),
+    100),
+  post_outcome = pmin(
+    pmax(pre_outcome + rnorm(N, 
+                             mean = ifelse(treatment, 15, 0), 
+                             sd = 10), 0),
+    100)
+)
+```
+
+Let's consider how `pre_outcome` is created: first, each respondent is assigned a pre_treatment score with a mean of 70 points and a standard deviation of 15 points. Next, each of those scores is fed to `pmax`, along with an argument 0. Any scores that are lower than 0 are bumped up and truncated to 0. Finally, these scores are fed to `pmin`, along with an argument 100. Any scores that are higher than 100 are bumped down and truncated to 100. The result is that our variables display the desired effect:
+
+```{r echo=FALSE, fig.width=7, fig.height=3}
+hist(fixed_efficacy_experiment$post_outcome,
+     main = "Histogram of post-treatment outcomes",
+     yaxt = "n",
+     breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100),
+     xlab = "Post-Treatment Outcome: Score from 0 to 100")
+```
+
+### Outcomes with Intra-Cluster Correlation
+
 
