@@ -135,6 +135,26 @@ survival_data <- simsurv(
 
 The generated data from the `survival_data` object can then be re-imported into the `participant_data` using any data merging tools, including through a `fabricate` call, and then used for subsequent analyses (e.g. using the **survival** package).
 
+## Time series using **forecast**
+
+**forecast**, by [Rob Hyndman](https://github.com/robjhyndman/forecast), is a package commonly used to analyze time series data which also has functionality capable of generating simulated time series data. **forecast** can use the `Arima` and `simulate` functions to create pre-specified ARIMA models, including seasonal time trends.
+
+Below, we provide an example of using **forecast** to generate an ARIMA time series, reshape the data, and import it into **fabricatr** to create new variables of interest.
+
+```{r eval=FALSE}
+library(forecast)
+
+arima_model <- simulate(
+  Arima(ts(rnorm(100), frequency = 4),
+        order = c(1, 0, 1))
+  
+fabricate(data.frame(arima_model), 
+          year = rep(1:25, each=4),
+          quarter = rep(1:4, 25))
+```
+
+Here, `ts` converts a series of data into a time series, with frequency specifying the number of observations per unit of time (in this case, for example, quarters in a year). `Arima` ingests this data and fits an ARIMA model with the specified parameters. `simulate` draws new data from the fit time series, producing a vector of interest. We then import the data into a `fabricate` call (converting it to a data frame) and add new columns of interest.
+
 ## Other data simulation tools
 
 The `R` ecosystem has many other data simulation tools, and all can be used to complement or supplement **fabricatr** in your workflow. Some of the packages that we have noticed but not covered here include:
