@@ -68,7 +68,10 @@ test_that("Error handlers: check_rectangular", {
     Z = 4
   )
   N <- 10
-  check_rectangular(test, N)
+  rectangularized <- check_rectangular(test, N)
+  coerced_df <- as.data.frame(rectangularized)
+  expect_equal(nrow(coerced_df), 10)
+  expect_equal(ncol(coerced_df), 3)
 
   test[["K"]] <- 5:7
   expect_error(check_rectangular(test, N))

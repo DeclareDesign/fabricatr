@@ -85,6 +85,7 @@
 #'                           student_quality = ps_quality + 3*ss_quality + rnorm(N)))
 #' @seealso [link_levels()]
 #' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args
+#' @importFrom rlang lang_args_names
 #' is_lang get_expr
 #'
 #' @export
@@ -111,8 +112,10 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL) {
     stop(
       "You must do exactly one of: \n",
       "1) One or more level calls, with or without existing data \n",
-      "2) Import existing data and optionally, add new variables without adding a level \n",
-      "3) Provide an `N` without importing data and optionally, add new variables"
+      "2) Import existing data and optionally, add new variables without ",
+      "adding a level \n",
+      "3) Provide an `N` without importing data and optionally, add new ",
+      "variables"
     )
   }
 
@@ -120,7 +123,20 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL) {
   if (all_levels) {
     # Ensure the user provided a name for each level call.
     if (is.null(names(data_arguments)) | any(names(data_arguments) == "")) {
-      stop("You must provide a name for each level you create.")
+      # If they didn't, see if we can poach it out of the arguments
+      for(i in seq_len(length(data_arguments))) {
+        if(is.null(names(data_arguments[[i]])) ||
+           names(data_arguments[[i]]) == "") {
+
+          # Can't salvage this one
+          if(!"ID_label" %in% lang_args_names(data_arguments[[i]])) {
+            stop("You must provide a name for each level that you create.")
+          }
+
+          names(data_arguments)[i] <- lang_args(data_arguments[[i]])$ID_label
+
+        }
+      }
     }
 
     # User provided data, if any, should be preloaded into working environment
@@ -179,19 +195,48 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL) {
 
   # Single level -- maybe the user provided an ID_label, maybe they didn't.
   # Sanity check and/or construct an ID label for the new data.
+  explicit_ID_provided <- !is.null(ID_label)
   ID_label <- handle_id(ID_label, working_environment$data_frame_output_)
 
   # User passed data, not N
   # First, let's dynamically get N from the number of rows
   N <- nrow(working_environment$data_frame_output_)
 
-  # Now, see if we need to staple one on
+  # Now, see if we need to staple an ID column on. This is a bit of a mess.
   if (ID_label %in% names(working_environment$data_frame_output_)) {
+    # There's already an ID column named the thing we want to call the ID
+    # column, so keep it. If the user did not specify, then this shouldn't
+    # happen because handle_id would have moved to a fallback ID.
     add_level_id(working_environment, ID_label)
-  } else if (length(data_arguments)) {
+  } else if(explicit_ID_provided) {
+    # We explicitly asked for an ID column, so let's do it.
     working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
     add_level_id(working_environment, ID_label)
     add_variable_name(working_environment, ID_label)
+  } else if(length(data_arguments)) {
+    # We didn't explicitly ask for an ID column, but we are modifying the data
+    # so probably we should do it unless there's a column that's exactly this.
+    # Generate the ID label and check if there's a column that's exactly this.
+    temp_id <- generate_id_pad(N)
+    already_has_exact_id <- FALSE
+    for(i in seq_len(ncol(working_environment$data_frame_output_))) {
+      if(identical(working_environment$data_frame_output_[[i]], temp_id)) {
+        already_has_exact_id <- TRUE
+        break
+      }
+    }
+
+    # If we didn't find the exact ID label, then we have to add one.
+    if(!already_has_exact_id) {
+      working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
+      add_level_id(working_environment, ID_label)
+      add_variable_name(working_environment, ID_label)
+    } else {
+      # Just record the one we already have.
+      proximate_id <- names(working_environment$data_frame_output_)[[i]]
+      add_level_id(working_environment, proximate_id)
+      add_variable_name(working_environment, proximate_id)
+    }
   }
 
   # If the user does a passthrough for some reason, just return as is.

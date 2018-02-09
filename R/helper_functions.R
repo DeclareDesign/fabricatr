@@ -12,7 +12,7 @@
 #' @export
 recycle <- function(x, .N = NULL) {
   if(is.null(.N)) {
-    .N = tryCatch({
+    .N <- tryCatch({
       dynGet("N")
     }, error = function(e) {
       NULL
@@ -108,8 +108,8 @@ get_symbols_from_expression <- function(l_arg) {
     # If it's a language call, then we need to unpack some more
     # Extract the language from the language call
     recurse <- lang_args(l_arg)
-    # Iterate through each part of the language, recursively calling this function
-    # Results are a list, so unlist and unname to flatten
+    # Iterate through each part of the language, recursively calling this
+    # function. Results are a list, so unlist and unname to flatten
     temp <- unname(unlist(lapply(recurse, function(i) {
       get_symbols_from_expression(i)
     })))
@@ -158,8 +158,7 @@ get_symbols_from_quosure <- function(quosure) {
 #' then we definitely only want to check those variables
 #'
 #' @return a character vector enumerating the unique variables
-#'
-#' @export
+#' @keywords internal
 get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
   if (is.character(superset)) {
     names_to_check <- intersect(colnames(data), superset)
@@ -173,12 +172,13 @@ get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
   }
 
   # Iterate through each column of interest
-  # Per column, split that column's data into a list. The split indices come from the level indicator.
-  # Now, run a function which checks the unique length of each tranch
-  # Unlist the result to get a vector of TRUE or FALSE for each tranch of the list.
-  # If all tranches are TRUE, then the column has unique values based on the level's level.
-  # Take the results per column, unlist those, strip the names (if any) from the variables.
-  # Now extract the column names for the columns for which this was true. Return as a vector.
+  # Per column, split that column's data into a list. The split indices come
+  # from the level indicator. Now, run a function which checks the unique
+  # length of each tranch. Unlist the result to get a vector of TRUE or FALSE
+  # for each tranch of the list. If all tranches are TRUE, then the column has
+  # unique values based on the level's level. Take the results per column,
+  # unlist those, strip the names (if any) from the variables. Now extract the
+  # column names for the columns for which this was true. Return as a vector.
 
   # Performance is around 22% faster than existing code for small dataset
   level_variables <-
@@ -205,8 +205,8 @@ get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
 # Checks if an ID label is sane, warns or errors if not.
 # Generates an ID label if there isn't one provided.
 handle_id <- function(ID_label, data=NULL) {
-  # If the user passed a symbol, we should evaluate the symbol forcibly and error if
-  # they were assuming NSE substitution of an undefined symbol.
+  # If the user passed a symbol, we should evaluate the symbol forcibly and
+  # error if they were assuming NSE substitution of an undefined symbol.
   tryCatch(
     force(ID_label),
     error = function(e) {
@@ -222,10 +222,12 @@ handle_id <- function(ID_label, data=NULL) {
   if (!is.null(ID_label)) {
     if (is.vector(ID_label) & length(ID_label) > 1) {
       # Vector of length n>1, error
-      stop("Provided `ID_label` must be a character vector of length 1 or variable name.")
+      stop("Provided `ID_label` must be a character vector of length 1 or ",
+           "variable name.")
     } else if (is.vector(ID_label) & is.numeric(ID_label[1])) {
       # Numeric ID_label -- this is OK but variable names can't be numeric
-      warning("Provided `ID_label` is numeric and will be prefixed with the character \"X\"")
+      warning("Provided `ID_label` is numeric and will be prefixed with the ",
+              "character \"X\"")
       ID_label <- as.character(ID_label)
     } else if (is.vector(ID_label) & is.character(ID_label[1])) {
       # Valid ID_label
@@ -264,9 +266,10 @@ handle_id <- function(ID_label, data=NULL) {
         # We tried all our backup IDs and still couldn't find a valid ID
         if (tries >= 5 & is.null(ID_label)) {
           stop(
-            "No `ID_label` specified for level and supply of default ID labels -- ",
-            "ID, fab_ID_1, fab_ID_2, fab_ID_3, fab_ID_4, fab_ID_5 -- are all used ",
-            "for data columns. Please specify an `ID_label` for this level."
+            "No `ID_label` specified for level and supply of default ID ",
+            "labels -- ID, fab_ID_1, fab_ID_2, fab_ID_3, fab_ID_4, fab_ID_5",
+            " -- are all used for data columns. Please specify an `ID_label` ",
+            "for this level."
           )
         }
       }
@@ -282,12 +285,15 @@ handle_n <- function(N, add_level=TRUE, working_environment=NULL,
                      parent_frame_levels=1) {
   # Error handling for user-supplied N
 
-  # First, evaluate the N in the context of the working environment's working data frame
-  # Why do we need to do this? Because N could be a function of variables.
-  if (!is.null(working_environment) & "data_frame_output_" %in% names(working_environment)) {
-    # Why do we substitute N in parent.frame()? Because if we substitute in the current
-    # frame, we just get the symbol used for N from the outside functions, which would just be N
-    # This ensures we get the expression passed to N in the outer function call.
+  # First, evaluate the N in the context of the working environment's working
+  # data frame. Why do we need to do this? Because N could be a function of
+  # variables.
+  if (!is.null(working_environment) & "data_frame_output_" %in%
+      names(working_environment)) {
+    # Why do we substitute N in parent.frame()? Because if we substitute in
+    # the current frame, we just get the symbol used for N from the outside
+    # functions, which would just be N. This ensures we get the expression
+    # passed to N in the outer function call.
     temp_N_expr <- substitute(N, parent.frame(parent_frame_levels))
     N <- eval_tidy(temp_N_expr, data = append(
       working_environment$data_frame_output_,
@@ -314,15 +320,16 @@ handle_n <- function(N, add_level=TRUE, working_environment=NULL,
       }
     } else {
       if (length(N) > 1) {
-        # User specified more than one N; presumably this is one N for each level of the
-        # last level variable
+        # User specified more than one N; presumably this is one N for each
+        # level of the last level variable
 
         # What's the last level variable?
-        name_of_last_level <- working_environment$level_ids_[length(working_environment$level_ids_)]
+        last_level_name <- working_environment$level_ids_[
+          length(working_environment$level_ids_)]
 
         # What are the unique values?
         unique_values_of_last_level <- unique(
-          working_environment$data_frame_output_[[name_of_last_level]]
+          working_environment$data_frame_output_[[last_level_name]]
         )
 
         if (length(N) != length(unique_values_of_last_level)) {
@@ -330,7 +337,7 @@ handle_n <- function(N, add_level=TRUE, working_environment=NULL,
             "`N` must be either a single number or a vector of length ",
             length(unique_values_of_last_level),
             " (one value for each possible level of ",
-            name_of_last_level,
+            last_level_name,
             ")"
           )
         }
@@ -376,8 +383,8 @@ handle_data <- function(data) {
       )
     }
 
-    # User provided data, but it's not a data frame, and they didn't provide it explicitly,
-    # so this is probably a mess-up with an implicit argument
+    # User provided data, but it's not a data frame, and they didn't provide
+    # it explicitly, so this is probably a mess-up with an implicit argument
     if (!"data" %in% names(sys.call()) &&
       !"data" %in% names(sys.call(-1))) {
       stop(
@@ -412,15 +419,17 @@ check_all_levels <- function(options) {
 
   # get_expr returns the expression for an item in a quosure
   # is_lang checks if it's a function
-  is_function <- sapply(options, function(i) {
-    is_lang(get_expr(i))
-  })
+  is_function <- vapply(options,
+                        function(i) {
+                          is_lang(get_expr(i))
+                        },
+                        logical(1))
 
   # lang_name gets function name from a quosure
-  func_names <- sapply(options[is_function], lang_name)
+  func_names <- vapply(options[is_function], lang_name, character(1))
 
   # Check to see if the function names are one of the valid level operations
-  is_level <- sapply(func_names, function(i) {
+  is_level <- vapply(func_names, function(i) {
     i %in% c(
       "level",
       "add_level",
@@ -429,7 +438,8 @@ check_all_levels <- function(options) {
       "cross_levels",
       "link_levels"
     )
-  })
+  },
+  logical(1))
 
   # Return false if we have no level calls
   if (length(is_level) == 0) return(FALSE)
@@ -477,7 +487,8 @@ check_rectangular <- function(working_data_list, N) {
 add_level_id <- function(working_environment_, ID_label) {
   # Add or create level ID list
   if ("level_ids_" %in% names(working_environment_)) {
-    working_environment_$level_ids_ <- append(working_environment_$level_ids_, ID_label)
+    working_environment_$level_ids_ <- append(working_environment_$level_ids_,
+                                              ID_label)
   } else {
     working_environment_$level_ids_ <- c(ID_label)
   }

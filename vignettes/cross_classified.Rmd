@@ -235,7 +235,7 @@ three_data <- fabricate(
 )
 ```
 
-One potential source for failure is specifying an invalid `rho`. If you specify a `rho` that makes the correlation between the three variables impossible to obtain, the `fabricate()` call will fail. A common case of this occurring is specifying a negative `rho` with three or more levels -- it is clear that if A is negatively correlated with B, and B is negatively correlated with C, then A and C cannot be negatively correlated. 
+One potential source for failure is specifying an invalid `rho`. If you specify a `rho` that makes the correlation between the three variables impossible to obtain, the `fabricate()` call will fail. A common case of this occurring is specifying a negative `rho` with three or more levels -- in general, if A is negatively correlated with B, and B is negatively correlated with C, then A and C cannot be negatively correlated.
 
 Instead of specifying a `rho` correlation coefficient, users can specify a `sigma` correlation matrix to make the resulting correlations more sophisticated. Consider the following setup:
 

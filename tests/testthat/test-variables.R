@@ -2,18 +2,25 @@ context("Variable functions")
 
 test_that("Variable functions", {
   # Single-level data, logit link, inherit or implicit N
-  fabricate(my_level = add_level(
-    N = 10,
+  set.seed(19861108)
+  check_binary_mean <- fabricate(my_level = add_level(
+    N = 1000,
     Y1 = rnorm(N),
     Y2 = draw_binary(Y1, link = "logit")
   ))
+  implied_prob <- 1 / (1 + exp(-check_binary_mean$Y1))
+  expect_gte(cor(implied_prob, check_binary_mean$Y2), 0.4)
 
   # Single level, count, inherit or implicit N
-  fabricate(my_level = add_level(
-    N = 10,
+  set.seed(19861108)
+  check_count_mean <- fabricate(my_level = add_level(
+    N = 1000,
     Y1 = rnorm(N, 5),
     Y2 = draw_count(mean = Y1)
   ))
+  model_check_fit <- lm(Y2 ~ Y1, data = check_count_mean)
+  expect_gte(model_check_fit$coefficients[2], 0.9)
+  expect_lte(model_check_fit$coefficients[2], 1.1)
 })
 
 test_that("Randomized data is random.", {
@@ -35,20 +42,29 @@ test_that("Seeded data is non-random.", {
 
 test_that("Binary invalid specification tests", {
   # Binary data, invalid probabilities.
-  expect_error(draw_binary(prob = -1, N = 10)) # Negative
-  expect_error(draw_binary(prob = c("invalid", "probability"), N = 10)) # Non-numeric
-  expect_error(draw_binary(prob = 1.2, N = 10)) # Positive outside 0-1
-  expect_error(draw_binary(prob = c(0.5, 0.5, "invalid mixed"), N = 10)) # Mixed non-numeric
-  expect_error(draw_binary()) # No arguments
-  expect_error(draw_binary(N = 10)) # Missing probability
-  expect_error(draw_binary(prob = c(0.3, 0.4, 0.5), N = 10)) # Not a multiple, don't want to recycle
-  expect_error(draw_binary(prob = c(0.5, 0.9), type = "binary", N = 10, trials = 2))
+  # Negative
+  expect_error(draw_binary(prob = -1, N = 10))
+  # Non-numeric
+  expect_error(draw_binary(prob = c("invalid", "probability"), N = 10))
+  # Positive outside 0-1
+  expect_error(draw_binary(prob = 1.2, N = 10))
+  # Mixed non-numeric
+  expect_error(draw_binary(prob = c(0.5, 0.5, "invalid mixed"), N = 10))
+  # No arguments
+  expect_error(draw_binary())
+  # Missing probability
+  expect_error(draw_binary(N = 10))
+  # Not a multiple, don't want to recycle
+  expect_error(draw_binary(prob = c(0.3, 0.4, 0.5), N = 10))
   # Invalid trials for binary data
+  expect_error(draw_binary(prob = c(0.5, 0.9),
+                           type = "binary", N = 10, trials = 2))
 })
 
 test_that("Binary valid tests", {
   # Valid binary data
-  draw_binary(prob = c(0.5, 0.9), N = 10)
+  basic_binary <- draw_binary(prob = c(0.5, 0.9), N = 10)
+  expect_equal(length(basic_binary), 10)
   # Logit link
   draw_binary(prob = rnorm(5), link = "logit")
   # Probit link
@@ -57,30 +73,50 @@ test_that("Binary valid tests", {
   draw_binary(prob = runif(5, 0, 1), link = "identity")
   # Draw binary, implicit N
   draw_binary(prob = runif(100))
+
 })
 
 test_that("Binomial invalid tests", {
   # Binomial data, invalid probabilities
-  expect_error(draw_binomial(prob = -1, N = 10)) # Negative
-  expect_error(draw_binomial(prob = c("invalid", "probability"), N = 10)) # Non-numeric
-  expect_error(draw_binomial(prob = 1.2, N = 10)) # Positive outside 0-1
-  expect_error(draw_binomial(prob = c(0.5, 0.5, "invalid mixed"), N = 10)) # Mixed non-numeric
-  expect_error(draw_binomial()) # No arguments
-  expect_error(draw_binomial(prob = 0.3, N = 10, trials = 2.5)) # Non-integer trials
-  expect_error(draw_binomial(prob = 0.3, N = 10, trials = c(2.5, 3))) # Non-integer trials, mixed trials num.
-
-  expect_error(draw_binomial(N = 10)) # Missing probability
-  expect_error(draw_binomial(prob = c(0.3, 0.4, 0.5), N = 10)) # Not a multiple, don't want to recycle
+  # Negative
+  expect_error(draw_binomial(prob = -1, N = 10))
+  # Non-numeric
+  expect_error(draw_binomial(prob = c("invalid", "probability"), N = 10))
+  # Positive outside 0-1
+  expect_error(draw_binomial(prob = 1.2, N = 10))
+  # Mixed non-numeric
+  expect_error(draw_binomial(prob = c(0.5, 0.5, "invalid mixed"), N = 10))
+  # No arguments
+  expect_error(draw_binomial())
+  # Non-integer trials
+  expect_error(draw_binomial(prob = 0.3, N = 10, trials = 2.5))
+  # Non-integer trials, mixed trials num.
+  expect_error(draw_binomial(prob = 0.3, N = 10, trials = c(2.5, 3)))
+  # Missing probability
+  expect_error(draw_binomial(N = 10))
+  # Not a multiple, don't want to recycle
+  expect_error(draw_binomial(prob = c(0.3, 0.4, 0.5), N = 10))
 
   # Binomial data, invalid k
-  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = NA)) # NA
-  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = "invalid")) # Character
-  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = 0.5)) # Non-integer
-  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = c(1, 0.5))) # Non-integer mixed
-  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = -1)) # Negative integer
-  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = c(10, 100, 1000))) # Non-multiple
-  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = c(10, "mixed invalid"))) # Mixed non-integer
-  expect_error(draw_binomial(prob = 0.5, N = 10, trials = matrix(NA, ncol = 3, nrow = 3))) # Higher dim k
+  # NA
+  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = NA))
+  # Character
+  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = "invalid"))
+  # Non-integer
+  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = 0.5))
+  # Non-integer mixed
+  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = c(1, 0.5)))
+  # Negative integer
+  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = -1))
+  # Non-multiple
+  expect_error(draw_binomial(prob = c(0.2, 0.8), trials = c(10, 100, 1000)))
+  # Mixed non-integer
+  expect_error(draw_binomial(prob = c(0.2, 0.8),
+                             trials = c(10, "mixed invalid")))
+  # Higher dim k
+  expect_error(draw_binomial(prob = 0.5,
+                             N = 10,
+                             trials = matrix(NA, ncol = 3, nrow = 3)))
 })
 
 test_that("Binomial valid tests", {
@@ -104,20 +140,29 @@ test_that("Invalid link", {
 })
 
 test_that("Count invalid tests", {
-  expect_error(draw_count(mean = 1, N = 5, link = "logit")) # Links are not allowed
-  expect_error(draw_count(mean = "invalid", N = 5)) # Invalid lambda
-  expect_error(draw_count(mean = -1, N = 5)) # Invalid lambda, negative
-  expect_error(draw_count(mean = c(1, 2, 3, 4, -1), N = 5)) # Mixed lambdas, one negative
-  expect_error(draw_count(mean = c(1, 2, 3, 4, "invalid"), N = 5)) # Mixed lambdas, one character
+  # Links are not allowed
+  expect_error(draw_count(mean = 1, N = 5, link = "logit"))
+  # Invalid lambda
+  expect_error(draw_count(mean = "invalid", N = 5))
+  # Invalid lambda, negative
+  expect_error(draw_count(mean = -1, N = 5))
+  # Mixed lambdas, one negative
+  expect_error(draw_count(mean = c(1, 2, 3, 4, -1), N = 5))
+  # Mixed lambdas, one character
+  expect_error(draw_count(mean = c(1, 2, 3, 4, "invalid"), N = 5))
   expect_error(draw_count(mean = c(1, 5, 7), N = 2))
 })
 
 test_that("Count valid tests", {
   # Base case
-  draw_count(mean = 5, N = 25)
+  set.seed(19861108)
+  count_draw <- draw_count(mean = 5, N = 250)
+  expect_gte(mean(count_draw), 4)
+  expect_lte(mean(count_draw), 6)
 
   # Draw count, implicit N
-  draw_count(mean = runif(100))
+  count_draw_implicit_n <- draw_count(mean = runif(100))
+  expect_equal(length(count_draw_implicit_n), 100)
 
   # Count data, multiple means
   draw_count(mean = runif(5, 0, 5))
@@ -127,18 +172,26 @@ test_that("Categorical invalid tests", {
   expect_error(suppressWarnings(
     draw_categorical(prob = c(-1, 0, -0.5), N = 3)
   )) # Negative probability
-  expect_error(draw_categorical(prob = "invalid", N = 3)) # Non-numeric probability
-  expect_error(draw_categorical(prob = 0.3, N = 3)) # Only one class label
+  # Non-numeric probability
+  expect_error(draw_categorical(prob = "invalid", N = 3))
+  # Only one class label
+  expect_error(draw_categorical(prob = 0.3, N = 3))
+  # Link functions not accepted
   expect_error(draw_categorical(
     prob = c(0.5, 0.75),
     N = 10, link = "probit"
-  )) # Link functions not accepted
+  ))
   expect_error(draw_categorical(prob = c(0.3, 0.3, 0.4)))
   expect_error(draw_categorical(
     prob =
       matrix(rep(c(0.3, 0.3, 0.4), 3), byrow = TRUE, ncol = 3),
     N = 4
   ))
+
+  # Wrong number of labels if specified.
+  expect_error(draw_categorical(prob = c(0.3, 0.3, 0.4),
+                                category_labels = c("A", "B"),
+                                N = 10))
 })
 
 test_that("Categorical valid tests", {
@@ -147,8 +200,14 @@ test_that("Categorical valid tests", {
     byrow = TRUE, ncol = 3, nrow = 3
   ))
 
+  draw_categorical(prob = matrix(
+    rep(c(0.3, 0.3, 0.4), 3),
+    byrow = TRUE, ncol = 3, nrow = 3
+  ),
+  category_labels = c("A", "B", "C"))
+
   # Convert vector of probabilities to matrix of probabilities
-  expect_warning(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
+  expect_message(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
 })
 
 test_that("Ordered data invalid tests", {
@@ -192,11 +251,13 @@ test_that("Ordered data invalid tests", {
 })
 
 test_that("Ordered data valid tests", {
-  draw_ordered(
-    rnorm(5),
+  base_ordered <- draw_ordered(
+    rnorm(200),
     breaks = c(-Inf, -1, 0, 1, Inf),
     break_labels = c("A", "B", "C", "D")
   )
+  expect_equal(length(base_ordered), 200)
+  expect_equal(length(table(base_ordered)), 4)
 
   # Probit link
   draw_ordered(
@@ -284,7 +345,8 @@ test_that("Likert data example using ordered", {
 test_that("Normal ICC", {
   clusters <- rep(1:5, 10)
   # length(mean) = length(cluster ids)
-  draw_normal_icc(mean = c(-1, -0.5, 0, 0.5, 1), clusters = clusters, ICC = 0.5)
+  draw_normal_icc(mean = c(-1, -0.5, 0, 0.5, 1),
+                  clusters = clusters, ICC = 0.5)
   # length(mean) = 1
   draw_normal_icc(mean = 0, clusters = clusters, ICC = 0.5)
 
@@ -302,14 +364,16 @@ test_that("Normal ICC", {
   expect_error(draw_normal_icc(clusters = clusters, ICC = 0, sd_between = 1))
 
   # Provided all three, how can they possibly agree?
-  expect_warning(draw_normal_icc(clusters = clusters, ICC = 0.5, sd = 1, sd_between = 1))
+  expect_warning(draw_normal_icc(clusters = clusters,
+                                 ICC = 0.5, sd = 1, sd_between = 1))
 
   # Invalid cluster IDs: dimensional
   expect_error(draw_normal_icc(clusters = data.frame(X = 1:10, Y = 1:10)))
   # Invalid cluster IDs: mixed list
   expect_error(draw_normal_icc(clusters = list("abc", 7)))
   # X doesn't match cluster IDs
-  expect_error(draw_normal_icc(mean = c(0.5, 0.8), clusters = clusters, ICC = 0.5))
+  expect_error(draw_normal_icc(mean = c(0.5, 0.8),
+                               clusters = clusters, ICC = 0.5))
   # X isn't a vector
   expect_error(draw_normal_icc(
     mean = data.frame(
@@ -354,11 +418,14 @@ test_that("Normal ICC", {
   ))
 
   # sd_between is wrong length
-  expect_error(draw_normal_icc(clusters = clusters, sd_between = c(1, 2), ICC = 0.5))
+  expect_error(draw_normal_icc(clusters = clusters,
+                               sd_between = c(1, 2), ICC = 0.5))
   # sd_between is negative
-  expect_error(draw_normal_icc(clusters = clusters, sd_between = -1, ICC = 0.5))
+  expect_error(draw_normal_icc(clusters = clusters,
+                               sd_between = -1, ICC = 0.5))
   # sd_between is non-numeric
-  expect_error(draw_normal_icc(clusters = clusters, sd_between = "hello", ICC = 0.5))
+  expect_error(draw_normal_icc(clusters = clusters,
+                               sd_between = "hello", ICC = 0.5))
   # sd_between is not a vector
   expect_error(draw_normal_icc(
     sd_between = data.frame(
@@ -382,7 +449,8 @@ test_that("Normal ICC", {
   # length(mean) == N, but mean is non-unique per cluster
   clusters <- rep(1:10, 10)
   cluster_means <- sample(rep(1:10, 10))
-  expect_error(draw_normal_icc(mean = cluster_means, clusters = clusters, ICC = 0.5))
+  expect_error(draw_normal_icc(mean = cluster_means,
+                               clusters = clusters, ICC = 0.5))
 })
 
 test_that("Likert alias", {
@@ -390,9 +458,12 @@ test_that("Likert alias", {
   draw_likert(x = rnorm(100))
 
   # Specifying breaks
-  draw_likert(x = rnorm(100), breaks = c(-Inf, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, Inf))
-  draw_likert(x = rnorm(100), breaks = c(-Inf, -1.5, -0.5, 0.5, 1.5, Inf))
-  draw_likert(x = rnorm(100), breaks = c(-Inf, -1, 0, 1, Inf))
+  draw_likert(x = rnorm(100),
+              breaks = c(-Inf, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, Inf))
+  draw_likert(x = rnorm(100),
+              breaks = c(-Inf, -1.5, -0.5, 0.5, 1.5, Inf))
+  draw_likert(x = rnorm(100),
+              breaks = c(-Inf, -1, 0, 1, Inf))
 
   # Specifying types
   draw_likert(x = rnorm(100), type = 7)
@@ -406,4 +477,43 @@ test_that("Likert alias", {
   # Should be impossible, but verify if someone accidentally overrides type.
   # and doesn't provide breaks.
   expect_error(draw_likert(x = rnorm(100), type = NULL))
+})
+
+test_that("Quantile and quantile split", {
+  # Null N
+  expect_error(draw_quantile(type = 4, N = NULL))
+  # Non-numeric N
+  expect_error(draw_quantile(type = 4, N = "hello"))
+  # N of length
+  expect_error(draw_quantile(type = 4, N = c(1, 2, 3)))
+  # Negative N
+  expect_error(draw_quantile(type = 4, N = -1))
+  # Null type
+  expect_error(draw_quantile(type = NULL, N = 100))
+  # Non-numeric type
+  expect_error(draw_quantile(type = "hello", N = 100))
+  # type of length
+  expect_error(draw_quantile(type = c(1, 2), N = 100))
+  # Type 0 or negative
+  expect_error(draw_quantile(type = -1, N = 100))
+  # Type too high
+  expect_error(draw_quantile(type = 200, N = 100))
+
+  # Valid draw
+  quantile_draws <- draw_quantile(type = 5, N = 100)
+  expect_equal(all(table(quantile_draws) == 20), TRUE)
+
+  # Draw of some data to quantile split
+  z <- rnorm(n = 100)
+  # Null X
+  expect_error(split_quantile(x = NULL, type = 4))
+  # Null type
+  expect_error(split_quantile(x = z, type = NULL))
+  # Non-numeric type
+  expect_error(split_quantile(x = z, type = "hello"))
+  # Single x
+  expect_error(split_quantile(x = 4, type = 4))
+
+  split_quantile_data <- split_quantile(x = z, type = 5)
+  expect_equal(all(table(split_quantile_data) == 20), TRUE)
 })

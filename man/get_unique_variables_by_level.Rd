@@ -22,3 +22,4 @@ a character vector enumerating the unique variables
 \description{
 Find which variables are unique at a given level in hierarchical data
 }
+\keyword{internal}

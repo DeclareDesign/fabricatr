@@ -1,6 +1,6 @@
 context("Fabricate")
 
-test_that("Panel data", {
+test_that("Panel data, well-formed", {
   set.seed(19861108)
 
   # Well formed
@@ -17,6 +17,10 @@ test_that("Panel data", {
     panel[1, ]$GDP_it,
     panel[1, ]$country_shock + panel[1, ]$year_shock
   )
+})
+
+test_that("Panel data, errors.", {
+  set.seed(19861108)
 
   # Error: Specified correlation with a panel
   expect_error(fabricate(
@@ -69,6 +73,10 @@ test_that("Cross-classified data", {
   # Within a reasonable "tolerance"
   expect_gte(cor(students$ps_quality, students$ss_quality), 0.3)
   expect_lte(cor(students$ps_quality, students$ss_quality), 0.7)
+})
+
+test_that("Cross-classified data, uncorrelated", {
+  set.seed(19861108)
 
   # Uncorrelated
   students_uncorr <- fabricate(
@@ -97,8 +105,9 @@ test_that("Cross-classified data", {
   # Again, within tolerance
   expect_gte(cor(students_uncorr$ps_quality, students_uncorr$ss_quality), -0.15)
   expect_lte(cor(students_uncorr$ps_quality, students_uncorr$ss_quality), 0.15)
+})
 
-
+test_that("Cross-classified, sigma in lieu of rho.", {
   # Specifying sigma in lieu of rho
   test_next <- fabricate(
     l1 = add_level(N = 50, j1 = rnorm(N)),
@@ -113,7 +122,7 @@ test_that("Cross-classified data", {
   expect_lte(cor(test_next$j1, test_next$j2), 0.7)
 })
 
-test_that("Code path without mvnfast", {
+test_that("Cross-classified, code path without mvnfast", {
   set.seed(19861108)
 
   # Need to directly call joint_draw_ecdf because we don't let users voluntarily
@@ -137,12 +146,17 @@ test_that("Deliberate failures in join_dfs", {
   df3 <- fabricate(N = 100, j3 = rnorm(100))
 
   expect_error(fabricatr:::join_dfs(df1, c("j1"), N = 100, rho = 0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N = 100, rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"),
+                                    N = 100, rho = 0.5))
   expect_error(fabricatr:::join_dfs(list(df1), c("j1"), N = 100, rho = 0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N = -1, rho = 0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"), N = c(3, 10), rho = 0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2, df3), c("j1", "j2", "j3"), N = 100, rho = -0.5))
-  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"), N = 100, rho = c(0.5, 0.3)))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"),
+                                    N = -1, rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1"),
+                                    N = c(3, 10), rho = 0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2, df3), c("j1", "j2", "j3"),
+                                    N = 100, rho = -0.5))
+  expect_error(fabricatr:::join_dfs(list(df1, df2), c("j1", "j2"),
+                                    N = 100, rho = c(0.5, 0.3)))
 
   expect_error(fabricatr:::join_dfs(
     list(df1, df2), c("j1", "j2"),
@@ -176,7 +190,10 @@ test_that("Deliberate failures in link_levels", {
   expect_error(
     fabricate(
       l1 = add_level(N = 50, j1 = rnorm(N)),
-      l2 = add_level(N = 50, j_var = rnorm(N), j1 = runif(N, 1, 3), nest = FALSE),
+      l2 = add_level(N = 50,
+                     j_var = rnorm(N),
+                     j1 = runif(N, 1, 3),
+                     nest = FALSE),
       joined = link_levels(
         N = 200,
         by = join(j1, j_var, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))
@@ -246,6 +263,7 @@ test_that("Cross-classified with double import", {
   )
 
   # Within a reasonable "tolerance"
+  expect_equal(nrow(students), 1000)
   expect_gte(cor(students$ps_quality, students$ss_quality), 0.3)
   expect_lte(cor(students$ps_quality, students$ss_quality), 0.7)
 })

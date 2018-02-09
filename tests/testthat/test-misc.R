@@ -52,3 +52,27 @@ test_that("Ragged nested data length", {
     k = add_level(N = 3, y = 1:6)
   ))
 })
+
+test_that("Using recycle to fill out a vector", {
+  recycle_test <- fabricate(N = 20, months = recycle(month.abb))
+  expect_equal(recycle_test$months, c(month.abb, month.abb[1:8]))
+
+  expect_error(fabricate(N = 20, months = month.abb))
+
+  expect_error(recycle(month.abb))
+})
+
+test_that("Unnamed level call for DD passthrough", {
+  # Did use a name for a passthrough
+  valid_inline_name <- fabricate(data = NULL, add_level(N = 10,
+                                                        ID_label="test"))
+  expect_equal(nrow(valid_inline_name), 10)
+  expect_equal(names(valid_inline_name), "test")
+
+  # Didn't use a name for a passthrough
+  expect_error(fabricate(data = NULL, add_level(N = 10)))
+})
+
+test_that("Check that level is deprecated", {
+  expect_error(fabricate(test = level(N = 10)))
+})

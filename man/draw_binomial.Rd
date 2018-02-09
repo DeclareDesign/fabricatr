@@ -7,12 +7,14 @@
 \alias{draw_count}
 \alias{draw_binary}
 \alias{draw_likert}
+\alias{draw_quantile}
 \title{Draw discrete variables including binary, binomial count, poisson count,
 ordered, and categorical}
 \usage{
 draw_binomial(prob, trials = 1, N = length(prob), link = "identity")
 
-draw_categorical(prob, N = NULL, link = "identity")
+draw_categorical(prob, N = NULL, link = "identity",
+  category_labels = NULL)
 
 draw_ordered(x, breaks = c(-1, 0, 1), break_labels = NULL, N = length(x),
   link = "identity")
@@ -23,6 +25,8 @@ draw_binary(prob, N = length(prob), link = "identity")
 
 draw_likert(x, type = 7, breaks = NULL, N = length(x),
   link = "identity")
+
+draw_quantile(type = NULL, N = NULL)
 }
 \arguments{
 \item{prob}{A number or vector of numbers representing the probability for
@@ -39,6 +43,10 @@ probabilities or latent data you provided.}
 a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 link, the latent variable must be a probability.}
 
+\item{category_labels}{vector of labels for the categories produced by
+`draw_categorical`. If provided, must be equal to the number of categories
+provided in the `prob` argument.}
+
 \item{x}{for `draw_ordered` or `draw_likert`, the latent data for each
 observation.}
 
@@ -46,7 +54,7 @@ observation.}
 categories with `draw_ordered` or `draw_likert`}
 
 \item{break_labels}{vector of labels for the breaks to cut a latent outcome
-into ordered categories with `draw_ordered`.}
+into ordered categories with `draw_ordered`. (Optional)}
 
 \item{mean}{for `draw_count`, the mean number of count units for each observation}
 

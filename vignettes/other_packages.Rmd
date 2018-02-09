@@ -14,14 +14,155 @@ set.seed(19861108)
 library(fabricatr)
 ```
 
-# Coming soon.
+In general, **fabricatr** is going to be compatible with any existing packages you use to generate synthetic data in one of two ways: either using those packages to create variables within a `fabricate` call, or using those packages to make complete data frames which are then imported into a `fabricate`. Below we provide examples for some of the most popular packages that serve this purpose. Please feel free to [http://discuss.declaredesign.org/](Contact Us) if you have any questions about using another package in concert with **fabricatr**.
 
-This vignette is coming soon and will be live on or about January 25th, 2018. You can view the most recent version of this vignette [online](http://fabricatr.declaredesign.org/articles/other_packages.html).
+## **wakefield**: simulating common demographic features
 
-In the mean time, you may be interested in any of these vignettes:
+**wakefield** (by [Tyler Rinker](https://github.com/trinker)) is a popular `R` package for creating synthetic data. **wakefield**'s strength is that it can quickly generate common variables, especially for human demographic features. **wakefield** can easily be integrated into a **fabricatr** workflow in one of two ways: using **wakefield** to create individual variables within a `fabricate` call, or using **wakefield** to make a data frame and importing that data frame into a `fabricate` call.
 
-* [Getting Started with **fabricatr**](http://fabricatr.declaredesign.org/articles/getting_started.html)
-* [Building and Importing Data](http://fabricatr.declaredesign.org/articles/building_importing.html)
-* [Generating Discrete Random Variables](http://fabricatr.declaredesign.org/articles/variable_generation.html)
-* [Panel and Cross-Classified Data](http://fabricatr.declaredesign.org/articles/cross_classified.html)
-* [Resampling and Bootstrapping Hierarchical Data](http://fabricatr.declaredesign.org/articles/resampling.html)
+In this example, we create a data-set of participants in a survey experiment, using **wakefield** to generate the demographic variables
+
+```{r eval=FALSE}
+library(wakefield)
+
+survey_experiment_df <- fabricate(
+  N = 50,
+  treatment = draw_binary(prob = 0.5, N = N),
+  age = age(n = N),
+  race = race(n = N),
+  sex = sex(n = N),
+)
+```
+
+Researchers interested in learning about **wakefield**'s available functionality, parameterizations, and default probability can [read **wakefield**'s user guide on GitHub](https://github.com/trinker/wakefield).
+
+In addition to creating variables within a `fabricate` call, users can import completed **wakefield** data frames into a `fabricate` call:
+
+```{r eval=FALSE}
+survey_experiment_df <- r_data_frame(
+  n = 50,
+  age,
+  race,
+  sex)
+
+fabricatr_df <- fabricate(
+  data = survey_experiment_df,
+  treatment = draw_binary(prob = 0.5, N = N)
+)
+```
+
+## **randomNames**: Plausible names for human subjects
+
+**randomNames** (by [Damian Betebenner](https://github.com/dbetebenner)) is a package that does one thing well: generate random names for human subjects (including with specified genders and ethnicities). The primary use case would be to use this as part of generating a variable within a `fabricate` call. In the below example, we use `fabricate` to generate some other demographic data, and then `randomNames` to generate matching names.
+
+```{r eval=FALSE}
+library(randomNames)
+
+experiment_data <- fabricate(
+  N = 50,
+  treatment = draw_binary(prob = 0.5, N = N),
+  is_female = draw_binary(prob = 0.5, N = N),
+  patient_name = randomNames(N, gender=is_female)
+)
+```
+
+Note that we make use of the existing `is_female` variable from the `fabricate` call to ensure `randomNames` generates gender-typical names.
+
+## Modeling causality with DAGs and **simcausal**
+
+Users who are familiar with the DAGS (directed acyclic graphs) model of causal inference may have interest in using the **simcausal** package, which allows users to specify a DAGS model and then sample from it. Integrating this package with **fabricatr** is likely to involve using **simcausal** first to specify a model, simulating data from the model, and then importing data into a `fabricate` call for further user with **fabricatr**.
+
+Consider this example, common in the literature on educational attainment and school outcomes, where students come from families that have a `wealth` parameter, assignment to schools is based partially on `wealth`, and test outcomes (`testoutcome`) is based on both school quality and wealth.
+
+```{r eval=FALSE}
+library("simcausal")
+
+# Define DAG
+D <- DAG.empty() + 
+  node("wealth", distr = "rnorm",
+       mean = 30000,
+       sd = 10000) +
+  node("schoolquality", distr = "runif",
+       min = 0 + (5 * (wealth > 50000)),
+       max = 10) +
+  node("testoutcome", distr = "runif",
+       min = 0 + 0.0001 * wealth + 0.25 * schoolquality,
+       max = 10)
+
+# Freeze DAG object
+set_dag <- set.DAG(D)
+
+# Draw data from DAG
+df <- sim(set_dag, n = 100)
+
+# Pass into fabricate call and make new variables as necessary
+fabricate(df,
+          passed_test = testoutcome > 6,
+          eligible_for_snap = wealth < 25000)
+```
+
+## Survival and duration models with **simsurv**
+
+**simsurv** is a package dedicated to generating panel survival data. The most likely way you might integrate **simsurv** with **fabricatr** would be to use **fabricatr** to generating covariates which can then be imported into **simsurv** to model in a hazard or duration context.
+
+Here, our example will be a clinical trial of a cancer drug. Participants have the expected biographical data: age, gender, whether the patient smokes, the disease stage, assignment to treatment, and a KPS score (commonly used to evaluate overall patient health).
+
+Survival data creates a ragged longitudinal survey; some patients will die during the course of the trial, removing them as observations. Others will continue alive until the end of the trial. We specify a "hazard function", which tells **simsurv** how the course of patient survival will change over time. Covariates with positive `betas` increase risk of death, while covariates with negative `betas` decrease risk of death. We will track patients for 5 years after treatment.
+
+```{r eval=FALSE}
+library(simsurv)
+
+# Simulate patient data in a clinical trial
+participant_data <- fabricate(
+  N = 100,
+  age = runif(N, min = 18, max = 85),
+  is_female = draw_binary(prob = 0.5, N = N),
+  is_smoker = draw_binary(prob = 0.2 + 0.2 * (age > 50), N = N),
+  disease_stage = round(runif(N, min = 1 + 0.5 * (age > 65), max = 4)),
+  treatment = draw_binary(prob = 0.5, N = N),
+  kps = runif(N, min = 40, max = 100)
+)
+
+# Simulate data in the survival context
+survival_data <- simsurv(
+  lambdas = 0.1, gammas = 0.5,
+  x = participant_data, 
+  betas = c(is_female = -0.2, is_smoker = 1.2,
+            treatment = -0.4, kps = -0.005,
+            disease_stage = 0.2),
+  maxt = 5)
+```
+
+The generated data from the `survival_data` object can then be re-imported into the `participant_data` using any data merging tools, including through a `fabricate` call, and then used for subsequent analyses (e.g. using the **survival** package).
+
+## Time series using **forecast**
+
+**forecast**, by [Rob Hyndman](https://github.com/robjhyndman/forecast), is a package commonly used to analyze time series data which also has functionality capable of generating simulated time series data. **forecast** can use the `Arima` and `simulate` functions to create pre-specified ARIMA models, including seasonal time trends.
+
+Below, we provide an example of using **forecast** to generate an ARIMA time series, reshape the data, and import it into **fabricatr** to create new variables of interest.
+
+```{r eval=FALSE}
+library(forecast)
+
+arima_model <- simulate(
+  Arima(ts(rnorm(100), frequency = 4),
+        order = c(1, 0, 1))
+  
+fabricate(data.frame(arima_model), 
+          year = rep(1:25, each=4),
+          quarter = rep(1:4, 25))
+```
+
+Here, `ts` converts a series of data into a time series, with frequency specifying the number of observations per unit of time (in this case, for example, quarters in a year). `Arima` ingests this data and fits an ARIMA model with the specified parameters. `simulate` draws new data from the fit time series, producing a vector of interest. We then import the data into a `fabricate` call (converting it to a data frame) and add new columns of interest.
+
+## Other data simulation tools
+
+The `R` ecosystem has many other data simulation tools, and all can be used to complement or supplement **fabricatr** in your workflow. Some of the packages that we have noticed but not covered here include:
+
+* [gems](https://cran.r-project.org/web/packages/gems/index.html) by Luisa Salazar Vizcaya
+* [simFrame](https://cran.r-project.org/web/packages/simFrame/index.html) by Andreas Alfons
+* [simPop](https://cran.r-project.org/web/packages/simPop/index.html) by Matthias Templ
+* [simStudy](https://cran.r-project.org/web/packages/simstudy/index.html) by Keith Goldfeld
+* [synthPop](https://cran.r-project.org/web/packages/synthpop/index.html) by Beata Nowok
+
+If you'd like to see a tutorial on using these packages or any others with **fabricatr**, please [Contact Us](http://discuss.declaredesign.org/) so we can help you

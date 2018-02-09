@@ -50,8 +50,9 @@ draw_binary_icc <- function(prob = 0.5, N = NULL, clusters, ICC = 0) {
     clusters <- as.numeric(as.factor(clusters))
   }, error = function(e) {
     stop(
-      "Error coercing cluster IDs to factor levels. Please ensure the `clusters` ",
-      "argument is numeric, factor, or can be coerced into being a factor."
+      "Error coercing cluster IDs to factor levels. Please ensure the ",
+      "`clusters` argument is numeric, factor, or can be coerced into being ",
+      "a factor."
     )
   })
 
@@ -77,7 +78,8 @@ draw_binary_icc <- function(prob = 0.5, N = NULL, clusters, ICC = 0) {
   }
   if (length(prob) == length(clusters) &&
     nrow(unique(cbind(prob, clusters))) != number_of_clusters) {
-    stop("If `prob` is provided for each observation, it must be unique per cluster.")
+    stop("If `prob` is provided for each observation, it must be unique per ",
+         "cluster.")
   }
 
   if (any(!is.numeric(prob))) {
@@ -95,7 +97,8 @@ draw_binary_icc <- function(prob = 0.5, N = NULL, clusters, ICC = 0) {
     stop("The ICC provided to `draw_binary_icc()` must be a number.")
   }
   if (ICC > 1 | ICC < 0) {
-    stop("The ICC provided to `draw_binary_icc()` must be a number between 0 and 1.")
+    stop("The ICC provided to `draw_binary_icc()` must be a number between 0 ",
+         "and 1.")
   }
 
   # Generate cluster and individual probabilities

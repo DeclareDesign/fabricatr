@@ -71,8 +71,9 @@ draw_normal_icc <- function(mean = 0,
     clusters <- as.numeric(as.factor(clusters))
   }, error = function(e) {
     stop(
-      "Error coercing cluster IDs to factor levels. Please ensure the `clusters` ",
-      "argument is numeric, factor, or can be coerced into being a factor."
+      "Error coercing cluster IDs to factor levels. Please ensure the ",
+      "`clusters` argument is numeric, factor, or can be coerced into being ",
+      "a factor."
     )
   })
   number_of_clusters <- length(unique(clusters))
@@ -97,7 +98,8 @@ draw_normal_icc <- function(mean = 0,
   }
   if (length(mean) == length(clusters) &&
     nrow(unique(cbind(mean, clusters))) != number_of_clusters) {
-    stop("If `mean` is provided for each observation, it must be unique per cluster.")
+    stop("If `mean` is provided for each observation, it must be unique per ",
+         "cluster.")
   }
   if (any(!is.numeric(mean))) {
     stop("`mean` must be a number or vector of numbers.")
@@ -106,10 +108,12 @@ draw_normal_icc <- function(mean = 0,
   # Sanity check ICC
   if (is.null(ICC)) {
     if (is.null(sd) || is.null(sd_between)) {
-      stop("If `ICC` is not provided, both `sd` and `sd_between` must be provided.")
+      stop("If `ICC` is not provided, both `sd` and `sd_between` must be ",
+           "provided.")
     } else {
       implied_ICC <- sd_between ^ 2 / (sd_between ^ 2 + sd ^ 2)
-      message("Implied `ICC` of provided standard deviations: ", round(implied_ICC, 3))
+      message("Implied `ICC` of provided standard deviations: ",
+              round(implied_ICC, 3))
     }
   } else {
     # Fill in a default value if only ICC is specified; sd within-cluster = 1
@@ -119,45 +123,47 @@ draw_normal_icc <- function(mean = 0,
     }
 
     if (length(ICC) > 1) {
-      stop("The `ICC` provided to `draw_normal_icc()` must be a single number.")
+      stop("The `ICC` provided to `draw_normal_icc()` must be a single ",
+           "number.")
     }
     if (!is.numeric(ICC)) {
       stop("The `ICC` provided to `draw_normal_icc()` must be a number.")
     }
     if (ICC > 1 | ICC < 0) {
-      stop("The `ICC` provided to `draw_normal_icc()` must be a number between 0 and 1.")
+      stop("The `ICC` provided to `draw_normal_icc()` must be a number ",
+           "between 0 and 1.")
     }
     if (ICC >= 0.999 & !is.null(sd)) {
       stop(
-        "An `ICC` of 1 with a finite within-cluster variance requires division ",
-        "by zero to infer between-cluster variance. Try a lower ICC or ",
-        "specify between- and within-cluster variance (`sd_between` and `sd`) ",
-        "to infer ICC."
+        "An `ICC` of 1 with a finite within-cluster variance requires ",
+        "division by zero to infer between-cluster variance. Try a lower ICC ",
+        "or specify between- and within-cluster variance (`sd_between` and ",
+        "`sd`) to infer ICC."
       )
     }
     if (ICC <= 0.001 & !is.null(sd)) {
       stop(
         "An `ICC` of 0 with a finite within-cluster variance implies zero ",
         "between-cluster variance. You can generate data with zero ICC ",
-        "using R's standard `rnorm` command to generate normal data independent ",
-        "of the cluster variable."
+        "using R's standard `rnorm` command to generate normal data ",
+        "independent of the cluster variable."
       )
     }
     if (ICC <= 0.001 & !is.null(sd_between)) {
       stop(
-        "An `ICC` of 0 with a finite between-cluster variance requires division ",
-        "by zero to infer within-cluster variance. Try a higher ICC or ",
-        "specify between- and within-cluster variance (`sd_between` and `sd`) ",
-        "to infer ICC."
+        "An `ICC` of 0 with a finite between-cluster variance requires ",
+        "division by zero to infer within-cluster variance. Try a higher ICC ",
+        "or specify between- and within-cluster variance (`sd_between` and ",
+        "`sd`) to infer ICC."
       )
     }
     if (ICC >= 0.999 & !is.null(sd_between)) {
       stop(
         "An `ICC` of 1 with a finite between-cluster variance implies zero ",
         "within-cluster variance. You can generate data that is static per ",
-        "cluster using fabricatr's nested level functionality using a two-level ",
-        "design where the outer level represents cluster-level variation and ",
-        "the inner level represents observation-level variation."
+        "cluster using fabricatr's nested level functionality using a ",
+        "two-level design where the outer level represents cluster-level ",
+        "variation and the inner level represents observation-level variation."
       )
     }
 
@@ -165,8 +171,8 @@ draw_normal_icc <- function(mean = 0,
       implied_ICC <- sd_between ^ 2 / (sd_between ^ 2 + sd ^ 2)
       warning(
         "Providing both between-cluster and within-cluster standard ",
-        "deviations implies an ICC of ", round(implied_ICC, 3), ". Ignoring the ",
-        "provided `ICC`"
+        "deviations implies an ICC of ", round(implied_ICC, 3), ". Ignoring ",
+        "the provided `ICC`"
       )
     }
   }
@@ -218,7 +224,8 @@ check_sd_error_helper <- function(data, data_name, number_of_clusters) {
   # Sanity check sd or sd_between
   if (!is.null(data)) {
     if (!length(data) %in% c(1, number_of_clusters)) {
-      stop("`", data_name, "` must be either a number or one number per cluster.")
+      stop("`", data_name, "` must be either a number or one number per ",
+           "cluster.")
     }
     if (!is.vector(data)) {
       stop("`", data_name, "` must be a number or vector of numbers.")
