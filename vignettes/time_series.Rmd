@@ -22,7 +22,7 @@ Below, we begin a series of examples discussing the creation of time series styl
 
 The simplest possible example involves a single unit with specified, time-dependent data, with a linear trend. In this example we generate a geographic location that has a fixed linear time trend in GDP growth.
 
-```{r echo=FALSE}
+```{r results="hide"}
 panel_unit <- fabricate(
   N = 20,
   ts_year = 0:19,
@@ -36,7 +36,7 @@ First, we begin by creating tracking progress on the time trend, here `ts_year`,
 
 A more complex example might involve several geographic units, each of which has a separate growth value. Here we can use **fabricatr**'s support for multi-level, hierarchical data to elaborate:
 
-```{r}
+```{r results="hide"}
 panel_units <- fabricate(
   countries = add_level(
     N = 5,
@@ -58,7 +58,7 @@ Here, each country-year inherits the parameters of the country: a base GDP, an a
 
 Note that it would also be possible to include a fixed global trend in this example by including it as part of the variable specification:
 
-```{r}
+```{r results="hide"}
 global_trend <- 0.1
 
 global_trend_example <- fabricate(
@@ -82,7 +82,7 @@ global_trend_example <- fabricate(
 
 Even more complex designs may include non-trend global level shocks (for example, financial crises or booms that affect all countries). The traditional hierarchical data design may not fit here, because we want common country-level data and common year-level data, both combined to form country-year observations. This is a good example of data that can best be described as multiple non-nested levels. Users interested in implementing this should review our manual on [cross-classified and panel data](http://fabricatr.declaredesign.org/articles/cross_classified.html). The below example will use `cross_levels` and non-nested level data.
 
-```{r}
+```{r results="hide"}
 panel_global_data <- fabricate(
   years = add_level(
     N = 5,
@@ -109,3 +109,7 @@ Notice that each variable is specified in the appropriate level; time series yea
 ### Seasonal or ARIMA Time Series
 
 Although **fabricatr** does not have formal functionality for the creation of ARIMA time series, we recommend that interested users see our [guide to using other data creation packages with **fabricatr**](http://fabricatr.declaredesign.org/articles/other_packages.html), which includes an example of using the **forecast** package to generate ARIMA data.
+
+### What's next?
+
+You may also be interested in our online tutorial on [structuring panel and cross-classified data.](http://fabricatr.declaredesign.org/articles/cross_classified.html).

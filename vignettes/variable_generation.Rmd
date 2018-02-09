@@ -119,7 +119,7 @@ Some variables of interest are modeled as quantile outcomes; for example, income
 
 In this example, we will generate income data for a population and then transform it into deciles:
 
-```{r echo=FALSE}
+```{r results="hide"}
 population <- fabricate(
   N = 1000,
   income = 20000 * rgamma(N, 1.4, 0.65),

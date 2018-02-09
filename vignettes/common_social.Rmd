@@ -1,4 +1,4 @@
----
+  ---
 title: "Common Social Sciences variables"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
@@ -37,7 +37,7 @@ knitr::kable(table(voter_turnout))
 
 It is also possible to specify the probability stochastically. Imagine if you wish to model a population where individuals under age 40 have a low turnout rate, while individuals above age 40 have a high turnout rate. This is very simple with **fabricatr**:
 
-```{r}
+```{r results="hide"}
 population <- fabricate(
   N = 100,
   age = round(runif(N, 18, 85)),
@@ -102,7 +102,7 @@ latent_example(x = seq(-2.8, 2.8, 0.001), density_x = dnorm(seq(-3.8, 1.8, 0.001
 
 Although thinking about ordered data in this latent context may seem strange at first, actually generating an ordered data outcome in **fabricatr** is quite easy:
 
-```{r}
+```{r results="hide"}
 mayor_approval <- draw_ordered(x = rnorm(n = 100),
                                breaks = c(-1.5, -0.5, 0.5, 1.5),
                                break_labels = c("Strongly Disagree", "Disagree",
@@ -110,6 +110,10 @@ mayor_approval <- draw_ordered(x = rnorm(n = 100),
                                                 "Strongly Agree"))
 
 table(mayor_approval)
+```
+
+```{r echo=FALSE}
+knitr::kable(table(mayor_approval))
 ```
 
 Let's look at this `draw_ordered` example. `draw_ordered` requires three pieces of information from us: `x` (the latent variable), `breaks` (the places in the latent variable which divide the categories in the ordered outcome), and `break_labels` (which label the resulting ordered outcome). 
@@ -164,7 +168,7 @@ latent_example_parties(x = seq(-2.8, 2.8, 0.001),
 
 Here, colors indicate the two parties. We see that some members of the red party do disagree with the mayor, but the overwhelming majority do not, and vice versa for the blue party. Now, let's put our visualization into action:
 
-```{r}
+```{r results="hide"}
 respondent_data <- fabricate(
   N = 100,
   mayor_copartisan = draw_binary(prob = 0.6, N),
@@ -178,12 +182,15 @@ respondent_data <- fabricate(
 
 table(respondent_data$mayor_approval, respondent_data$mayor_copartisan)
 ```
+```{r echo=FALSE}
+knitr::kable(table(respondent_data$mayor_approval, respondent_data$mayor_copartisan))
+```
 
 This example is a little more complex. You can see the use of the `fabricate` wrapper function, which is described in more detail in our [Building and Importing Data](http://fabricatr.declaredesign.org/articles/building_importing.html) guide. Additionally, the latent variable `x` is more complex. Let's consider the formula for how this variable is specified. We know that the latent variable space from -1.5 to -0.5 indicates "Disagree". For respondents who have `mayor_copartisan` equal to 0 (they are not in the mayor's political party), their preference will be a standard normal draw centered at $-1 + (2 * 0) = -1$. For respondents who have `mayor_copartisan` equal to 1 (they are in the mayor's political party), their preference will be a standard normal draw centered at $-1 + (2 * 1) = 1$ -- "Agree".
 
 It is easy to play with the location of breaks, labels for breaks, and format of the underlying latent variable. Here's an example where the latent variable is "uniform" -- there is an equal likelihood of choosing each of the options:
 
-```{r}
+```{r results="hide"}
 mayor_approval <- draw_ordered(x = runif(n = 100, min = -2.5, max = 2.5),
                                breaks = c(-1.5, -0.5, 0.5, 1.5),
                                break_labels = c("Strongly Disagree", "Disagree",
@@ -199,11 +206,14 @@ Many survey responses that focus on labeling agreement, support, or quality eval
 
 By using `draw_likert`, users only need to specify the `x` latent variable -- assumed to be distributed with breaks spaced 1 unit apart and with the data centered on 0 -- and the `type` of Likert they would like (the number of categories). In this example, we examine the same data above, but with a 4-category Likert scale where the options are "Strongly Agree", "Agree", "Disagree", and "Strongly Disagree", with no neutral category.
 
-```{r}
+```{r results="hide"}
 mayor_approval <- draw_likert(x = rnorm(n = 100),
                               type = 4)
 
 table(mayor_approval)
+```
+```{r echo=FALSE}
+knitr::kable(table(mayor_approval))
 ```
 
 ### Categorical data (e.g. demographic measures)
@@ -225,13 +235,16 @@ prop.table(display_counts)
 
 **fabricatr** makes it easy to generate data based on specifications like these using `draw_categorical`:
 
-```{r echo=FALSE}
+```{r results="hide"}
 respondent_ethnicity <- draw_categorical(
   prob = c(0.172, 0.138, 0.129, 0.105, 0.022, 0.435),
   category_labels = c("Kikuyu", "Luhya", "Kalenjin", "Luo", "Maasai", "Other"),
   N = 100)
 
 table(respondent_ethnicity)
+```
+```{r echo=FALSE}
+knitr::kable(table(respondent_ethnicity))
 ```
 ### Data with fixed minimum and maximum values
 
@@ -253,7 +266,6 @@ efficacy_experiment <- fabricate(
                                      sd = 10)
 )
 ```
-
 
 In fact, in this example, some respondents have pre-treatment scores above 100! This matters because the real-world data gathered later will be truncated, and so the researchers power to detect effects may be compromised because of a high density of responses near the cutoff. As a result, it is important that researchers model the truncation directly. Doing so is simple using functionality provided by `R`: `pmin` and `pmax`.
 
@@ -286,6 +298,89 @@ hist(fixed_efficacy_experiment$post_outcome,
      xlab = "Post-Treatment Outcome: Score from 0 to 100")
 ```
 
-### Outcomes with Intra-Cluster Correlation
+### Count outcomes and skewed distributions 
 
+Researchers may be interested in "count" outcomes, which describe a count of events of interest during a fixed time period. For our example in this section, we draw from "Propaganda and Conflict: Evidence from the Rwandan Genocide" (Yanagizawa-Drott 2014), an article which uses a quasi-experimental design to establish an association between the broadcasts of Radio Télévision Libre des Mille Collines and local instances of violence during the Rwandan Genocide. Substantively, the paper's conclusion is that higher density in radio coverage is associated with greater local participation in genocidal violence.
 
+In our version of this data, we have two variables of interest: number of violent incidents, and density of radio coverage. We know a priori that both variables must be at least 0, we are unsure what the maximum number might be, we know that the number of violent incidents must be a "discrete" variable (in this case, a whole number) while radio coverage is "continuous" (can take fractional values).
+
+First, to model the number of violent incidents, we make use of **fabricatr**'s `draw_count` function, which is quite simple -- it needs two arguments: `mean`, which describes the mean count, and `N`, which describes how many units you need count data for. Statistically, this function generates "Poisson-distributed" count data. This is one of the typical distributions used for count data.
+
+Second, to model the radio covarage, we might believe radio coverage is an example of skewed data; in other words, few urban areas might have extremely dense radio coverage, while many rural areas might have very low radio coverage. We, thus, need a data distribution that looks like this: 
+
+```{r echo=FALSE, fig.width=7, fig.height=3}
+plot(seq(0, 10, by=0.01), 
+     dlnorm(seq(0, 10, by=0.01)), 
+     type="l",
+     main="Hypothesized distribution of Radio Coverage",
+     xlab="Density of Radio Coverage",
+     xaxt="n",
+     yaxt="n",
+     ylab="Number of observations")
+axis(side = 1,
+     at = c(0, 0.5, 10),
+     labels = c("0", "Low", "High"))
+```
+
+`R` makes available a fairly simple function for generating this sort of data, `rlnorm`, which generates log-normal data. Log-normal data is one of the key distributions used to model data with a skew like the one we hypothesize: for example, income data in a population (where relatively few wealthy people have substantially more income than relatively many working class people). `rlnorm` takes three arguments: `n` (the number of observations), `meanlog` (the mean of the log-transformed data), and `sdlog` (the standard deviation of the log-transformed data). 
+
+```{r results="hide"}
+rtlme_model <- fabricate(
+  N = 1000,
+  radio_coverage = rlnorm(N, meanlog=0, sdlog=1),
+  violent_incident_count = draw_count(mean = 1.5 * radio_coverage, N = N)
+)
+```
+
+Replicating real data is important because the inference you draw when modeling results depends on the "support" (range of values observations take) and "density" (how many observations take each value); to the extent that real-world data will likely be dense in some regions of the data and sparse in others, it is important that your synthetic data is as well in order to recover inferences that will be accurate to your future real-world inferences, and particularly your uncertainty about those inferences.
+
+```{r echo=FALSE}
+plot(
+  rtlme_model$radio_coverage,
+  rtlme_model$violent_incident_count,
+  col="lightgrey",
+  cex=0.7,
+  main="Imagined Data: Radio Coverage versus violence",
+  xlab="Radio Coverage",
+  ylab="Violent Incidents"
+)
+fit_loess <- loess(violent_incident_count ~ radio_coverage, data=rtlme_model)
+loess_np <- predict(fit_loess, nedata=rtlme_model$radio_coverage, se=TRUE)
+min_set <- loess_np$fit - 1.96 * loess_np$se.fit
+max_set <- loess_np$fit + 1.96 * loess_np$se.fit
+ordered_x <- order(rtlme_model$radio_coverage)
+rug(rtlme_model$radio_coverage)
+lines(rtlme_model$radio_coverage[ordered_x], 
+      fit_loess$fitted[ordered_x],
+      col="red"
+      )
+lines(rtlme_model$radio_coverage[ordered_x],
+      max_set[ordered_x],
+      lty = 2,
+      col="red")
+lines(rtlme_model$radio_coverage[ordered_x],
+      min_set[ordered_x],
+      lty = 2,
+      col="red")
+```
+
+Observe that the uncertainty around our predictions is far wider at the right end of the support, which has relatively little data, than at the left end of the support, where most of the data lives.
+
+Thinking about choosing parameters for `meanlog` and `sdlog` is somewhat more mathematically complex in skewed distributions and depending on your use for, you might choose different parameters. Consult `R`'s documentation on log-normal data by running `?Lognormal`. In addition, you may find it useful to investigate other distributions commonly used for this purpose including `?Beta` and `?Gamma`. 
+
+Below we present an example of generating income data which roughly approximates the current U.S. income distribution using the `rgamma` function. The parameters of this income function were derived by [extracting quantiles of the current U.S. income distribution](https://dqydj.com/income-percentile-calculator/) and then selecting the gamma distribution parameters and multipliers which best fit the data:
+
+```{r results="hide"}
+population_data <- fabricate(
+  N = 1000,
+  income = 20000 * rgamma(N, 1.4, 0.65)
+)
+```
+
+In addition to the helper functions provided by **fabricatr** and the built-in `R` distributions suitable for generating skewed data, other `R` packages like [`sn`](https://cran.r-project.org/web/packages/sn/index.html) also include useful functions for generating skewed data and can be incorporated into `fabricate` calls.
+
+### What's next?
+
+This brings us to the end of this introductory tutorial on common social science variables. As a next step, our tutorial on [variable generation with **fabricatr**](http://fabricatr.declaredesign.org/articles/variable_generation.html) -- targeted to a slightly more technical audience -- contains more examples of the kinds of variables you can easily create with **fabricatr**. In addition, we have tutorials on creating [time series variables](http://fabricatr.declaredesign.org/articles/time_series.html), and on [using other variable creation packages with **fabricatr**](http://fabricatr.declaredesign.org/articles/other_packages.html).
+
+Finally, if you are in interested in learning about how to structure your data (for example, to generate multi-level, panel, or cross-classified data), you can consult our tutorials on [http://fabricatr.declaredesign.org/articles/building_importing.html](building data in **fabricatr**), and [http://fabricate.declaredesign.org/articles/cross_classified.html](panel and cross-classified data in **fabricatr**).
