@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>fabricatr - License</title>
+<title>fabricatr - Find which variables are unique at a given level in hierarchical data — get_unique_variables_by_level</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -20,9 +20,9 @@
 
 
 <!-- pkgdown -->
-<link href="pkgdown.css" rel="stylesheet">
-<script src="jquery.sticky-kit.min.js"></script>
-<script src="pkgdown.js"></script>
+<link href="../pkgdown.css" rel="stylesheet">
+<script src="../jquery.sticky-kit.min.js"></script>
+<script src="../pkgdown.js"></script>
   
   
 <!-- mathjax -->
@@ -37,7 +37,7 @@
   </head>
 
   <body>
-    <div class="container template-license">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -47,7 +47,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="">fabricatr</a>
+      <a class="navbar-brand" href="../">fabricatr</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -59,33 +59,33 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="articles/getting_started.html">Getting Started</a>
+      <a href="../articles/getting_started.html">Getting Started</a>
     </li>
     <li>
-      <a href="articles/building_importing.html">Building and Importing Data</a>
+      <a href="../articles/building_importing.html">Building and Importing Data</a>
     </li>
     <li>
-      <a href="articles/common_social.html">Common Social Science Variables</a>
+      <a href="../articles/common_social.html">Common Social Science Variables</a>
     </li>
     <li>
-      <a href="articles/variable_generation.html">Generating Variables</a>
+      <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
-      <a href="articles/cross_classified.html">Panel and Cross-Classified Data</a>
+      <a href="../articles/cross_classified.html">Panel and Cross-Classified Data</a>
     </li>
     <li>
-      <a href="articles/resampling.html">Resampling</a>
+      <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
-      <a href="articles/time_series.html">Time Series Data</a>
+      <a href="../articles/time_series.html">Time Series Data</a>
     </li>
     <li>
-      <a href="articles/advanced_features.html">Advanced Features</a>
+      <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
   </ul>
 </li>
 <li>
-  <a href="reference/">Reference</a>
+  <a href="../reference/">Reference</a>
 </li>
 <li>
   <a href="http://discuss.declaredesign.org">Ask for Help</a>
@@ -129,19 +129,53 @@
       </header>
 
       <div class="row">
-  <div class="contents col-md-12">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>License</h1>
+    <h1>Find which variables are unique at a given level in hierarchical data</h1>
     </div>
 
-<pre>YEAR: 2015-2017
-COPYRIGHT HOLDER: Graeme Blair, Jasper Cooper, Alexander Coppock, and Macartan Humphreys
-</pre>
+    
+    <p>Find which variables are unique at a given level in hierarchical data</p>
+    
+
+    <pre class="usage"><span class='fu'>get_unique_variables_by_level</span>(<span class='no'>data</span>, <span class='no'>ID_label</span>, <span class='kw'>superset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>data</th>
+      <td><p>a data.frame</p></td>
+    </tr>
+    <tr>
+      <th>ID_label</th>
+      <td><p>the ID label to split upon</p></td>
+    </tr>
+    <tr>
+      <th>superset</th>
+      <td><p>Superset contains a vector of character strings that contain variables
+the modify level call is going to write. Some of these may be columns
+in the data frame, others might not be. If superset is specified,
+then we definitely only want to check those variables</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a character vector enumerating the unique variables</p>
+    
 
   </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+          </ul>
 
+  </div>
 </div>
-
 
       <footer>
       <div class="copyright" style="flex:2;">

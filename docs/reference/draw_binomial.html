@@ -66,6 +66,9 @@ ordered, and categorical — draw_binomial</title>
       <a href="../articles/building_importing.html">Building and Importing Data</a>
     </li>
     <li>
+      <a href="../articles/common_social.html">Common Social Science Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
@@ -73,6 +76,9 @@ ordered, and categorical — draw_binomial</title>
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
+    </li>
+    <li>
+      <a href="../articles/time_series.html">Time Series Data</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -144,7 +150,8 @@ appropriate for a likert survey question.</p>
 
     <pre class="usage"><span class='fu'>draw_binomial</span>(<span class='no'>prob</span>, <span class='kw'>trials</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>prob</span>), <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>)
 
-<span class='fu'>draw_categorical</span>(<span class='no'>prob</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>)
+<span class='fu'>draw_categorical</span>(<span class='no'>prob</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>,
+  <span class='kw'>category_labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='fu'>draw_ordered</span>(<span class='no'>x</span>, <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>1</span>), <span class='kw'>break_labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>x</span>),
   <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>)
@@ -154,7 +161,9 @@ appropriate for a likert survey question.</p>
 <span class='fu'>draw_binary</span>(<span class='no'>prob</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>prob</span>), <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>)
 
 <span class='fu'>draw_likert</span>(<span class='no'>x</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='fl'>7</span>, <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>x</span>),
-  <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>)</pre>
+  <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>)
+
+<span class='fu'>draw_quantile</span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -182,6 +191,12 @@ a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 link, the latent variable must be a probability.</p></td>
     </tr>
     <tr>
+      <th>category_labels</th>
+      <td><p>vector of labels for the categories produced by
+`draw_categorical`. If provided, must be equal to the number of categories
+provided in the `prob` argument.</p></td>
+    </tr>
+    <tr>
       <th>x</th>
       <td><p>for `draw_ordered` or `draw_likert`, the latent data for each
 observation.</p></td>
@@ -194,7 +209,7 @@ categories with `draw_ordered` or `draw_likert`</p></td>
     <tr>
       <th>break_labels</th>
       <td><p>vector of labels for the breaks to cut a latent outcome
-into ordered categories with `draw_ordered`.</p></td>
+into ordered categories with `draw_ordered`. (Optional)</p></td>
     </tr>
     <tr>
       <th>mean</th>
@@ -206,6 +221,12 @@ into ordered categories with `draw_ordered`.</p></td>
 5, and 7. Type corresponds to the number of categories in the Likert scale.</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A vector of data in accordance with the specification; generally
+numeric but for some functions, including `draw_ordered`, may be factor if
+break labels are provided.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -296,6 +317,8 @@ into ordered categories with `draw_ordered`.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
+      <li><a href="#value">Value</a></li>
+
       <li><a href="#details">Details</a></li>
       
       <li><a href="#examples">Examples</a></li>

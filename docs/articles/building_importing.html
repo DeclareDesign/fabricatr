@@ -42,6 +42,9 @@
       <a href="../articles/building_importing.html">Building and Importing Data</a>
     </li>
     <li>
+      <a href="../articles/common_social.html">Common Social Science Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
@@ -49,6 +52,9 @@
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
+    </li>
+    <li>
+      <a href="../articles/time_series.html">Time Series Data</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -164,6 +170,17 @@ my_data</code></pre></div>
 </table>
 <p>This simple example makes use of <code>R</code>’s built-in <code>runif</code> command. The rest of the tutorial assumes a familiarity with <code>R</code> and its basic data generating processes.</p>
 </div>
+<div id="filling-out-observations-" class="section level1">
+<h1 class="hasAnchor">
+<a href="#filling-out-observations-" class="anchor"></a>Filling out observations.</h1>
+<p><code>fabricate</code> is intended to make rectangular data frames: this means that each variable added at a level needs to be the same length. Failure to provide equal-length variables will result in an error. We provide a convenient helper function, <code>recycle</code>, to help expand existing data to fit the length of your level. Here, let’s use the existing <code>month</code> variable from <code>R</code> to generate data using a month:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">month_gdp &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">20</span>,
+  <span class="dt">month_name =</span> <span class="kw"><a href="../reference/recycle.html">recycle</a></span>(month.abb),
+  <span class="dt">gdp_growth =</span> <span class="kw">rnorm</span>(N, <span class="fl">0.5</span>, <span class="fl">0.5</span>)
+)</code></pre></div>
+<p><code>month.abb</code> contains the months of the year: [“Jan”, “Feb”, “Mar”, …, “Dec”]. It is obvious that although we are asking for 20 observations, there are only twelve months in the year. <code>recycle</code> will automatically wrap the month text resulting in a data frame with the 12 months “Jan” through “Dec”, followed by 8 months “Jan” through “Aug”.</p>
+</div>
 <div id="single-level-datasets-using-existing-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#single-level-datasets-using-existing-data" class="anchor"></a>Single-level datasets using existing data</h1>
@@ -192,8 +209,8 @@ my_data</code></pre></div>
 <td align="right">562</td>
 <td align="right">4.8</td>
 <td align="right">41</td>
-<td align="right">611</td>
-<td align="right">1,025,606,193</td>
+<td align="right">388</td>
+<td align="right">628,388,297</td>
 </tr>
 <tr class="even">
 <td align="right">-21</td>
@@ -201,8 +218,8 @@ my_data</code></pre></div>
 <td align="right">650</td>
 <td align="right">4.2</td>
 <td align="right">15</td>
-<td align="right">290</td>
-<td align="right">297,296,739</td>
+<td align="right">434</td>
+<td align="right">618,609,158</td>
 </tr>
 <tr class="odd">
 <td align="right">-26</td>
@@ -210,8 +227,8 @@ my_data</code></pre></div>
 <td align="right">42</td>
 <td align="right">5.4</td>
 <td align="right">43</td>
-<td align="right">427</td>
-<td align="right">781,383,594</td>
+<td align="right">510</td>
+<td align="right">583,027,231</td>
 </tr>
 <tr class="even">
 <td align="right">-18</td>
@@ -219,8 +236,8 @@ my_data</code></pre></div>
 <td align="right">626</td>
 <td align="right">4.1</td>
 <td align="right">19</td>
-<td align="right">470</td>
-<td align="right">523,884,824</td>
+<td align="right">466</td>
+<td align="right">494,729,688</td>
 </tr>
 <tr class="odd">
 <td align="right">-20</td>
@@ -228,8 +245,8 @@ my_data</code></pre></div>
 <td align="right">649</td>
 <td align="right">4.0</td>
 <td align="right">11</td>
-<td align="right">456</td>
-<td align="right">716,487,843</td>
+<td align="right">283</td>
+<td align="right">336,514,520</td>
 </tr>
 <tr class="even">
 <td align="right">-20</td>
@@ -237,8 +254,8 @@ my_data</code></pre></div>
 <td align="right">195</td>
 <td align="right">4.0</td>
 <td align="right">12</td>
-<td align="right">390</td>
-<td align="right">696,587,098</td>
+<td align="right">487</td>
+<td align="right">943,313,456</td>
 </tr>
 </tbody>
 </table>
@@ -274,31 +291,31 @@ my_data</code></pre></div>
 <tbody>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">01</td>
-<td align="right">1</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="left">1</td>
-<td align="right">39,398</td>
-<td align="right">73</td>
-<td align="left">02</td>
-<td align="right">1</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="left">1</td>
-<td align="right">39,398</td>
-<td align="right">73</td>
-<td align="left">03</td>
 <td align="right">0</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
+<td align="right">73</td>
+<td align="left">02</td>
+<td align="right">0</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">49,955</td>
+<td align="right">73</td>
+<td align="left">03</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">04</td>
 <td align="right">0</td>
@@ -306,18 +323,18 @@ my_data</code></pre></div>
 </tr>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">05</td>
-<td align="right">1</td>
+<td align="right">0</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">06</td>
-<td align="right">0</td>
+<td align="right">1</td>
 <td align="right">1</td>
 </tr>
 </tbody>
@@ -357,63 +374,63 @@ my_data</code></pre></div>
 <tbody>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">01</td>
-<td align="right">1</td>
+<td align="right">0</td>
 <td align="right">1</td>
 <td align="left">001</td>
-<td align="right">61,928</td>
+<td align="right">45,881</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">01</td>
-<td align="right">1</td>
+<td align="right">0</td>
 <td align="right">1</td>
 <td align="left">002</td>
-<td align="right">61,358</td>
+<td align="right">53,519</td>
 </tr>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">01</td>
-<td align="right">1</td>
+<td align="right">0</td>
 <td align="right">1</td>
 <td align="left">003</td>
-<td align="right">67,497</td>
+<td align="right">50,356</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">01</td>
-<td align="right">1</td>
+<td align="right">0</td>
 <td align="right">1</td>
 <td align="left">004</td>
-<td align="right">51,694</td>
+<td align="right">61,273</td>
 </tr>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">01</td>
-<td align="right">1</td>
+<td align="right">0</td>
 <td align="right">1</td>
 <td align="left">005</td>
-<td align="right">38,326</td>
+<td align="right">57,054</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">01</td>
-<td align="right">1</td>
+<td align="right">0</td>
 <td align="right">1</td>
 <td align="left">006</td>
-<td align="right">60,078</td>
+<td align="right">50,933</td>
 </tr>
 </tbody>
 </table>
@@ -445,57 +462,57 @@ my_data</code></pre></div>
 <tbody>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">01</td>
+<td align="right">0</td>
 <td align="right">1</td>
-<td align="right">1</td>
-<td align="right">33</td>
+<td align="right">37</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">02</td>
+<td align="right">0</td>
 <td align="right">1</td>
-<td align="right">1</td>
-<td align="right">33</td>
+<td align="right">37</td>
 </tr>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">03</td>
-<td align="right">0</td>
 <td align="right">1</td>
-<td align="right">33</td>
+<td align="right">1</td>
+<td align="right">37</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">04</td>
 <td align="right">0</td>
 <td align="right">1</td>
-<td align="right">33</td>
+<td align="right">37</td>
 </tr>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">05</td>
-<td align="right">1</td>
 <td align="right">0</td>
-<td align="right">33</td>
+<td align="right">0</td>
+<td align="right">37</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
-<td align="right">39,398</td>
+<td align="right">49,955</td>
 <td align="right">73</td>
 <td align="left">06</td>
-<td align="right">0</td>
 <td align="right">1</td>
-<td align="right">33</td>
+<td align="right">1</td>
+<td align="right">37</td>
 </tr>
 </tbody>
 </table>
@@ -542,20 +559,20 @@ ave_example</code></pre></div>
 <tr class="odd">
 <td align="left">1</td>
 <td align="left">1</td>
-<td align="right">0.03</td>
-<td align="right">0.03</td>
+<td align="right">0.58</td>
+<td align="right">0.58</td>
 </tr>
 <tr class="even">
 <td align="left">2</td>
 <td align="left">2</td>
-<td align="right">0.65</td>
-<td align="right">0.00</td>
+<td align="right">-0.17</td>
+<td align="right">0.13</td>
 </tr>
 <tr class="odd">
 <td align="left">2</td>
 <td align="left">3</td>
-<td align="right">-0.65</td>
-<td align="right">0.00</td>
+<td align="right">0.42</td>
+<td align="right">0.13</td>
 </tr>
 </tbody>
 </table>
@@ -576,6 +593,7 @@ ave_example</code></pre></div>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#basics">Basics</a></li>
       <li><a href="#single-level-datasets-from-scratch">Single-level datasets from scratch</a></li>
+      <li><a href="#filling-out-observations-">Filling out observations.</a></li>
       <li><a href="#single-level-datasets-using-existing-data">Single-level datasets using existing data</a></li>
       <li><a href="#hierarchical-data">Hierarchical data</a></li>
       <li><a href="#adding-hierarchy-to-existing-data">Adding hierarchy to existing data</a></li>

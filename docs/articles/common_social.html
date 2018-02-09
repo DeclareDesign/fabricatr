@@ -42,6 +42,9 @@
       <a href="../articles/building_importing.html">Building and Importing Data</a>
     </li>
     <li>
+      <a href="../articles/common_social.html">Common Social Science Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
@@ -49,6 +52,9 @@
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
+    </li>
+    <li>
+      <a href="../articles/time_series.html">Time Series Data</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -110,18 +116,296 @@
     
     
 <div class="contents">
-<div id="coming-soon-" class="section level1">
-<h1 class="hasAnchor">
-<a href="#coming-soon-" class="anchor"></a>Coming soon.</h1>
-<p>This vignette is coming soon and will be live on or about January 25th, 2018. You can view the most recent version of this vignette <a href="http://fabricatr.declaredesign.org/articles/common_social.html">online</a>.</p>
-<p>In the mean time, you may be interested in any of these vignettes:</p>
-<ul>
-<li><a href="http://fabricatr.declaredesign.org/articles/getting_started.html">Getting Started with <strong>fabricatr</strong></a></li>
-<li><a href="http://fabricatr.declaredesign.org/articles/building_importing.html">Building and Importing Data</a></li>
-<li><a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">Generating Discrete Random Variables</a></li>
-<li><a href="http://fabricatr.declaredesign.org/articles/cross_classified.html">Panel and Cross-Classified Data</a></li>
-<li><a href="http://fabricatr.declaredesign.org/articles/resampling.html">Resampling and Bootstrapping Hierarchical Data</a></li>
-</ul>
+<p><strong>fabricatr</strong> makes it easy to generate common social science variables. While our other online tutorials focus on exploring the full extent of <strong>fabricatr</strong>’s capabilities, this tutorial focuses on simple plain-English introductions to common variable types used in social science research, along with an introduction to the statistical terminology associated with them. Examples are drawn from pre-analysis plans filed with <a href="http://egap.org">Evidence in Governance and Politics</a> (EGAP).</p>
+<p><strong>If you already feel comfortable understanding these concepts and would prefer a technical manual for our variable creation functions, please consult our <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">Generating Variables</a> tutorial.</strong></p>
+<div id="binary-outcomes-e-g-turnout" class="section level2">
+<h2 class="hasAnchor">
+<a href="#binary-outcomes-e-g-turnout" class="anchor"></a>Binary outcomes (e.g. turnout)</h2>
+<p>The simplest possible outcome of interest is a binary outcome: one that can be either true or false. An example of this sort of outcome in a social science research context is whether or not a subject performs an action: Does a person seek medical treatment? Does a person turn out to vote? Does a person write a letter to their congressional representative? Is an infrastructure project completed on time? These sorts of questions are typically modelled as binary outcomes. The “yes” or “no” answer to your question of interest is represented as 1 (“yes”) or 0 (“no”) numerically.</p>
+<p>In <strong>fabricatr</strong>, binary data can easily be modeled with the <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> function:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">voter_turnout =<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.4</span>, <span class="dt">N =</span> <span class="dv">100</span>)
+
+<span class="kw">table</span>(voter_turnout)</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">voter_turnout</th>
+<th align="right">Freq</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">0</td>
+<td align="right">58</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">42</td>
+</tr>
+</tbody>
+</table>
+<p><code>draw_binary</code> requires that you supply two pieces of data: <code>prob</code>, which specifies either a single probability or a vector of probabilities (one for each unit), the probability of getting a “1” in your simulated data. For instance, here we are modeling a turnout rate of 40%. Second, it requires <code>N</code>, which specifies how many observations to create.</p>
+<p>It is also possible to specify the probability stochastically. Imagine if you wish to model a population where individuals under age 40 have a low turnout rate, while individuals above age 40 have a high turnout rate. This is very simple with <strong>fabricatr</strong>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">population &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">100</span>,
+  <span class="dt">age =</span> <span class="kw">round</span>(<span class="kw">runif</span>(N, <span class="dv">18</span>, <span class="dv">85</span>)),
+  <span class="dt">turnout =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="kw">ifelse</span>(age <span class="op">&lt;</span><span class="st"> </span><span class="dv">40</span>, <span class="fl">0.4</span>, <span class="fl">0.7</span>), <span class="dt">N=</span>N)
+)</code></pre></div>
+<p>This example introduces you to a few new functions. First, we can wrap multiple variable creation commands in a <code>fabricate</code> call. This will ensure the result is a data frame, and that each variable creation command has access to the previous variables. Second, you see that we can model age using <code>R</code>’s built-in <code>runif</code> function. If you would like more information about modeling statistical distributions in R, see the <code>?Distributions</code> manual page. Third, you see that we model turnout probability statistically; if the user has an age below 40, they receive turnout probability 0.4. If not, they receive turnout probability 0.7.</p>
+<p>As noted in the introduction for this tutorial, the target audience for this tutorial is someone interested in common social science outcome variables, but without a strong background in thinking about modelling these variables. If you feel comfortable modelling but need to learn how to specify the variables in <strong>fabricatr</strong>, please see our tutorial <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">on variable generation with <strong>fabricatr</strong></a>. If you need more information about modeling the structure of data or implementing multi-level models, panel data, or cross-classified data with <strong>fabricatr</strong>, then please see our tutorial <a href="http://fabricatr.declaredesign.org/articles/building_importing.html">on building and importing data</a>.</p>
+<div id="ordered-data-e-g-satisfaction" class="section level3">
+<h3 class="hasAnchor">
+<a href="#ordered-data-e-g-satisfaction" class="anchor"></a>Ordered data (e.g. satisfaction)</h3>
+<p>The type of data generated for many survey questions is “ordered”. Ordered data includes the “Likert scale”, and is used when respondents to a survey report an outcome which has a logical ordering from lowest to highest but is not necessarily measured in numerically comparable terms. Consider a basic question like “Do you approve of your mayor’s job performance?”. There are many ways you could measure a respondent’s answer to this question, but one of the most common is by offering the respondent the choice to “Strongly Disapprove”, “Disapprove”, feel “Neutral”, “Approve”, or “Strongly Approve”. This five point scale is ordered data.</p>
+<p>When simulating ordered data, we typically think of the problem differently, as a two-step process. The first step is to assign a respondent a score over some range, and the second step is to translate that score into the categories of the ordered variable. We call the first step a “latent variable”. In the real survey, we never see the latent variable, only the ordered data outcome. But we can rely on the latent variable to help shape our simulated data.</p>
+<p>We generate a simulated latent variable and then translate it into a simulated ordered variable, like so:</p>
+<p><img src="common_social_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
+<p>In the above graph, most respondents (the “density” represented by the height of the curve) are neutral about the mayor, and relatively few hold extreme opinions. We generated a “normal” latent variable for our respondents and then translate this to the ordered outcome. The simplest normal variable is the “standard normal”, a random variable whose mean (center) is 0, and whose standard deviation (spread) is 1. So, although it is not shown in the graph above, the dashed lines which divide the ordered outcomes are located at -1.5, -0.5, 0.5, and 1.5.</p>
+<p>Of course it would also be possible to affect the center and spread of this question:</p>
+<p><img src="common_social_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
+<p>Although thinking about ordered data in this latent context may seem strange at first, actually generating an ordered data outcome in <strong>fabricatr</strong> is quite easy:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mayor_approval &lt;-<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">100</span>),
+                               <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">1.5</span>),
+                               <span class="dt">break_labels =</span> <span class="kw">c</span>(<span class="st">"Strongly Disagree"</span>, <span class="st">"Disagree"</span>,
+                                                <span class="st">"Neutral"</span>, <span class="st">"Agree"</span>,
+                                                <span class="st">"Strongly Agree"</span>))
+
+<span class="kw">table</span>(mayor_approval)</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">mayor_approval</th>
+<th align="right">Freq</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Strongly Disagree</td>
+<td align="right">7</td>
+</tr>
+<tr class="even">
+<td align="left">Disagree</td>
+<td align="right">20</td>
+</tr>
+<tr class="odd">
+<td align="left">Neutral</td>
+<td align="right">42</td>
+</tr>
+<tr class="even">
+<td align="left">Agree</td>
+<td align="right">22</td>
+</tr>
+<tr class="odd">
+<td align="left">Strongly Agree</td>
+<td align="right">9</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s look at this <code>draw_ordered</code> example. <code>draw_ordered</code> requires three pieces of information from us: <code>x</code> (the latent variable), <code>breaks</code> (the places in the latent variable which divide the categories in the ordered outcome), and <code>break_labels</code> (which label the resulting ordered outcome).</p>
+<p>For <code>x</code>, we use the <code>rnorm</code> command to generate 100 standard normal draws representing our respondents. For <code>breaks</code> and <code>break_labels</code>, we mark and label the breaks as we did above.</p>
+<p>The appeal of <strong>fabricatr</strong> is that we can create relationships between variables, so let’s imagine a slightly more complex data where in general the mayor is well liked by members of her political party, but not by members of the opposite political party. To do this, we’ll need to assign respondents to a political party (we’ll mark the mayor’s political party with “1” and the opposition political party with “0”) and then generate our latent variable.</p>
+<p>First, let’s visualize the latent variable:</p>
+<p><img src="common_social_files/figure-html/unnamed-chunk-9-1.png" width="672"></p>
+<p>Here, colors indicate the two parties. We see that some members of the red party do disagree with the mayor, but the overwhelming majority do not, and vice versa for the blue party. Now, let’s put our visualization into action:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">respondent_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">100</span>,
+  <span class="dt">mayor_copartisan =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.6</span>, N),
+  <span class="dt">mayor_approval =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(
+    <span class="dt">x =</span> <span class="kw">rnorm</span>(N, <span class="dt">mean =</span> <span class="op">-</span><span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>mayor_copartisan),
+    <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">1.5</span>),
+    <span class="dt">break_labels =</span> <span class="kw">c</span>(<span class="st">"Strongly Disagree"</span>, <span class="st">"Disagree"</span>, <span class="st">"Neutral"</span>,
+                     <span class="st">"Agree"</span>, <span class="st">"Strongly Agree"</span>)
+  )
+)
+
+<span class="kw">table</span>(respondent_data<span class="op">$</span>mayor_approval, respondent_data<span class="op">$</span>mayor_copartisan)</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th></th>
+<th align="right">0</th>
+<th align="right">1</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Strongly Disagree</td>
+<td align="right">17</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>Disagree</td>
+<td align="right">14</td>
+<td align="right">4</td>
+</tr>
+<tr class="odd">
+<td>Neutral</td>
+<td align="right">9</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td>Agree</td>
+<td align="right">1</td>
+<td align="right">18</td>
+</tr>
+<tr class="odd">
+<td>Strongly Agree</td>
+<td align="right">1</td>
+<td align="right">24</td>
+</tr>
+</tbody>
+</table>
+<p>This example is a little more complex. You can see the use of the <code>fabricate</code> wrapper function, which is described in more detail in our <a href="http://fabricatr.declaredesign.org/articles/building_importing.html">Building and Importing Data</a> guide. Additionally, the latent variable <code>x</code> is more complex. Let’s consider the formula for how this variable is specified. We know that the latent variable space from -1.5 to -0.5 indicates “Disagree”. For respondents who have <code>mayor_copartisan</code> equal to 0 (they are not in the mayor’s political party), their preference will be a standard normal draw centered at <span class="math inline">\(-1 + (2 * 0) = -1\)</span>. For respondents who have <code>mayor_copartisan</code> equal to 1 (they are in the mayor’s political party), their preference will be a standard normal draw centered at <span class="math inline">\(-1 + (2 * 1) = 1\)</span> – “Agree”.</p>
+<p>It is easy to play with the location of breaks, labels for breaks, and format of the underlying latent variable. Here’s an example where the latent variable is “uniform” – there is an equal likelihood of choosing each of the options:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mayor_approval &lt;-<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(<span class="dt">x =</span> <span class="kw">runif</span>(<span class="dt">n =</span> <span class="dv">100</span>, <span class="dt">min =</span> <span class="op">-</span><span class="fl">2.5</span>, <span class="dt">max =</span> <span class="fl">2.5</span>),
+                               <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">1.5</span>),
+                               <span class="dt">break_labels =</span> <span class="kw">c</span>(<span class="st">"Strongly Disagree"</span>, <span class="st">"Disagree"</span>,
+                                                <span class="st">"Neutral"</span>, <span class="st">"Agree"</span>,
+                                                <span class="st">"Strongly Agree"</span>))</code></pre></div>
+<p>Users who are new to the <code>R</code> programmming language and want to know more about other statistical distributions beyond the <code>norm</code> and <code>unif</code> distributions used here, should run the command <code>?Distributions</code> in the R console.</p>
+</div>
+<div id="likert-data" class="section level3">
+<h3 class="hasAnchor">
+<a href="#likert-data" class="anchor"></a>Likert Data</h3>
+<p>Many survey responses that focus on labeling agreement, support, or quality evaluation, including the example above, are called “Likert” data after the psychologist Rensis Likert. These scales are typically 4, 5, or 7 point scales of a measure. <strong>fabricatr</strong> includes a simple shortcut to make Likert variables without needing to fill out the <code>breaks</code> and <code>break_labels</code> each time.</p>
+<p>By using <code>draw_likert</code>, users only need to specify the <code>x</code> latent variable – assumed to be distributed with breaks spaced 1 unit apart and with the data centered on 0 – and the <code>type</code> of Likert they would like (the number of categories). In this example, we examine the same data above, but with a 4-category Likert scale where the options are “Strongly Agree”, “Agree”, “Disagree”, and “Strongly Disagree”, with no neutral category.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mayor_approval &lt;-<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">100</span>),
+                              <span class="dt">type =</span> <span class="dv">4</span>)
+
+<span class="kw">table</span>(mayor_approval)</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">mayor_approval</th>
+<th align="right">Freq</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Strongly Disagree</td>
+<td align="right">15</td>
+</tr>
+<tr class="even">
+<td align="left">Disagree</td>
+<td align="right">32</td>
+</tr>
+<tr class="odd">
+<td align="left">Agree</td>
+<td align="right">36</td>
+</tr>
+<tr class="even">
+<td align="left">Strongly Agree</td>
+<td align="right">17</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="categorical-data-e-g-demographic-measures" class="section level3">
+<h3 class="hasAnchor">
+<a href="#categorical-data-e-g-demographic-measures" class="anchor"></a>Categorical data (e.g. demographic measures)</h3>
+<p>Surveys often collect demographic information from respondents, including age, gender, and ethnicity. By this point in our guide, you have begun to see how you might generate a continuous numerical variable like age, or how you traditional binary measures of gender might be specified. But some variables, like inclusive measures of gender, or ethnicity, (or hair color, eye color, city of residence, or many other possible variables of interest) are not “ordered” in any sense.</p>
+<p>These data are often called “categorical” data – a given person has a probability to belong to each of the possible categories.</p>
+<p>Imagine that researchers are conducting a survey in Kenya. They wish to capture the country’s four largest ethnic groups: Kikuyu, Luhya, Kalenjin, Luo, and are also interested in capturing the smaller Maasai group. Other respondents are identified as “Other”. When preparing their research, the researchers must simulate the ethnicity of their expected respondents, so they first gather the proportions of each group,</p>
+<pre><code>##   Kikuyu    Luhya Kalenjin      Luo   Maasai    Other 
+##    0.172    0.138    0.129    0.105    0.022    0.435</code></pre>
+<p><strong>fabricatr</strong> makes it easy to generate data based on specifications like these using <code>draw_categorical</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">respondent_ethnicity &lt;-<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(
+  <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.172</span>, <span class="fl">0.138</span>, <span class="fl">0.129</span>, <span class="fl">0.105</span>, <span class="fl">0.022</span>, <span class="fl">0.435</span>),
+  <span class="dt">category_labels =</span> <span class="kw">c</span>(<span class="st">"Kikuyu"</span>, <span class="st">"Luhya"</span>, <span class="st">"Kalenjin"</span>, <span class="st">"Luo"</span>, <span class="st">"Maasai"</span>, <span class="st">"Other"</span>),
+  <span class="dt">N =</span> <span class="dv">100</span>)</code></pre></div>
+<pre><code>## For a categorical (multinomial) distribution, a matrix of probabilities should be provided. The data below is generated by interpreting the vector of category probabilities you provided as identical for each observation.</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(respondent_ethnicity)</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">respondent_ethnicity</th>
+<th align="right">Freq</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Kalenjin</td>
+<td align="right">14</td>
+</tr>
+<tr class="even">
+<td align="left">Kikuyu</td>
+<td align="right">24</td>
+</tr>
+<tr class="odd">
+<td align="left">Luhya</td>
+<td align="right">9</td>
+</tr>
+<tr class="even">
+<td align="left">Luo</td>
+<td align="right">5</td>
+</tr>
+<tr class="odd">
+<td align="left">Maasai</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td align="left">Other</td>
+<td align="right">44</td>
+</tr>
+<tr class="odd">
+<td align="left">### Data with fixed min</td>
+<td align="right">imum and maximum values</td>
+</tr>
+</tbody>
+</table>
+<p>It is often useful to generate data with fixed minimum or maximum values, but unclear how to best do so. In general the approach we would advocate to doing this is to generate a latent variable (described above) which might fall outside the minimum and maximum values, and then truncating the variable to the minimum and maximum values.</p>
+<p>Consider an experiment with a pre-post treatment design. A series of respondents are asked about their views on government efficacy, which will be measured by the respondents scoring their government from 0 to 100. Some respondents are then given a treatment intervention: for example, information about government service delivery, or a mechanism to report government fraud or waste. Finally, researchers ask the same respondents the same question about government efficacy.</p>
+<p>Researchers might simulate this experiment by choosing a population level Average Treatment Effect (in our example, assume a moderate treatment effect of 15 points), and adding a shock centered at this point to each treated unit’s pre-treatment outcome (in addition to adding noise to the control group). A challenge with this data is that it is naturally truncated: individuals whose scores were already quite high may now be modeled as having post-treatment scores above 100.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">19861108</span>)
+
+efficacy_experiment &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">1000</span>,
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="fl">0.5</span>, N),
+  <span class="dt">pre_outcome =</span> <span class="kw">rnorm</span>(N, <span class="dt">mean =</span> <span class="dv">70</span>, <span class="dt">sd =</span> <span class="dv">15</span>),
+  <span class="dt">post_outcome =</span> pre_outcome <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N, 
+                                     <span class="dt">mean =</span> <span class="kw">ifelse</span>(treatment, <span class="dv">15</span>, <span class="dv">0</span>), 
+                                     <span class="dt">sd =</span> <span class="dv">10</span>)
+)</code></pre></div>
+<p>In fact, in this example, some respondents have pre-treatment scores above 100! This matters because the real-world data gathered later will be truncated, and so the researchers power to detect effects may be compromised because of a high density of responses near the cutoff. As a result, it is important that researchers model the truncation directly. Doing so is simple using functionality provided by <code>R</code>: <code>pmin</code> and <code>pmax</code>.</p>
+<p>When used to truncate variables like this, <code>pmax</code> takes two arguments: a vector of numeric variables, and a minimum value you want to truncate to. Please note that, counter-intuitively, <code>pmax</code> is used to truncate to the <strong>minimum</strong> value and <code>pmin</code> is used to truncate to the <strong>maximum</strong> value. We see this design in action below:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">19861108</span>)
+
+fixed_efficacy_experiment &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">1000</span>,
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="fl">0.5</span>, N),
+  <span class="dt">pre_outcome =</span> <span class="kw">pmin</span>(
+    <span class="kw">pmax</span>(<span class="kw">rnorm</span>(N, <span class="dt">mean =</span> <span class="dv">70</span>, <span class="dt">sd =</span> <span class="dv">15</span>), <span class="dv">0</span>),
+    <span class="dv">100</span>),
+  <span class="dt">post_outcome =</span> <span class="kw">pmin</span>(
+    <span class="kw">pmax</span>(pre_outcome <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N, 
+                             <span class="dt">mean =</span> <span class="kw">ifelse</span>(treatment, <span class="dv">15</span>, <span class="dv">0</span>), 
+                             <span class="dt">sd =</span> <span class="dv">10</span>), <span class="dv">0</span>),
+    <span class="dv">100</span>)
+)</code></pre></div>
+<p>Let’s consider how <code>pre_outcome</code> is created: first, each respondent is assigned a pre_treatment score with a mean of 70 points and a standard deviation of 15 points. Next, each of those scores is fed to <code>pmax</code>, along with an argument 0. Any scores that are lower than 0 are bumped up and truncated to 0. Finally, these scores are fed to <code>pmin</code>, along with an argument 100. Any scores that are higher than 100 are bumped down and truncated to 100. The result is that our variables display the desired effect:</p>
+<p><img src="common_social_files/figure-html/unnamed-chunk-20-1.png" width="672"></p>
+</div>
+<div id="count-outcomes-and-skewed-distributions" class="section level3">
+<h3 class="hasAnchor">
+<a href="#count-outcomes-and-skewed-distributions" class="anchor"></a>Count outcomes and skewed distributions</h3>
+<p>Researchers may be interested in “count” outcomes, which describe a count of events of interest during a fixed time period. For our example in this section, we draw from “Propaganda and Conflict: Evidence from the Rwandan Genocide” (Yanagizawa-Drott 2014), an article which uses a quasi-experimental design to establish an association between the broadcasts of Radio Télévision Libre des Mille Collines and local instances of violence during the Rwandan Genocide. Substantively, the paper’s conclusion is that higher density in radio coverage is associated with greater local participation in genocidal violence.</p>
+<p>In our version of this data, we have two variables of interest: number of violent incidents, and density of radio coverage. We know a priori that both variables must be at least 0, we are unsure what the maximum number might be, we know that the number of violent incidents must be a “discrete” variable (in this case, a whole number) while radio coverage is “continuous” (can take fractional values).</p>
+<p>First, to model the number of violent incidents, we make use of <strong>fabricatr</strong>’s <code>draw_count</code> function, which is quite simple – it needs two arguments: <code>mean</code>, which describes the mean count, and <code>N</code>, which describes how many units you need count data for. Statistically, this function generates “Poisson-distributed” count data. This is one of the typical distributions used for count data.</p>
+<p>Second, to model the radio covarage, we might believe radio coverage is an example of skewed data; in other words, few urban areas might have extremely dense radio coverage, while many rural areas might have very low radio coverage. We, thus, need a data distribution that looks like this:</p>
+<p><img src="common_social_files/figure-html/unnamed-chunk-21-1.png" width="672"></p>
+<p><code>R</code> makes available a fairly simple function for generating this sort of data, <code>rlnorm</code>, which generates log-normal data. Log-normal data is one of the key distributions used to model data with a skew like the one we hypothesize: for example, income data in a population (where relatively few wealthy people have substantially more income than relatively many working class people). <code>rlnorm</code> takes three arguments: <code>n</code> (the number of observations), <code>meanlog</code> (the mean of the log-transformed data), and <code>sdlog</code> (the standard deviation of the log-transformed data).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rtlme_model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">1000</span>,
+  <span class="dt">radio_coverage =</span> <span class="kw">rlnorm</span>(N, <span class="dt">meanlog=</span><span class="dv">0</span>, <span class="dt">sdlog=</span><span class="dv">1</span>),
+  <span class="dt">violent_incident_count =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_count</a></span>(<span class="dt">mean =</span> <span class="fl">1.5</span> <span class="op">*</span><span class="st"> </span>radio_coverage, <span class="dt">N =</span> N)
+)</code></pre></div>
+<p>Replicating real data is important because the inference you draw when modeling results depends on the “support” (range of values observations take) and “density” (how many observations take each value); to the extent that real-world data will likely be dense in some regions of the data and sparse in others, it is important that your synthetic data is as well in order to recover inferences that will be accurate to your future real-world inferences, and particularly your uncertainty about those inferences.</p>
+<p><img src="common_social_files/figure-html/unnamed-chunk-23-1.png" width="672"></p>
+<p>Observe that the uncertainty around our predictions is far wider at the right end of the support, which has relatively little data, than at the left end of the support, where most of the data lives.</p>
+<p>Thinking about choosing parameters for <code>meanlog</code> and <code>sdlog</code> is somewhat more mathematically complex in skewed distributions and depending on your use for, you might choose different parameters. Consult <code>R</code>’s documentation on log-normal data by running <code>?Lognormal</code>. In addition, you may find it useful to investigate other distributions commonly used for this purpose including <code>?Beta</code> and <code>?Gamma</code>.</p>
+<p>Below we present an example of generating income data which roughly approximates the current U.S. income distribution using the <code>rgamma</code> function. The parameters of this income function were derived by <a href="https://dqydj.com/income-percentile-calculator/">extracting quantiles of the current U.S. income distribution</a> and then selecting the gamma distribution parameters and multipliers which best fit the data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">population_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">1000</span>,
+  <span class="dt">income =</span> <span class="dv">20000</span> <span class="op">*</span><span class="st"> </span><span class="kw">rgamma</span>(N, <span class="fl">1.4</span>, <span class="fl">0.65</span>)
+)</code></pre></div>
+<p>In addition to the helper functions provided by <strong>fabricatr</strong> and the built-in <code>R</code> distributions suitable for generating skewed data, other <code>R</code> packages like <a href="https://cran.r-project.org/web/packages/sn/index.html"><strong>sn</strong></a> also include useful functions for generating skewed data and can be incorporated into <code>fabricate</code> calls.</p>
+</div>
+<div id="whats-next" class="section level3">
+<h3 class="hasAnchor">
+<a href="#whats-next" class="anchor"></a>What’s next?</h3>
+<p>This brings us to the end of this introductory tutorial on common social science variables. As a next step, our tutorial on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">variable generation with <strong>fabricatr</strong></a> – targeted to a slightly more technical audience – contains more examples of the kinds of variables you can easily create with <strong>fabricatr</strong>. In addition, we have tutorials on creating <a href="http://fabricatr.declaredesign.org/articles/time_series.html">time series variables</a>, and on <a href="http://fabricatr.declaredesign.org/articles/other_packages.html">using other variable creation packages with <strong>fabricatr</strong></a>.</p>
+<p>Finally, if you are in interested in learning about how to structure your data (for example, to generate multi-level, panel, or cross-classified data), you can consult our tutorials on <a href="building%20data%20in%20**fabricatr**">http://fabricatr.declaredesign.org/articles/building_importing.html</a>, and <a href="panel%20and%20cross-classified%20data%20in%20**fabricatr**">http://fabricate.declaredesign.org/articles/cross_classified.html</a>.</p>
+</div>
 </div>
 </div>
   </div>
@@ -131,7 +415,7 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#coming-soon-">Coming soon.</a></li>
+<li><a href="#binary-outcomes-e-g-turnout">Binary outcomes (e.g. turnout)</a></li>
       </ul>
 </div>
       </div>

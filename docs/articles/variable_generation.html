@@ -42,6 +42,9 @@
       <a href="../articles/building_importing.html">Building and Importing Data</a>
     </li>
     <li>
+      <a href="../articles/common_social.html">Common Social Science Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
@@ -49,6 +52,9 @@
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
+    </li>
+    <li>
+      <a href="../articles/time_series.html">Time Series Data</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -119,7 +125,7 @@
 <a href="#binary-and-binomial-outcomes" class="anchor"></a>Binary and binomial outcomes</h2>
 <p>The simplest possible type of data is a binary random variable (also called a bernoulli random variable). Generating a binary random variable requires only one parameter <code>prob</code> which specifies the probability that outcomes drawn from this variable are equal to 1. By default, <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> will generate <code>N = length(prob)</code> draws. <code>N</code> can also be specified explicitly. Consider these examples:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draw_binary_ex &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-  <span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">p =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">.5</span>, <span class="dv">1</span>),
+  <span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">p =</span> <span class="kw">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>),
   <span class="dt">binary_1 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> p),
   <span class="dt">binary_2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">prob =</span> <span class="fl">0.5</span>)
 )</code></pre></div>
@@ -142,14 +148,14 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_example &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">N =</span> <span class="dv">3</span>,
   <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N),
-  <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>))
+  <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>))
 )</code></pre></div>
 <p>Ordered data also supports link functions including “logit” or “probit”:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_probit_example &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">N =</span> <span class="dv">3</span>,
   <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N),
   <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(
-    x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>),
+    x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>),
     <span class="dt">link =</span> <span class="st">"probit"</span>
   )
 )</code></pre></div>
@@ -173,7 +179,7 @@
   <span class="dt">Q1 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">7</span>),
   <span class="dt">Q2 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">5</span>),
   <span class="dt">Q3 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">type =</span> <span class="dv">4</span>),
-  <span class="dt">Q4 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="fl">-0.8</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="ot">Inf</span>))
+  <span class="dt">Q4 =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(N), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="ot">Inf</span>))
 )
 
 <span class="kw">table</span>(survey_data<span class="op">$</span>Q2)</code></pre></div>
@@ -194,6 +200,19 @@
 </tr></tbody>
 </table>
 <p>This function is a convenient, quick alias for creating likert variables with these labels. Users who want more flexibility with respect to break labels or number of breaks should use <code><a href="../reference/draw_binomial.html">draw_ordered()</a></code> and specify breaks and break labels explicitly.</p>
+</div>
+<div id="ordered-quantile-outcomes-e-g-quartile-decile-etc-" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ordered-quantile-outcomes-e-g-quartile-decile-etc-" class="anchor"></a>Ordered quantile outcomes (e.g. quartile, decile, etc.)</h2>
+<p>Some variables of interest are modeled as quantile outcomes; for example, income data in a survey might be reported or analyzed by income deciles. We provide two simple helper functions for this purpose: <code><a href="../reference/draw_binomial.html">draw_quantile()</a></code> which allows you to generate quantile outcomes without underlying data, and <code><a href="../reference/split_quantile.html">split_quantile()</a></code> which allows you to transform underlying data into quantile outcomes. This is particularly relevant for survey data that has been made granular to protect respondent privacy.</p>
+<p>In this example, we will generate income data for a population and then transform it into deciles:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">population &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">1000</span>,
+  <span class="dt">income =</span> <span class="dv">20000</span> <span class="op">*</span><span class="st"> </span><span class="kw">rgamma</span>(N, <span class="fl">1.4</span>, <span class="fl">0.65</span>),
+  <span class="dt">income_decile =</span> <span class="kw"><a href="../reference/split_quantile.html">split_quantile</a></span>(income, <span class="dt">type =</span> <span class="dv">10</span>)
+)</code></pre></div>
+<p>The <code>type</code> paramater of the <code><a href="../reference/split_quantile.html">split_quantile()</a></code> function specifies how many bins to split the data into. In the decile example, 10. Note that the resulting quantiles will be based on the sample data, not the parameterization of the population. It would also be possible to skip the step of characterizing the income data by directly modeling income deciles:</p>
+<p>This parameterization of the income variable was derived by researching U.S. individual income data and using numerical optimization to derive the parameterization that best approximated a series of quantiles from that data. Many other data generation packages, including <strong>wakefield</strong>, implement automatic generation of income data. For more information about using <strong>fabricatr</strong> with other data generating packages, see <a href="http://fabricatr.declaredesign.org/articles/other_packages.Rmd">our online tutorial</a></p>
 </div>
 <div id="count-outcomes" class="section level2">
 <h2 class="hasAnchor">
@@ -221,10 +240,7 @@
   <span class="dt">N =</span> <span class="dv">6</span>,
   <span class="dt">cat =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_categorical</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.4</span>))
 )</code></pre></div>
-<pre><code>## Warning in draw_categorical(N = N, prob = c(0.2, 0.4, 0.4)): For a
-## categorical (multinomial) distribution, a matrix of probabilities should
-## be provided. The data below is generated by interpreting the vector of
-## category probabilities you provided as identical for each observation.</code></pre>
+<pre><code>## For a categorical (multinomial) distribution, a matrix of probabilities should be provided. The data below is generated by interpreting the vector of category probabilities you provided as identical for each observation.</code></pre>
 <p>“categorical” variables can also use link functions, for example to generate multinomial probit data.</p>
 </div>
 </div>
@@ -406,6 +422,7 @@ letter_grade &lt;-<span class="st"> </span><span class="kw"><a href="../referenc
 <li><a href="#binary-and-binomial-outcomes">Binary and binomial outcomes</a></li>
       <li><a href="#ordered-outcomes">Ordered outcomes</a></li>
       <li><a href="#likert-variables">Likert variables</a></li>
+      <li><a href="#ordered-quantile-outcomes-e-g-quartile-decile-etc-">Ordered quantile outcomes (e.g. quartile, decile, etc.)</a></li>
       <li><a href="#count-outcomes">Count outcomes</a></li>
       <li><a href="#categorical-data">Categorical data</a></li>
       </ul>

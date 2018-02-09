@@ -65,6 +65,9 @@
       <a href="../articles/building_importing.html">Building and Importing Data</a>
     </li>
     <li>
+      <a href="../articles/common_social.html">Common Social Science Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
@@ -72,6 +75,9 @@
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
+    </li>
+    <li>
+      <a href="../articles/time_series.html">Time Series Data</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -130,6 +136,23 @@
     </div>
 
     <div class="contents">
+    <div id="fabricatr-0-4-0" class="section level1">
+<h1 class="hasAnchor">
+<a href="#fabricatr-0-4-0" class="anchor"></a><strong>fabricatr</strong> 0.4.0</h1>
+<ul>
+<li>
+<code><a href="../reference/recycle.html">recycle()</a></code> helper function for expanding and recycling data</li>
+<li>Added <code>category_labels</code> argument to <code>draw_categorical</code>
+</li>
+<li>Added <code>draw_quantile</code> and <code>split_quantile</code> functions</li>
+<li>Major updates to test harness</li>
+<li>Changed ID label stapling behaviour in <code>fabricate</code> calls.</li>
+<li>Allow users to pass <code>ID_label</code> in level creation calls to allow back-door unnamed level calls.</li>
+<li>Fix for using <code>N</code> from upper level to define <code>N</code> of lower level.</li>
+<li>When passing a vector to <code>draw_categorical</code> prob argument, package now sends message instead of warning.</li>
+<li>Major additions to documentation and vignettes, including vignettes for common social sciences variables, time series, and using other creation packages with fabricatr.</li>
+</ul>
+</div>
     <div id="fabricatr-0-2-0" class="section level1">
 <h1 class="hasAnchor">
 <a href="#fabricatr-0-2-0" class="anchor"></a><strong>fabricatr</strong> 0.2.0</h1>
@@ -142,6 +165,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#fabricatr-0-4-0">0.4.0</a></li>
         <li><a href="#fabricatr-0-2-0">0.2.0</a></li>
       </ul>
     </div>

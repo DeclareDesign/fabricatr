@@ -42,6 +42,9 @@
       <a href="../articles/building_importing.html">Building and Importing Data</a>
     </li>
     <li>
+      <a href="../articles/common_social.html">Common Social Science Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
@@ -49,6 +52,9 @@
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
+    </li>
+    <li>
+      <a href="../articles/time_series.html">Time Series Data</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -254,7 +260,7 @@
 <p><em>Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated (smaller in magnitude) from the specified <code>rho</code>. There is no general purpose correction to compensate for this attenuation.</em></p>
 <p>We can check the resulting correlation here:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cor</span>(corr_data<span class="op">$</span>ps_quality, corr_data<span class="op">$</span>ss_quality)</code></pre></div>
-<p>0.45</p>
+<p>0.47</p>
 <p>It should be noted that the specified correlation exists only within the variables on which a join was specified: other variables from either data source will not be explicitly connected except through the joined variables.</p>
 <p>Correlation is only possible for cross-classified data, not panel data.</p>
 </div>
@@ -278,7 +284,7 @@
 <span class="st">      </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">5000</span>)
   )
 )</code></pre></div>
-<p>One potential source for failure is specifying an invalid <code>rho</code>. If you specify a <code>rho</code> that makes the correlation between the three variables impossible to obtain, the <code><a href="../reference/fabricate.html">fabricate()</a></code> call will fail. A common case of this occurring is specifying a negative <code>rho</code> with three or more levels – it is clear that if A is negatively correlated with B, and B is negatively correlated with C, then A and C cannot be negatively correlated.</p>
+<p>One potential source for failure is specifying an invalid <code>rho</code>. If you specify a <code>rho</code> that makes the correlation between the three variables impossible to obtain, the <code><a href="../reference/fabricate.html">fabricate()</a></code> call will fail. A common case of this occurring is specifying a negative <code>rho</code> with three or more levels – in general, if A is negatively correlated with B, and B is negatively correlated with C, then A and C cannot be negatively correlated.</p>
 <p>Instead of specifying a <code>rho</code> correlation coefficient, users can specify a <code>sigma</code> correlation matrix to make the resulting correlations more sophisticated. Consider the following setup:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sigma &lt;-<span class="st"> </span><span class="kw">matrix</span>(
   <span class="kw">c</span>(

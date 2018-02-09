@@ -1,4 +1,4 @@
-  ---
+---
 title: "Common Social Sciences variables"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
@@ -14,7 +14,7 @@ set.seed(19861108)
 library(fabricatr)
 ```
 
-**fabricatr** makes it easy to generate common social science variables. While our other online tutorials focus on exploring the full extent of **fabricatr**'s capabilities, this tutorial focuses on simple plain-English introductions to common variable types used in social science research, along with an introduction to the statistical terminology associated with them. Examples are drawn from pre-analysis plans filed with [http://egap.org/](Evidence in Governance and Politics) (EGAP). 
+**fabricatr** makes it easy to generate common social science variables. While our other online tutorials focus on exploring the full extent of **fabricatr**'s capabilities, this tutorial focuses on simple plain-English introductions to common variable types used in social science research, along with an introduction to the statistical terminology associated with them. Examples are drawn from pre-analysis plans filed with [Evidence in Governance and Politics](http://egap.org) (EGAP). 
 
 **If you already feel comfortable understanding these concepts and would prefer a technical manual for our variable creation functions, please consult our [Generating Variables](http://fabricatr.declaredesign.org/articles/variable_generation.html) tutorial.**
 
@@ -377,7 +377,7 @@ population_data <- fabricate(
 )
 ```
 
-In addition to the helper functions provided by **fabricatr** and the built-in `R` distributions suitable for generating skewed data, other `R` packages like [`sn`](https://cran.r-project.org/web/packages/sn/index.html) also include useful functions for generating skewed data and can be incorporated into `fabricate` calls.
+In addition to the helper functions provided by **fabricatr** and the built-in `R` distributions suitable for generating skewed data, other `R` packages like [**sn**](https://cran.r-project.org/web/packages/sn/index.html) also include useful functions for generating skewed data and can be incorporated into `fabricate` calls.
 
 ### What's next?
 

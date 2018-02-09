@@ -43,6 +43,9 @@
       <a href="../articles/building_importing.html">Building and Importing Data</a>
     </li>
     <li>
+      <a href="../articles/common_social.html">Common Social Science Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
     </li>
     <li>
@@ -50,6 +53,9 @@
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
+    </li>
+    <li>
+      <a href="../articles/time_series.html">Time Series Data</a>
     </li>
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
@@ -112,18 +118,143 @@
     
     
 <div class="contents">
-<div id="coming-soon-" class="section level1">
-<h1 class="hasAnchor">
-<a href="#coming-soon-" class="anchor"></a>Coming soon.</h1>
-<p>This vignette is coming soon and will be live on or about January 25th, 2018. You can view the most recent version of this vignette <a href="http://fabricatr.declaredesign.org/articles/other_packages.html">online</a>.</p>
-<p>In the mean time, you may be interested in any of these vignettes:</p>
+<p>In general, <strong>fabricatr</strong> is going to be compatible with any existing packages you use to generate synthetic data in one of two ways: either using those packages to create variables within a <code>fabricate</code> call, or using those packages to make complete data frames which are then imported into a <code>fabricate</code>. Below we provide examples for some of the most popular packages that serve this purpose. Please feel free to <a href="Contact%20Us">http://discuss.declaredesign.org/</a> if you have any questions about using another package in concert with <strong>fabricatr</strong>.</p>
+<div id="wakefield-simulating-common-demographic-features" class="section level2">
+<h2 class="hasAnchor">
+<a href="#wakefield-simulating-common-demographic-features" class="anchor"></a><strong>wakefield</strong>: simulating common demographic features</h2>
+<p><strong>wakefield</strong> (by <a href="https://github.com/trinker">Tyler Rinker</a>) is a popular <code>R</code> package for creating synthetic data. <strong>wakefield</strong>’s strength is that it can quickly generate common variables, especially for human demographic features. <strong>wakefield</strong> can easily be integrated into a <strong>fabricatr</strong> workflow in one of two ways: using <strong>wakefield</strong> to create individual variables within a <code>fabricate</code> call, or using <strong>wakefield</strong> to make a data frame and importing that data frame into a <code>fabricate</code> call.</p>
+<p>In this example, we create a data-set of participants in a survey experiment, using <strong>wakefield</strong> to generate the demographic variables</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(wakefield)
+
+survey_experiment_df &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">50</span>,
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">age =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/wakefield/topics/age">age</a></span>(<span class="dt">n =</span> N),
+  <span class="dt">race =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/wakefield/topics/race">race</a></span>(<span class="dt">n =</span> N),
+  <span class="dt">sex =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/wakefield/topics/sex">sex</a></span>(<span class="dt">n =</span> N),
+)</code></pre></div>
+<p>Researchers interested in learning about <strong>wakefield</strong>’s available functionality, parameterizations, and default probability can <a href="https://github.com/trinker/wakefield">read <strong>wakefield</strong>’s user guide on GitHub</a>.</p>
+<p>In addition to creating variables within a <code>fabricate</code> call, users can import completed <strong>wakefield</strong> data frames into a <code>fabricate</code> call:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_experiment_df &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/wakefield/topics/r_data_frame">r_data_frame</a></span>(
+  <span class="dt">n =</span> <span class="dv">50</span>,
+  age,
+  race,
+  sex)
+
+fabricatr_df &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">data =</span> survey_experiment_df,
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N)
+)</code></pre></div>
+</div>
+<div id="randomnames-plausible-names-for-human-subjects" class="section level2">
+<h2 class="hasAnchor">
+<a href="#randomnames-plausible-names-for-human-subjects" class="anchor"></a><strong>randomNames</strong>: Plausible names for human subjects</h2>
+<p><strong>randomNames</strong> (by <a href="https://github.com/dbetebenner">Damian Betebenner</a>) is a package that does one thing well: generate random names for human subjects (including with specified genders and ethnicities). The primary use case would be to use this as part of generating a variable within a <code>fabricate</code> call. In the below example, we use <code>fabricate</code> to generate some other demographic data, and then <code>randomNames</code> to generate matching names.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(randomNames)
+
+experiment_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">50</span>,
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">is_female =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">patient_name =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/randomNames/topics/randomNames">randomNames</a></span>(N, <span class="dt">gender=</span>is_female)
+)</code></pre></div>
+<p>Note that we make use of the existing <code>is_female</code> variable from the <code>fabricate</code> call to ensure <code>randomNames</code> generates gender-typical names.</p>
+</div>
+<div id="modeling-causality-with-dags-and-simcausal" class="section level2">
+<h2 class="hasAnchor">
+<a href="#modeling-causality-with-dags-and-simcausal" class="anchor"></a>Modeling causality with DAGs and <strong>simcausal</strong>
+</h2>
+<p>Users who are familiar with the DAGS (directed acyclic graphs) model of causal inference may have interest in using the <strong>simcausal</strong> package, which allows users to specify a DAGS model and then sample from it. Integrating this package with <strong>fabricatr</strong> is likely to involve using <strong>simcausal</strong> first to specify a model, simulating data from the model, and then importing data into a <code>fabricate</code> call for further user with <strong>fabricatr</strong>.</p>
+<p>Consider this example, common in the literature on educational attainment and school outcomes, where students come from families that have a <code>wealth</code> parameter, assignment to schools is based partially on <code>wealth</code>, and test outcomes (<code>testoutcome</code>) is based on both school quality and wealth.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">"simcausal"</span>)
+
+<span class="co"># Define DAG</span>
+D &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/simcausal/topics/DAG.empty">DAG.empty</a></span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"wealth"</span>, <span class="dt">distr =</span> <span class="st">"rnorm"</span>,
+       <span class="dt">mean =</span> <span class="dv">30000</span>,
+       <span class="dt">sd =</span> <span class="dv">10000</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"schoolquality"</span>, <span class="dt">distr =</span> <span class="st">"runif"</span>,
+       <span class="dt">min =</span> <span class="dv">0</span> <span class="op">+</span><span class="st"> </span>(<span class="dv">5</span> <span class="op">*</span><span class="st"> </span>(wealth <span class="op">&gt;</span><span class="st"> </span><span class="dv">50000</span>)),
+       <span class="dt">max =</span> <span class="dv">10</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"testoutcome"</span>, <span class="dt">distr =</span> <span class="st">"runif"</span>,
+       <span class="dt">min =</span> <span class="dv">0</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.0001</span> <span class="op">*</span><span class="st"> </span>wealth <span class="op">+</span><span class="st"> </span><span class="fl">0.25</span> <span class="op">*</span><span class="st"> </span>schoolquality,
+       <span class="dt">max =</span> <span class="dv">10</span>)
+
+<span class="co"># Freeze DAG object</span>
+set_dag &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/simcausal/topics/set.DAG">set.DAG</a></span>(D)
+
+<span class="co"># Draw data from DAG</span>
+df &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/simcausal/topics/sim">sim</a></span>(set_dag, <span class="dt">n =</span> <span class="dv">100</span>)
+
+<span class="co"># Pass into fabricate call and make new variables as necessary</span>
+<span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(df,
+          <span class="dt">passed_test =</span> testoutcome <span class="op">&gt;</span><span class="st"> </span><span class="dv">6</span>,
+          <span class="dt">eligible_for_snap =</span> wealth <span class="op">&lt;</span><span class="st"> </span><span class="dv">25000</span>)</code></pre></div>
+</div>
+<div id="survival-and-duration-models-with-simsurv" class="section level2">
+<h2 class="hasAnchor">
+<a href="#survival-and-duration-models-with-simsurv" class="anchor"></a>Survival and duration models with <strong>simsurv</strong>
+</h2>
+<p><strong>simsurv</strong> is a package dedicated to generating panel survival data. The most likely way you might integrate <strong>simsurv</strong> with <strong>fabricatr</strong> would be to use <strong>fabricatr</strong> to generating covariates which can then be imported into <strong>simsurv</strong> to model in a hazard or duration context.</p>
+<p>Here, our example will be a clinical trial of a cancer drug. Participants have the expected biographical data: age, gender, whether the patient smokes, the disease stage, assignment to treatment, and a KPS score (commonly used to evaluate overall patient health).</p>
+<p>Survival data creates a ragged longitudinal survey; some patients will die during the course of the trial, removing them as observations. Others will continue alive until the end of the trial. We specify a “hazard function”, which tells <strong>simsurv</strong> how the course of patient survival will change over time. Covariates with positive <code>betas</code> increase risk of death, while covariates with negative <code>betas</code> decrease risk of death. We will track patients for 5 years after treatment.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simsurv)
+
+<span class="co"># Simulate patient data in a clinical trial</span>
+participant_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">100</span>,
+  <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dt">min =</span> <span class="dv">18</span>, <span class="dt">max =</span> <span class="dv">85</span>),
+  <span class="dt">is_female =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">is_smoker =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.2</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.2</span> <span class="op">*</span><span class="st"> </span>(age <span class="op">&gt;</span><span class="st"> </span><span class="dv">50</span>), <span class="dt">N =</span> N),
+  <span class="dt">disease_stage =</span> <span class="kw">round</span>(<span class="kw">runif</span>(N, <span class="dt">min =</span> <span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>(age <span class="op">&gt;</span><span class="st"> </span><span class="dv">65</span>), <span class="dt">max =</span> <span class="dv">4</span>)),
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">kps =</span> <span class="kw">runif</span>(N, <span class="dt">min =</span> <span class="dv">40</span>, <span class="dt">max =</span> <span class="dv">100</span>)
+)
+
+<span class="co"># Simulate data in the survival context</span>
+survival_data &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/simsurv/topics/simsurv">simsurv</a></span>(
+  <span class="dt">lambdas =</span> <span class="fl">0.1</span>, <span class="dt">gammas =</span> <span class="fl">0.5</span>,
+  <span class="dt">x =</span> participant_data, 
+  <span class="dt">betas =</span> <span class="kw">c</span>(<span class="dt">is_female =</span> <span class="op">-</span><span class="fl">0.2</span>, <span class="dt">is_smoker =</span> <span class="fl">1.2</span>,
+            <span class="dt">treatment =</span> <span class="op">-</span><span class="fl">0.4</span>, <span class="dt">kps =</span> <span class="op">-</span><span class="fl">0.005</span>,
+            <span class="dt">disease_stage =</span> <span class="fl">0.2</span>),
+  <span class="dt">maxt =</span> <span class="dv">5</span>)</code></pre></div>
+<p>The generated data from the <code>survival_data</code> object can then be re-imported into the <code>participant_data</code> using any data merging tools, including through a <code>fabricate</code> call, and then used for subsequent analyses (e.g. using the <strong>survival</strong> package).</p>
+</div>
+<div id="time-series-using-forecast" class="section level2">
+<h2 class="hasAnchor">
+<a href="#time-series-using-forecast" class="anchor"></a>Time series using <strong>forecast</strong>
+</h2>
+<p><strong>forecast</strong>, by <a href="https://github.com/robjhyndman/forecast">Rob Hyndman</a>, is a package commonly used to analyze time series data which also has functionality capable of generating simulated time series data. <strong>forecast</strong> can use the <code>Arima</code> and <code>simulate</code> functions to create pre-specified ARIMA models, including seasonal time trends.</p>
+<p>Below, we provide an example of using <strong>forecast</strong> to generate an ARIMA time series, reshape the data, and import it into <strong>fabricatr</strong> to create new variables of interest.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(forecast)
+
+arima_model &lt;-<span class="st"> </span><span class="kw">simulate</span>(
+  <span class="kw">Arima</span>(<span class="kw">ts</span>(<span class="kw">rnorm</span>(<span class="dv">100</span>), <span class="dt">frequency =</span> <span class="dv">4</span>),
+        <span class="dt">order =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>))
+  
+<span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="kw">data.frame</span>(arima_model), 
+          <span class="dt">year =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">25</span>, <span class="dt">each=</span><span class="dv">4</span>),
+          <span class="dt">quarter =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">25</span>))</code></pre></div>
+<p>Here, <code>ts</code> converts a series of data into a time series, with frequency specifying the number of observations per unit of time (in this case, for example, quarters in a year). <code>Arima</code> ingests this data and fits an ARIMA model with the specified parameters. <code>simulate</code> draws new data from the fit time series, producing a vector of interest. We then import the data into a <code>fabricate</code> call (converting it to a data frame) and add new columns of interest.</p>
+</div>
+<div id="other-data-simulation-tools" class="section level2">
+<h2 class="hasAnchor">
+<a href="#other-data-simulation-tools" class="anchor"></a>Other data simulation tools</h2>
+<p>The <code>R</code> ecosystem has many other data simulation tools, and all can be used to complement or supplement <strong>fabricatr</strong> in your workflow. Some of the packages that we have noticed but not covered here include:</p>
 <ul>
-<li><a href="http://fabricatr.declaredesign.org/articles/getting_started.html">Getting Started with <strong>fabricatr</strong></a></li>
-<li><a href="http://fabricatr.declaredesign.org/articles/building_importing.html">Building and Importing Data</a></li>
-<li><a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">Generating Discrete Random Variables</a></li>
-<li><a href="http://fabricatr.declaredesign.org/articles/cross_classified.html">Panel and Cross-Classified Data</a></li>
-<li><a href="http://fabricatr.declaredesign.org/articles/resampling.html">Resampling and Bootstrapping Hierarchical Data</a></li>
+<li>
+<a href="https://cran.r-project.org/web/packages/gems/index.html">gems</a> by Luisa Salazar Vizcaya</li>
+<li>
+<a href="https://cran.r-project.org/web/packages/simFrame/index.html">simFrame</a> by Andreas Alfons</li>
+<li>
+<a href="https://cran.r-project.org/web/packages/simPop/index.html">simPop</a> by Matthias Templ</li>
+<li>
+<a href="https://cran.r-project.org/web/packages/simstudy/index.html">simStudy</a> by Keith Goldfeld</li>
+<li>
+<a href="https://cran.r-project.org/web/packages/synthpop/index.html">synthPop</a> by Beata Nowok</li>
 </ul>
+<p>If you’d like to see a tutorial on using these packages or any others with <strong>fabricatr</strong>, please <a href="http://discuss.declaredesign.org/">Contact Us</a> so we can help you</p>
 </div>
 </div>
   </div>
@@ -133,7 +264,12 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#coming-soon-">Coming soon.</a></li>
+<li><a href="#wakefield-simulating-common-demographic-features"><strong>wakefield</strong>: simulating common demographic features</a></li>
+      <li><a href="#randomnames-plausible-names-for-human-subjects"><strong>randomNames</strong>: Plausible names for human subjects</a></li>
+      <li><a href="#modeling-causality-with-dags-and-simcausal">Modeling causality with DAGs and <strong>simcausal</strong></a></li>
+      <li><a href="#survival-and-duration-models-with-simsurv">Survival and duration models with <strong>simsurv</strong></a></li>
+      <li><a href="#time-series-using-forecast">Time series using <strong>forecast</strong></a></li>
+      <li><a href="#other-data-simulation-tools">Other data simulation tools</a></li>
       </ul>
 </div>
       </div>
