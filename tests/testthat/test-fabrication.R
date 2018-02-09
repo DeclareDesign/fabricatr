@@ -258,10 +258,25 @@ test_that("multiple non-nested data frames, again and again", {
   expect_equal(dim(multiple_nnest), c(300, 1))
 })
 
-test_that("If ID_label is in data, don't staple any more.", {
+test_that("ID_label stapling for fabricate calls with no levels", {
+  # Create an import data frame
   df <- fabricate(N = 100, d1 = rnorm(N), ID_label = "hello")
+
+  # Import it and verify we don't staple another one if the ID label is
+  # already there
   df2 <- fabricate(df, ID_label = "hello", new_var1 = d1 * 2)
   expect_equal(length(colnames(df2)), 3)
+
+  # Import it and verify we don't staple another one if AN ID label is
+  # already there and ID_label is not specified
   df3 <- fabricate(df, new_var1 = d1 * 2)
-  expect_equal(length(colnames(df3)), 4)
+  expect_equal(length(colnames(df3)), 3)
+
+  # Verify we do staple if ID_label is specified and not there
+  df4 <- fabricate(df, new_var1 = d1 * 2, ID_label = "newid")
+  expect_equal(length(colnames(df4)), 4)
+
+  # Verify we do not staple if nothing changes
+  df5 <- fabricate(df)
+  expect_equal(length(colnames(df5)), 2)
 })
