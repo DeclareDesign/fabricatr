@@ -60,3 +60,9 @@ test_that("Modify variable at wrong level", {
                          state = modify_level(
                            crime = 0.5 + stop_lights + latitude)))
 })
+
+test_that("Import -> nest with special length N, test for #80", {
+  df1 <- fabricate(N = 3, ID_label = "city")
+  df2 <- fabricate(df1, neighborhood = add_level(N = c(10, 20, 30)))
+  expect_equal(nrow(df2), 60)
+})
