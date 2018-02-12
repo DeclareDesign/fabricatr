@@ -327,8 +327,9 @@ handle_n <- function(N, add_level=TRUE, working_environment=NULL,
         last_level_name <- working_environment$level_ids_[
           length(working_environment$level_ids_)]
 
-        # Last level name is null; this is imported data and we're being
-        # crazy town
+        # Last level name is null; if this is imported data, we should
+        # use the nrow of the data frame as the unique length of the last
+        # level
         if(is.null(last_level_name)) {
           last_level_name <- "the full data frame"
           length_unique <- nrow(working_environment$data_frame_output_)
