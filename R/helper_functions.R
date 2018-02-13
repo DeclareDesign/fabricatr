@@ -97,52 +97,37 @@ new_working_environment <- function() {
   return(new.env(parent = emptyenv()))
 }
 
-get_symbols_from_expression <- function(l_arg) {
-  # We have some sort of language expression in R, let's extract
-  # the symbols it's going to refer to
+#' @importFrom rlang is_quosure
+get_symbols_from_quosures <- function(quosures) {
 
-  if (is.symbol(l_arg)) {
-    # If it's a symbol, return the symbol
-    return(unname(l_arg))
-  } else if (is.language(l_arg)) {
-    # If it's a language call, then we need to unpack some more
-    # Extract the language from the language call
-    recurse <- lang_args(l_arg)
-    # Iterate through each part of the language, recursively calling this
-    # function. Results are a list, so unlist and unname to flatten
-    temp <- unname(unlist(lapply(recurse, function(i) {
-      get_symbols_from_expression(i)
-    })))
-    return(temp)
-  } else {
-    # It's something else? This might happen if the base level call
-    # is numeric or whatever. We are only interested in variable nanes.
+  extract <- function(l_arg) {
+    # We have some sort of language expression in R, let's extract
+    # the symbols it's going to refer to
+
+    if (is_quosure(l_arg)){
+      extract(get_expr(l_arg)) # extract from expression
+    } else if (is.symbol(l_arg)) {
+      # If it's a symbol, return the symbol as character
+      as.character(l_arg)
+    } else if (is.language(l_arg)) {
+      # If it's a language call, then we need to unpack some more
+      # Extract the args from the call, (drop names on arguments)
+      recurse <- unname(lang_args(l_arg))
+      # For each arg, extract
+      temp <- lapply(recurse, extract)
+      unlist(temp)
+    } else {
+      # It's something else? This might happen if the base level call
+      # is numeric or whatever. We are only interested in variable nanes.
+    }
   }
-}
 
-get_symbols_from_quosure <- function(quosure) {
-  # Given a quosure, what symbols will that quosure attempt to read when it
+  # For each quosure, what symbols will that quosure attempt to read when it
   # is evaluated?
-  meta_results <- lapply(quosure, function(i) {
-    # For each term in the quosure, get the language call out of the term:
-    expression <- get_expr(i)
-    # Get the arguments out of that language call
-    thing <- lang_args(expression)
-    # Now, for each argument try to extract the symbols
-    results <- lapply(thing, function(x) {
-      get_symbols_from_expression(x)
-    })
+  meta_results <- lapply(quosures, extract)
 
-    # We are going to unlist, convert to characters (this is necessary to coerce
-    # results into a vector), and then remove duplicates
-    return(unique(
-      as.character(
-        unlist(
-          results
-        )
-      )
-    ))
-  })
+  # remove duplicates
+  meta_results <- Reduce(union, meta_results)
 
   return(meta_results)
 }
