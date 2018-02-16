@@ -11,20 +11,21 @@
 \title{Draw discrete variables including binary, binomial count, poisson count,
 ordered, and categorical}
 \usage{
-draw_binomial(prob, trials = 1, N = length(prob), link = "identity")
+draw_binomial(prob, trials = 1, N = length(prob), link = "identity",
+  quantile_y = NULL)
 
 draw_categorical(prob, N = NULL, link = "identity",
   category_labels = NULL)
 
 draw_ordered(x, breaks = c(-1, 0, 1), break_labels = NULL, N = length(x),
-  link = "identity")
+  link = "identity", quantile_y = NULL)
 
-draw_count(mean, N = length(mean), link = "identity")
+draw_count(mean, N = length(mean), link = "identity", quantile_y = NULL)
 
-draw_binary(prob, N = length(prob), link = "identity")
+draw_binary(prob, N = length(prob), link = "identity", quantile_y = NULL)
 
 draw_likert(x, type = 7, breaks = NULL, N = length(x),
-  link = "identity")
+  link = "identity", quantile_y = NULL)
 
 draw_quantile(type = NULL, N = NULL)
 }
@@ -42,6 +43,8 @@ probabilities or latent data you provided.}
 \item{link}{link function between the latent variable and the probability of
 a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 link, the latent variable must be a probability.}
+
+\item{quantile_y}{Ignore this for now.}
 
 \item{category_labels}{vector of labels for the categories produced by
 `draw_categorical`. If provided, must be equal to the number of categories

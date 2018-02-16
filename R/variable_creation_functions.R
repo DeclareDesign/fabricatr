@@ -36,6 +36,7 @@
 #' @param link link function between the latent variable and the probability of
 #' a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 #' link, the latent variable must be a probability.
+#' @param quantile_y Ignore this for now.
 #' @return A vector of data in accordance with the specification; generally
 #' numeric but for some functions, including `draw_ordered`, may be factor if
 #' break labels are provided.
@@ -87,11 +88,11 @@
 #' fabricate(N = 6, p1 = runif(N), p2 = runif(N), p3 = runif(N),
 #'           cat = draw_categorical(cbind(p1, p2, p3)))
 #'
-#' @importFrom stats pnorm rnorm rpois rbinom na.omit
-#'
+#' @importFrom stats pnorm rnorm rpois rbinom na.omit qbinom qpois
 #' @export
 #'
-draw_binomial <- function(prob, trials=1, N = length(prob), link = "identity") {
+draw_binomial <- function(prob, trials=1, N = length(prob), link = "identity",
+                          quantile_y = NULL) {
   # Error handle probabilities and apply link function.
   if (mode(prob) != "numeric") {
     stop("Probabilities provided in the `prob` argument must be numeric.")
@@ -158,7 +159,20 @@ draw_binomial <- function(prob, trials=1, N = length(prob), link = "identity") {
     )
   }
 
-  return(rbinom(N, trials, prob))
+  # Prob and trials must be single numbers if quantile_y is provided
+  if(!is.null(quantile_y) && (length(prob) > 1 || length(trials) > 1)) {
+    stop(
+      "When generating a correlated binary or binomial random variable, the ",
+      "`prob` and `trials` arguments must be single numbers and not a ",
+      "function of other variables."
+    )
+  }
+
+  if(is.null(quantile_y)) {
+    return(rbinom(N, trials, prob))
+  } else {
+    return(qbinom(quantile_y, trials, prob))
+  }
 }
 
 #' @rdname draw_binomial
@@ -228,7 +242,7 @@ draw_categorical <- function(prob, N = NULL, link = "identity",
 #' @rdname draw_binomial
 #' @export
 draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
-                         N = length(x), link = "identity") {
+                         N = length(x), link = "identity", quantile_y = NULL) {
   # Link function
   if (link == "probit") {
     x <- x + rnorm(N)
@@ -291,7 +305,8 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
 
 #' @rdname draw_binomial
 #' @export
-draw_count <- function(mean, N = length(mean), link = "identity") {
+draw_count <- function(mean, N = length(mean), link = "identity",
+                       quantile_y = NULL) {
   if (link != "identity") {
     stop("Count data does not accept link functions.")
   }
@@ -306,17 +321,32 @@ draw_count <- function(mean, N = length(mean), link = "identity") {
     stop("`N` must be an even multiple of the length of mean.")
   }
 
-  return(rpois(N, lambda = mean))
+  # Prob and trials must be single numbers if quantile_y is provided
+  if(!is.null(quantile_y) && length(mean) > 1) {
+    stop(
+      "When generating a correlated count variable, the `mean` argument must ",
+      "be a single number and not a function of other variables."
+    )
+  }
+
+  if(is.null(quantile_y)) {
+    return(rpois(N, lambda = mean))
+  } else {
+    return(qpois(quantile_y, lambda = mean))
+  }
+
 }
 
 #' @rdname draw_binomial
 #' @export
-draw_binary <- function(prob, N = length(prob), link = "identity") {
+draw_binary <- function(prob, N = length(prob), link = "identity",
+                        quantile_y = NULL) {
   return(draw_binomial(
     prob,
     N = N,
     link = link,
-    trials = 1
+    trials = 1,
+    quantile_y = quantile_y
   ))
 }
 
@@ -326,7 +356,8 @@ draw_likert <- function(x,
                         type = 7,
                         breaks = NULL,
                         N = length(x),
-                        link = "identity") {
+                        link = "identity",
+                        quantile_y = NULL) {
   if (is.null(breaks) && is.null(type)) {
     stop("You must provide either `breaks` or `type` to a `draw_likert()` ",
          "call.")
@@ -381,7 +412,8 @@ draw_likert <- function(x,
     breaks = breaks,
     N = N,
     link = link,
-    break_labels = break_labels
+    break_labels = break_labels,
+    quantile_y = quantile_y
   ))
 }
 
@@ -455,4 +487,64 @@ split_quantile <- function(x = NULL,
   cut(x, breaks = quantile(x, probs = seq(0, 1, length.out = type + 1)),
       labels = 1:type,
       include.lowest = TRUE)
+}
+
+#' Perform generation of a correlated random variable.
+#'
+#' In order to generate a random variable of a specific distribution based on
+#' another variable of any distribution and a correlation coefficient `rho`,
+#' we map the first, known variable into the standard normal space via affine
+#' transformation, and generate a conditional distribution of Y. This function
+#'
+#' @param draw_handler The unquoted name of a function to generate data.
+#' Currently, `draw_binary`, `draw_binomial`, and `draw_count` are supported.
+#' @param ... The arguments to draw_handler (e.g. `prob`, `mean`, etc.)
+#' @param given A vector that can be ordered; the reference distribution X that
+#' Y will be correlated with.
+#' @param rho A rank correlation coefficient between -1 and 1.
+#'
+#' @importFrom stats ecdf qnorm rnorm pnorm
+#' @importFrom rlang is_closure
+#' @export
+correlate <- function(draw_handler, ..., given, rho) {
+  # Error handling
+  if(!is.numeric(rho)) {
+    stop("`rho` used for correlated variable draws must be numeric.")
+  }
+  if(length(rho) > 1) {
+    stop("`rho` used for correlated variable draws must be a single number.")
+  }
+  if(rho < -1 || rho > 1) {
+    stop("`rho` used for correlated variables must be between -1 and 1 ",
+         "inclusive.")
+  }
+  if(!is.null(dim(given))) {
+    stop("`x` used for correlated variables must be a single vector.")
+  }
+  if(is.null(given)) {
+    stop("`x` used for correlated variables must not be null.")
+  }
+  if(!is_closure(draw_handler)) {
+    stop("You must pass a `draw_*` function to correlate as the first ",
+         "argument.")
+  }
+
+  # Strategy here is to use affine transformation to make X to Standard Normal
+  # X -> ECDF -> Quantile X -> INV CDF Std. Nor. -> Standard Normal X
+  std_normal_base <- qnorm(ecdf(given)(given))
+
+  # Std. Normal X -> Std. Normal Y
+  # Known conditional distribution of Y on X;
+  # because X and Y will both be mean 0 var/sd 1, we know the formula will be
+  # Y ~ Normal(rho * X, (1 - rho^2))
+  std_normal_y <- rho * std_normal_base + rnorm(length(given),
+                                                0,
+                                                sqrt(1 - rho^2))
+
+  # Std. Normal Y -> CDF -> Quantile Y.
+  # Outer function handles Quantile Y -> Distribution Y
+  quantile_y <- pnorm(std_normal_y)
+
+  # Pass quantile to the provided function with passthrough arguments
+  draw_handler(..., quantile_y = quantile_y)
 }

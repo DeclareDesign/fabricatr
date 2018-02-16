@@ -517,3 +517,67 @@ test_that("Quantile and quantile split", {
   split_quantile_data <- split_quantile(x = z, type = 5)
   expect_equal(all(table(split_quantile_data) == 20), TRUE)
 })
+
+test_that("Correlated variable draws", {
+  # Single base X
+  base_dist <- runif(n = 100, min = 50, max = 125)
+
+  # Errors for rho:
+  expect_error(correlate(draw_binary, prob = 0.7, given = base_dist)) # No rho
+  # Non-numeric rho
+  expect_error(correlate(draw_binary, prob = 0.7, given = base_dist, rho = "H"))
+  # Rho is more than a number
+  expect_error(correlate(draw_binary, prob = 0.7, given = base_dist,
+                         rho = c(0.5, -0.2)))
+  expect_error(correlate(draw_binary, prob = 0.7, given = base_dist,
+                         rho = -2))
+
+
+  # Errors for given:
+  expect_error(correlate(draw_binary, prob = 0.5, given = NULL, rho = 0.5))
+  base_dist_df <- data.frame(x = base_dist)
+  expect_error(correlate(draw_binary, prob = 0.5,
+                         given = base_dist_df, rho = 0.5))
+
+  # Didn't pass a draw_handler:
+  expect_error(correlate(NULL, given = base_dist, rho = 0.5))
+  expect_error(correlate(base_dist, given = base_dist, rho = 0.5))
+
+  # Now, let's see a working example
+  set.seed(19861108)
+  count_y <- correlate(draw_count, mean = 50, given = base_dist, rho = 0.5)
+  observed_correlation <- cor(count_y, base_dist, method="spearman")
+  expect_gte(observed_correlation, 0.4)
+  expect_lte(observed_correlation, 0.6)
+})
+
+test_that("Correlated variable draws and our distributions", {
+  set.seed(19861108)
+  base_dist <- draw_count(mean = 50, N = 100)
+
+  # Working binary
+  corr_binary <- correlate(draw_binary, prob = 0.5,
+                           given = base_dist, rho = 0.5)
+  expect_gte(cor(base_dist, corr_binary, method="spearman"), 0.1)
+  expect_lte(cor(base_dist, corr_binary, method="spearman"), 0.9)
+
+  # Error handling for binomial
+  expect_error(correlate(draw_binomial, prob = rep(0.7, 100), trials = 10,
+                         given = base_dist, rho = 0.5))
+
+  # Working binomial
+  corr_binomial <- correlate(draw_binomial, prob = 0.5, trials = 10,
+                             given = base_dist, rho = 0.5)
+  expect_gte(cor(base_dist, corr_binomial, method="spearman"), 0.4)
+  expect_lte(cor(base_dist, corr_binomial, method="spearman"), 0.6)
+
+  # Error handling for count
+  expect_error(correlate(draw_count, mean = rep(20, 100),
+                         given = base_dist, rho = 0.5))
+
+  # Working count
+  corr_count <- correlate(draw_count, mean = 20,
+                          given = base_dist, rho = 0.5)
+  expect_gte(cor(base_dist, corr_count, method="spearman"), 0.4)
+  expect_lte(cor(base_dist, corr_count, method="spearman"), 0.6)
+})
