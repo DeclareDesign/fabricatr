@@ -91,8 +91,8 @@
 #' @importFrom stats pnorm rnorm rpois rbinom na.omit qbinom qpois
 #' @export
 #'
-draw_binomial <- function(prob, trials=1, N = length(prob), link = "identity",
-                          quantile_y = NULL) {
+draw_binomial <- function(prob, trials = 1, N = length(prob),
+                          link = "identity", quantile_y = NULL) {
   # Error handle probabilities and apply link function.
   if (mode(prob) != "numeric") {
     stop("Probabilities provided in the `prob` argument must be numeric.")
@@ -504,9 +504,11 @@ split_quantile <- function(x = NULL,
 #' @param rho A rank correlation coefficient between -1 and 1.
 #'
 #' @importFrom stats ecdf qnorm rnorm pnorm
-#' @importFrom rlang is_closure
+#' @importFrom rlang is_closure enexpr sym eval_tidy
 #' @export
 correlate <- function(draw_handler, ..., given, rho) {
+  draw_handler_name <- as.character(enexpr(draw_handler))
+
   # Error handling
   if(!is.numeric(rho)) {
     stop("`rho` used for correlated variable draws must be numeric.")
@@ -545,6 +547,28 @@ correlate <- function(draw_handler, ..., given, rho) {
   # Outer function handles Quantile Y -> Distribution Y
   quantile_y <- pnorm(std_normal_y)
 
-  # Pass quantile to the provided function with passthrough arguments
-  draw_handler(..., quantile_y = quantile_y)
+  # Check if this is a random number for the base functions -- if so, replace
+  # with the quantile version.
+  if(draw_handler_name %in% c("rbeta", "rbinom", "rcauchy", "rchisq", "rexp",
+                              "rf", "rgamma", "rgeom", "rhyper", "rlnorm",
+                              "rmultinom", "rnbinom", "rnorm", "rpois", "rt",
+                              "runif", "rweibull")) {
+    draw_handler_name <- gsub("^r", "q", draw_handler_name)
+    draw_handler <- eval_tidy(sym(draw_handler_name))
+  }
+
+  # Check if this is now a base R quantile function.
+  if(draw_handler_name %in% c("qbeta", "qbinom", "qcauchy", "qchisq", "qexp",
+                              "qf", "qgamma", "qgeom", "qhyper", "qlnorm",
+                              "qmultinom", "qnbinom", "qnorm", "qpois", "qt",
+                              "qunif", "qweibull")) {
+    # Base R q-functions take p as the quantile argument, pass through other
+    # args
+    draw_handler(p = quantile_y, ...)
+  } else {
+    # Our arguments take quantile_y as the quantile argument, pass through other
+    # args
+    draw_handler(..., quantile_y = quantile_y)
+  }
+
 }

@@ -48,6 +48,8 @@ test_that("Mixing level calls and variable creation calls.", {
 
 
 test_that("Nested level where inner level N depends on outer level N", {
+  skip("Temporarily skipping while we settle #82")
+
   # Test the implicit N
   nl_test <- fabricate(
     outer = add_level(N = 25),
