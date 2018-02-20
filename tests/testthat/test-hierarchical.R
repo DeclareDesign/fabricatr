@@ -48,12 +48,10 @@ test_that("Mixing level calls and variable creation calls.", {
 
 
 test_that("Nested level where inner level N depends on outer level N", {
-  skip("Temporarily skipping while we settle #82")
-
   # Test the implicit N
   nl_test <- fabricate(
     outer = add_level(N = 25),
-    inner = add_level(N = sample(1:100, N))
+    inner = add_level(N = sample(1:100, length(outer)))
   )
 
   # Verify the sample worked
@@ -61,6 +59,12 @@ test_that("Nested level where inner level N depends on outer level N", {
   expect_true(var(nr) != 0)
   expect_lte(max(nr), 100)
   expect_gte(min(nr), 1)
+
+  # And now try with N and have it fail:
+  expect_error(fabricate(
+    outer = add_level(N = 25),
+    inner = add_level(N = sample(1:100, N))
+  ))
 })
 
 test_that("modify is the same as fabricate when no lower-level variation", {

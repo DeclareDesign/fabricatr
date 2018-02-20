@@ -225,6 +225,21 @@ cor(respondents[, 2:4], method="spearman")[1, ]
 knitr::kable(cor(respondents[, 2:4], method="spearman")[1, ])
 ```
 
+It is also possible to use `correlate()` with other variable generation functions, such as those from base `R` or even custom functions. Custom functions must take an argument `quantile_y`, which is a vector that supplies quantiles of the distribution to draw from. Base `R` functions are supported as described here:
+
+```{r results="hide"}
+student_report_card <- fabricate(
+  N = 100,
+  math_score = rnorm(N, mean = 80, sd = 5),
+  chemistry_score = correlate(rnorm, mean = 75, sd = 5, 
+                              given = math_score, rho = 0.8),
+  civics_score = correlate(rnorm, mean = 85, sd = 5,
+                           given = math_score, rho = 0.6)
+)
+```
+
+Please observe that the first argument to correlate, `draw_handler`, must be supplied as an unquoted name of a variable generating function. By default, this function works with any of the base `R` distributions; for information about using a third party or custom data generating function, see our [advanced features tutorial](http://fabricatr.declaredesign.org/articles/advanced_features.Rmd)
+
 A note about correlated data: Although the method used will generate data that is correlated on average with rank correlation `rho`, some variance is normal, and distributions which have less flexibility will be less likely to achieve the target correlation. For example, if the first variable is normally distributed with a wide range of values, and the target variable is a binary 0/1 variable, the correlation will be imprecise by the lack of flexibility in the target variable.
 
 # Fabricating cluster-correlated random variables (ICC).

@@ -586,6 +586,13 @@ test_that("Correlated variable draws and our distributions", {
   expect_gte(cor(base_dist, corr_norm, method="spearman"), 0.4)
   expect_lte(cor(base_dist, corr_norm, method="spearman"), 0.6)
 
+  # And again
+  corr_norm_2 <- correlate(qnorm, mean = 20, sd = 5,
+                           given = base_dist, rho = 0.5)
+  expect_gte(cor(base_dist, corr_norm_2, method="spearman"), 0.35)
+  expect_lte(cor(base_dist, corr_norm_2, method="spearman"), 0.65)
+
+
   # Using a poorly specified function
   expect_error(correlate(print, given = base_dist, rho = 0.5))
 })

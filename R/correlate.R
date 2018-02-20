@@ -25,12 +25,13 @@
 #' final_grade <- pmax(100, correlate(rnorm, mean = 80, sd = 10,
 #'                                    given = exam_score, rho = 0.7))
 #'
-#' @importFrom stats ecdf qnorm rnorm pnorm
-#' @importFrom rlang is_closure enexpr sym eval_tidy
+#' @importFrom stats rbeta rbinom rcauchy rchisq rexp rf rgamma rgeom rhyper
+#' @importFrom stats rlnorm rnbinom rnorm rpois rt runif rweibull
+#' @importFrom stats qbeta qbinom qcauchy qchisq qexp qf qgamma qgeom qhyper
+#' @importFrom stats qlnorm qnbinom qnorm qpois qt qunif qweibull
+#' @importFrom rlang is_closure
 #' @export
 correlate <- function(draw_handler, ..., given, rho) {
-  draw_handler_name <- as.character(enexpr(draw_handler))
-
   # Error handling
   if(!is.numeric(rho)) {
     stop("`rho` used for correlated variable draws must be numeric.")
@@ -74,24 +75,44 @@ correlate <- function(draw_handler, ..., given, rho) {
     return(draw_handler(..., quantile_y = quantile_y))
   }
 
-  # Check if this is a random number for the base functions -- if so, replace
-  # with the quantile version.
-  if(draw_handler_name %in% c("rbeta", "rbinom", "rcauchy", "rchisq", "rexp",
-                              "rf", "rgamma", "rgeom", "rhyper", "rlnorm",
-                              "rnbinom", "rnorm", "rpois", "rt", "runif",
-                              "rweibull")) {
-    draw_handler_name <- gsub("^r", "q", draw_handler_name)
-    draw_handler <- eval_tidy(sym(draw_handler_name))
-  }
+  # Now check if this is a function for random number generation for the
+  # base functions -- if so, replace with the quantile function
+  new_draw_handler <- local({
+    # Map from r to q functions.
+    func_mapper <- list(from = c(rbeta, rbinom, rcauchy, rchisq,
+                                 rexp, rf, rgamma, rgeom, rhyper,
+                                 rlnorm, rnbinom, rnorm, rpois, rt,
+                                 runif, rweibull),
+                        to = c(qbeta, qbinom, qcauchy, qchisq,
+                               qexp, qf, qgamma, qgeom, qhyper,
+                               qlnorm, qnbinom, qnorm, qpois, qt,
+                               qunif, qweibull))
 
-  # Check if this is now a base R quantile function.
-  if(draw_handler_name %in% c("qbeta", "qbinom", "qcauchy", "qchisq", "qexp",
-                              "qf", "qgamma", "qgeom", "qhyper", "qlnorm",
-                              "qnbinom", "qnorm", "qpois", "qt",
-                              "qunif", "qweibull")) {
-    # Base R q-functions take p as the quantile argument, pass through other
-    # args
-    return(draw_handler(p = quantile_y, ...))
+    function(func_handler) {
+      # If we're an r* function...
+      index_match <- which(vapply(func_mapper[["from"]], identical,
+                                 FALSE, func_handler))
+
+      if(length(index_match) > 0) {
+        return(func_mapper[["to"]][index_match][[1]])
+      }
+
+      # If we're a q* function
+      q_match <- which(vapply(func_mapper[["to"]], identical,
+                             FALSE, func_handler))
+
+      if(length(q_match) > 0) {
+        return(func_mapper[["to"]][q_match][[1]])
+      }
+
+      # If we're nothing
+      return(NULL)
+    }
+  })(draw_handler)
+
+  # Valid function
+  if(!is.null(new_draw_handler)) {
+    return(new_draw_handler(p = quantile_y, ...))
   }
 
   # Error if the user provides a poorly specified function.
