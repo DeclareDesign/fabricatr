@@ -14,8 +14,6 @@ set.seed(19861108)
 library(fabricatr)
 ```
 
-# Time series data 
-
 Below, we begin a series of examples discussing the creation of time series style data in **fabricatr**. This document assumes you are familiar with the basics of [building and importing data with **fabricatr**](http://fabricatr.declaredesign.org/articles/building_importing.html).
 
 ### Single unit fixed time trend data
@@ -32,7 +30,7 @@ panel_unit <- fabricate(
 
 First, we begin by creating tracking progress on the time trend, here `ts_year`, which begins at 0 and increases by one across observations. Next, we create a variable that depends on the current value of `ts_year`; here the GDP measure for our unit begins at 20 (log units) and increases by one third of a log unit each year. We also specify a stochastic error term.
 
-### Multiple units with time trends
+## Multiple units with time trends
 
 A more complex example might involve several geographic units, each of which has a separate growth value. Here we can use **fabricatr**'s support for multi-level, hierarchical data to elaborate:
 
@@ -78,7 +76,7 @@ global_trend_example <- fabricate(
 )
 ```
 
-### Multiple units with global yearly shocks
+## Multiple units with global yearly shocks
 
 Even more complex designs may include non-trend global level shocks (for example, financial crises or booms that affect all countries). The traditional hierarchical data design may not fit here, because we want common country-level data and common year-level data, both combined to form country-year observations. This is a good example of data that can best be described as multiple non-nested levels. Users interested in implementing this should review our manual on [cross-classified and panel data](http://fabricatr.declaredesign.org/articles/cross_classified.html). The below example will use `cross_levels` and non-nested level data.
 
@@ -106,10 +104,10 @@ panel_global_data <- fabricate(
 
 Notice that each variable is specified in the appropriate level; time series year indicators and yearly shocks are specified at the year level; country-specific time trend information and base GDP are specified at the country level; and the actual GDP measure, which is country-year, is specified at the country-year level.
 
-### Seasonal or ARIMA Time Series
+## Seasonal or ARIMA Time Series
 
 Although **fabricatr** does not have formal functionality for the creation of ARIMA time series, we recommend that interested users see our [guide to using other data creation packages with **fabricatr**](http://fabricatr.declaredesign.org/articles/other_packages.html), which includes an example of using the **forecast** package to generate ARIMA data.
 
-### What's next?
+## What's next?
 
 You may also be interested in our online tutorial on [structuring panel and cross-classified data.](http://fabricatr.declaredesign.org/articles/cross_classified.html).
