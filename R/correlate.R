@@ -29,6 +29,7 @@
 #' @importFrom stats rlnorm rnbinom rnorm rpois rt runif rweibull
 #' @importFrom stats qbeta qbinom qcauchy qchisq qexp qf qgamma qgeom qhyper
 #' @importFrom stats qlnorm qnbinom qnorm qpois qt qunif qweibull
+#' @importFrom stats ecdf
 #' @importFrom rlang is_closure
 #' @export
 correlate <- function(draw_handler, ..., given, rho) {
