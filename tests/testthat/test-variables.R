@@ -6,7 +6,7 @@ test_that("Variable functions", {
   check_binary_mean <- fabricate(my_level = add_level(
     N = 1000,
     Y1 = rnorm(N),
-    Y2 = draw_binary(Y1, link = "logit")
+    Y2 = draw_binary(latent = Y1, link = "logit")
   ))
   implied_prob <- 1 / (1 + exp(-check_binary_mean$Y1))
   expect_gte(cor(implied_prob, check_binary_mean$Y2), 0.4)
@@ -66,11 +66,11 @@ test_that("Binary valid tests", {
   basic_binary <- draw_binary(prob = c(0.5, 0.9), N = 10)
   expect_equal(length(basic_binary), 10)
   # Logit link
-  draw_binary(prob = rnorm(5), link = "logit")
+  draw_binary(latent = rnorm(5), link = "logit")
   # Probit link
-  draw_binary(prob = rnorm(5), link = "probit")
+  draw_binary(latent = rnorm(5), link = "probit")
   # Identity link
-  draw_binary(prob = runif(5, 0, 1), link = "identity")
+  draw_binary(latent = runif(5, 0, 1), link = "identity")
   # Draw binary, implicit N
   draw_binary(prob = runif(100))
 
@@ -259,13 +259,6 @@ test_that("Ordered data valid tests", {
   expect_equal(length(base_ordered), 200)
   expect_equal(length(table(base_ordered)), 4)
 
-  # Probit link
-  draw_ordered(
-    rnorm(5),
-    breaks = c(-Inf, 0, Inf),
-    break_labels = c("A", "B"),
-    link = "probit"
-  )
 })
 
 test_that("Binary ICCs", {
@@ -516,4 +509,83 @@ test_that("Quantile and quantile split", {
 
   split_quantile_data <- split_quantile(x = z, type = 5)
   expect_equal(all(table(split_quantile_data) == 20), TRUE)
+})
+
+test_that("Correlated variable draws", {
+  # Single base X
+  base_dist <- runif(n = 100, min = 50, max = 125)
+
+  # Errors for rho:
+  expect_error(correlate(draw_binary, prob = 0.7, given = base_dist)) # No rho
+  # Non-numeric rho
+  expect_error(correlate(draw_binary, prob = 0.7, given = base_dist, rho = "H"))
+  # Rho is more than a number
+  expect_error(correlate(draw_binary, prob = 0.7, given = base_dist,
+                         rho = c(0.5, -0.2)))
+  expect_error(correlate(draw_binary, prob = 0.7, given = base_dist,
+                         rho = -2))
+
+
+  # Errors for given:
+  expect_error(correlate(draw_binary, prob = 0.5, given = NULL, rho = 0.5))
+  base_dist_df <- data.frame(x = base_dist)
+  expect_error(correlate(draw_binary, prob = 0.5,
+                         given = base_dist_df, rho = 0.5))
+
+  # Didn't pass a draw_handler:
+  expect_error(correlate(NULL, given = base_dist, rho = 0.5))
+  expect_error(correlate(base_dist, given = base_dist, rho = 0.5))
+
+  # Now, let's see a working example
+  set.seed(19861108)
+  count_y <- correlate(draw_count, mean = 50, given = base_dist, rho = 0.5)
+  observed_correlation <- cor(count_y, base_dist, method="spearman")
+  expect_gte(observed_correlation, 0.4)
+  expect_lte(observed_correlation, 0.6)
+})
+
+test_that("Correlated variable draws and our distributions", {
+  set.seed(19861108)
+  base_dist <- draw_count(mean = 50, N = 100)
+
+  # Working binary
+  corr_binary <- correlate(draw_binary, prob = 0.5,
+                           given = base_dist, rho = 0.5)
+  expect_gte(cor(base_dist, corr_binary, method="spearman"), 0.1)
+  expect_lte(cor(base_dist, corr_binary, method="spearman"), 0.9)
+
+  # Error handling for binomial
+  expect_error(correlate(draw_binomial, prob = rep(0.7, 100), trials = 10,
+                         given = base_dist, rho = 0.5))
+
+  # Working binomial
+  corr_binomial <- correlate(draw_binomial, prob = 0.5, trials = 10,
+                             given = base_dist, rho = 0.5)
+  expect_gte(cor(base_dist, corr_binomial, method="spearman"), 0.4)
+  expect_lte(cor(base_dist, corr_binomial, method="spearman"), 0.6)
+
+  # Error handling for count
+  expect_error(correlate(draw_count, mean = rep(20, 100),
+                         given = base_dist, rho = 0.5))
+
+  # Working count
+  corr_count <- correlate(draw_count, mean = 20,
+                          given = base_dist, rho = 0.5)
+  expect_gte(cor(base_dist, corr_count, method="spearman"), 0.4)
+  expect_lte(cor(base_dist, corr_count, method="spearman"), 0.6)
+
+  # Using a base R function
+  corr_norm <- correlate(rnorm, mean = 20, sd = 5, given = base_dist, rho = 0.5)
+  expect_gte(cor(base_dist, corr_norm, method="spearman"), 0.4)
+  expect_lte(cor(base_dist, corr_norm, method="spearman"), 0.6)
+
+  # And again
+  corr_norm_2 <- correlate(qnorm, mean = 20, sd = 5,
+                           given = base_dist, rho = 0.5)
+  expect_gte(cor(base_dist, corr_norm_2, method="spearman"), 0.35)
+  expect_lte(cor(base_dist, corr_norm_2, method="spearman"), 0.65)
+
+
+  # Using a poorly specified function
+  expect_error(correlate(print, given = base_dist, rho = 0.5))
 })

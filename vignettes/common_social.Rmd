@@ -49,7 +49,7 @@ This example introduces you to a few new functions. First, we can wrap multiple 
 
 As noted in the introduction for this tutorial, the target audience for this tutorial is someone interested in common social science outcome variables, but without a strong background in thinking about modelling these variables. If you feel comfortable modelling but need to learn how to specify the variables in **fabricatr**, please see our tutorial [on variable generation with **fabricatr**](http://fabricatr.declaredesign.org/articles/variable_generation.html). If you need more information about modeling the structure of data or implementing multi-level models, panel data, or cross-classified data with **fabricatr**, then please see our tutorial [on building and importing data](http://fabricatr.declaredesign.org/articles/building_importing.html).
 
-### Ordered data (e.g. satisfaction)
+## Ordered data (e.g. satisfaction)
 
 The type of data generated for many survey questions is "ordered". Ordered data includes the "Likert scale", and is used when respondents to a survey report an outcome which has a logical ordering from lowest to highest but is not necessarily measured in numerically comparable terms. Consider a basic question like "Do you approve of your mayor's job performance?". There are many ways you could measure a respondent's answer to this question, but one of the most common is by offering the respondent the choice to "Strongly Disapprove", "Disapprove", feel "Neutral", "Approve", or "Strongly Approve". This five point scale is ordered data.
 
@@ -200,7 +200,7 @@ mayor_approval <- draw_ordered(x = runif(n = 100, min = -2.5, max = 2.5),
 
 Users who are new to the `R` programmming language and want to know more about other statistical distributions beyond the `norm` and `unif` distributions used here, should run the command `?Distributions` in the R console. 
 
-### Likert Data
+## Likert Data
 
 Many survey responses that focus on labeling agreement, support, or quality evaluation, including the example above, are called "Likert" data after the psychologist Rensis Likert. These scales are typically 4, 5, or 7 point scales of a measure. **fabricatr** includes a simple shortcut to make Likert variables without needing to fill out the `breaks` and `break_labels` each time.
 
@@ -216,7 +216,7 @@ table(mayor_approval)
 knitr::kable(table(mayor_approval))
 ```
 
-### Categorical data (e.g. demographic measures)
+## Categorical data (e.g. demographic measures)
 
 Surveys often collect demographic information from respondents, including age, gender, and ethnicity. By this point in our guide, you have begun to see how you might generate a continuous numerical variable like age, or how you traditional binary measures of gender might be specified. But some variables, like inclusive measures of gender, or ethnicity, (or hair color, eye color, city of residence, or many other possible variables of interest) are not "ordered" in any sense.
 
@@ -246,7 +246,7 @@ table(respondent_ethnicity)
 ```{r echo=FALSE}
 knitr::kable(table(respondent_ethnicity))
 ```
-### Data with fixed minimum and maximum values
+## Data with fixed minimum and maximum values
 
 It is often useful to generate data with fixed minimum or maximum values, but unclear how to best do so. In general the approach we would advocate to doing this is to generate a latent variable (described above) which might fall outside the minimum and maximum values, and then truncating the variable to the minimum and maximum values.
 
@@ -298,7 +298,7 @@ hist(fixed_efficacy_experiment$post_outcome,
      xlab = "Post-Treatment Outcome: Score from 0 to 100")
 ```
 
-### Count outcomes and skewed distributions 
+## Count outcomes and skewed distributions 
 
 Researchers may be interested in "count" outcomes, which describe a count of events of interest during a fixed time period. For our example in this section, we draw from "Propaganda and Conflict: Evidence from the Rwandan Genocide" (Yanagizawa-Drott 2014), an article which uses a quasi-experimental design to establish an association between the broadcasts of Radio Télévision Libre des Mille Collines and local instances of violence during the Rwandan Genocide. Substantively, the paper's conclusion is that higher density in radio coverage is associated with greater local participation in genocidal violence.
 
@@ -379,7 +379,7 @@ population_data <- fabricate(
 
 In addition to the helper functions provided by **fabricatr** and the built-in `R` distributions suitable for generating skewed data, other `R` packages like [**sn**](https://cran.r-project.org/web/packages/sn/index.html) also include useful functions for generating skewed data and can be incorporated into `fabricate` calls.
 
-### What's next?
+## What's next?
 
 This brings us to the end of this introductory tutorial on common social science variables. As a next step, our tutorial on [variable generation with **fabricatr**](http://fabricatr.declaredesign.org/articles/variable_generation.html) -- targeted to a slightly more technical audience -- contains more examples of the kinds of variables you can easily create with **fabricatr**. In addition, we have tutorials on creating [time series variables](http://fabricatr.declaredesign.org/articles/time_series.html), and on [using other variable creation packages with **fabricatr**](http://fabricatr.declaredesign.org/articles/other_packages.html).
 

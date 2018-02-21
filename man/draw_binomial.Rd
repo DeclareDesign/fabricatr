@@ -11,20 +11,23 @@
 \title{Draw discrete variables including binary, binomial count, poisson count,
 ordered, and categorical}
 \usage{
-draw_binomial(prob, trials = 1, N = length(prob), link = "identity")
+draw_binomial(prob = link(latent), trials = 1, N = length(prob),
+  latent = NULL, link = "identity", quantile_y = NULL)
 
-draw_categorical(prob, N = NULL, link = "identity",
-  category_labels = NULL)
+draw_categorical(prob = link(latent), N = NULL, latent = NULL,
+  link = "identity", category_labels = NULL)
 
-draw_ordered(x, breaks = c(-1, 0, 1), break_labels = NULL, N = length(x),
-  link = "identity")
+draw_ordered(x = link(latent), breaks = c(-1, 0, 1), break_labels = NULL,
+  N = length(x), latent = NULL, link = "identity", quantile_y = NULL)
 
-draw_count(mean, N = length(mean), link = "identity")
+draw_count(mean = link(latent), N = length(mean), latent = NULL,
+  link = "identity", quantile_y = NULL)
 
-draw_binary(prob, N = length(prob), link = "identity")
+draw_binary(prob = link(latent), N = length(prob), link = "identity",
+  latent = NULL, quantile_y = NULL)
 
-draw_likert(x, type = 7, breaks = NULL, N = length(x),
-  link = "identity")
+draw_likert(x, type = 7, breaks = NULL, N = length(x), latent = NULL,
+  link = "identity", quantile_y = NULL)
 
 draw_quantile(type = NULL, N = NULL)
 }
@@ -39,9 +42,14 @@ function, these underlying probabilities will be transformed.}
 \item{N}{number of units to draw. Defaults to the length of the vector of
 probabilities or latent data you provided.}
 
+\item{latent}{If the user provides a link argument other than identity, they
+should provide the variable `latent` rather than `prob` or `mean`}
+
 \item{link}{link function between the latent variable and the probability of
 a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 link, the latent variable must be a probability.}
+
+\item{quantile_y}{Ignore this for now.}
 
 \item{category_labels}{vector of labels for the categories produced by
 `draw_categorical`. If provided, must be equal to the number of categories
@@ -92,7 +100,7 @@ fabricate(N = 3,
 # into a probability range).
 fabricate(N = 3,
    x = 10 * rnorm(N),
-   binary = draw_binary(prob = x, link = "probit"))
+   binary = draw_binary(latent = x, link = "probit"))
 
 # Repeated trials: `draw_binomial`
 fabricate(N = 3,

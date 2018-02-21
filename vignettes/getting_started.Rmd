@@ -40,7 +40,7 @@ voters <- fabricate(
   Q1_immigration = draw_likert(x = ideology, type = 7),
   Q2_defence = draw_likert(x = ideology + 0.5, type = 7),
   treatment = draw_binary(0.5, N = N),
-  proposition_vote = draw_binary(prob = ideology + 1.2 * treatment, link = "probit")
+  proposition_vote = draw_binary(latent = ideology + 1.2 * treatment, link = "probit")
 )
 ```
 

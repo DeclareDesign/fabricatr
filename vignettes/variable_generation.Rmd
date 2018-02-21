@@ -39,12 +39,12 @@ binomial_ex <- fabricate(
 )
 ```
 
-Some researchers may be interested in specifying probabilities through a "link function". This can be done in any of your data generating functions through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.
+Some researchers may be interested in specifying probabilities through a "link function". This can be done in any of your data generating functions through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome. If you are specifying a link function, you should also specify your latent variable as the `latent` argument.
 
 ```{r}
 bernoulli_probit <- fabricate(
   N = 3, x = 10 * rnorm(N),
-  binary = draw_binary(prob = x, link = "probit")
+  binary = draw_binary(latent = x, link = "probit")
 )
 ```
 
@@ -59,19 +59,6 @@ ordered_example <- fabricate(
   N = 3,
   x = 5 * rnorm(N),
   ordered = draw_ordered(x, breaks = c(-Inf, -1, 1, Inf))
-)
-```
-
-Ordered data also supports link functions including "logit" or "probit":
-
-```{r}
-ordered_probit_example <- fabricate(
-  N = 3,
-  x = 5 * rnorm(N),
-  ordered = draw_ordered(
-    x, breaks = c(-Inf, -1, 1, Inf),
-    link = "probit"
-  )
 )
 ```
 
@@ -176,7 +163,73 @@ warn_draw_cat_example <- fabricate(
 
 "categorical" variables can also use link functions, for example to generate multinomial probit data.
 
-# Fabricating cluster-correlated random variables.
+# Correlated random variables
+
+**fabricatr** makes it easy to generate correlated random variables one at a time. All you need is a reference variable, a desired rank correlation coefficient (from -1 to 1), and a `draw_` function to specify the target distribution of the correlated variable. 
+
+This is done using a function called `correlate()`, which takes four distinct arguments: `draw_handler`, which is the un-quoted name of your desired outcome distribution (e.g. `draw_binary`, `draw_binomial`, `draw_count`); any parameters needed for that distribution (e.g. `mean` for `draw_count`); `given`, which is the reference variable your new variable will be correlated with, and `rho`, which is the rank correlation coefficient you are targeting.
+
+In this example, we will generate individuals, who are given a battery of public opinion questions. Their responses are aggregated into index scores in each of several categories: conservative values, economic conservatism, and foreign policy interventionism.
+
+```{r echo=FALSE}
+set.seed(19861109)
+```
+```{r results="hide"}
+respondents <- fabricate(
+  N = 100,
+  conservative_values = draw_binomial(prob = 0.4, trials = 20, N = N),
+  economic_conservative = correlate(given = conservative_values,
+                                    rho = 0.5,
+                                    draw_binomial, 
+                                    prob = 0.6, 
+                                    trials = 20),
+  foreign_policy = correlate(given = conservative_values,
+                             rho = 0.3,
+                             draw_binomial,
+                             prob = 0.4,
+                             trials = 20)
+)
+```
+
+Unpacking this example; first, the respondents are asked 20 questions and have a 40% chance of answering yes to each question. The result is summed into an index. Next, the respondents are asked 20 questions and have a 60% chance of answering yes to each question, but result is also constrained to be rank-correlated at `rho = 0.5` with their score on the `conservative_values` index. Finally, 20 more questions are asked of the respondents about foreign policy, where they have a 40% chance of answering yes, and the index score is somewhat more weakly correlated with `conservative_values`.
+
+The argument `N` is not necessary in the resulting distribution because it is automatically detected from the variable specified in `given`.
+
+We can analyze the data to verify that, subject to the limitations of random sampling, the results reflect the specification. First, let's verify that our means are approximately 0.4, 0.6, and 0.4:
+
+```{r results="hide"}
+apply(respondents[2:4], 2, mean) / 20
+```
+```{r echo=FALSE}
+knitr::kable(apply(respondents[2:4], 2, mean) / 20)
+```
+
+Next, let's check the correlation between our variables of interest:
+```{r results="hide"}
+cor(respondents[, 2:4], method="spearman")[1, ]
+```
+```{r echo=FALSE}
+knitr::kable(cor(respondents[, 2:4], method="spearman")[1, ])
+```
+
+It is also possible to use `correlate()` with other variable generation functions, such as those from base `R` or even custom functions. Custom functions must take an argument `quantile_y`, which is a vector that supplies quantiles of the distribution to draw from. Base `R` functions are supported as described here:
+
+```{r results="hide"}
+student_report_card <- fabricate(
+  N = 100,
+  math_score = rnorm(N, mean = 80, sd = 5),
+  chemistry_score = correlate(given = math_score, rho = 0.8,
+                              rnorm, mean = 75, sd = 5),
+  civics_score = correlate(given = math_score, rho = 0.6,
+                           rnorm, mean = 85, sd = 5)
+)
+```
+
+Please observe that the first argument to correlate, `draw_handler`, must be supplied as an unquoted name of a variable generating function. By default, this function works with any of the base `R` distributions; for information about using a third party or custom data generating function, see our [advanced features tutorial](http://fabricatr.declaredesign.org/articles/advanced_features.Rmd)
+
+A note about correlated data: Although the method used will generate data that is correlated on average with rank correlation `rho`, some variance is normal, and distributions which have less flexibility will be less likely to achieve the target correlation. For example, if the first variable is normally distributed with a wide range of values, and the target variable is a binary 0/1 variable, the correlation will be imprecise by the lack of flexibility in the target variable.
+
+# Fabricating cluster-correlated random variables (ICC).
 
 We also provide helper functions to generate cluster-correlated random variables with fixed intra-cluster correlation (ICC) values. Our two functions `draw_binary_icc()` and `draw_normal_icc()` allow you to generate both discrete binary data with fixed ICCs and normal data with fixed ICCs.
 
@@ -264,6 +317,32 @@ If you are interested in learning how to import or build data, you can read our 
 
 # Technical Appendix
 
+## Correlated Data
+
+When generating correlated data using `correlate()`, the following approach is used, where X is the source variable, F is the empirical distribution of X, G is the target distribution, and Y is the realized variable drawn from that distribution:
+
+1. Calculate the quantiles of the observed X in the empirical distribution X
+2. Draw these quantiles from a standard normal distribution
+3. Generate a standard normal version of Y based on the specified relationship.
+4. Map the standard normal Y into the quantiles of the standard normal distribution
+5. Draw from the target distribution at those quantiles.
+
+Because all transformations are affine, the rank order correlation induced in the standard normal stage is preserved in the target distribution. Mathematically:
+
+$$
+\begin{aligned}
+  X_{quan} &= F^{-1}(X) \\
+  X_{std} &= \Phi(X_{quan}) \\
+  Y_{std} &\sim N(\rho \times X_{std}, (1 - \rho^2)) \\
+  Y_{quan} &= \Phi^{-1}(Y_{std}) \\
+  Y &= G(Y_{quan})
+\end{aligned}
+$$
+
+One thing that may be counterintuitive about this approach is that the correlation is based on the sample characteristics of X -- the empirical data X observed without reference to its distribution of origin -- but the population characteristics of Y. This choice was chosen because it minimizes the amount of information required of users and maximizes the flexibility of source variables, although it may result in some imprecision on a given draw owing to the finite sample size of X (or chance deviation of X from the desired distribution during sampling).
+
+## Binary ICC
+
 When generating binary data with a fixed ICC, we use this formula, where $i$ is a cluster and $j$ is a unit in a cluster:
 
 $$
@@ -278,7 +357,9 @@ $$
 \end{aligned}
 $$
 
-In expectation, this guarantees an intra-cluster correlation of $\rho$ and a cluster proportion of $p_i$. This approach derives from Hossain, Akhtar and Chakraborti, Hrishikesh. "ICCBin: Facilitates Clustered Binary Data Generation, and Estimation of Intracluster Correlation Coefficient (ICC) for Binary Data", available on [https://cran.r-project.org/web/packages/ICCbin/index.html](CRAN) or [https://github.com/akhtarh/ICCbin](GitHub)
+In expectation, this guarantees an intra-cluster correlation of $\rho$ and a cluster proportion of $p_i$. This approach is derived from Hossain, Akhtar and Chakraborti, Hrishikesh. "ICCBin: Facilitates Clustered Binary Data Generation, and Estimation of Intracluster Correlation Coefficient (ICC) for Binary Data", available on [https://cran.r-project.org/web/packages/ICCbin/index.html](CRAN) or [https://github.com/akhtarh/ICCbin](GitHub)
+
+## Normal ICC
 
 When generating normal data with a fixed ICC, we follow this formula, again with $i$ as a cluster and $j$ as a unit in the cluster:
 

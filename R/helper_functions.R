@@ -280,10 +280,7 @@ handle_n <- function(N, add_level=TRUE, working_environment=NULL,
     # functions, which would just be N. This ensures we get the expression
     # passed to N in the outer function call.
     temp_N_expr <- substitute(N, parent.frame(parent_frame_levels))
-    N <- eval_tidy(temp_N_expr, data = append(
-      working_environment$data_frame_output_,
-      list(N = nrow(working_environment$data_frame_output_))
-      ))
+    N <- eval_tidy(temp_N_expr, data = working_environment$data_frame_output_)
   }
 
   # User provided an unevaluated function

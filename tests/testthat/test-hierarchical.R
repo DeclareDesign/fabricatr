@@ -51,7 +51,7 @@ test_that("Nested level where inner level N depends on outer level N", {
   # Test the implicit N
   nl_test <- fabricate(
     outer = add_level(N = 25),
-    inner = add_level(N = sample(1:100, N))
+    inner = add_level(N = sample(1:100, length(outer)))
   )
 
   # Verify the sample worked
@@ -59,6 +59,12 @@ test_that("Nested level where inner level N depends on outer level N", {
   expect_true(var(nr) != 0)
   expect_lte(max(nr), 100)
   expect_gte(min(nr), 1)
+
+  # And now try with N and have it fail:
+  expect_error(fabricate(
+    outer = add_level(N = 25),
+    inner = add_level(N = sample(1:100, N))
+  ))
 })
 
 test_that("modify is the same as fabricate when no lower-level variation", {
@@ -66,21 +72,34 @@ test_that("modify is the same as fabricate when no lower-level variation", {
   data <- structure(list(villages = c("1", "1", "1", "1", "2", "2", "2",
                                       "2", "3", "3", "3", "3"),
                          elevation = c(-2.48889487515394, -2.48889487515394,
-                                       -2.48889487515394, -2.48889487515394, -1.13351774554235, -1.13351774554235,
-                                       -1.13351774554235, -1.13351774554235, -1.02483410795231, -1.02483410795231,
+                                       -2.48889487515394, -2.48889487515394,
+                                       -1.13351774554235, -1.13351774554235,
+                                       -1.13351774554235, -1.13351774554235,
+                                       -1.02483410795231, -1.02483410795231,
                                        -1.02483410795231, -1.02483410795231),
-                         citizens = c("01", "02","03", "04", "05", "06", "07", "08", "09", "10", "11", "12"),
-                         income = c(0.767469110433012, 0.156904492527246, 0.0925139961764216,
-                                    0.225728516001254, 0.665376711403951, 0.30171422380954, 0.38407509541139,
-                                    0.869735463289544, 0.560231429291889, 0.00678953621536493,
+                         citizens = c("01", "02","03", "04", "05", "06", "07",
+                                      "08", "09", "10", "11", "12"),
+                         income = c(0.767469110433012, 0.156904492527246,
+                                    0.0925139961764216,
+                                    0.225728516001254, 0.665376711403951,
+                                    0.30171422380954, 0.38407509541139,
+                                    0.869735463289544, 0.560231429291889,
+                                    0.00678953621536493,
                                     0.620438944082707, 0.369847694411874)),
                     .Names = c("villages","elevation", "citizens", "income"),
                     row.names = c(NA, -12L), class = "data.frame")
 
   # Verify the sample worked
 
-  fab <- fabricate(data, Z = 0, Y_vil_Z_0 = elevation + 5 + 2 * Z, Z = 1,Y_vil_Z_1 = elevation + 5 + 2 * Z, Z = NULL, ID_label = "citizens")
-  mod <- fabricate(data, villages=modify_level(Z = 0, Y_vil_Z_0 = elevation + 5 + 2 * Z, Z = 1,Y_vil_Z_1 = elevation + 5 + 2 * Z, Z = NULL))
+  fab <- fabricate(data, Z = 0, Y_vil_Z_0 = elevation + 5 + 2 * Z, Z = 1,
+                   Y_vil_Z_1 = elevation + 5 + 2 * Z, Z = NULL,
+                   ID_label = "citizens")
+  mod <- fabricate(data,
+                   villages=modify_level(Z = 0,
+                                         Y_vil_Z_0 = elevation + 5 + 2 * Z,
+                                         Z = 1,
+                                         Y_vil_Z_1 = elevation + 5 + 2 * Z,
+                                         Z = NULL))
 
   expect_identical(fab, mod)
 })
