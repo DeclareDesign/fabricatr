@@ -3,7 +3,10 @@
 #' In order to generate a random variable of a specific distribution based on
 #' another variable of any distribution and a correlation coefficient `rho`,
 #' we map the first, known variable into the standard normal space via affine
-#' transformation, and generate a conditional distribution of Y. This function
+#' transformation, generate the conditional distribution of the resulting
+#' variable as a standard normal, and then map that standard normal back to
+#' the target distribution. The result ensures, in expectation, a rank-order
+#' correlation of `rho`.
 #'
 #' @param draw_handler The unquoted name of a function to generate data.
 #' Currently, `draw_binary`, `draw_binomial`, and `draw_count` are supported.
@@ -18,12 +21,12 @@
 #' exam_score <- pmax(100, rnorm(n = 100, mean = 80, sd = 10))
 #'
 #' # Generate a correlated variable using fabricatr variable generation
-#' scholarship_offers <- correlate(draw_count, mean = 3, given = exam_score,
-#'                                 rho = 0.7)
+#' scholarship_offers <- correlate(given = exam_score, rho = 0.7,
+#'                                 draw_count, mean = 3)
 #'
 #' # Generate a correlated variable using base R distributions
-#' final_grade <- pmax(100, correlate(rnorm, mean = 80, sd = 10,
-#'                                    given = exam_score, rho = 0.7))
+#' final_grade <- pmax(100, correlate(given = exam_score, rho = 0.7,
+#'                                    rnorm, mean = 80, sd = 10))
 #'
 #' @importFrom stats ecdf qnorm pnorm
 #' @importFrom rlang is_closure

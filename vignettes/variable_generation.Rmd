@@ -178,16 +178,16 @@ set.seed(19861109)
 respondents <- fabricate(
   N = 100,
   conservative_values = draw_binomial(prob = 0.4, trials = 20, N = N),
-  economic_conservative = correlate(draw_binomial, 
+  economic_conservative = correlate(given = conservative_values,
+                                    rho = 0.5,
+                                    draw_binomial, 
                                     prob = 0.6, 
-                                    trials = 20,
-                                    given = conservative_values,
-                                    rho = 0.5),
-  foreign_policy = correlate(draw_binomial,
-                            prob = 0.4,
-                            trials = 20,
-                            given = conservative_values,
-                            rho = 0.3)
+                                    trials = 20),
+  foreign_policy = correlate(given = conservative_values,
+                             rho = 0.3,
+                             draw_binomial,
+                             prob = 0.4,
+                             trials = 20)
 )
 ```
 
@@ -218,10 +218,10 @@ It is also possible to use `correlate()` with other variable generation function
 student_report_card <- fabricate(
   N = 100,
   math_score = rnorm(N, mean = 80, sd = 5),
-  chemistry_score = correlate(rnorm, mean = 75, sd = 5, 
-                              given = math_score, rho = 0.8),
-  civics_score = correlate(rnorm, mean = 85, sd = 5,
-                           given = math_score, rho = 0.6)
+  chemistry_score = correlate(given = math_score, rho = 0.8,
+                              rnorm, mean = 75, sd = 5),
+  civics_score = correlate(given = math_score, rho = 0.6,
+                           rnorm, mean = 85, sd = 5)
 )
 ```
 
