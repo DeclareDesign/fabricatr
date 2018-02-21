@@ -181,7 +181,7 @@ draw_categorical <- function(prob = link(latent), N = NULL,
                              category_labels = NULL) {
 
   # Handle link functions
-  link = match.fun(link)
+  link <- match.fun(link)
 
   if (!identical(link, identity)) {
     stop("Categorical data does not accept link functions.")
@@ -251,7 +251,7 @@ draw_ordered <- function(x = link(latent), breaks = c(-1, 0, 1),
                          link = "identity", quantile_y = NULL) {
 
   # Error handling link
-  link = match.fun(link)
+  link <- match.fun(link)
 
   if (!identical(link, identity)) {
     stop("`draw_ordered` only allows the \"identity\" link.")
@@ -317,7 +317,7 @@ draw_count <- function(mean=link(latent),
                        link = "identity",
                        quantile_y = NULL) {
 
-  link = match.fun(link)
+  link <- match.fun(link)
 
   if (!identical(link, identity)) {
     stop("Count data does not accept link functions.")
