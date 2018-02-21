@@ -25,11 +25,7 @@
 #' final_grade <- pmax(100, correlate(rnorm, mean = 80, sd = 10,
 #'                                    given = exam_score, rho = 0.7))
 #'
-#' @importFrom stats rbeta rbinom rcauchy rchisq rexp rf rgamma rgeom rhyper
-#' @importFrom stats rlnorm rnbinom rnorm rpois rt runif rweibull
-#' @importFrom stats qbeta qbinom qcauchy qchisq qexp qf qgamma qgeom qhyper
-#' @importFrom stats qlnorm qnbinom qnorm qpois qt qunif qweibull
-#' @importFrom stats ecdf
+#' @importFrom stats ecdf qnorm pnorm
 #' @importFrom rlang is_closure
 #' @export
 correlate <- function(draw_handler, ..., given, rho) {
@@ -63,9 +59,9 @@ correlate <- function(draw_handler, ..., given, rho) {
   # Known conditional distribution of Y on X;
   # because X and Y will both be mean 0 var/sd 1, we know the formula will be
   # Y ~ Normal(rho * X, (1 - rho^2))
-  std_normal_y <- rho * std_normal_base + rnorm(length(given),
-                                                0,
-                                                sqrt(1 - rho^2))
+  std_normal_y <- rnorm(length(given),
+                        rho * std_normal_base,
+                        sqrt(1 - rho^2))
 
   # Std. Normal Y -> CDF -> Quantile Y.
   # Outer function handles Quantile Y -> Distribution Y
@@ -75,44 +71,13 @@ correlate <- function(draw_handler, ..., given, rho) {
   if("quantile_y" %in% names(formals(draw_handler))) {
     return(draw_handler(..., quantile_y = quantile_y))
   }
-
+#
   # Now check if this is a function for random number generation for the
   # base functions -- if so, replace with the quantile function
-  new_draw_handler <- local({
-    # Map from r to q functions.
-    func_mapper <- list(from = c(rbeta, rbinom, rcauchy, rchisq,
-                                 rexp, rf, rgamma, rgeom, rhyper,
-                                 rlnorm, rnbinom, rnorm, rpois, rt,
-                                 runif, rweibull),
-                        to = c(qbeta, qbinom, qcauchy, qchisq,
-                               qexp, qf, qgamma, qgeom, qhyper,
-                               qlnorm, qnbinom, qnorm, qpois, qt,
-                               qunif, qweibull))
-
-    function(func_handler) {
-      # If we're an r* function...
-      index_match <- which(vapply(func_mapper[["from"]], identical,
-                                 FALSE, func_handler))
-
-      if(length(index_match) > 0) {
-        return(func_mapper[["to"]][index_match][[1]])
-      }
-
-      # If we're a q* function
-      q_match <- which(vapply(func_mapper[["to"]], identical,
-                             FALSE, func_handler))
-
-      if(length(q_match) > 0) {
-        return(func_mapper[["to"]][q_match][[1]])
-      }
-
-      # If we're nothing
-      return(NULL)
-    }
-  })(draw_handler)
+  new_draw_handler <- lookup_quantile_function(draw_handler)
 
   # Valid function
-  if(!is.null(new_draw_handler)) {
+  if(is.function(new_draw_handler)) {
     return(new_draw_handler(p = quantile_y, ...))
   }
 
@@ -123,3 +88,38 @@ correlate <- function(draw_handler, ..., given, rho) {
        "`draw_count`, `draw_binomial`) or the name of a custom function ",
        "that contains a `quantile_y` argument.")
 }
+
+
+#' @importFrom stats rbeta rbinom rcauchy rchisq rexp rf rgamma rgeom rhyper
+#' @importFrom stats rlnorm rnbinom rnorm rpois rt runif rweibull
+#' @importFrom stats qbeta qbinom qcauchy qchisq qexp qf qgamma qgeom qhyper
+#' @importFrom stats qlnorm qnbinom qnorm qpois qt qunif qweibull
+lookup_quantile_function <- local({
+    # Map from r to q functions.
+    r_funs <- list(rbeta, rbinom, rcauchy, rchisq,
+                   rexp, rf, rgamma, rgeom, rhyper,
+                   rlnorm, rnbinom, rnorm, rpois, rt,
+                   runif, rweibull)
+    q_funs <- list(qbeta, qbinom, qcauchy, qchisq,
+                   qexp, qf, qgamma, qgeom, qhyper,
+                   qlnorm, qnbinom, qnorm, qpois, qt,
+                   qunif, qweibull)
+
+    lookup <- function(list_of_f, f) {
+      which(vapply(list_of_f, identical, FALSE, f))
+    }
+
+    function(func_handler) {
+      # If we're an r* function...
+      index_match <- lookup(r_funs, func_handler)
+
+      if(length(index_match) == 0) {
+          index_match <- lookup(q_funs, func_handler)
+          if(length(index_match) == 0) {
+              return(NULL)
+          }
+      }
+      q_funs[[index_match[1]]]
+
+    }
+})

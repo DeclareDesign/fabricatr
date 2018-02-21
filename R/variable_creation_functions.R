@@ -99,8 +99,9 @@ draw_binomial <- function(prob = link(latent),
                           link = "identity",
                           quantile_y = NULL) {
 
-  # Handle link function
-  link <- match.fun(link)
+  # Handle link function - try matching normal way, and fallback
+  # to manual logic for probit/logit
+  link <- tryCatch(match.fun(link), error = handle_link_functions(link));
 
   # Error handle probabilities and apply link function.
   if (mode(prob) != "numeric") {
@@ -180,8 +181,9 @@ draw_categorical <- function(prob = link(latent), N = NULL,
                              link = "identity",
                              category_labels = NULL) {
 
-  # Handle link functions
-  link <- match.fun(link)
+  # Handle link function - try matching normal way, and fallback
+  # to manual logic for probit/logit
+  link <- tryCatch(match.fun(link), error = handle_link_functions(link));
 
   if (!identical(link, identity)) {
     stop("Categorical data does not accept link functions.")
@@ -250,8 +252,9 @@ draw_ordered <- function(x = link(latent), breaks = c(-1, 0, 1),
                          N = length(x), latent = NULL,
                          link = "identity", quantile_y = NULL) {
 
-  # Error handling link
-  link <- match.fun(link)
+  # Handle link function - try matching normal way, and fallback
+  # to manual logic for probit/logit
+  link <- tryCatch(match.fun(link), error = handle_link_functions(link));
 
   if (!identical(link, identity)) {
     stop("`draw_ordered` only allows the \"identity\" link.")
@@ -317,7 +320,9 @@ draw_count <- function(mean=link(latent),
                        link = "identity",
                        quantile_y = NULL) {
 
-  link <- match.fun(link)
+  # Handle link function - try matching normal way, and fallback
+  # to manual logic for probit/logit
+  link <- tryCatch(match.fun(link), error = handle_link_functions(link));
 
   if (!identical(link, identity)) {
     stop("Count data does not accept link functions.")
@@ -356,7 +361,9 @@ draw_binary <- function(prob = link(latent), N = length(prob),
                         latent = NULL,
                         quantile_y = NULL) {
 
-  link <- match.fun(link)
+  # Handle link function - try matching normal way, and fallback
+  # to manual logic for probit/logit
+  link <- tryCatch(match.fun(link), error = handle_link_functions(link));
 
   return(draw_binomial(
     prob = prob,
@@ -509,21 +516,6 @@ split_quantile <- function(x = NULL,
       include.lowest = TRUE)
 }
 
-
-#' Simple helper function wrapping the plogis function.
-#'
-#' @param x Latent variable to be logit-transformed
-#' @returns Logit-transformed variable [0-1]
-#' @keywords internal
-#' @importFrom stats plogis
-#' @export
-logit <- function(x) { plogis(x) }
-
-#' Simple helper function wrapping the pnorm function.
-#'
-#' @param x Latent variable to be probit-transformed
-#' @returns Probit-transformed variable [0-1]
-#' @keywords internal
-#' @importFrom stats pnorm
-#' @export
-probit <- function(x) { pnorm(x) }
+handle_link_functions <- function(link){
+  function(cond) switch(link, probit=pnorm, logit=plogis, stop("Must provide a link function"))
+}
