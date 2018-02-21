@@ -6,7 +6,7 @@ test_that("Variable functions", {
   check_binary_mean <- fabricate(my_level = add_level(
     N = 1000,
     Y1 = rnorm(N),
-    Y2 = draw_binary(Y1, link = "logit")
+    Y2 = draw_binary(latent = Y1, link = "logit")
   ))
   implied_prob <- 1 / (1 + exp(-check_binary_mean$Y1))
   expect_gte(cor(implied_prob, check_binary_mean$Y2), 0.4)
@@ -66,11 +66,11 @@ test_that("Binary valid tests", {
   basic_binary <- draw_binary(prob = c(0.5, 0.9), N = 10)
   expect_equal(length(basic_binary), 10)
   # Logit link
-  draw_binary(prob = rnorm(5), link = "logit")
+  draw_binary(latent = rnorm(5), link = "logit")
   # Probit link
-  draw_binary(prob = rnorm(5), link = "probit")
+  draw_binary(latent = rnorm(5), link = "probit")
   # Identity link
-  draw_binary(prob = runif(5, 0, 1), link = "identity")
+  draw_binary(latent = runif(5, 0, 1), link = "identity")
   # Draw binary, implicit N
   draw_binary(prob = runif(100))
 
@@ -259,13 +259,6 @@ test_that("Ordered data valid tests", {
   expect_equal(length(base_ordered), 200)
   expect_equal(length(table(base_ordered)), 4)
 
-  # Probit link
-  draw_ordered(
-    rnorm(5),
-    breaks = c(-Inf, 0, Inf),
-    break_labels = c("A", "B"),
-    link = "probit"
-  )
 })
 
 test_that("Binary ICCs", {

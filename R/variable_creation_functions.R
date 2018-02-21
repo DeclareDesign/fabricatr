@@ -36,6 +36,8 @@
 #' @param link link function between the latent variable and the probability of
 #' a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 #' link, the latent variable must be a probability.
+#' @param latent If the user provides a link argument other than identity, they
+#' should provide the variable `latent` rather than `prob` or `mean`
 #' @param quantile_y Ignore this for now.
 #' @return A vector of data in accordance with the specification; generally
 #' numeric but for some functions, including `draw_ordered`, may be factor if
@@ -51,7 +53,7 @@
 #' # into a probability range).
 #' fabricate(N = 3,
 #'    x = 10 * rnorm(N),
-#'    binary = draw_binary(prob = x, link = "probit"))
+#'    binary = draw_binary(latent = x, link = "probit"))
 #'
 #' # Repeated trials: `draw_binomial`
 #' fabricate(N = 3,
@@ -91,36 +93,32 @@
 #' @importFrom stats pnorm rnorm rpois rbinom na.omit qbinom qpois
 #' @export
 #'
-draw_binomial <- function(prob, trials = 1, N = length(prob),
-                          link = "identity", quantile_y = NULL) {
+draw_binomial <- function(prob = link(latent),
+                          trials = 1, N = length(prob),
+                          latent = NULL,
+                          link = "identity",
+                          quantile_y = NULL) {
+
+  # Handle link function
+  link <- match.fun(link)
+
   # Error handle probabilities and apply link function.
   if (mode(prob) != "numeric") {
     stop("Probabilities provided in the `prob` argument must be numeric.")
   }
 
-  if (link == "identity") {
-    if (!all(na.omit(0 <= prob & prob <= 1))) {
-      stop(
-        "The identity link requires probability values between 0 and 1,",
-        "inclusive."
-      )
-    } else if (any(is.na(prob))) {
-      warning("At least one specified probability (`prob`) was NA.")
-    }
-    if (N %% length(prob)) {
-      stop(
-        "`N` is not an even multiple of the length of the number of
-        probabilities, `prob`."
-      )
-    }
-  } else if (link == "logit") {
-    prob <- 1 / (1 + exp(-prob))
-  } else if (link == "probit") {
-    prob <- pnorm(prob)
-  } else {
+  if (!all(na.omit(0 <= prob & prob <= 1))) {
     stop(
-      "Only 'identity', 'logit', 'and 'probit' are valid link functions for ",
-      "`draw_binomial()` and `draw_binary()`."
+      "The identity link requires probability values between 0 and 1,",
+      "inclusive."
+    )
+  } else if (any(is.na(prob))) {
+    warning("At least one specified probability (`prob`) was NA.")
+  }
+  if (N %% length(prob)) {
+    stop(
+      "`N` is not an even multiple of the length of the number of
+      probabilities, `prob`."
     )
   }
 
@@ -177,9 +175,15 @@ draw_binomial <- function(prob, trials = 1, N = length(prob),
 
 #' @rdname draw_binomial
 #' @export
-draw_categorical <- function(prob, N = NULL, link = "identity",
+draw_categorical <- function(prob = link(latent), N = NULL,
+                             latent = NULL,
+                             link = "identity",
                              category_labels = NULL) {
-  if (link != "identity") {
+
+  # Handle link functions
+  link = match.fun(link)
+
+  if (!identical(link, identity)) {
     stop("Categorical data does not accept link functions.")
   }
 
@@ -241,14 +245,16 @@ draw_categorical <- function(prob, N = NULL, link = "identity",
 
 #' @rdname draw_binomial
 #' @export
-draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
-                         N = length(x), link = "identity", quantile_y = NULL) {
-  # Link function
-  if (link == "probit") {
-    x <- x + rnorm(N)
-  } else if (link != "identity") {
-    stop("`draw_ordered()` only accepts 'identity' and 'probit' link ",
-         "functions.")
+draw_ordered <- function(x = link(latent), breaks = c(-1, 0, 1),
+                         break_labels = NULL,
+                         N = length(x), latent = NULL,
+                         link = "identity", quantile_y = NULL) {
+
+  # Error handling link
+  link = match.fun(link)
+
+  if (!identical(link, identity)) {
+    stop("`draw_ordered` only allows the \"identity\" link.")
   }
 
   # Error handling breaks
@@ -305,9 +311,15 @@ draw_ordered <- function(x, breaks = c(-1, 0, 1), break_labels = NULL,
 
 #' @rdname draw_binomial
 #' @export
-draw_count <- function(mean, N = length(mean), link = "identity",
+draw_count <- function(mean=link(latent),
+                       N = length(mean),
+                       latent = NULL,
+                       link = "identity",
                        quantile_y = NULL) {
-  if (link != "identity") {
+
+  link = match.fun(link)
+
+  if (!identical(link, identity)) {
     stop("Count data does not accept link functions.")
   }
 
@@ -339,13 +351,19 @@ draw_count <- function(mean, N = length(mean), link = "identity",
 
 #' @rdname draw_binomial
 #' @export
-draw_binary <- function(prob, N = length(prob), link = "identity",
+draw_binary <- function(prob = link(latent), N = length(prob),
+                        link = "identity",
+                        latent = NULL,
                         quantile_y = NULL) {
+
+  link <- match.fun(link)
+
   return(draw_binomial(
-    prob,
+    prob = prob,
     N = N,
     link = link,
     trials = 1,
+    latent = latent,
     quantile_y = quantile_y
   ))
 }
@@ -356,6 +374,7 @@ draw_likert <- function(x,
                         type = 7,
                         breaks = NULL,
                         N = length(x),
+                        latent = NULL,
                         link = "identity",
                         quantile_y = NULL) {
   if (is.null(breaks) && is.null(type)) {
@@ -412,6 +431,7 @@ draw_likert <- function(x,
     breaks = breaks,
     N = N,
     link = link,
+    latent = latent,
     break_labels = break_labels,
     quantile_y = quantile_y
   ))
@@ -488,3 +508,22 @@ split_quantile <- function(x = NULL,
       labels = 1:type,
       include.lowest = TRUE)
 }
+
+
+#' Simple helper function wrapping the plogis function.
+#'
+#' @param x Latent variable to be logit-transformed
+#' @returns Logit-transformed variable [0-1]
+#' @keywords internal
+#' @importFrom stats plogis
+#' @export
+logit <- function(x) { plogis(x) }
+
+#' Simple helper function wrapping the pnorm function.
+#'
+#' @param x Latent variable to be probit-transformed
+#' @returns Probit-transformed variable [0-1]
+#' @keywords internal
+#' @importFrom stats pnorm
+#' @export
+probit <- function(x) { pnorm(x) }

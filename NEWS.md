@@ -7,11 +7,11 @@
 - Major updates to test harness
 - Changed ID label stapling behaviour in `fabricate` calls.
 - Allow users to pass `ID_label` in level creation calls to allow back-door unnamed level calls.
-- Fix for using `N` from upper level to define `N` of lower level -- NOTE TO SELF, NOT COMPLETE, #82
+- Bugfix for constants in certain `modify_level` contexts.
+- New syntax for using `length(ID)` from upper level to define `N` of lower level.
 - When passing a vector to `draw_categorical` prob argument, package now sends message instead of warning.
 - Major additions to documentation and vignettes, including vignettes for common social sciences variables, time series, and using other creation packages with fabricatr.
 
 # **fabricatr** 0.2.0 
 
 First CRAN submission for **fabricatr**
-

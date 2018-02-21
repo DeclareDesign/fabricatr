@@ -39,12 +39,12 @@ binomial_ex <- fabricate(
 )
 ```
 
-Some researchers may be interested in specifying probabilities through a "link function". This can be done in any of your data generating functions through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.
+Some researchers may be interested in specifying probabilities through a "link function". This can be done in any of your data generating functions through the `link` argument. The default link function is "identity", but we also support "logit", and "probit". These link functions transform continuous and unbounded latent data into probabilities of a positive outcome. If you are specifying a link function, you should also specify your latent variable as the `latent` argument.
 
 ```{r}
 bernoulli_probit <- fabricate(
   N = 3, x = 10 * rnorm(N),
-  binary = draw_binary(prob = x, link = "probit")
+  binary = draw_binary(latent = x, link = "probit")
 )
 ```
 
@@ -59,19 +59,6 @@ ordered_example <- fabricate(
   N = 3,
   x = 5 * rnorm(N),
   ordered = draw_ordered(x, breaks = c(-Inf, -1, 1, Inf))
-)
-```
-
-Ordered data also supports link functions including "logit" or "probit":
-
-```{r}
-ordered_probit_example <- fabricate(
-  N = 3,
-  x = 5 * rnorm(N),
-  ordered = draw_ordered(
-    x, breaks = c(-Inf, -1, 1, Inf),
-    link = "probit"
-  )
 )
 ```
 
