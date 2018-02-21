@@ -60,6 +60,9 @@
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
+    <li>
+      <a href="../articles/other_packages.html">Other Packages</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -141,7 +144,7 @@ voters &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabr
   <span class="dt">Q1_immigration =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> ideology, <span class="dt">type =</span> <span class="dv">7</span>),
   <span class="dt">Q2_defence =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span>, <span class="dt">type =</span> <span class="dv">7</span>),
   <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="fl">0.5</span>, <span class="dt">N =</span> N),
-  <span class="dt">proposition_vote =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">1.2</span> <span class="op">*</span><span class="st"> </span>treatment, <span class="dt">link =</span> <span class="st">"probit"</span>)
+  <span class="dt">proposition_vote =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">latent =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">1.2</span> <span class="op">*</span><span class="st"> </span>treatment, <span class="dt">link =</span> <span class="st">"probit"</span>)
 )</code></pre></div>
 <p>Let’s look at a small fraction of the data generated this way:</p>
 <table class="table">

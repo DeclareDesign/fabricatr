@@ -82,6 +82,9 @@
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
+    <li>
+      <a href="../articles/other_packages.html">Other Packages</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -142,13 +145,16 @@
 <ul>
 <li>
 <code><a href="../reference/recycle.html">recycle()</a></code> helper function for expanding and recycling data</li>
+<li>Added <code><a href="../reference/correlate.html">correlate()</a></code> function to allow users to generate arbitrary correlated random variables.</li>
 <li>Added <code>category_labels</code> argument to <code>draw_categorical</code>
 </li>
 <li>Added <code>draw_quantile</code> and <code>split_quantile</code> functions</li>
 <li>Major updates to test harness</li>
 <li>Changed ID label stapling behaviour in <code>fabricate</code> calls.</li>
 <li>Allow users to pass <code>ID_label</code> in level creation calls to allow back-door unnamed level calls.</li>
-<li>Fix for using <code>N</code> from upper level to define <code>N</code> of lower level.</li>
+<li>Bugfix for constants in certain <code>modify_level</code> contexts.</li>
+<li>Changed specification of latent variables with links; users should now provide <code>latent</code> as an argument when using a link.</li>
+<li>New syntax for using <code>length(ID)</code> from upper level to define <code>N</code> of lower level.</li>
 <li>When passing a vector to <code>draw_categorical</code> prob argument, package now sends message instead of warning.</li>
 <li>Major additions to documentation and vignettes, including vignettes for common social sciences variables, time series, and using other creation packages with fabricatr.</li>
 </ul>

@@ -82,6 +82,9 @@
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
+    <li>
+      <a href="../articles/other_packages.html">Other Packages</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -180,13 +183,13 @@ the supplied cluster IDs.</p>
 <span class='no'>clusters</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fl'>10</span>)
 
 <span class='co'># Default probability 0.5, default ICC 0</span>
-<span class='fu'>draw_binary_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>)</div><div class='output co'>#&gt;  [1] 0 0 0 1 1 0 1 0 1 1 1 0 1 0 0 0 1 0 0 1 0 0 1 0 0 0 0 0 1 0 1 1 1 1 0 1 0 0
-#&gt; [39] 1 0 0 0 1 0 1 0 1 0 0 1</div><div class='input'>
+<span class='fu'>draw_binary_icc</span>(<span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>)</div><div class='output co'>#&gt;  [1] 0 1 0 0 1 1 1 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 0 1 1 1 1 1 1 0 1 0 0 0 0 0
+#&gt; [39] 1 1 0 0 1 0 0 0 1 1 0 1</div><div class='input'>
 <span class='co'># Specify probability or ICC</span>
 <span class='no'>corr_draw</span> <span class='kw'>=</span> <span class='fu'>draw_binary_icc</span>(<span class='kw'>prob</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='no'>clusters</span>, <span class='kw'>ICC</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 
 <span class='co'># Verify ICC of data.</span>
-<span class='fu'>summary</span>(<span class='fu'>lm</span>(<span class='no'>corr_draw</span> ~ <span class='fu'>as.factor</span>(<span class='no'>clusters</span>)))$<span class='no'>r.squared</span></div><div class='output co'>#&gt; [1] 0.3402778</div><div class='input'>
+<span class='fu'>summary</span>(<span class='fu'>lm</span>(<span class='no'>corr_draw</span> ~ <span class='fu'>as.factor</span>(<span class='no'>clusters</span>)))$<span class='no'>r.squared</span></div><div class='output co'>#&gt; [1] 0.5732689</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

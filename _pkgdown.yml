@@ -37,6 +37,8 @@ navbar:
         href: articles/time_series.html
       - text: Advanced Features
         href: articles/advanced_features.html
+      - text: Other Packages
+        href: articles/other_packages.html
   - text: Reference
     href: reference/
   - text: "Ask for Help"

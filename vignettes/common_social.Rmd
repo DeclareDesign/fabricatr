@@ -1,9 +1,9 @@
 ---
-title: "Common Social Sciences variables"
+title: "Common Social Science variables"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Common Social Sciences variables}
+  %\VignetteIndexEntry{Common Social Science variables}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

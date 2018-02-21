@@ -59,6 +59,9 @@
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
+    <li>
+      <a href="../articles/other_packages.html">Other Packages</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -134,10 +137,10 @@
   <span class="dt">N =</span> <span class="dv">3</span>,
   <span class="dt">freethrows =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binomial</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">trials =</span> <span class="dv">10</span>)
 )</code></pre></div>
-<p>Some researchers may be interested in specifying probabilities through a “link function”. This can be done in any of your data generating functions through the <code>link</code> argument. The default link function is “identity”, but we also support “logit”, and “probit”. These link functions transform continuous and unbounded latent data into probabilities of a positive outcome.</p>
+<p>Some researchers may be interested in specifying probabilities through a “link function”. This can be done in any of your data generating functions through the <code>link</code> argument. The default link function is “identity”, but we also support “logit”, and “probit”. These link functions transform continuous and unbounded latent data into probabilities of a positive outcome. If you are specifying a link function, you should also specify your latent variable as the <code>latent</code> argument.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bernoulli_probit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">N =</span> <span class="dv">3</span>, <span class="dt">x =</span> <span class="dv">10</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N),
-  <span class="dt">binary =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> x, <span class="dt">link =</span> <span class="st">"probit"</span>)
+  <span class="dt">binary =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">latent =</span> x, <span class="dt">link =</span> <span class="st">"probit"</span>)
 )</code></pre></div>
 </div>
 <div id="ordered-outcomes" class="section level2">
@@ -149,15 +152,6 @@
   <span class="dt">N =</span> <span class="dv">3</span>,
   <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N),
   <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>))
-)</code></pre></div>
-<p>Ordered data also supports link functions including “logit” or “probit”:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordered_probit_example &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
-  <span class="dt">N =</span> <span class="dv">3</span>,
-  <span class="dt">x =</span> <span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(N),
-  <span class="dt">ordered =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(
-    x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">Inf</span>),
-    <span class="dt">link =</span> <span class="st">"probit"</span>
-  )
 )</code></pre></div>
 </div>
 <div id="likert-variables" class="section level2">
@@ -192,11 +186,11 @@
 <th align="right">Strongly Agree</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td align="right">9</td>
+<td align="right">8</td>
 <td align="right">18</td>
 <td align="right">45</td>
-<td align="right">19</td>
-<td align="right">9</td>
+<td align="right">21</td>
+<td align="right">8</td>
 </tr></tbody>
 </table>
 <p>This function is a convenient, quick alias for creating likert variables with these labels. Users who want more flexibility with respect to break labels or number of breaks should use <code><a href="../reference/draw_binomial.html">draw_ordered()</a></code> and specify breaks and break labels explicitly.</p>
@@ -244,9 +238,87 @@
 <p>“categorical” variables can also use link functions, for example to generate multinomial probit data.</p>
 </div>
 </div>
-<div id="fabricating-cluster-correlated-random-variables-" class="section level1">
+<div id="correlated-random-variables" class="section level1">
 <h1 class="hasAnchor">
-<a href="#fabricating-cluster-correlated-random-variables-" class="anchor"></a>Fabricating cluster-correlated random variables.</h1>
+<a href="#correlated-random-variables" class="anchor"></a>Correlated random variables</h1>
+<p><strong>fabricatr</strong> makes it easy to generate correlated random variables one at a time. All you need is a reference variable, a desired rank correlation coefficient (from -1 to 1), and a <code>draw_</code> function to specify the target distribution of the correlated variable.</p>
+<p>This is done using a function called <code><a href="../reference/correlate.html">correlate()</a></code>, which takes four distinct arguments: <code>draw_handler</code>, which is the un-quoted name of your desired outcome distribution (e.g. <code>draw_binary</code>, <code>draw_binomial</code>, <code>draw_count</code>); any parameters needed for that distribution (e.g. <code>mean</code> for <code>draw_count</code>); <code>given</code>, which is the reference variable your new variable will be correlated with, and <code>rho</code>, which is the rank correlation coefficient you are targeting.</p>
+<p>In this example, we will generate individuals, who are given a battery of public opinion questions. Their responses are aggregated into index scores in each of several categories: conservative values, economic conservatism, and foreign policy interventionism.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">respondents &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">100</span>,
+  <span class="dt">conservative_values =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binomial</a></span>(<span class="dt">prob =</span> <span class="fl">0.4</span>, <span class="dt">trials =</span> <span class="dv">20</span>, <span class="dt">N =</span> N),
+  <span class="dt">economic_conservative =</span> <span class="kw"><a href="../reference/correlate.html">correlate</a></span>(<span class="dt">given =</span> conservative_values,
+                                    <span class="dt">rho =</span> <span class="fl">0.5</span>,
+                                    draw_binomial, 
+                                    <span class="dt">prob =</span> <span class="fl">0.6</span>, 
+                                    <span class="dt">trials =</span> <span class="dv">20</span>),
+  <span class="dt">foreign_policy =</span> <span class="kw"><a href="../reference/correlate.html">correlate</a></span>(<span class="dt">given =</span> conservative_values,
+                             <span class="dt">rho =</span> <span class="fl">0.3</span>,
+                             draw_binomial,
+                             <span class="dt">prob =</span> <span class="fl">0.4</span>,
+                             <span class="dt">trials =</span> <span class="dv">20</span>)
+)</code></pre></div>
+<p>Unpacking this example; first, the respondents are asked 20 questions and have a 40% chance of answering yes to each question. The result is summed into an index. Next, the respondents are asked 20 questions and have a 60% chance of answering yes to each question, but result is also constrained to be rank-correlated at <code>rho = 0.5</code> with their score on the <code>conservative_values</code> index. Finally, 20 more questions are asked of the respondents about foreign policy, where they have a 40% chance of answering yes, and the index score is somewhat more weakly correlated with <code>conservative_values</code>.</p>
+<p>The argument <code>N</code> is not necessary in the resulting distribution because it is automatically detected from the variable specified in <code>given</code>.</p>
+<p>We can analyze the data to verify that, subject to the limitations of random sampling, the results reflect the specification. First, let’s verify that our means are approximately 0.4, 0.6, and 0.4:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">apply</span>(respondents[<span class="dv">2</span><span class="op">:</span><span class="dv">4</span>], <span class="dv">2</span>, mean) <span class="op">/</span><span class="st"> </span><span class="dv">20</span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th></th>
+<th align="right">x</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>conservative_values</td>
+<td align="right">0.42</td>
+</tr>
+<tr class="even">
+<td>economic_conservative</td>
+<td align="right">0.62</td>
+</tr>
+<tr class="odd">
+<td>foreign_policy</td>
+<td align="right">0.42</td>
+</tr>
+</tbody>
+</table>
+<p>Next, let’s check the correlation between our variables of interest:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cor</span>(respondents[, <span class="dv">2</span><span class="op">:</span><span class="dv">4</span>], <span class="dt">method=</span><span class="st">"spearman"</span>)[<span class="dv">1</span>, ]</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th></th>
+<th align="right">x</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>conservative_values</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td>economic_conservative</td>
+<td align="right">0.49</td>
+</tr>
+<tr class="odd">
+<td>foreign_policy</td>
+<td align="right">0.28</td>
+</tr>
+</tbody>
+</table>
+<p>It is also possible to use <code><a href="../reference/correlate.html">correlate()</a></code> with other variable generation functions, such as those from base <code>R</code> or even custom functions. Custom functions must take an argument <code>quantile_y</code>, which is a vector that supplies quantiles of the distribution to draw from. Base <code>R</code> functions are supported as described here:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">student_report_card &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
+  <span class="dt">N =</span> <span class="dv">100</span>,
+  <span class="dt">math_score =</span> <span class="kw">rnorm</span>(N, <span class="dt">mean =</span> <span class="dv">80</span>, <span class="dt">sd =</span> <span class="dv">5</span>),
+  <span class="dt">chemistry_score =</span> <span class="kw"><a href="../reference/correlate.html">correlate</a></span>(<span class="dt">given =</span> math_score, <span class="dt">rho =</span> <span class="fl">0.8</span>,
+                              rnorm, <span class="dt">mean =</span> <span class="dv">75</span>, <span class="dt">sd =</span> <span class="dv">5</span>),
+  <span class="dt">civics_score =</span> <span class="kw"><a href="../reference/correlate.html">correlate</a></span>(<span class="dt">given =</span> math_score, <span class="dt">rho =</span> <span class="fl">0.6</span>,
+                           rnorm, <span class="dt">mean =</span> <span class="dv">85</span>, <span class="dt">sd =</span> <span class="dv">5</span>)
+)</code></pre></div>
+<p>Please observe that the first argument to correlate, <code>draw_handler</code>, must be supplied as an unquoted name of a variable generating function. By default, this function works with any of the base <code>R</code> distributions; for information about using a third party or custom data generating function, see our <a href="http://fabricatr.declaredesign.org/articles/advanced_features.Rmd">advanced features tutorial</a></p>
+<p>A note about correlated data: Although the method used will generate data that is correlated on average with rank correlation <code>rho</code>, some variance is normal, and distributions which have less flexibility will be less likely to achieve the target correlation. For example, if the first variable is normally distributed with a wide range of values, and the target variable is a binary 0/1 variable, the correlation will be imprecise by the lack of flexibility in the target variable.</p>
+</div>
+<div id="fabricating-cluster-correlated-random-variables-icc-" class="section level1">
+<h1 class="hasAnchor">
+<a href="#fabricating-cluster-correlated-random-variables-icc-" class="anchor"></a>Fabricating cluster-correlated random variables (ICC).</h1>
 <p>We also provide helper functions to generate cluster-correlated random variables with fixed intra-cluster correlation (ICC) values. Our two functions <code><a href="../reference/draw_binary_icc.html">draw_binary_icc()</a></code> and <code><a href="../reference/draw_normal_icc.html">draw_normal_icc()</a></code> allow you to generate both discrete binary data with fixed ICCs and normal data with fixed ICCs.</p>
 <div id="binary-data-with-fixed-iccs" class="section level2">
 <h2 class="hasAnchor">
@@ -385,6 +457,32 @@ letter_grade &lt;-<span class="st"> </span><span class="kw"><a href="../referenc
 <div id="technical-appendix" class="section level1">
 <h1 class="hasAnchor">
 <a href="#technical-appendix" class="anchor"></a>Technical Appendix</h1>
+<div id="correlated-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#correlated-data" class="anchor"></a>Correlated Data</h2>
+<p>When generating correlated data using <code><a href="../reference/correlate.html">correlate()</a></code>, the following approach is used, where X is the source variable, F is the empirical distribution of X, G is the target distribution, and Y is the realized variable drawn from that distribution:</p>
+<ol style="list-style-type: decimal">
+<li>Calculate the quantiles of the observed X in the empirical distribution X</li>
+<li>Draw these quantiles from a standard normal distribution</li>
+<li>Generate a standard normal version of Y based on the specified relationship.</li>
+<li>Map the standard normal Y into the quantiles of the standard normal distribution</li>
+<li>Draw from the target distribution at those quantiles.</li>
+</ol>
+<p>Because all transformations are affine, the rank order correlation induced in the standard normal stage is preserved in the target distribution. Mathematically:</p>
+<p><span class="math display">\[
+\begin{aligned}
+  X_{quan} &amp;= F^{-1}(X) \\
+  X_{std} &amp;= \Phi(X_{quan}) \\
+  Y_{std} &amp;\sim N(\rho \times X_{std}, (1 - \rho^2)) \\
+  Y_{quan} &amp;= \Phi^{-1}(Y_{std}) \\
+  Y &amp;= G(Y_{quan})
+\end{aligned}
+\]</span></p>
+<p>One thing that may be counterintuitive about this approach is that the correlation is based on the sample characteristics of X – the empirical data X observed without reference to its distribution of origin – but the population characteristics of Y. This choice was chosen because it minimizes the amount of information required of users and maximizes the flexibility of source variables, although it may result in some imprecision on a given draw owing to the finite sample size of X (or chance deviation of X from the desired distribution during sampling).</p>
+</div>
+<div id="binary-icc" class="section level2">
+<h2 class="hasAnchor">
+<a href="#binary-icc" class="anchor"></a>Binary ICC</h2>
 <p>When generating binary data with a fixed ICC, we use this formula, where <span class="math inline">\(i\)</span> is a cluster and <span class="math inline">\(j\)</span> is a unit in a cluster:</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -397,7 +495,11 @@ letter_grade &lt;-<span class="st"> </span><span class="kw"><a href="../referenc
   \end{cases}
 \end{aligned}
 \]</span></p>
-<p>In expectation, this guarantees an intra-cluster correlation of <span class="math inline">\(\rho\)</span> and a cluster proportion of <span class="math inline">\(p_i\)</span>. This approach derives from Hossain, Akhtar and Chakraborti, Hrishikesh. “ICCBin: Facilitates Clustered Binary Data Generation, and Estimation of Intracluster Correlation Coefficient (ICC) for Binary Data”, available on <a href="CRAN">https://cran.r-project.org/web/packages/ICCbin/index.html</a> or <a href="GitHub">https://github.com/akhtarh/ICCbin</a></p>
+<p>In expectation, this guarantees an intra-cluster correlation of <span class="math inline">\(\rho\)</span> and a cluster proportion of <span class="math inline">\(p_i\)</span>. This approach is derived from Hossain, Akhtar and Chakraborti, Hrishikesh. “ICCBin: Facilitates Clustered Binary Data Generation, and Estimation of Intracluster Correlation Coefficient (ICC) for Binary Data”, available on <a href="CRAN">https://cran.r-project.org/web/packages/ICCbin/index.html</a> or <a href="GitHub">https://github.com/akhtarh/ICCbin</a></p>
+</div>
+<div id="normal-icc" class="section level2">
+<h2 class="hasAnchor">
+<a href="#normal-icc" class="anchor"></a>Normal ICC</h2>
 <p>When generating normal data with a fixed ICC, we follow this formula, again with <span class="math inline">\(i\)</span> as a cluster and <span class="math inline">\(j\)</span> as a unit in the cluster:</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -408,6 +510,7 @@ letter_grade &lt;-<span class="st"> </span><span class="kw"><a href="../referenc
 \end{aligned}
 \]</span></p>
 <p>In expectation, this approach guarantees an intra-cluster correlation of <span class="math inline">\(\rho\)</span>, a cluster mean of <span class="math inline">\(\mu_{i}\)</span>, and a cluster-level variance in error terms of <span class="math inline">\(\sigma^2_{\epsilon i}\)</span>. This approach is specified on <a href="StatsExchange">https://stats.stackexchange.com/questions/263451/create-synthetic-data-with-a-given-intraclass-correlation-coefficient-icc</a>.</p>
+</div>
 </div>
 </div>
   </div>
@@ -427,14 +530,21 @@ letter_grade &lt;-<span class="st"> </span><span class="kw"><a href="../referenc
       <li><a href="#categorical-data">Categorical data</a></li>
       </ul>
 </li>
+      <li><a href="#correlated-random-variables">Correlated random variables</a></li>
       <li>
-<a href="#fabricating-cluster-correlated-random-variables-">Fabricating cluster-correlated random variables.</a><ul class="nav nav-pills nav-stacked">
+<a href="#fabricating-cluster-correlated-random-variables-icc-">Fabricating cluster-correlated random variables (ICC).</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#binary-data-with-fixed-iccs">Binary data with fixed ICCs</a></li>
       <li><a href="#normal-data-with-fixed-iccs">Normal data with fixed ICCs</a></li>
       </ul>
 </li>
       <li><a href="#next-steps">Next Steps</a></li>
-      <li><a href="#technical-appendix">Technical Appendix</a></li>
+      <li>
+<a href="#technical-appendix">Technical Appendix</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#correlated-data">Correlated Data</a></li>
+      <li><a href="#binary-icc">Binary ICC</a></li>
+      <li><a href="#normal-icc">Normal ICC</a></li>
+      </ul>
+</li>
       </ul>
 </div>
       </div>

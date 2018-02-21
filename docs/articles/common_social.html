@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>fabricatr - Common Social Sciences variables</title>
+<title>fabricatr - Common Social Science variables</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -59,6 +59,9 @@
     <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
     </li>
+    <li>
+      <a href="../articles/other_packages.html">Other Packages</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -108,7 +111,7 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>Common Social Sciences variables</h1>
+      <h1>Common Social Science variables</h1>
                         <h4 class="author">Aaron Rudkin</h4>
             
           </div>
@@ -151,9 +154,10 @@
 )</code></pre></div>
 <p>This example introduces you to a few new functions. First, we can wrap multiple variable creation commands in a <code>fabricate</code> call. This will ensure the result is a data frame, and that each variable creation command has access to the previous variables. Second, you see that we can model age using <code>R</code>’s built-in <code>runif</code> function. If you would like more information about modeling statistical distributions in R, see the <code>?Distributions</code> manual page. Third, you see that we model turnout probability statistically; if the user has an age below 40, they receive turnout probability 0.4. If not, they receive turnout probability 0.7.</p>
 <p>As noted in the introduction for this tutorial, the target audience for this tutorial is someone interested in common social science outcome variables, but without a strong background in thinking about modelling these variables. If you feel comfortable modelling but need to learn how to specify the variables in <strong>fabricatr</strong>, please see our tutorial <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">on variable generation with <strong>fabricatr</strong></a>. If you need more information about modeling the structure of data or implementing multi-level models, panel data, or cross-classified data with <strong>fabricatr</strong>, then please see our tutorial <a href="http://fabricatr.declaredesign.org/articles/building_importing.html">on building and importing data</a>.</p>
-<div id="ordered-data-e-g-satisfaction" class="section level3">
-<h3 class="hasAnchor">
-<a href="#ordered-data-e-g-satisfaction" class="anchor"></a>Ordered data (e.g. satisfaction)</h3>
+</div>
+<div id="ordered-data-e-g-satisfaction" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ordered-data-e-g-satisfaction" class="anchor"></a>Ordered data (e.g. satisfaction)</h2>
 <p>The type of data generated for many survey questions is “ordered”. Ordered data includes the “Likert scale”, and is used when respondents to a survey report an outcome which has a logical ordering from lowest to highest but is not necessarily measured in numerically comparable terms. Consider a basic question like “Do you approve of your mayor’s job performance?”. There are many ways you could measure a respondent’s answer to this question, but one of the most common is by offering the respondent the choice to “Strongly Disapprove”, “Disapprove”, feel “Neutral”, “Approve”, or “Strongly Approve”. This five point scale is ordered data.</p>
 <p>When simulating ordered data, we typically think of the problem differently, as a two-step process. The first step is to assign a respondent a score over some range, and the second step is to translate that score into the categories of the ordered variable. We call the first step a “latent variable”. In the real survey, we never see the latent variable, only the ordered data outcome. But we can rely on the latent variable to help shape our simulated data.</p>
 <p>We generate a simulated latent variable and then translate it into a simulated ordered variable, like so:</p>
@@ -258,9 +262,9 @@
                                                 <span class="st">"Strongly Agree"</span>))</code></pre></div>
 <p>Users who are new to the <code>R</code> programmming language and want to know more about other statistical distributions beyond the <code>norm</code> and <code>unif</code> distributions used here, should run the command <code>?Distributions</code> in the R console.</p>
 </div>
-<div id="likert-data" class="section level3">
-<h3 class="hasAnchor">
-<a href="#likert-data" class="anchor"></a>Likert Data</h3>
+<div id="likert-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#likert-data" class="anchor"></a>Likert Data</h2>
 <p>Many survey responses that focus on labeling agreement, support, or quality evaluation, including the example above, are called “Likert” data after the psychologist Rensis Likert. These scales are typically 4, 5, or 7 point scales of a measure. <strong>fabricatr</strong> includes a simple shortcut to make Likert variables without needing to fill out the <code>breaks</code> and <code>break_labels</code> each time.</p>
 <p>By using <code>draw_likert</code>, users only need to specify the <code>x</code> latent variable – assumed to be distributed with breaks spaced 1 unit apart and with the data centered on 0 – and the <code>type</code> of Likert they would like (the number of categories). In this example, we examine the same data above, but with a 4-category Likert scale where the options are “Strongly Agree”, “Agree”, “Disagree”, and “Strongly Disagree”, with no neutral category.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mayor_approval &lt;-<span class="st"> </span><span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">100</span>),
@@ -292,9 +296,9 @@
 </tbody>
 </table>
 </div>
-<div id="categorical-data-e-g-demographic-measures" class="section level3">
-<h3 class="hasAnchor">
-<a href="#categorical-data-e-g-demographic-measures" class="anchor"></a>Categorical data (e.g. demographic measures)</h3>
+<div id="categorical-data-e-g-demographic-measures" class="section level2">
+<h2 class="hasAnchor">
+<a href="#categorical-data-e-g-demographic-measures" class="anchor"></a>Categorical data (e.g. demographic measures)</h2>
 <p>Surveys often collect demographic information from respondents, including age, gender, and ethnicity. By this point in our guide, you have begun to see how you might generate a continuous numerical variable like age, or how you traditional binary measures of gender might be specified. But some variables, like inclusive measures of gender, or ethnicity, (or hair color, eye color, city of residence, or many other possible variables of interest) are not “ordered” in any sense.</p>
 <p>These data are often called “categorical” data – a given person has a probability to belong to each of the possible categories.</p>
 <p>Imagine that researchers are conducting a survey in Kenya. They wish to capture the country’s four largest ethnic groups: Kikuyu, Luhya, Kalenjin, Luo, and are also interested in capturing the smaller Maasai group. Other respondents are identified as “Other”. When preparing their research, the researchers must simulate the ethnicity of their expected respondents, so they first gather the proportions of each group,</p>
@@ -338,8 +342,8 @@
 <td align="right">44</td>
 </tr>
 <tr class="odd">
-<td align="left">### Data with fixed min</td>
-<td align="right">imum and maximum values</td>
+<td align="left">## Data with fixed mini</td>
+<td align="right">mum and maximum values</td>
 </tr>
 </tbody>
 </table>
@@ -375,9 +379,9 @@ fixed_efficacy_experiment &lt;-<span class="st"> </span><span class="kw"><a href
 <p>Let’s consider how <code>pre_outcome</code> is created: first, each respondent is assigned a pre_treatment score with a mean of 70 points and a standard deviation of 15 points. Next, each of those scores is fed to <code>pmax</code>, along with an argument 0. Any scores that are lower than 0 are bumped up and truncated to 0. Finally, these scores are fed to <code>pmin</code>, along with an argument 100. Any scores that are higher than 100 are bumped down and truncated to 100. The result is that our variables display the desired effect:</p>
 <p><img src="common_social_files/figure-html/unnamed-chunk-20-1.png" width="672"></p>
 </div>
-<div id="count-outcomes-and-skewed-distributions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#count-outcomes-and-skewed-distributions" class="anchor"></a>Count outcomes and skewed distributions</h3>
+<div id="count-outcomes-and-skewed-distributions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#count-outcomes-and-skewed-distributions" class="anchor"></a>Count outcomes and skewed distributions</h2>
 <p>Researchers may be interested in “count” outcomes, which describe a count of events of interest during a fixed time period. For our example in this section, we draw from “Propaganda and Conflict: Evidence from the Rwandan Genocide” (Yanagizawa-Drott 2014), an article which uses a quasi-experimental design to establish an association between the broadcasts of Radio Télévision Libre des Mille Collines and local instances of violence during the Rwandan Genocide. Substantively, the paper’s conclusion is that higher density in radio coverage is associated with greater local participation in genocidal violence.</p>
 <p>In our version of this data, we have two variables of interest: number of violent incidents, and density of radio coverage. We know a priori that both variables must be at least 0, we are unsure what the maximum number might be, we know that the number of violent incidents must be a “discrete” variable (in this case, a whole number) while radio coverage is “continuous” (can take fractional values).</p>
 <p>First, to model the number of violent incidents, we make use of <strong>fabricatr</strong>’s <code>draw_count</code> function, which is quite simple – it needs two arguments: <code>mean</code>, which describes the mean count, and <code>N</code>, which describes how many units you need count data for. Statistically, this function generates “Poisson-distributed” count data. This is one of the typical distributions used for count data.</p>
@@ -400,12 +404,11 @@ fixed_efficacy_experiment &lt;-<span class="st"> </span><span class="kw"><a href
 )</code></pre></div>
 <p>In addition to the helper functions provided by <strong>fabricatr</strong> and the built-in <code>R</code> distributions suitable for generating skewed data, other <code>R</code> packages like <a href="https://cran.r-project.org/web/packages/sn/index.html"><strong>sn</strong></a> also include useful functions for generating skewed data and can be incorporated into <code>fabricate</code> calls.</p>
 </div>
-<div id="whats-next" class="section level3">
-<h3 class="hasAnchor">
-<a href="#whats-next" class="anchor"></a>What’s next?</h3>
+<div id="whats-next" class="section level2">
+<h2 class="hasAnchor">
+<a href="#whats-next" class="anchor"></a>What’s next?</h2>
 <p>This brings us to the end of this introductory tutorial on common social science variables. As a next step, our tutorial on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">variable generation with <strong>fabricatr</strong></a> – targeted to a slightly more technical audience – contains more examples of the kinds of variables you can easily create with <strong>fabricatr</strong>. In addition, we have tutorials on creating <a href="http://fabricatr.declaredesign.org/articles/time_series.html">time series variables</a>, and on <a href="http://fabricatr.declaredesign.org/articles/other_packages.html">using other variable creation packages with <strong>fabricatr</strong></a>.</p>
 <p>Finally, if you are in interested in learning about how to structure your data (for example, to generate multi-level, panel, or cross-classified data), you can consult our tutorials on <a href="building%20data%20in%20**fabricatr**">http://fabricatr.declaredesign.org/articles/building_importing.html</a>, and <a href="panel%20and%20cross-classified%20data%20in%20**fabricatr**">http://fabricate.declaredesign.org/articles/cross_classified.html</a>.</p>
-</div>
 </div>
 </div>
   </div>
@@ -416,6 +419,11 @@ fixed_efficacy_experiment &lt;-<span class="st"> </span><span class="kw"><a href
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#binary-outcomes-e-g-turnout">Binary outcomes (e.g. turnout)</a></li>
+      <li><a href="#ordered-data-e-g-satisfaction">Ordered data (e.g. satisfaction)</a></li>
+      <li><a href="#likert-data">Likert Data</a></li>
+      <li><a href="#categorical-data-e-g-demographic-measures">Categorical data (e.g. demographic measures)</a></li>
+      <li><a href="#count-outcomes-and-skewed-distributions">Count outcomes and skewed distributions</a></li>
+      <li><a href="#whats-next">What’s next?</a></li>
       </ul>
 </div>
       </div>
