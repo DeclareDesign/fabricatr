@@ -87,3 +87,15 @@ test_that("Variable of length 1 on an inner level, issue #88", {
   expect_equal(all(result$D0 == 0), TRUE)
   expect_equal(all(result$D1 == 1), TRUE)
 })
+
+test_that("ID_label = NA", {
+  result <- fabricate(data.frame(test1 = rnorm(5)), test2=rnorm(N),
+                      ID_label = NA)
+  expect_equal(ncol(result), 2)
+  expect_identical(colnames(result), c("test1", "test2"))
+
+  result <- fabricate(data.frame(test1 = rnorm(5)), test2=rnorm(N),
+                      ID_label = "zzz")
+  expect_equal(ncol(result), 3)
+  expect_identical(colnames(result), c("test1", "zzz", "test2"))
+})
