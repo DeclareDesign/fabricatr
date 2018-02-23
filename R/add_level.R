@@ -1,10 +1,11 @@
-#' @importFrom rlang quos get_expr quo_text
+#' @importFrom rlang quos get_expr quo_text enquo
 #'
 #' @rdname fabricate
 #' @export
 add_level <- function(N = NULL,
                       ...,
                       nest = TRUE) {
+  N <- enquo(N)
   data_arguments <- quos(...)
   if ("working_environment_" %in% names(data_arguments)) {
     working_environment_ <- get_expr(data_arguments[["working_environment_"]])

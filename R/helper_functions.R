@@ -279,8 +279,10 @@ handle_n <- function(N, add_level=TRUE, working_environment=NULL,
     # the current frame, we just get the symbol used for N from the outside
     # functions, which would just be N. This ensures we get the expression
     # passed to N in the outer function call.
-    temp_N_expr <- substitute(N, parent.frame(parent_frame_levels))
-    N <- eval_tidy(temp_N_expr, data = working_environment$data_frame_output_)
+    N <- eval_tidy(N, data = working_environment$data_frame_output_)
+  } else {
+    # Unenquose the N data.
+    N <- eval_tidy(N)
   }
 
   # User provided an unevaluated function
