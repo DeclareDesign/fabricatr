@@ -112,6 +112,11 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
       working_data_list[[i]] <- rep(working_data_list[[i]], (N / inner_N))
     }
 
+    # Length one is a special case.
+    if(length(working_data_list[[i]]) == 1) {
+      working_data_list[[i]] <- rep(working_data_list[[i]], N)
+    }
+
     if (length(working_data_list[[i]]) != N) {
       stop(
         "Nested data length for the variable \"", i, "\" ",
