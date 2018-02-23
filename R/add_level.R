@@ -1,10 +1,11 @@
-#' @importFrom rlang quos get_expr quo_text
+#' @importFrom rlang quos get_expr quo_text enquo
 #'
 #' @rdname fabricate
 #' @export
 add_level <- function(N = NULL,
                       ...,
                       nest = TRUE) {
+  N <- enquo(N)
   data_arguments <- quos(...)
   if ("working_environment_" %in% names(data_arguments)) {
     working_environment_ <- get_expr(data_arguments[["working_environment_"]])
@@ -60,7 +61,7 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
   }
 
   # Staple in an ID column onto the data list.
-  if (!is.null(ID_label)) {
+  if (!is.null(ID_label) && !is.na(ID_label)) {
     # It's actually not possible the working data frame already has an ID label
     # since we forcibly shelved it earlier -- so let's just plough along.
 

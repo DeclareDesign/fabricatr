@@ -203,7 +203,10 @@ fabricate <- function(data = NULL, ..., N = NULL, ID_label = NULL) {
   N <- nrow(working_environment$data_frame_output_)
 
   # Now, see if we need to staple an ID column on. This is a bit of a mess.
-  if (ID_label %in% names(working_environment$data_frame_output_)) {
+  if(is.na(ID_label)) {
+    # Explicit override of ID_label -- don't add one if ID_label is NA,
+    # explicitly
+  } else if (ID_label %in% names(working_environment$data_frame_output_)) {
     # There's already an ID column named the thing we want to call the ID
     # column, so keep it. If the user did not specify, then this shouldn't
     # happen because handle_id would have moved to a fallback ID.

@@ -76,3 +76,26 @@ test_that("Unnamed level call for DD passthrough", {
 test_that("Check that level is deprecated", {
   expect_error(fabricate(test = level(N = 10)))
 })
+
+test_that("Variable of length 1 on an inner level, issue #88", {
+  result <- fabricate(
+    level_1 = add_level(N = 5),
+    level_2 = add_level(N = 5, D0 = 0, D1 = 1)
+  )
+
+  expect_equal(nrow(result), 25)
+  expect_equal(all(result$D0 == 0), TRUE)
+  expect_equal(all(result$D1 == 1), TRUE)
+})
+
+test_that("ID_label = NA", {
+  result <- fabricate(data.frame(test1 = rnorm(5)), test2=rnorm(N),
+                      ID_label = NA)
+  expect_equal(ncol(result), 2)
+  expect_identical(colnames(result), c("test1", "test2"))
+
+  result <- fabricate(data.frame(test1 = rnorm(5)), test2=rnorm(N),
+                      ID_label = "zzz")
+  expect_equal(ncol(result), 3)
+  expect_identical(colnames(result), c("test1", "zzz", "test2"))
+})

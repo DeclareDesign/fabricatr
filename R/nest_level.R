@@ -1,9 +1,10 @@
-#' @importFrom rlang quos get_expr quo_text
+#' @importFrom rlang quos get_expr quo_text enquo
 #'
 #' @rdname fabricate
 #' @export
 nest_level <- function(N = NULL,
                        ...) {
+  N <- enquo(N)
   data_arguments <- quos(...)
   if ("working_environment_" %in% names(data_arguments)) {
     working_environment_ <- get_expr(data_arguments[["working_environment_"]])
@@ -112,12 +113,18 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
       working_data_list[[i]] <- rep(working_data_list[[i]], (N / inner_N))
     }
 
+    # Length one is a special case.
+    if(length(working_data_list[[i]]) == 1) {
+      working_data_list[[i]] <- rep(working_data_list[[i]], N)
+    }
+
     if (length(working_data_list[[i]]) != N) {
       stop(
         "Nested data length for the variable \"", i, "\" ",
         "appears to be incorrect. Nested data must either inherit the length ",
         "N or be fixed-length variables equal to the total number of ",
-        "observations at the outer level. (In this case, ", N, ")\n\n"
+        "observations at the outer level. (In this case, ", N, "). Variable ",
+        "supplied was length ", length(working_data_list[[i]]), "\n\n"
       )
     }
 
