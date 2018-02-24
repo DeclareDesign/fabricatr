@@ -460,9 +460,28 @@ generate_id_pad <- function(N) {
   return(sprintf(format_left_padded, 1:N))
 }
 
+#' @importFrom rlang f_rhs
+expand_or_error <- function(vector_data, N, variable_name, call_string) {
+  # NULL data means deleting a variable -- this is OK
+  if(is.null(vector_data)) { return(NULL) }
+
+  # Error if it's neither N nor 1
+  if(!length(vector_data) %in% c(1, N)) {
+    stop(simpleError(paste0("Variable lengths must all be equal to `N.` ",
+                            "In this call, `N` = ", N, " while the variable ",
+                            variable_name, " is length ", length(vector_data)),
+                     call = f_rhs(call_string)))
+  }
+
+  # Recycle if it's 1, if not return data as-is.
+  if(length(vector_data) == 1) { return(rep(vector_data, N)) }
+  else { return(vector_data) }
+}
+
 # Try to overwrite R's recycling of vector operations to ensure the initial
 # data is rectangular -- needs an N to ensure that constants do get recycled.
 check_rectangular <- function(working_data_list, N) {
+
   for (i in seq_along(working_data_list)) {
     if (length(working_data_list[[i]]) == 1) {
       # Variable is a constant -- repeat it N times
