@@ -82,10 +82,10 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
     # Evaluate the formula in an environment consisting of:
     # 1) The current working data list
     # 2) A list that tells everyone what N means in this context.
-    working_data_list[[i]] <- eval_tidy(
+    working_data_list[[i]] <- expand_or_error(eval_tidy(
       data_arguments[[i]],
       append(working_data_list, list(N = N))
-    )
+    ), N, i, data_arguments[[i]])
 
     # Write the variable name to the list of variable names
     add_variable_name(working_environment_, i)
