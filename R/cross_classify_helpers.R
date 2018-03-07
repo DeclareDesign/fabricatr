@@ -82,14 +82,6 @@ joint_draw_ecdf <- function(data_list, N, ndim=length(data_list),
   # Error handling for rho, if specified
   if (is.null(sigma)) {
     if (is.atomic(rho) & length(rho) == 1) {
-      if (ndim > 2 & rho < 0) {
-        stop(
-          "The correlation matrix must be positive semi-definite. ",
-          "Specifically, if the number of variables being drawn from jointly ",
-          "is 3 or more, then the correlation coefficient rho must be ",
-          "non-negative."
-        )
-      }
 
       if (rho == 0) {
         # Uncorrelated draw would be way faster; just sample each column
@@ -116,6 +108,45 @@ joint_draw_ecdf <- function(data_list, N, ndim=length(data_list),
       "The correlation matrix must be square, with the number of dimensions ",
       "equal to the number of dimensions you are drawing from. In addition, ",
       "the diagonal of the matrix must be equal to 1."
+    )
+  }
+
+  # Check if this is a symmetric matrix
+  if(!isSymmetric(sigma)) {
+    stop(
+      "The correlation matrix `sigma` supplied to `link_levels()` must ",
+      "be symmetric (the portion of the matrix below the diagonal must be ",
+      "a transposition of the portion of the matrix above the diagonal), but ",
+      "the supplied matrix does not satisfy that requirement."
+    )
+  }
+
+  # Check if this is even plausibly a correlation matrix
+  if(any(sigma < -1 | sigma > 1)) {
+    stop(
+      "Correlation matrix, `sigma`, supplied to `link_levels()` must ",
+      "contain only values from -1 to 1. One or more of the values of your ",
+      "correlation matrix was outside this range."
+    )
+  }
+
+  # Check if matrix is PSD: required for correlation matrices
+  if (is.complex(eigen(sigma)$values) || any(eigen(sigma)$values < 0)) {
+    stop(
+      "The correlation matrix, sigma, that you provided when running ",
+      "`link_levels()` must be positive semi-definite. This means that ",
+      "certain sets of correlations are not possible; ",
+      "a common example of this is drawing from three or more variables at ",
+      "once with negative correlation coefficients among each pair.\n\n"
+    )
+  }
+
+  if (ndim > 2 & rho < 0) {
+    stop(
+      "The correlation matrix must be positive semi-definite. ",
+      "Specifically, if the number of variables being drawn from jointly ",
+      "is 3 or more, then the correlation coefficient rho must be ",
+      "non-negative."
     )
   }
 
