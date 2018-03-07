@@ -56,7 +56,14 @@ correlate <- function(draw_handler, ..., given, rho) {
 
   # Strategy here is to use affine transformation to make X to Standard Normal
   # X -> ECDF -> Quantile X -> INV CDF Std. Nor. -> Standard Normal X
-  std_normal_base <- qnorm(ecdf(given)(given))
+  std_normal_base <- qnorm(
+    rank(given) / (length(given) + 1)
+  )
+  # Why do we use rank(x) / ... and not ecdf(x)(x)?
+  # ecdf(x)(x) will give some item the quantile 1, which will given an infinite
+  # z-score. This prevents that. rank's default tie-breaker is "average",
+  # which ensures two inputs with the same value have the same conditional mean
+  # in the conditional Y distro.
 
   # Std. Normal X -> Std. Normal Y
   # Known conditional distribution of Y on X;
