@@ -36,7 +36,7 @@ install.packages("fabricatr", dependencies = TRUE,
 
 ### Getting started
 
-Once you have installed **fabricatr**, you can easily import your own data or generate new data. **fabricatr** is designed to help you solve two key problems: 
+Once you have installed **fabricatr**, you can easily import your own data or generate new data. **fabricatr** is designed to help you solve two key problems:
 
 1. Generating variables that look like the real thing, including Likert survey responses, treatment status, demographic variables, and variables correlated by group.
 2. Generating data that are structured like the real thing, including panel data, multi-level ("nested") data or cross-classified data.
@@ -66,6 +66,6 @@ knitr::kable(house_members[sample.int(nrow(house_members), 5, replace = FALSE), 
 
 ### Next Steps
 
-For more information, read our [online tutorial](http://fabricatr.declaredesign.org/articles/getting_started.html) to get started with **fabricatr**. This tutorial will give you a brief overview of **fabricatr**'s main functions and direct you towards your next steps. You can also read our documentation inside R using the command `?fabricate` as your entry point.
+For more information, read our [online tutorial](/R/fabricatr/articles/getting_started.html) to get started with **fabricatr**. This tutorial will give you a brief overview of **fabricatr**'s main functions and direct you towards your next steps. You can also read our documentation inside R using the command `?fabricate` as your entry point.
 
 This project is generously supported by a grant from the [Laura and John Arnold Foundation](http://www.arnoldfoundation.org) and seed funding from [EGAP](http://egap.org).
