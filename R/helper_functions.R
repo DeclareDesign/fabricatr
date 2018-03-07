@@ -464,6 +464,21 @@ generate_id_pad <- function(N) {
 expand_or_error <- function(vector_data, N, variable_name, call_string) {
   # NULL data means deleting a variable -- this is OK
   if(is.null(vector_data)) { return(NULL) }
+  vector_dims <- dim(vector_data)
+  if(length(vector_dims) > 1) {
+    if(vector_dims[1] == N){
+      return(vector_data)
+    }
+    else {
+      stop(simpleError(paste0("Nested structures must have `N.` rows ",
+                              "In this call, `N` = ", N, " while the variable ",
+                              variable_name, " is length ", vector_dims[1]),
+                       call = f_rhs(call_string)))
+
+    }
+
+  }
+
 
   # Error if it's neither N nor 1
   if(!length(vector_data) %in% c(1, N)) {
@@ -483,14 +498,29 @@ expand_or_error <- function(vector_data, N, variable_name, call_string) {
 check_rectangular <- function(working_data_list, N) {
 
   for (i in seq_along(working_data_list)) {
-    if (length(working_data_list[[i]]) == 1) {
-      # Variable is a constant -- repeat it N times
-      working_data_list[[i]] <- rep(working_data_list[[i]], N)
-    } else if (length(working_data_list[[i]]) != N) {
-      # Variable is not of length N. Oops.
-      stop("Variable lengths must all be equal to `N.` ",
-           "In this call, `N` = ", N, " while the variable `",
-           i, "` is equal to length ", length(i))
+    wdl_i <- working_data_list[[i]]
+    d <- dim(wdl_i)
+    if(length(d)  == 1) {
+
+      if (length(working_data_list[[i]]) == 1) {
+        # Variable is a constant -- repeat it N times
+        working_data_list[[i]] <- rep(working_data_list[[i]], N)
+      } else if (length(working_data_list[[i]]) != N) {
+        # Variable is not of length N. Oops.
+        stop("Variable lengths must all be equal to `N.` ",
+             "In this call, `N` = ", N, " while the variable `",
+             i, "` is equal to length ", length(i))
+      }
+    }
+    else if(length(d) == 2){
+      if(d[1] != N) {
+        stop("Nested structures must all have `N.` rows. ",
+             "In this call, `N` = ", N, " while the variable `",
+             i, "` is equal to length ", d[1])
+
+
+      }
+
     }
   }
   return(working_data_list)
