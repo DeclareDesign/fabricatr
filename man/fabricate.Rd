@@ -10,7 +10,7 @@
 \usage{
 add_level(N = NULL, ..., nest = TRUE)
 
-fabricate(data = NULL, ..., N = NULL, ID_label = NULL)
+fabricate(..., data = NULL, N = NULL, ID_label = NULL)
 
 modify_level(N = NULL, ...)
 
@@ -36,7 +36,9 @@ cross-classified, non-nested data for details.}
 \item{data}{(optional) user-provided data that forms the basis of the
 fabrication, e.g. you can add variables to existing data. Provide either
 \code{N} or \code{data} (\code{N} is the number of rows of the data if
-\code{data} is provided).}
+\code{data} is provided). If \code{data} and \code{N} are not provided,
+fabricatr will try to interpret the first un-named argument as either \code{data}
+or \code{N} based on type.}
 
 \item{ID_label}{(optional) variable name for ID variable, e.g. citizen_ID}
 }
