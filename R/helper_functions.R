@@ -8,7 +8,6 @@
 #' @param .N the length to recycle the data to, typically provided implicitly by
 #' a or fabricate call wrapped around the function call.
 #' @return A vector of data padded to length `N`
-#' @keywords internal
 #' @export
 recycle <- function(x, .N = NULL) {
   if(is.null(.N)) {
