@@ -62,6 +62,11 @@
 #'
 #' passthrough_resample_data <- resample_data(my_data, N = c(cities=ALL, citizens=10))
 #'
+#' # To ensure a column with unique labels (for example, to calculate block-level
+#' # statistics irrespective of sample choices), use the unique_labels=TRUE
+#' # argument -- this will produce new columns with unique labels.
+#'
+#' unique_resample <- resample_data(my_data, N = c(cities=5), unique_labels = TRUE)
 #'
 #' @export
 #'
@@ -85,7 +90,9 @@ ALL <- -20171101L
 
 .resample_data_internal <- function(data, N, ID_labels=NULL,
                                     unique_labels=FALSE,
-                                    outer_level=1, use_dt = TRUE) {
+                                    outer_level=1, use_dt = TRUE,
+                                    label_prefix = "") {
+
   # Handle all the data sanity checks in outer_level so we don't have redundant
   # error checks further down the recursion.
   if (outer_level) {
@@ -160,7 +167,8 @@ ALL <- -20171101L
       data = data,
       N = N[1],
       ID_label = ID_labels[1],
-      unique_labels = unique_labels
+      unique_labels = unique_labels,
+      label_prefix = label_prefix
     ))
   }
 
@@ -182,22 +190,39 @@ ALL <- -20171101L
   }
 
   if(unique_labels) {
-
+    vector_to_fold <- unname(unlist(lapply(split_data_on_resample_id, function(i) {
+      data[i[[1]][1], ][[ID_labels[1]]]
+    })))
+    new_chunk_labels = uniquify_vector(vector_to_fold,
+                                       sampled_resample_values)
   }
 
   # Iterate over each thing chosen at the current level
-  results_all <- lapply(sampled_resample_values, function(i) {
+  results_all <- lapply(seq_len(length(sampled_resample_values)), function(i) {
+    data_segment <-
+      data[split_data_on_resample_id[sampled_resample_values[i]][[1]], ,
+           drop = FALSE]
+
+    # Adds unique label for level.
+    if(unique_labels) {
+      data_segment[[paste0(ID_labels[1], "_unique")]] = paste0(
+        label_prefix,
+        new_chunk_labels[i])
+    }
+
     # Get rowids from current resample index, subset based on that
     # pass through the recursed Ns and labels, and remind the inner
     # layer that it doesn't need to sanity check and we already know
     # if data.table is around.
     # The list subset on the split is faster than unlisting
     .resample_data_internal(
-      data[split_data_on_resample_id[i][[1]], , drop = FALSE],
+      data_segment,
       N = N[2:length(N)],
       ID_labels = ID_labels[2:length(ID_labels)],
       outer_level = 0,
-      use_dt = use_dt
+      use_dt = use_dt,
+      unique_labels = unique_labels,
+      label_prefix = paste0(new_chunk_labels[i], "_")
     )
   })
 
@@ -221,7 +246,8 @@ ALL <- -20171101L
 }
 
 resample_single_level <- function(data, ID_label = NULL, N,
-                                  unique_labels = FALSE) {
+                                  unique_labels = FALSE,
+                                  label_prefix = "") {
   # dim slightly faster than nrow
   if (dim(data)[1] == 0) {
     stop("Data being resampled has no rows.")
@@ -230,14 +256,7 @@ resample_single_level <- function(data, ID_label = NULL, N,
   if (is.null(ID_label)) {
     # Simple bootstrap
     ids <- sample(seq_len(dim(data)[1]), N, replace = TRUE)
-    df = data[ids, , drop = FALSE]
-
-    if(!is.null(ID_label) && unique_labels) {
-      df[[paste0(ID_label, "_unique")]] <- uniquify_vector(df[[ID_label]],
-                                                           ids)
-    }
-    return(df[, ,
-                drop = FALSE])
+    return(data[ids, , drop = FALSE])
 
   } else if (!ID_label %in% colnames(data)) {
     stop("`ID_label` provided (", ID_label, ") is not a column in the data ",
@@ -276,6 +295,26 @@ resample_single_level <- function(data, ID_label = NULL, N,
     resample_ids <- sample.int(length(indices_split), size = N, replace = TRUE)
   }
 
+  if(unique_labels) {
+    # Which vector we need to uniquify
+    vector_to_fold <- unname(unlist(lapply(indices_split, function(i) {
+      data[i[[1]], ][[ID_label]]
+    })))
+
+    # What the unique labels are
+    new_chunk_labels = uniquify_vector(vector_to_fold, resample_ids)
+
+    # How many times we need to repeat each
+    number_of_expansions <- unname(unlist(lapply(resample_ids, function(i) {
+      length(indices_split[i][[1]])
+    })))
+
+    # Expand to drop in new column
+    expand_new_chunk_labels = rep(new_chunk_labels,
+                                  times = number_of_expansions)
+  }
+
+
   # Get all row indices associated with every cluster ID combined
   resample_indices <- unlist(
     indices_split[resample_ids],
@@ -286,9 +325,11 @@ resample_single_level <- function(data, ID_label = NULL, N,
   df <- data[resample_indices, , drop = FALSE]
 
   # Uniquify the label vector if necessary
-  if(!is.null(ID_label) && unique_labels) {
-    df[[paste0(ID_label, "_unique")]] <- uniquify_vector(df[[ID_label]],
-                                                         resample_ids)
+  if(unique_labels) {
+    df[[paste0(ID_label, "_unique")]] <- paste0(
+      label_prefix,
+      expand_new_chunk_labels
+    )
   }
 
   # Return

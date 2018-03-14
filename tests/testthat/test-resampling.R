@@ -16,16 +16,15 @@ test_that("Resampling", {
   expect_equal(dim(resampled_two_levels)[1], 4)
 
   # Example without data.table codepath
-  resampled_two_levels <- .resample_data_internal(
+  resampled_two_levels <- fabricatr:::.resample_data_internal(
     two_levels, N = c(2, 2),
     ID_labels = c("regions", "cities"),
     use_dt = FALSE
   )
   expect_equal(dim(resampled_two_levels)[1], 4)
 
-
-  resampled_two_levels <- resample_data(two_levels, 5)
-  expect_equal(nrow(resampled_two_levels), 5)
+  resampled_two_levels_again <- resample_data(two_levels, 5)
+  expect_equal(nrow(resampled_two_levels_again), 5)
 })
 
 test_that("Resampling: Bootstrap call, no N provided", {
@@ -202,4 +201,25 @@ test_that("Passthrough resampling.", {
 
   # Warning when final level resampled has passthrough -- this is superfluous
   expect_warning(resample_data(two_levels, N = c(regions = ALL, cities = ALL)))
+})
+
+test_that("Unique labels", {
+  df_test <- fabricate(L1 = add_level(N = 26, L1C = LETTERS),
+                       L2 = add_level(N = 26, L2C = letters))
+
+  sample_resample = resample_data(df_test,
+                                  N = c("L1C" = 30,
+                                        "L2C" = 30),
+                                  unique_labels = TRUE)
+  expect_equal(length(unique(sample_resample$L1C_unique)), 30)
+  expect_equal(length(unique(sample_resample$L2C_unique)), 900)
+  expect_equal(nrow(sample_resample), 900)
+  expect_equal(ncol(sample_resample), 6)
+
+  sample_resample_upperonly = resample_data(df_test,
+                                            N = c("L1C" = 15),
+                                            unique_labels = TRUE)
+  expect_equal(ncol(sample_resample_upperonly), 5)
+  expect_equal(nrow(sample_resample_upperonly), 15 * 26)
+  expect_equal(length(unique(sample_resample_upperonly$L1C_unique)), 15)
 })
