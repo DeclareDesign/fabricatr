@@ -12,6 +12,8 @@
 - New syntax for using `length(ID)` from upper level to define `N` of lower level.
 - When passing a vector to `draw_categorical` prob argument, package now sends message instead of warning.
 - Major additions to documentation and vignettes, including vignettes for common social sciences variables, time series, and using other creation packages with fabricatr.
+- Bugfix in certain cases with single-level variables autocompleting to "data" and not working.
+- Added `unique_labels` argument to `resample_data` to allow block-level statistic calculation.
 
 # **fabricatr** 0.2.0 
 

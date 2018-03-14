@@ -298,3 +298,63 @@ test_that("Cross_levels wrapper.", {
   expect_equal(nrow(z), 100)
   expect_equal(ncol(z), 3)
 })
+
+test_that("Malformed sigma in link_levels", {
+  set.seed(19861108)
+
+  primary_schools <- fabricate(
+    N = 100,
+    ps_quality = runif(n = N, 1, 100),
+    ID_label = "primary_schools"
+  )
+
+  secondary_schools <- fabricate(
+    N = 50,
+    ss_quality = runif(n = N, 1, 100),
+    ID_label = "secondary_schools"
+  )
+
+  universities <- fabricate(
+    N = 70,
+    u_quality = runif(n = N, 1, 100),
+    ID_label = "universities"
+  )
+
+  non_square_matrix <- matrix(c(1, 0.5, 0.8,
+                               0.5, 1, 0.3), byrow=TRUE, ncol=3, nrow=2)
+  out_of_range_matrix <- matrix(c(1, 2,
+                            2, 1), byrow=TRUE, ncol=2, nrow=2)
+  asymmetric_matrix <- matrix(c(1, 0.8,
+                            -0.5, 1), byrow=TRUE, ncol=2, nrow=2)
+  non_psd_matrix <- matrix(c(1, -0.8, -0.5,
+                            -0.8, 1, -0.5,
+                            -0.5, -0.5, 1), byrow=TRUE, ncol=3, nrow=3)
+
+  expect_error(fabricate(list(primary_schools, secondary_schools),
+                         students = link_levels(
+                           N = 1000,
+                           by = join(ps_quality, ss_quality,
+                                     sigma=non_square_matrix)
+                         )))
+
+  expect_error(fabricate(list(primary_schools, secondary_schools),
+                         students = link_levels(
+                           N = 1000,
+                           by = join(ps_quality, ss_quality,
+                                     sigma=out_of_range_matrix)
+                         )))
+
+  expect_error(fabricate(list(primary_schools, secondary_schools),
+                         students = link_levels(
+                           N = 1000,
+                           by = join(ps_quality, ss_quality,
+                                     sigma=asymmetric_matrix)
+                         )))
+
+  expect_error(fabricate(list(primary_schools, secondary_schools, universities),
+                         students = link_levels(
+                           N = 1000,
+                           by = join(ps_quality, ss_quality, u_quality,
+                                     sigma=non_psd_matrix)
+                         )))
+})

@@ -99,3 +99,11 @@ test_that("ID_label = NA", {
   expect_equal(ncol(result), 3)
   expect_identical(colnames(result), c("test1", "zzz", "test2"))
 })
+
+test_that("Uniquify vector factor", {
+  test_df <- data.frame(X = c(LETTERS[1:5]),
+                       stringsAsFactors = TRUE)
+  result_out <- uniquify_vector(test_df$X, c(1:5, 1:5))
+  expect_equal(result_out, c("A_1", "B_1", "C_1", "D_1", "E_1",
+                             "A_2", "B_2", "C_2", "D_2", "E_2"))
+})

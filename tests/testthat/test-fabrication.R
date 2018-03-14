@@ -18,6 +18,23 @@ test_that("Fabricate, creating variables", {
   expect_equal(ncol(add_another_var), 3)
 })
 
+test_that("Moving data after the splat; implicit options for data/N", {
+  # Explicit data
+  expect_equal(nrow(fabricate(data = sleep)), 20)
+  # Explicit N
+  expect_equal(nrow(fabricate(N = 20)), 20)
+  # Explicit add_level call
+  expect_equal(nrow(fabricate(al = add_level(N = 20))), 20)
+  # Implicit add_level call
+  expect_equal(nrow(fabricate(add_level(N = 20, ID_label="al"))), 20)
+  # Implicit data call
+  expect_equal(nrow(fabricate(sleep)), 20)
+  # Implicit N
+  expect_equal(nrow(fabricate(20)), 20)
+  # Some named arguments, implicit data
+  expect_equal(nrow(fabricate(z = rnorm(N), sleep)), 20)
+})
+
 test_that("Reassignment", {
   expect_equal(max(fabricate(
     N = 2, A = 1:2, A = 3

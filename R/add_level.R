@@ -77,6 +77,10 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
     stop("Please specify a name for the level call you are creating.")
   }
 
+  if(any(names(data_arguments) == "")) {
+    stop("All variables inside an add_level call must be named.")
+  }
+
   # Loop through each of the variable generating arguments
   for (i in names(data_arguments)) {
     # Evaluate the formula in an environment consisting of:
