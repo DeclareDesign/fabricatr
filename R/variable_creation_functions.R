@@ -42,6 +42,7 @@
 #' @return A vector of data in accordance with the specification; generally
 #' numeric but for some functions, including `draw_ordered`, may be factor if
 #' break labels are provided.
+#' @name draw_discrete
 #' @examples
 #'
 #' # Drawing binary values (success or failure, treatment assignment)
@@ -174,7 +175,7 @@ draw_binomial <- function(prob = link(latent),
   }
 }
 
-#' @rdname draw_binomial
+#' @rdname draw_discrete
 #' @export
 draw_categorical <- function(prob = link(latent), N = NULL,
                              latent = NULL,
@@ -245,7 +246,7 @@ draw_categorical <- function(prob = link(latent), N = NULL,
   }
 }
 
-#' @rdname draw_binomial
+#' @rdname draw_discrete
 #' @export
 draw_ordered <- function(x = link(latent), breaks = c(-1, 0, 1),
                          break_labels = NULL,
@@ -312,7 +313,7 @@ draw_ordered <- function(x = link(latent), breaks = c(-1, 0, 1),
   }
 }
 
-#' @rdname draw_binomial
+#' @rdname draw_discrete
 #' @export
 draw_count <- function(mean=link(latent),
                        N = length(mean),
@@ -354,7 +355,7 @@ draw_count <- function(mean=link(latent),
 
 }
 
-#' @rdname draw_binomial
+#' @rdname draw_discrete
 #' @export
 draw_binary <- function(prob = link(latent), N = length(prob),
                         link = "identity",
@@ -375,7 +376,7 @@ draw_binary <- function(prob = link(latent), N = length(prob),
   ))
 }
 
-#' @rdname draw_binomial
+#' @rdname draw_discrete
 #' @export
 draw_likert <- function(x,
                         type = 7,
@@ -444,7 +445,7 @@ draw_likert <- function(x,
   ))
 }
 
-#' @rdname draw_binomial
+#' @rdname draw_discrete
 #' @importFrom stats runif
 #' @export
 draw_quantile <- function(type = NULL,
