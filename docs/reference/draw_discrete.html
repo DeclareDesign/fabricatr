@@ -63,13 +63,28 @@ ordered, and categorical — draw_discrete</title>
       <a href="../articles/getting_started.html">Getting Started</a>
     </li>
     <li>
+      <a href="../articles/building_importing.html">Building and Importing Data</a>
+    </li>
+    <li>
+      <a href="../articles/common_social.html">Common Social Science Variables</a>
+    </li>
+    <li>
       <a href="../articles/variable_generation.html">Generating Variables</a>
+    </li>
+    <li>
+      <a href="../articles/cross_classified.html">Panel and Cross-Classified Data</a>
     </li>
     <li>
       <a href="../articles/resampling.html">Resampling</a>
     </li>
     <li>
+      <a href="../articles/time_series.html">Time Series Data</a>
+    </li>
+    <li>
       <a href="../articles/advanced_features.html">Advanced Features</a>
+    </li>
+    <li>
+      <a href="../articles/other_packages.html">Other Packages</a>
     </li>
   </ul>
 </li>
@@ -126,111 +141,201 @@ ordered, and categorical</h1>
 
     
     <p>Drawing discrete data based on probabilities or latent traits is a common
-task that can be cumbersome. <code>draw_binary</code> is an alias for
-<code>draw_discrete(type = "binary")</code> that allows you to draw binary
-outcomes more easily.</p>
+task that can be cumbersome. Each function in our discrete drawing set creates
+a different type of discrete data: <code>draw_binary</code> creates binary 0/1 data,
+<code>draw_binomial</code> creates binomial data (repeated trial binary data),
+<code>draw_categorical</code> creates categorical data, <code>draw_ordered</code>
+transforms latent data into observed ordered categories, <code>draw_count</code>
+creates count data (poisson-distributed). <code>draw_likert</code> is an alias to
+<code>draw_ordered</code> that pre-specifies break labels and offers default breaks
+appropriate for a likert survey question.</p>
     
 
-    <pre class="usage"><span class='fu'>draw_discrete</span>(<span class='no'>x</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>x</span>), <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"binary"</span>, <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>,
-  <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>Inf</span>, <span class='fl'>0</span>, <span class='fl'>Inf</span>), <span class='kw'>break_labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+    <pre class="usage"><span class='fu'>draw_binomial</span>(<span class='kw'>prob</span> <span class='kw'>=</span> <span class='fu'>link</span>(<span class='no'>latent</span>), <span class='kw'>trials</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>prob</span>),
+  <span class='kw'>latent</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>, <span class='kw'>quantile_y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
-<span class='fu'>draw_binary</span>(<span class='no'>x</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>x</span>), <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>)</pre>
+<span class='fu'>draw_categorical</span>(<span class='kw'>prob</span> <span class='kw'>=</span> <span class='fu'>link</span>(<span class='no'>latent</span>), <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>latent</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>, <span class='kw'>category_labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
+<span class='fu'>draw_ordered</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>link</span>(<span class='no'>latent</span>), <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>1</span>), <span class='kw'>break_labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>x</span>), <span class='kw'>latent</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>, <span class='kw'>quantile_y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
+<span class='fu'>draw_count</span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='fu'>link</span>(<span class='no'>latent</span>), <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>mean</span>), <span class='kw'>latent</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>, <span class='kw'>quantile_y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
+<span class='fu'>draw_binary</span>(<span class='kw'>prob</span> <span class='kw'>=</span> <span class='fu'>link</span>(<span class='no'>latent</span>), <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>prob</span>), <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>,
+  <span class='kw'>latent</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quantile_y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
+<span class='fu'>draw_likert</span>(<span class='no'>x</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='fl'>7</span>, <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>length</span>(<span class='no'>x</span>), <span class='kw'>latent</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"identity"</span>, <span class='kw'>quantile_y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
+<span class='fu'>draw_quantile</span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>vector representing either the latent variable used to draw the
-count outcome (if link is "logit" or "probit") or the probability for the
-count outcome (if link is "identity"). For cartegorical distributions x is
-a matrix with as many columns as possible outcomes.</p></td>
+      <th>prob</th>
+      <td><p>A number or vector of numbers representing the probability for
+binary or binomial outcomes; or a number, vector, or matrix of numbers
+representing probabilities for categorical outcomes. If you supply a link
+function, these underlying probabilities will be transformed.</p></td>
+    </tr>
+    <tr>
+      <th>trials</th>
+      <td><p>for `draw_binomial`, the number of trials for each observation</p></td>
     </tr>
     <tr>
       <th>N</th>
-      <td><p>number of units to draw. Defaults to the length of the vector
-<code>x</code></p></td>
+      <td><p>number of units to draw. Defaults to the length of the vector of
+probabilities or latent data you provided.</p></td>
     </tr>
     <tr>
-      <th>type</th>
-      <td><p>type of discrete outcome to draw, one of 'binary'
-(or 'bernoulli'), 'binomial', 'categorical', 'ordered' or 'count'</p></td>
+      <th>latent</th>
+      <td><p>If the user provides a link argument other than identity, they
+should provide the variable `latent` rather than `prob` or `mean`</p></td>
     </tr>
     <tr>
       <th>link</th>
       <td><p>link function between the latent variable and the probability of
-a postiive outcome, i.e. "logit", "probit", or "identity". For the "identity"
+a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 link, the latent variable must be a probability.</p></td>
     </tr>
     <tr>
+      <th>quantile_y</th>
+      <td><p>Ignore this for now.</p></td>
+    </tr>
+    <tr>
+      <th>category_labels</th>
+      <td><p>vector of labels for the categories produced by
+`draw_categorical`. If provided, must be equal to the number of categories
+provided in the `prob` argument.</p></td>
+    </tr>
+    <tr>
+      <th>x</th>
+      <td><p>for `draw_ordered` or `draw_likert`, the latent data for each
+observation.</p></td>
+    </tr>
+    <tr>
       <th>breaks</th>
-      <td><p>vector of breaks to cut an ordered latent outcome</p></td>
+      <td><p>vector of breaks to cut a latent outcome into ordered
+categories with `draw_ordered` or `draw_likert`</p></td>
     </tr>
     <tr>
       <th>break_labels</th>
-      <td><p>vector of labels for the breaks for an ordered latent
-outcome (must be the same length as breaks)</p></td>
+      <td><p>vector of labels for the breaks to cut a latent outcome
+into ordered categories with `draw_ordered`. (Optional)</p></td>
     </tr>
     <tr>
-      <th>k</th>
-      <td><p>the number of trials (zero or more)</p></td>
+      <th>mean</th>
+      <td><p>for `draw_count`, the mean number of count units for each observation</p></td>
+    </tr>
+    <tr>
+      <th>type</th>
+      <td><p>Type of Likert scale data for `draw_likert`. Valid options are 4,
+5, and 7. Type corresponds to the number of categories in the Likert scale.</p></td>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A vector of data in accordance with the specification; generally
+numeric but for some functions, including `draw_ordered`, may be factor if
+break labels are provided.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>For variables with intra-cluster correlations, see
+<code><a href='draw_binary_icc.html'>draw_binary_icc</a></code> and <code><a href='draw_normal_icc.html'>draw_normal_icc</a></code></p>
+    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+    <pre class="examples"><div class='input'>
+<span class='co'># Drawing binary values (success or failure, treatment assignment)</span>
+<span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
    <span class='kw'>p</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>.5</span>, <span class='fl'>1</span>),
-   <span class='kw'>binary</span> <span class='kw'>=</span> <span class='fu'>draw_discrete</span>(<span class='no'>p</span>))</div><div class='output co'>#&gt;   ID   p binary
+   <span class='kw'>binary</span> <span class='kw'>=</span> <span class='fu'>draw_binary</span>(<span class='kw'>prob</span> <span class='kw'>=</span> <span class='no'>p</span>))</div><div class='output co'>#&gt;   ID   p binary
 #&gt; 1  1 0.0      0
 #&gt; 2  2 0.5      0
 #&gt; 3  3 1.0      1</div><div class='input'>
+<span class='co'># Drawing binary values with probit link (transforming continuous data</span>
+<span class='co'># into a probability range).</span>
+<span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+   <span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>10</span> * <span class='fu'>rnorm</span>(<span class='no'>N</span>),
+   <span class='kw'>binary</span> <span class='kw'>=</span> <span class='fu'>draw_binary</span>(<span class='kw'>latent</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"probit"</span>))</div><div class='output co'>#&gt;   ID         x binary
+#&gt; 1  1 15.169750      1
+#&gt; 2  2  9.526467      1
+#&gt; 3  3 -5.088359      0</div><div class='input'>
+<span class='co'># Repeated trials: `draw_binomial`</span>
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
    <span class='kw'>p</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>.5</span>, <span class='fl'>1</span>),
-   <span class='kw'>binary</span> <span class='kw'>=</span> <span class='fu'>draw_discrete</span>(<span class='no'>p</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"bernoulli"</span>))</div><div class='output co'>#&gt;   ID   p binary
-#&gt; 1  1 0.0      0
-#&gt; 2  2 0.5      1
-#&gt; 3  3 1.0      1</div><div class='input'>
-<span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>10</span>*<span class='fu'>rnorm</span>(<span class='no'>N</span>),
-   <span class='kw'>binary</span> <span class='kw'>=</span> <span class='fu'>draw_discrete</span>(<span class='no'>x</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"bernoulli"</span>, <span class='kw'>link</span> <span class='kw'>=</span> <span class='st'>"probit"</span>))</div><div class='output co'>#&gt;   ID    x binary
-#&gt; 1  1 -5.6      0
-#&gt; 2  2 -5.4      0
-#&gt; 3  3  2.3      1</div><div class='input'>
-<span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-   <span class='kw'>p</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>.5</span>, <span class='fl'>1</span>),
-   <span class='kw'>binomial</span> <span class='kw'>=</span> <span class='fu'>draw_discrete</span>(<span class='no'>p</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"binomial"</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>))</div><div class='output co'>#&gt;   ID   p binomial
+   <span class='kw'>binomial</span> <span class='kw'>=</span> <span class='fu'>draw_binomial</span>(<span class='kw'>prob</span> <span class='kw'>=</span> <span class='no'>p</span>, <span class='kw'>trials</span> <span class='kw'>=</span> <span class='fl'>10</span>))</div><div class='output co'>#&gt;   ID   p binomial
 #&gt; 1  1 0.0        0
-#&gt; 2  2 0.5        3
+#&gt; 2  2 0.5        4
 #&gt; 3  3 1.0       10</div><div class='input'>
+<span class='co'># Ordered data: transforming latent data into observed, ordinal data.</span>
+<span class='co'># useful for survey responses.</span>
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>5</span>*<span class='fu'>rnorm</span>(<span class='no'>N</span>),
-   <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fu'>draw_discrete</span>(<span class='no'>x</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"ordered"</span>,
-   <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>Inf</span>, -<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>Inf</span>)))</div><div class='output co'>#&gt;   ID    x ordered
-#&gt; 1  1 -7.0       1
-#&gt; 2  2  1.3       3
-#&gt; 3  3 -2.2       1</div><div class='input'>
+   <span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>5</span> * <span class='fu'>rnorm</span>(<span class='no'>N</span>),
+   <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fu'>draw_ordered</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x</span>,
+                          <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>Inf</span>, -<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>Inf</span>)))</div><div class='output co'>#&gt;   ID         x ordered
+#&gt; 1  1 -4.470176       1
+#&gt; 2  2  3.509748       3
+#&gt; 3  3 -1.477712       1</div><div class='input'>
+<span class='co'># Providing break labels for latent data.</span>
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>,<span class='fl'>5</span>,<span class='fl'>100</span>),
-   <span class='kw'>count</span> <span class='kw'>=</span> <span class='fu'>draw_discrete</span>(<span class='no'>x</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"count"</span>))</div><div class='output co'>#&gt;   ID   x count
-#&gt; 1  1   0     0
-#&gt; 2  2   5     6
-#&gt; 3  3 100   111</div><div class='input'>
-<span class='co'># Categorical</span>
+   <span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>5</span> * <span class='fu'>rnorm</span>(<span class='no'>N</span>),
+   <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fu'>draw_ordered</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x</span>,
+                          <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fu'>c</span>(-<span class='fl'>Inf</span>, -<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>Inf</span>),
+                          <span class='kw'>break_labels</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Not at all concerned"</span>,
+                                           <span class='st'>"Somewhat concerned"</span>,
+                                           <span class='st'>"Very concerned"</span>)))</div><div class='output co'>#&gt;   ID        x        ordered
+#&gt; 1  1 1.755604 Very concerned
+#&gt; 2  2 5.182757 Very concerned
+#&gt; 3  3 1.420082 Very concerned</div><div class='input'>
+<span class='co'># Likert data: often used for survey data</span>
+<span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+          <span class='kw'>support_free_college</span> <span class='kw'>=</span> <span class='fu'>draw_likert</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>rnorm</span>(<span class='no'>N</span>),
+                                             <span class='kw'>type</span> <span class='kw'>=</span> <span class='fl'>5</span>))</div><div class='output co'>#&gt;    ID support_free_college
+#&gt; 1  01 Don't Know / Neutral
+#&gt; 2  02                Agree
+#&gt; 3  03       Strongly Agree
+#&gt; 4  04                Agree
+#&gt; 5  05                Agree
+#&gt; 6  06    Strongly Disagree
+#&gt; 7  07       Strongly Agree
+#&gt; 8  08             Disagree
+#&gt; 9  09                Agree
+#&gt; 10 10 Don't Know / Neutral</div><div class='input'>
+<span class='co'># Count data: useful for rates of occurrences over time.</span>
+<span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+   <span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>5</span>, <span class='fl'>25</span>, <span class='fl'>50</span>, <span class='fl'>100</span>),
+   <span class='kw'>theft_rate</span> <span class='kw'>=</span> <span class='fu'>draw_count</span>(<span class='kw'>mean</span><span class='kw'>=</span><span class='no'>x</span>))</div><div class='output co'>#&gt;   ID   x theft_rate
+#&gt; 1  1   0          0
+#&gt; 2  2   5          9
+#&gt; 3  3  25         25
+#&gt; 4  4  50         51
+#&gt; 5  5 100        102</div><div class='input'>
+<span class='co'># Categorical data: useful for demographic data.</span>
 <span class='fu'><a href='fabricate.html'>fabricate</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>p1</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>), <span class='kw'>p2</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>), <span class='kw'>p3</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>),
-         <span class='kw'>cat</span> <span class='kw'>=</span> <span class='fu'>draw_discrete</span>(<span class='fu'>cbind</span>(<span class='no'>p1</span>, <span class='no'>p2</span>, <span class='no'>p3</span>), <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"categorical"</span>))</div><div class='output co'>#&gt;   ID    p1    p2   p3 cat
-#&gt; 1  1 0.219 0.407 0.37   2
-#&gt; 2  2 0.665 0.858 0.92   2
-#&gt; 3  3 0.390 0.518 0.68   3
-#&gt; 4  4 0.046 0.979 0.67   3
-#&gt; 5  5 0.617 0.017 0.76   1
-#&gt; 6  6 0.598 0.673 0.54   1</div></pre>
+          <span class='kw'>cat</span> <span class='kw'>=</span> <span class='fu'>draw_categorical</span>(<span class='fu'>cbind</span>(<span class='no'>p1</span>, <span class='no'>p2</span>, <span class='no'>p3</span>)))</div><div class='output co'>#&gt;   ID        p1        p2         p3 cat
+#&gt; 1  1 0.1604869 0.5617880 0.03923126   2
+#&gt; 2  2 0.2274149 0.6039721 0.62940734   3
+#&gt; 3  3 0.4889994 0.1923918 0.52326970   3
+#&gt; 4  4 0.2662559 0.3716696 0.39310540   1
+#&gt; 5  5 0.9868869 0.1200995 0.87789330   3
+#&gt; 6  6 0.6590275 0.3957093 0.28824992   2</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-            
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -239,7 +344,7 @@ outcome (must be the same length as breaks)</p></td>
 
       <footer>
       <div class="copyright" style="flex:2;">
-  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin.</p>
+  <p>Developed by Graeme Blair, Jasper Cooper, Alexander Coppock, Macartan Humphreys, Aaron Rudkin, Neal Fultz.</p>
   <p>Code is licensed under <a href="https://opensource.org/licenses/mit-license.php">MIT</a> license.</p>
 </div>
 

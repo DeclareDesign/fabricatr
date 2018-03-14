@@ -131,7 +131,7 @@
 
 survey_experiment_df &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">N =</span> <span class="dv">50</span>,
-  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
   <span class="dt">age =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/wakefield/topics/age">age</a></span>(<span class="dt">n =</span> N),
   <span class="dt">race =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/wakefield/topics/race">race</a></span>(<span class="dt">n =</span> N),
   <span class="dt">sex =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/wakefield/topics/sex">sex</a></span>(<span class="dt">n =</span> N),
@@ -146,7 +146,7 @@ survey_experiment_df &lt;-<span class="st"> </span><span class="kw"><a href="../
 
 fabricatr_df &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">data =</span> survey_experiment_df,
-  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N)
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N)
 )</code></pre></div>
 </div>
 <div id="randomnames-plausible-names-for-human-subjects" class="section level2">
@@ -157,8 +157,8 @@ fabricatr_df &lt;-<span class="st"> </span><span class="kw"><a href="../referenc
 
 experiment_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">N =</span> <span class="dv">50</span>,
-  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
-  <span class="dt">is_female =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">is_female =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
   <span class="dt">patient_name =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/randomNames/topics/randomNames">randomNames</a></span>(N, <span class="dt">gender=</span>is_female)
 )</code></pre></div>
 <p>Note that we make use of the existing <code>is_female</code> variable from the <code>fabricate</code> call to ensure <code>randomNames</code> generates gender-typical names.</p>
@@ -207,10 +207,10 @@ df &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumenta
 participant_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">N =</span> <span class="dv">100</span>,
   <span class="dt">age =</span> <span class="kw">runif</span>(N, <span class="dt">min =</span> <span class="dv">18</span>, <span class="dt">max =</span> <span class="dv">85</span>),
-  <span class="dt">is_female =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
-  <span class="dt">is_smoker =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.2</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.2</span> <span class="op">*</span><span class="st"> </span>(age <span class="op">&gt;</span><span class="st"> </span><span class="dv">50</span>), <span class="dt">N =</span> N),
+  <span class="dt">is_female =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">is_smoker =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.2</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.2</span> <span class="op">*</span><span class="st"> </span>(age <span class="op">&gt;</span><span class="st"> </span><span class="dv">50</span>), <span class="dt">N =</span> N),
   <span class="dt">disease_stage =</span> <span class="kw">round</span>(<span class="kw">runif</span>(N, <span class="dt">min =</span> <span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>(age <span class="op">&gt;</span><span class="st"> </span><span class="dv">65</span>), <span class="dt">max =</span> <span class="dv">4</span>)),
-  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N),
   <span class="dt">kps =</span> <span class="kw">runif</span>(N, <span class="dt">min =</span> <span class="dv">40</span>, <span class="dt">max =</span> <span class="dv">100</span>)
 )
 

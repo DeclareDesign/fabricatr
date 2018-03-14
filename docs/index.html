@@ -149,8 +149,8 @@ house_members &lt;-<span class="st"> </span><span class="kw"><a href="reference/
   ),
   <span class="dt">rep_id =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> party_incumbents, <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology, <span class="dt">sd =</span> <span class="fl">0.5</span>),
-    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">mean =</span> <span class="dv">4</span>),
-    <span class="dt">female =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.198</span>)
+    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_discrete.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">mean =</span> <span class="dv">4</span>),
+    <span class="dt">female =</span> <span class="kw"><a href="reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.198</span>)
   )
 )</code></pre></div>
 <table class="table">
@@ -209,7 +209,7 @@ house_members &lt;-<span class="st"> </span><span class="kw"><a href="reference/
 <div id="next-steps" class="section level3">
 <h3 class="hasAnchor">
 <a href="#next-steps" class="anchor"></a>Next Steps</h3>
-<p>For more information, read our <a href="http://fabricatr.declaredesign.org/articles/getting_started.html">online tutorial</a> to get started with <strong>fabricatr</strong>. This tutorial will give you a brief overview of <strong>fabricatr</strong>’s main functions and direct you towards your next steps. You can also read our documentation inside R using the command <code><a href="reference/fabricate.html">?fabricate</a></code> as your entry point.</p>
+<p>For more information, read our <a href="http://declaredesign.org/R/fabricatr/articles/getting_started.html">online tutorial</a> to get started with <strong>fabricatr</strong>. This tutorial will give you a brief overview of <strong>fabricatr</strong>’s main functions and direct you towards your next steps. You can also read our documentation inside R using the command <code><a href="reference/fabricate.html">?fabricate</a></code> as your entry point.</p>
 <p>This project is generously supported by a grant from the <a href="http://www.arnoldfoundation.org">Laura and John Arnold Foundation</a> and seed funding from <a href="http://egap.org">EGAP</a>.</p>
 </div>
 </div>

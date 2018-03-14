@@ -133,7 +133,7 @@ voters &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabr
   <span class="dt">N =</span> <span class="dv">1000</span>,
   <span class="dt">group_id =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">100</span>),
   <span class="dt">ideology =</span> <span class="kw"><a href="../reference/draw_normal_icc.html">draw_normal_icc</a></span>(<span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">N =</span> N, <span class="dt">clusters =</span> group_id, <span class="dt">ICC =</span> <span class="fl">0.7</span>),
-  <span class="dt">ideological_label =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(
+  <span class="dt">ideological_label =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_ordered</a></span>(
     <span class="dt">x =</span> ideology,
     <span class="dt">break_labels =</span> <span class="kw">c</span>(
       <span class="st">"Very Conservative"</span>, <span class="st">"Conservative"</span>,
@@ -141,10 +141,10 @@ voters &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabr
     )
   ),
   <span class="dt">income =</span> <span class="kw">exp</span>(<span class="kw">rlnorm</span>(<span class="dt">n =</span> N, <span class="dt">meanlog =</span> <span class="fl">2.4</span> <span class="op">-</span><span class="st"> </span>(ideology <span class="op">*</span><span class="st"> </span><span class="fl">0.1</span>), <span class="dt">sdlog =</span> <span class="fl">0.12</span>)),
-  <span class="dt">Q1_immigration =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> ideology, <span class="dt">type =</span> <span class="dv">7</span>),
-  <span class="dt">Q2_defence =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span>, <span class="dt">type =</span> <span class="dv">7</span>),
-  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="fl">0.5</span>, <span class="dt">N =</span> N),
-  <span class="dt">proposition_vote =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">latent =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">1.2</span> <span class="op">*</span><span class="st"> </span>treatment, <span class="dt">link =</span> <span class="st">"probit"</span>)
+  <span class="dt">Q1_immigration =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_likert</a></span>(<span class="dt">x =</span> ideology, <span class="dt">type =</span> <span class="dv">7</span>),
+  <span class="dt">Q2_defence =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_likert</a></span>(<span class="dt">x =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span>, <span class="dt">type =</span> <span class="dv">7</span>),
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">proposition_vote =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">latent =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">1.2</span> <span class="op">*</span><span class="st"> </span>treatment, <span class="dt">link =</span> <span class="st">"probit"</span>)
 )</code></pre></div>
 <p>Let’s look at a small fraction of the data generated this way:</p>
 <table class="table">
@@ -206,7 +206,7 @@ voters &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabr
 </tbody>
 </table>
 <p>Modeling data like this allows common analyses in advance of conducting your experiment. This data can also be included in a pre-analysis plan to add clarity to your experimental design and contribute to improving transparency and replicability. <strong>fabricatr</strong> also allows you to import existing data and modify it easily, or to resample existing data into new, simulated populations.</p>
-<p>If you’d like to read more about using <strong>fabricatr</strong> to model the variables you plan to collect in your experiment, see our guide on <a href="http://fabricatr.declaredesign.org/articles/common_social.html">common social science variables</a>, our technical manual on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">generating variables with <strong>fabricatr</strong></a>, or our tutorials on <a href="http://fabricatr.declaredesign.org/articles/resampling.html">resampling data</a> or <a href="http://fabricatr.declaredesign.org/articles/other_packages.html">integrating other data-generating packages into a <strong>fabricatr</strong> workflow.</a>.</p>
+<p>If you’d like to read more about using <strong>fabricatr</strong> to model the variables you plan to collect in your experiment, see our guide on <a href="http://declaredesign.org/R/fabricatr/articles/common_social.html">common social science variables</a>, our technical manual on <a href="http://declaredesign.org/R/fabricatr/articles/variable_generation.html">generating variables with <strong>fabricatr</strong></a>, or our tutorials on <a href="http://declaredesign.org/R/fabricatr/articles/resampling.html">resampling data</a> or <a href="http://declaredesign.org/R/fabricatr/articles/other_packages.html">integrating other data-generating packages into a <strong>fabricatr</strong> workflow.</a>.</p>
 </div>
 <div id="structuring-your-data" class="section level2">
 <h2 class="hasAnchor">
@@ -223,12 +223,12 @@ panel &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabri
     <span class="dt">outcome_it =</span> country_fe <span class="op">+</span><span class="st"> </span>year_shock <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">2</span>)
   )
 )</code></pre></div>
-<p>If you’d like to read more about using <strong>fabricatr</strong> to structure your data, see our guides on <a href="http://fabricatr.declaredesign.org/articles/building_importing.html">building and importing datasets</a> in <strong>fabricatr</strong>, <a href="http://fabricatr.declaredesign.org/articles/cross_classified.html">generating cross-classified and panel data</a>, or <a href="http://fabricatr.declaredesign.org/articles/resampling.html">resampling data</a> with <strong>fabricatr</strong>.</p>
+<p>If you’d like to read more about using <strong>fabricatr</strong> to structure your data, see our guides on <a href="http://declaredesign.org/R/fabricatr/articles/building_importing.html">building and importing datasets</a> in <strong>fabricatr</strong>, <a href="http://declaredesign.org/R/fabricatr/articles/cross_classified.html">generating cross-classified and panel data</a>, or <a href="http://declaredesign.org/R/fabricatr/articles/resampling.html">resampling data</a> with <strong>fabricatr</strong>.</p>
 </div>
 <div id="declaredesign" class="section level2">
 <h2 class="hasAnchor">
 <a href="#declaredesign" class="anchor"></a>DeclareDesign</h2>
-<p><strong>fabricatr</strong> is one of four packages that make up the DeclareDesign software suite. Along with <strong>fabricatr</strong>, which helps you imagine your data before you collect it, we offer <a href="http://estimatr.declaredesign.org/"><strong>estimatr</strong></a>, fast estimators for social scientists, <a href="http://randomizr.declaredesign.org/"><strong>randomizr</strong></a>, an easy to use tools for common forms of random assignment and sampling, and <a href="http://declaredesign.org/"><strong>DeclareDesign</strong></a>, a package for declaring and diagnosing research designs to understand and improve them.</p>
+<p><strong>fabricatr</strong> is one of four packages that make up the DeclareDesign software suite. Along with <strong>fabricatr</strong>, which helps you imagine your data before you collect it, we offer <a href="http://declaredesign.org/R/estimatr/"><strong>estimatr</strong></a>, fast estimators for social scientists, <a href="http://declaredesign.org/R/randomizr/"><strong>randomizr</strong></a>, an easy to use tools for common forms of random assignment and sampling, and <a href="http://declaredesign.org/R/DeclareDesign/"><strong>DeclareDesign</strong></a>, a package for declaring and diagnosing research designs to understand and improve them.</p>
 <p>In addition to our documentation in <code>R</code> and online, we are happy to respond to any questions you have about using our packages, or incorporate your requests for new features. You can contact us via the <a href="http://discuss.declaredesign.org/"><strong>DeclareDesign</strong> help board</a>.</p>
 </div>
 </div>

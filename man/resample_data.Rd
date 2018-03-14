@@ -4,7 +4,7 @@
 \alias{resample_data}
 \title{Resample data, including hierarchical data}
 \usage{
-resample_data(data, N, ID_labels = NULL)
+resample_data(data, N, ID_labels = NULL, unique_labels = FALSE)
 }
 \arguments{
 \item{data}{A data.frame, usually provided by the user.}
@@ -20,6 +20,10 @@ transparently passed through to the next level of resampling.}
 
 \item{ID_labels}{A character vector of the variables that indicate the data
 hierarchy, from highest to lowest (i.e., from cities to citizens).}
+
+\item{unique_labels}{A boolean, defaulting to FALSE. If TRUE, fabricatr will
+created an extra data frame column depicting a unique version of the ID_label
+variable resampled on, called <ID_label>_unique.}
 }
 \value{
 A data.frame
@@ -70,5 +74,10 @@ my_data_2 <- resample_data(my_data, N = c(3, 5),
 
 passthrough_resample_data <- resample_data(my_data, N = c(cities=ALL, citizens=10))
 
+# To ensure a column with unique labels (for example, to calculate block-level
+# statistics irrespective of sample choices), use the unique_labels=TRUE
+# argument -- this will produce new columns with unique labels.
+
+unique_resample <- resample_data(my_data, N = c(cities=5), unique_labels = TRUE)
 
 }

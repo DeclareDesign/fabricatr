@@ -121,7 +121,7 @@
     
     
 <div class="contents">
-<p>Below, we begin a series of examples discussing the creation of time series style data in <strong>fabricatr</strong>. This document assumes you are familiar with the basics of <a href="http://fabricatr.declaredesign.org/articles/building_importing.html">building and importing data with <strong>fabricatr</strong></a>.</p>
+<p>Below, we begin a series of examples discussing the creation of time series style data in <strong>fabricatr</strong>. This document assumes you are familiar with the basics of <a href="http://declaredesign.org/R/fabricatr/articles/building_importing.html">building and importing data with <strong>fabricatr</strong></a>.</p>
 <div id="single-unit-fixed-time-trend-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#single-unit-fixed-time-trend-data" class="anchor"></a>Single unit fixed time trend data</h3>
@@ -167,8 +167,8 @@ global_trend_example &lt;-<span class="st"> </span><span class="kw"><a href="../
   <span class="dt">years =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> <span class="dv">5</span>,
     <span class="dt">ts_year =</span> <span class="dv">0</span><span class="op">:</span><span class="dv">4</span>,
-    <span class="dt">gdp_measure =</span> base_gdp <span class="op">+</span><span class="st"> </span>
-<span class="st">      </span>(ts_year <span class="op">*</span><span class="st"> </span>global_trend) <span class="op">+</span><span class="st"> </span>(ts_year <span class="op">*</span><span class="st"> </span>growth_units) <span class="op">+</span><span class="st"> </span>
+    <span class="dt">gdp_measure =</span> base_gdp <span class="op">+</span>
+<span class="st">      </span>(ts_year <span class="op">*</span><span class="st"> </span>global_trend) <span class="op">+</span><span class="st"> </span>(ts_year <span class="op">*</span><span class="st"> </span>growth_units) <span class="op">+</span>
 <span class="st">      </span><span class="kw">rnorm</span>(N, <span class="dt">sd=</span>growth_error)
   )
 )</code></pre></div>
@@ -177,7 +177,7 @@ global_trend_example &lt;-<span class="st"> </span><span class="kw"><a href="../
 <div id="multiple-units-with-global-yearly-shocks" class="section level2">
 <h2 class="hasAnchor">
 <a href="#multiple-units-with-global-yearly-shocks" class="anchor"></a>Multiple units with global yearly shocks</h2>
-<p>Even more complex designs may include non-trend global level shocks (for example, financial crises or booms that affect all countries). The traditional hierarchical data design may not fit here, because we want common country-level data and common year-level data, both combined to form country-year observations. This is a good example of data that can best be described as multiple non-nested levels. Users interested in implementing this should review our manual on <a href="http://fabricatr.declaredesign.org/articles/cross_classified.html">cross-classified and panel data</a>. The below example will use <code>cross_levels</code> and non-nested level data.</p>
+<p>Even more complex designs may include non-trend global level shocks (for example, financial crises or booms that affect all countries). The traditional hierarchical data design may not fit here, because we want common country-level data and common year-level data, both combined to form country-year observations. This is a good example of data that can best be described as multiple non-nested levels. Users interested in implementing this should review our manual on <a href="http://declaredesign.org/R/fabricatr/articles/cross_classified.html">cross-classified and panel data</a>. The below example will use <code>cross_levels</code> and non-nested level data.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">panel_global_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(
   <span class="dt">years =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> <span class="dv">5</span>,
@@ -202,12 +202,12 @@ global_trend_example &lt;-<span class="st"> </span><span class="kw"><a href="../
 <div id="seasonal-or-arima-time-series" class="section level2">
 <h2 class="hasAnchor">
 <a href="#seasonal-or-arima-time-series" class="anchor"></a>Seasonal or ARIMA Time Series</h2>
-<p>Although <strong>fabricatr</strong> does not have formal functionality for the creation of ARIMA time series, we recommend that interested users see our <a href="http://fabricatr.declaredesign.org/articles/other_packages.html">guide to using other data creation packages with <strong>fabricatr</strong></a>, which includes an example of using the <strong>forecast</strong> package to generate ARIMA data.</p>
+<p>Although <strong>fabricatr</strong> does not have formal functionality for the creation of ARIMA time series, we recommend that interested users see our <a href="http://declaredesign.org/R/fabricatr/articles/other_packages.html">guide to using other data creation packages with <strong>fabricatr</strong></a>, which includes an example of using the <strong>forecast</strong> package to generate ARIMA data.</p>
 </div>
 <div id="whats-next" class="section level2">
 <h2 class="hasAnchor">
 <a href="#whats-next" class="anchor"></a>What’s next?</h2>
-<p>You may also be interested in our online tutorial on <a href="http://fabricatr.declaredesign.org/articles/cross_classified.html">structuring panel and cross-classified data.</a>.</p>
+<p>You may also be interested in our online tutorial on <a href="http://declaredesign.org/R/fabricatr/articles/cross_classified.html">structuring panel and cross-classified data.</a>.</p>
 </div>
 </div>
   </div>
