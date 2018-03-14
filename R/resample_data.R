@@ -16,6 +16,9 @@
 #' transparently passed through to the next level of resampling.
 #' @param ID_labels A character vector of the variables that indicate the data
 #' hierarchy, from highest to lowest (i.e., from cities to citizens).
+#' @param unique_labels A boolean, defaulting to FALSE. If TRUE, fabricatr will
+#' created an extra data frame column depicting a unique version of the ID_label
+#' variable resampled on, called <ID_label>_unique.
 #'
 #' @return A data.frame
 #'
@@ -63,9 +66,12 @@
 #' @export
 #'
 
-resample_data <- function(data, N, ID_labels=NULL) {
+resample_data <- function(data, N, ID_labels=NULL, unique_labels=FALSE) {
   # Mask internal outer_level and use_dt arguments from view.
-  df <- .resample_data_internal(data, N, ID_labels)
+  df <- .resample_data_internal(data = data,
+                                N = N,
+                                ID_labels = ID_labels,
+                                unique_labels = unique_labels)
   rownames(df) <- NULL
   return(df)
 }
@@ -78,6 +84,7 @@ resample_data <- function(data, N, ID_labels=NULL) {
 ALL <- -20171101L
 
 .resample_data_internal <- function(data, N, ID_labels=NULL,
+                                    unique_labels=FALSE,
                                     outer_level=1, use_dt = TRUE) {
   # Handle all the data sanity checks in outer_level so we don't have redundant
   # error checks further down the recursion.
@@ -150,9 +157,10 @@ ALL <- -20171101L
   # variable -- this is the inner-most recursion
   if (length(N) == 1) {
     return(resample_single_level(
-      data,
-      N[1],
-      ID_label = ID_labels[1]
+      data = data,
+      N = N[1],
+      ID_label = ID_labels[1],
+      unique_labels = unique_labels
     ))
   }
 
@@ -171,6 +179,10 @@ ALL <- -20171101L
     # sample.int is faster than sample(1:length(.)) or sample(seq.len(length(.))
     sampled_resample_values <- sample.int(length(split_data_on_resample_id),
                                           N[1], replace = TRUE)
+  }
+
+  if(unique_labels) {
+
   }
 
   # Iterate over each thing chosen at the current level
@@ -208,7 +220,8 @@ ALL <- -20171101L
   return(res)
 }
 
-resample_single_level <- function(data, ID_label = NULL, N) {
+resample_single_level <- function(data, ID_label = NULL, N,
+                                  unique_labels = FALSE) {
   # dim slightly faster than nrow
   if (dim(data)[1] == 0) {
     stop("Data being resampled has no rows.")
@@ -216,8 +229,16 @@ resample_single_level <- function(data, ID_label = NULL, N) {
 
   if (is.null(ID_label)) {
     # Simple bootstrap
-    return(data[sample(seq_len(dim(data)[1]), N, replace = TRUE), ,
+    ids <- sample(seq_len(dim(data)[1]), N, replace = TRUE)
+    df = data[ids, , drop = FALSE]
+
+    if(!is.null(ID_label) && unique_labels) {
+      df[[paste0(ID_label, "_unique")]] <- uniquify_vector(df[[ID_label]],
+                                                           ids)
+    }
+    return(df[, ,
                 drop = FALSE])
+
   } else if (!ID_label %in% colnames(data)) {
     stop("`ID_label` provided (", ID_label, ") is not a column in the data ",
          "being resampled.")
@@ -262,5 +283,24 @@ resample_single_level <- function(data, ID_label = NULL, N) {
     use.names = FALSE
   )
   # Only take the indices we want (repeats will be handled properly)
-  return(data[resample_indices, , drop = FALSE])
+  df <- data[resample_indices, , drop = FALSE]
+
+  # Uniquify the label vector if necessary
+  if(!is.null(ID_label) && unique_labels) {
+    df[[paste0(ID_label, "_unique")]] <- uniquify_vector(df[[ID_label]],
+                                                         resample_ids)
+  }
+
+  # Return
+  return(df)
+}
+
+#' @importFrom stats ave
+uniquify_vector = function(vector, indices) {
+  # Force to character to avoid this.
+  if(is.factor(vector)) { vector = as.character(vector) }
+  # Generate the unique version.
+  as.character(interaction(vector[indices],
+                           ave(vector[indices], indices, FUN=seq_along),
+                           sep="_"))
 }
