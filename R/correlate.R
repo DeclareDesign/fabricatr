@@ -18,7 +18,7 @@
 #' @examples
 #'
 #' # Generate a variable of interest
-#' exam_score <- pmax(100, rnorm(n = 100, mean = 80, sd = 10))
+#' exam_score <- pmin(100, rnorm(n = 100, mean = 80, sd = 10))
 #'
 #' # Generate a correlated variable using fabricatr variable generation
 #' scholarship_offers <- correlate(given = exam_score, rho = 0.7,
