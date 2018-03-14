@@ -207,7 +207,7 @@ test_that("Unique labels", {
   df_test <- fabricate(L1 = add_level(N = 26, L1C = LETTERS),
                        L2 = add_level(N = 26, L2C = letters))
 
-  sample_resample = resample_data(df_test,
+  sample_resample <- resample_data(df_test,
                                   N = c("L1C" = 30,
                                         "L2C" = 30),
                                   unique_labels = TRUE)
@@ -216,7 +216,7 @@ test_that("Unique labels", {
   expect_equal(nrow(sample_resample), 900)
   expect_equal(ncol(sample_resample), 6)
 
-  sample_resample_upperonly = resample_data(df_test,
+  sample_resample_upperonly <- resample_data(df_test,
                                             N = c("L1C" = 15),
                                             unique_labels = TRUE)
   expect_equal(ncol(sample_resample_upperonly), 5)

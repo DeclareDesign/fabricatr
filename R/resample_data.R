@@ -190,11 +190,12 @@ ALL <- -20171101L
   }
 
   if(unique_labels) {
-    vector_to_fold <- unname(unlist(lapply(split_data_on_resample_id, function(i) {
-      data[i[[1]][1], ][[ID_labels[1]]]
-    })))
-    new_chunk_labels = uniquify_vector(vector_to_fold,
-                                       sampled_resample_values)
+    vector_to_fold <- unname(unlist(lapply(split_data_on_resample_id,
+                                           function(i) {
+                                             data[i[[1]][1], ][[ID_labels[1]]]
+                                             })))
+    new_chunk_labels <- uniquify_vector(vector_to_fold,
+                                        sampled_resample_values)
   }
 
   # Iterate over each thing chosen at the current level
@@ -205,7 +206,7 @@ ALL <- -20171101L
 
     # Adds unique label for level.
     if(unique_labels) {
-      data_segment[[paste0(ID_labels[1], "_unique")]] = paste0(
+      data_segment[[paste0(ID_labels[1], "_unique")]] <- paste0(
         label_prefix,
         new_chunk_labels[i])
     }
@@ -302,7 +303,7 @@ resample_single_level <- function(data, ID_label = NULL, N,
     })))
 
     # What the unique labels are
-    new_chunk_labels = uniquify_vector(vector_to_fold, resample_ids)
+    new_chunk_labels <- uniquify_vector(vector_to_fold, resample_ids)
 
     # How many times we need to repeat each
     number_of_expansions <- unname(unlist(lapply(resample_ids, function(i) {
@@ -310,7 +311,7 @@ resample_single_level <- function(data, ID_label = NULL, N,
     })))
 
     # Expand to drop in new column
-    expand_new_chunk_labels = rep(new_chunk_labels,
+    expand_new_chunk_labels <- rep(new_chunk_labels,
                                   times = number_of_expansions)
   }
 
@@ -337,9 +338,9 @@ resample_single_level <- function(data, ID_label = NULL, N,
 }
 
 #' @importFrom stats ave
-uniquify_vector = function(vector, indices) {
+uniquify_vector <- function(vector, indices) {
   # Force to character to avoid this.
-  if(is.factor(vector)) { vector = as.character(vector) }
+  if(is.factor(vector)) { vector <- as.character(vector) }
   # Generate the unique version.
   as.character(interaction(vector[indices],
                            ave(vector[indices], indices, FUN=seq_along),
