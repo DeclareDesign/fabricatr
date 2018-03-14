@@ -357,7 +357,7 @@ $$
 \end{aligned}
 $$
 
-In expectation, this guarantees an intra-cluster correlation of $\rho$ and a cluster proportion of $p_i$. This approach is derived from Hossain, Akhtar and Chakraborti, Hrishikesh. "ICCBin: Facilitates Clustered Binary Data Generation, and Estimation of Intracluster Correlation Coefficient (ICC) for Binary Data", available on [CRAN](https://cran.r-project.org/web/packages/ICCbin/index.html) or [GitHub](https://github.com/akhtarh/ICCbin)
+In expectation, this guarantees an intra-cluster correlation of $\rho$ and a cluster proportion of $p_i$. This approach is derived from Hossain, Akhtar and Chakraborti, Hrishikesh. "ICCBin: Facilitates Clustered Binary Data Generation, and Estimation of Intracluster Correlation Coefficient (ICC) for Binary Data", available on [CRAN](https://cran.r-project.org/package=ICCbin) or [GitHub](https://github.com/akhtarh/ICCbin)
 
 ## Normal ICC
 

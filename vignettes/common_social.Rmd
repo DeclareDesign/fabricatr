@@ -377,7 +377,7 @@ population_data <- fabricate(
 )
 ```
 
-In addition to the helper functions provided by **fabricatr** and the built-in `R` distributions suitable for generating skewed data, other `R` packages like [**sn**](https://cran.r-project.org/web/packages/sn/index.html) also include useful functions for generating skewed data and can be incorporated into `fabricate` calls.
+In addition to the helper functions provided by **fabricatr** and the built-in `R` distributions suitable for generating skewed data, other `R` packages like [**sn**](https://cran.r-project.org/package=sn) also include useful functions for generating skewed data and can be incorporated into `fabricate` calls.
 
 ## What's next?
 
