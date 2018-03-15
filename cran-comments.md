@@ -1,3 +1,7 @@
+## Resubmission
+
+This is a resubmission of `fabricatr 0.4.0`, originally submitted yesterday. We had some URLs in documentation that were not yet live, and a case sensitivity issue with a CRAN link in documentation. I fixed these errors. Thank you very much for notifying us of them.
+
 ## Test environments
 * local macOS install, R 3.4.3
 * Windows 3.3, 3.4 on Appveyor
