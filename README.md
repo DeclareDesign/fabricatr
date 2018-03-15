@@ -58,6 +58,6 @@ house_members <- fabricate(
 
 ### Next Steps
 
-For more information, read our [online tutorial](http://declaredesign.org/R/fabricatr/articles/getting_started.html) to get started with **fabricatr**. This tutorial will give you a brief overview of **fabricatr**'s main functions and direct you towards your next steps. You can also read our documentation inside R using the command `?fabricate` as your entry point.
+For more information, read our [online tutorial](http://fabricatr.declaredesign.org/articles/getting_started.html) to get started with **fabricatr**. This tutorial will give you a brief overview of **fabricatr**'s main functions and direct you towards your next steps. You can also read our documentation inside R using the command `?fabricate` as your entry point.
 
 This project is generously supported by a grant from the [Laura and John Arnold Foundation](http://www.arnoldfoundation.org) and seed funding from [EGAP](http://egap.org).
