@@ -32,7 +32,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Getting Started
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -74,7 +74,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Packages
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -108,18 +108,18 @@
 </div>
 <!--/.navbar -->
 
-      
+
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
       <h1>Using other data generating packages with <strong>fabricatr</strong>
 </h1>
                         <h4 class="author">Aaron Rudkin</h4>
-            
+
           </div>
 
-    
-    
+
+
 <div class="contents">
 <p>In general, <strong>fabricatr</strong> is going to be compatible with any existing packages you use to generate synthetic data in one of two ways: either using those packages to create variables within a <code>fabricate</code> call, or using those packages to make complete data frames which are then imported into a <code>fabricate</code>. Below we provide examples for some of the most popular packages that serve this purpose. Please feel free to <a href="Contact%20Us">http://discuss.declaredesign.org/</a> if you have any questions about using another package in concert with <strong>fabricatr</strong>.</p>
 <div id="wakefield-simulating-common-demographic-features" class="section level2">
@@ -217,7 +217,7 @@ participant_data &lt;-<span class="st"> </span><span class="kw"><a href="../refe
 <span class="co"># Simulate data in the survival context</span>
 survival_data &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/simsurv/topics/simsurv">simsurv</a></span>(
   <span class="dt">lambdas =</span> <span class="fl">0.1</span>, <span class="dt">gammas =</span> <span class="fl">0.5</span>,
-  <span class="dt">x =</span> participant_data, 
+  <span class="dt">x =</span> participant_data,
   <span class="dt">betas =</span> <span class="kw">c</span>(<span class="dt">is_female =</span> <span class="op">-</span><span class="fl">0.2</span>, <span class="dt">is_smoker =</span> <span class="fl">1.2</span>,
             <span class="dt">treatment =</span> <span class="op">-</span><span class="fl">0.4</span>, <span class="dt">kps =</span> <span class="op">-</span><span class="fl">0.005</span>,
             <span class="dt">disease_stage =</span> <span class="fl">0.2</span>),
@@ -235,8 +235,8 @@ survival_data &lt;-<span class="st"> </span><span class="kw"><a href="http://www
 arima_model &lt;-<span class="st"> </span><span class="kw">simulate</span>(
   <span class="kw">Arima</span>(<span class="kw">ts</span>(<span class="kw">rnorm</span>(<span class="dv">100</span>), <span class="dt">frequency =</span> <span class="dv">4</span>),
         <span class="dt">order =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>))
-  
-<span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="kw">data.frame</span>(arima_model), 
+
+<span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="kw">data.frame</span>(arima_model),
           <span class="dt">year =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">25</span>, <span class="dt">each=</span><span class="dv">4</span>),
           <span class="dt">quarter =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">25</span>))</code></pre></div>
 <p>Here, <code>ts</code> converts a series of data into a time series, with frequency specifying the number of observations per unit of time (in this case, for example, quarters in a year). <code>Arima</code> ingests this data and fits an ARIMA model with the specified parameters. <code>simulate</code> draws new data from the fit time series, producing a vector of interest. We then import the data into a <code>fabricate</code> call (converting it to a data frame) and add new columns of interest.</p>
@@ -253,7 +253,7 @@ arima_model &lt;-<span class="st"> </span><span class="kw">simulate</span>(
 <li>
 <a href="https://cran.r-project.org/package=simPop">simPop</a> by Matthias Templ</li>
 <li>
-<a href="https://cran.r-project.org/package=simStudy">simStudy</a> by Keith Goldfeld</li>
+<a href="https://cran.r-project.org/package=simstudy">simstudy</a> by Keith Goldfeld</li>
 <li>
 <a href="https://cran.r-project.org/package=synthPop">synthPop</a> by Beata Nowok</li>
 </ul>
