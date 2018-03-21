@@ -21,10 +21,5 @@ Encoding: UTF-8
 RoxygenNote: 6.0.1
 Suggests:
     testthat,
-    dplyr,
-    knitr,
-    rmarkdown,
     data.table,
-    mvnfast,
-    diagram
-VignetteBuilder: knitr
+    mvnfast

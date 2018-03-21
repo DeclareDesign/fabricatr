@@ -1,6 +1,6 @@
 ## Resubmission
 
-This is a resubmission of `fabricatr 0.4.0`, originally submitted yesterday. We had some URLs in documentation that were not yet live, and a case sensitivity issue with a CRAN link in documentation. I fixed these errors. Thank you very much for notifying us of them.
+This is a resubmission of `fabricatr 0.4.0`, originally submitted last week. On our most recent submission, we had included a VignetteBuilder in DESCRIPTION although we have moved to not including vignettes with the package. This has been suppressed, which should resolve the issue. Thank you again for your time reviewing the submission.
 
 ## Test environments
 * local macOS install, R 3.4.3

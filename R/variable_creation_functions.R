@@ -38,7 +38,9 @@
 #' link, the latent variable must be a probability.
 #' @param latent If the user provides a link argument other than identity, they
 #' should provide the variable `latent` rather than `prob` or `mean`
-#' @param quantile_y Ignore this for now.
+#' @param quantile_y A vector of quantiles; if provided, rather than drawing
+#' stochastically from the distribution of interest, data will be drawn at
+#' exactly those quantiles.
 #' @return A vector of data in accordance with the specification; generally
 #' numeric but for some functions, including `draw_ordered`, may be factor if
 #' break labels are provided.

@@ -50,7 +50,9 @@ should provide the variable `latent` rather than `prob` or `mean`}
 a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 link, the latent variable must be a probability.}
 
-\item{quantile_y}{Ignore this for now.}
+\item{quantile_y}{A vector of quantiles; if provided, rather than drawing
+stochastically from the distribution of interest, data will be drawn at
+exactly those quantiles.}
 
 \item{category_labels}{vector of labels for the categories produced by
 `draw_categorical`. If provided, must be equal to the number of categories
