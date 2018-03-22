@@ -514,7 +514,7 @@ check_rectangular <- function(working_data_list, N) {
   for (i in seq_along(working_data_list)) {
     wdl_i <- working_data_list[[i]]
     d <- dim(wdl_i)
-    if(length(d)  == 1) {
+    if(length(d)  %in% 0:1) {
 
       if (length(working_data_list[[i]]) == 1) {
         # Variable is a constant -- repeat it N times
