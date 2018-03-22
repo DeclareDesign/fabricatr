@@ -515,22 +515,22 @@ check_rectangular <- function(working_data_list, N) {
     wdl_i <- working_data_list[[i]]
     d <- dim(wdl_i)
     if(length(d)  %in% 0:1) {
-
-      if (length(working_data_list[[i]]) == 1) {
+      len <- length(wdl_i)
+      if (len == 1) {
         # Variable is a constant -- repeat it N times
-        working_data_list[[i]] <- rep(working_data_list[[i]], N)
-      } else if (length(working_data_list[[i]]) != N) {
+        working_data_list[[i]] <- rep_len(wdl_i, N)
+      } else if (len != N) {
         # Variable is not of length N. Oops.
-        stop("Variable lengths must all be equal to `N.` ",
+        stop("Variables  must all be length `N.` ",
              "In this call, `N` = ", N, " while the variable `",
-             i, "` is equal to length ", length(i))
+             names(working_data_list)[i], "` is length ", len)
       }
     }
     else if(length(d) == 2){
       if(d[1] != N) {
         stop("Nested structures must all have `N.` rows. ",
              "In this call, `N` = ", N, " while the variable `",
-             i, "` is equal to length ", d[1])
+             names(working_data_list)[i], "` has ", d[1], " rows.")
 
 
       }
