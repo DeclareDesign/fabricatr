@@ -133,7 +133,7 @@ voters &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabr
   <span class="dt">N =</span> <span class="dv">1000</span>,
   <span class="dt">group_id =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">100</span>),
   <span class="dt">ideology =</span> <span class="kw"><a href="../reference/draw_normal_icc.html">draw_normal_icc</a></span>(<span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">N =</span> N, <span class="dt">clusters =</span> group_id, <span class="dt">ICC =</span> <span class="fl">0.7</span>),
-  <span class="dt">ideological_label =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_ordered</a></span>(
+  <span class="dt">ideological_label =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_ordered</a></span>(
     <span class="dt">x =</span> ideology,
     <span class="dt">break_labels =</span> <span class="kw">c</span>(
       <span class="st">"Very Conservative"</span>, <span class="st">"Conservative"</span>,
@@ -141,10 +141,10 @@ voters &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabr
     )
   ),
   <span class="dt">income =</span> <span class="kw">exp</span>(<span class="kw">rlnorm</span>(<span class="dt">n =</span> N, <span class="dt">meanlog =</span> <span class="fl">2.4</span> <span class="op">-</span><span class="st"> </span>(ideology <span class="op">*</span><span class="st"> </span><span class="fl">0.1</span>), <span class="dt">sdlog =</span> <span class="fl">0.12</span>)),
-  <span class="dt">Q1_immigration =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> ideology, <span class="dt">type =</span> <span class="dv">7</span>),
-  <span class="dt">Q2_defence =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_likert</a></span>(<span class="dt">x =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span>, <span class="dt">type =</span> <span class="dv">7</span>),
-  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="fl">0.5</span>, <span class="dt">N =</span> N),
-  <span class="dt">proposition_vote =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">latent =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">1.2</span> <span class="op">*</span><span class="st"> </span>treatment, <span class="dt">link =</span> <span class="st">"probit"</span>)
+  <span class="dt">Q1_immigration =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_likert</a></span>(<span class="dt">x =</span> ideology, <span class="dt">type =</span> <span class="dv">7</span>),
+  <span class="dt">Q2_defence =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_likert</a></span>(<span class="dt">x =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span>, <span class="dt">type =</span> <span class="dv">7</span>),
+  <span class="dt">treatment =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="fl">0.5</span>, <span class="dt">N =</span> N),
+  <span class="dt">proposition_vote =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">latent =</span> ideology <span class="op">+</span><span class="st"> </span><span class="fl">1.2</span> <span class="op">*</span><span class="st"> </span>treatment, <span class="dt">link =</span> <span class="st">"probit"</span>)
 )</code></pre></div>
 <p>Let’s look at a small fraction of the data generated this way:</p>
 <table class="table">

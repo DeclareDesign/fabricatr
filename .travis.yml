@@ -36,6 +36,7 @@ env:
 
 r_github_packages:
 - DeclareDesign/DDtools
+- ropensci/git2r
 
 after_success:
 - Rscript -e DDtools::after_build

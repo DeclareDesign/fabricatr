@@ -144,7 +144,7 @@ also specify more complex resampling strategies to resample hierarchical
 data.</p>
     
 
-    <pre class="usage"><span class='fu'>resample_data</span>(<span class='no'>data</span>, <span class='no'>N</span>, <span class='kw'>ID_labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>resample_data</span>(<span class='no'>data</span>, <span class='no'>N</span>, <span class='kw'>ID_labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>unique_labels</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -168,6 +168,12 @@ transparently passed through to the next level of resampling.</p></td>
       <th>ID_labels</th>
       <td><p>A character vector of the variables that indicate the data
 hierarchy, from highest to lowest (i.e., from cities to citizens).</p></td>
+    </tr>
+    <tr>
+      <th>unique_labels</th>
+      <td><p>A boolean, defaulting to FALSE. If TRUE, fabricatr will
+created an extra data frame column depicting a unique version of the ID_label
+variable resampled on, called &lt;ID_label&gt;_unique.</p></td>
     </tr>
     </table>
     
@@ -214,7 +220,13 @@ hierarchy, from highest to lowest (i.e., from cities to citizens).</p></td>
 <span class='co'># To resample every unit at a given level, use the ALL constant</span>
 <span class='co'># This example will resample 10 citizens at each of the cities:</span>
 
-<span class='no'>passthrough_resample_data</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='kw'>cities</span><span class='kw'>=</span><span class='no'>ALL</span>, <span class='kw'>citizens</span><span class='kw'>=</span><span class='fl'>10</span>))</div></pre>
+<span class='no'>passthrough_resample_data</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='kw'>cities</span><span class='kw'>=</span><span class='no'>ALL</span>, <span class='kw'>citizens</span><span class='kw'>=</span><span class='fl'>10</span>))
+
+<span class='co'># To ensure a column with unique labels (for example, to calculate block-level</span>
+<span class='co'># statistics irrespective of sample choices), use the unique_labels=TRUE</span>
+<span class='co'># argument -- this will produce new columns with unique labels.</span>
+
+<span class='no'>unique_resample</span> <span class='kw'>&lt;-</span> <span class='fu'>resample_data</span>(<span class='no'>my_data</span>, <span class='kw'>N</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='kw'>cities</span><span class='kw'>=</span><span class='fl'>5</span>), <span class='kw'>unique_labels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

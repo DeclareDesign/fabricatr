@@ -197,12 +197,12 @@ function call, it is possible to induce correlation in cross-classified data.</p
  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>link_levels</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>primary_school</span>, <span class='no'>secondary_school</span>))
 )
 <span class='fu'>head</span>(<span class='no'>students</span>)</div><div class='output co'>#&gt;   primary_school ps_quality secondary_school ss_quality students
-#&gt; 1             16   7.998810               08   8.158399      001
-#&gt; 2             03   6.209033               12   9.282482      002
-#&gt; 3             11   5.758383               12   9.282482      003
-#&gt; 4             03   6.209033               14   4.921463      004
-#&gt; 5             11   5.758383               14   4.921463      005
-#&gt; 6             11   5.758383               07   1.214891      006</div><div class='input'>
+#&gt; 1             11   1.629510               14   5.847698      001
+#&gt; 2             11   1.629510               07   4.895093      002
+#&gt; 3             05   9.372101               05   8.978955      003
+#&gt; 4             17   6.766124               05   8.978955      004
+#&gt; 5             19   7.692592               14   5.847698      005
+#&gt; 6             09   9.849402               15   2.161146      006</div><div class='input'>
 <span class='co'># Induce a correlation structure in cross-classified data by providing</span>
 <span class='co'># rho.</span>
 <span class='no'>students</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fabricate.html'>fabricate</a></span>(
@@ -210,7 +210,7 @@ function call, it is possible to induce correlation in cross-classified data.</p
  <span class='kw'>secondary_school</span> <span class='kw'>=</span> <span class='fu'><a href='fabricate.html'>add_level</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>ss_quality</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='no'>N</span>, <span class='fl'>1</span>, <span class='fl'>10</span>), <span class='kw'>nest</span><span class='kw'>=</span><span class='fl'>FALSE</span>),
  <span class='kw'>students</span> <span class='kw'>=</span> <span class='fu'>link_levels</span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='join.html'>join</a></span>(<span class='no'>ps_quality</span>, <span class='no'>ss_quality</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='fl'>0.5</span>))
 )
-<span class='fu'>cor</span>(<span class='no'>students</span>$<span class='no'>ps_quality</span>, <span class='no'>students</span>$<span class='no'>ss_quality</span>)</div><div class='output co'>#&gt; [1] 0.4508288</div><div class='input'>
+<span class='fu'>cor</span>(<span class='no'>students</span>$<span class='no'>ps_quality</span>, <span class='no'>students</span>$<span class='no'>ss_quality</span>)</div><div class='output co'>#&gt; [1] 0.4979434</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

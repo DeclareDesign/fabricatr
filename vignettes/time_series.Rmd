@@ -69,8 +69,8 @@ global_trend_example <- fabricate(
   years = add_level(
     N = 5,
     ts_year = 0:4,
-    gdp_measure = base_gdp + 
-      (ts_year * global_trend) + (ts_year * growth_units) + 
+    gdp_measure = base_gdp +
+      (ts_year * global_trend) + (ts_year * growth_units) +
       rnorm(N, sd=growth_error)
   )
 )

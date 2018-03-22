@@ -124,7 +124,7 @@
 <h1 class="hasAnchor">
 <a href="#bootstrapping" class="anchor"></a>Bootstrapping</h1>
 <p>The simplest option in <strong>fabricatr</strong> is to “bootstrap” data. Taking data with N observations, the “bootstrap” resamples these observations with replacement and generates N new observations. Existing observations may be used zero times, once, or more than once. Bootstrapping is very simple with the <code><a href="../reference/resample_data.html">resample_data()</a></code> function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">10</span>, <span class="dt">voted_republican =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">survey_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fabricate.html">fabricate</a></span>(<span class="dt">N =</span> <span class="dv">10</span>, <span class="dt">voted_republican =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.5</span>, <span class="dt">N =</span> N))
 
 survey_data_new &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(survey_data)
 <span class="kw">head</span>(survey_data_new)</code></pre></div>
@@ -281,6 +281,86 @@ my_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"
 </tbody>
 </table>
 </div>
+<div id="unique-per-sample-labels" class="section level1">
+<h1 class="hasAnchor">
+<a href="#unique-per-sample-labels" class="anchor"></a>Unique per-sample labels</h1>
+<p>Some researchers may be interested in preserving unique labels for each sample draw at a given level. An example of this may be to sample cities, as above, but then want to run city-level statistics; if the same city is sampled twice, then the city-level statistic will incorrectly combine both samples. This can be solved with <code>unique_labels = TRUE</code>, which will create a new column for each sampled level, called <code>&lt;level name&gt;_unique</code>, which will be unique for each sample. Consider the following code:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data_unique &lt;-<span class="st"> </span><span class="kw"><a href="../reference/resample_data.html">resample_data</a></span>(my_data, <span class="dt">N =</span> <span class="kw">c</span>(<span class="dt">cities =</span> <span class="dv">3</span>), <span class="dt">unique_labels =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">cities</th>
+<th align="right">elevation</th>
+<th align="left">citizens</th>
+<th align="right">age</th>
+<th align="left">cities_unique</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">1</td>
+<td align="right">64</td>
+<td align="left">1_1</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">2</td>
+<td align="right">66</td>
+<td align="left">1_1</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">3</td>
+<td align="right">43</td>
+<td align="left">1_1</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">1</td>
+<td align="right">64</td>
+<td align="left">1_2</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">2</td>
+<td align="right">66</td>
+<td align="left">1_2</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">3</td>
+<td align="right">43</td>
+<td align="left">1_2</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">1</td>
+<td align="right">64</td>
+<td align="left">1_3</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">2</td>
+<td align="right">66</td>
+<td align="left">1_3</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">1421</td>
+<td align="left">3</td>
+<td align="right">43</td>
+<td align="left">1_3</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div id="passthrough-resampling" class="section level1">
 <h1 class="hasAnchor">
 <a href="#passthrough-resampling" class="anchor"></a>“Passthrough” Resampling</h1>
@@ -303,15 +383,15 @@ my_data_<span class="dv">3</span> &lt;-<span class="st"> </span><span class="kw"
 <tbody>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">1122</td>
+<td align="right">1769</td>
 <td align="left">1</td>
-<td align="right">39</td>
+<td align="right">51</td>
 </tr>
 <tr class="even">
 <td align="left">2</td>
-<td align="right">1438</td>
-<td align="left">6</td>
-<td align="right">23</td>
+<td align="right">1205</td>
+<td align="left">4</td>
+<td align="right">28</td>
 </tr>
 </tbody>
 </table>
@@ -326,6 +406,7 @@ my_data_<span class="dv">3</span> &lt;-<span class="st"> </span><span class="kw"
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#bootstrapping">Bootstrapping</a></li>
       <li><a href="#resampling-hierarchical-data">Resampling hierarchical data</a></li>
+      <li><a href="#unique-per-sample-labels">Unique per-sample labels</a></li>
       <li><a href="#passthrough-resampling">“Passthrough” Resampling</a></li>
       </ul>
 </div>

@@ -14,7 +14,7 @@ set.seed(19861108)
 library(fabricatr)
 ```
 
-**fabricatr** makes it easy to generate common social science variables. While our other online tutorials focus on exploring the full extent of **fabricatr**'s capabilities, this tutorial focuses on simple plain-English introductions to common variable types used in social science research, along with an introduction to the statistical terminology associated with them. Examples are drawn from pre-analysis plans filed with [Evidence in Governance and Politics](http://egap.org) (EGAP). 
+**fabricatr** makes it easy to generate common social science variables. While our other online tutorials focus on exploring the full extent of **fabricatr**'s capabilities, this tutorial focuses on simple plain-English introductions to common variable types used in social science research, along with an introduction to the statistical terminology associated with them. Examples are drawn from pre-analysis plans filed with [Evidence in Governance and Politics](http://egap.org) (EGAP).
 
 **If you already feel comfortable understanding these concepts and would prefer a technical manual for our variable creation functions, please consult our [Generating Variables](http://fabricatr.declaredesign.org/articles/variable_generation.html) tutorial.**
 
@@ -73,7 +73,7 @@ latent_example = function(x, density_x) {
        ylim=c(-0.2, 0.5)
   )
   text(0, -0.1, "Latent Variable")
-  
+
   for(x in c(-1.5, -0.5, 0.5, 1.5)) {
     lines(c(x, x), c(-0.03, 0.5), lty=2, col="lightgrey")
   }
@@ -92,7 +92,7 @@ latent_example = function(x, density_x) {
 latent_example(x = seq(-2.8, 2.8, 0.001), density_x = dnorm(seq(-2.8, 2.8, 0.001)))
 ```
 
-In the above graph, most respondents (the "density" represented by the height of the curve) are neutral about the mayor, and relatively few hold extreme opinions. We generated a "normal" latent variable for our respondents and then translate this to the ordered outcome. The simplest normal variable is the "standard normal", a random variable whose mean (center) is 0, and whose standard deviation (spread) is 1. So, although it is not shown in the graph above, the dashed lines which divide the ordered outcomes are located at -1.5, -0.5, 0.5, and 1.5. 
+In the above graph, most respondents (the "density" represented by the height of the curve) are neutral about the mayor, and relatively few hold extreme opinions. We generated a "normal" latent variable for our respondents and then translate this to the ordered outcome. The simplest normal variable is the "standard normal", a random variable whose mean (center) is 0, and whose standard deviation (spread) is 1. So, although it is not shown in the graph above, the dashed lines which divide the ordered outcomes are located at -1.5, -0.5, 0.5, and 1.5.
 
 Of course it would also be possible to affect the center and spread of this question:
 
@@ -116,7 +116,7 @@ table(mayor_approval)
 knitr::kable(table(mayor_approval))
 ```
 
-Let's look at this `draw_ordered` example. `draw_ordered` requires three pieces of information from us: `x` (the latent variable), `breaks` (the places in the latent variable which divide the categories in the ordered outcome), and `break_labels` (which label the resulting ordered outcome). 
+Let's look at this `draw_ordered` example. `draw_ordered` requires three pieces of information from us: `x` (the latent variable), `breaks` (the places in the latent variable which divide the categories in the ordered outcome), and `break_labels` (which label the resulting ordered outcome).
 
 For `x`, we use the `rnorm` command to generate 100 standard normal draws representing our respondents. For `breaks` and `break_labels`, we mark and label the breaks as we did above.
 
@@ -144,7 +144,7 @@ latent_example_parties = function(x, density_x, density_x2) {
   )
   lines(x, density_x2, col="blue")
   text(0, -0.1, "Latent Variable")
-  
+
   for(x in c(-1.5, -0.5, 0.5, 1.5)) {
     lines(c(x, x), c(-0.03, 0.5), lty=2, col="lightgrey")
   }
@@ -160,7 +160,7 @@ latent_example_parties = function(x, density_x, density_x2) {
   par(mar=current_margins)
 }
 
-latent_example_parties(x = seq(-2.8, 2.8, 0.001), 
+latent_example_parties(x = seq(-2.8, 2.8, 0.001),
                density_x = dnorm(seq(-3.8, 1.8, 0.001), sd=0.7),
                density_x2 = dnorm(seq(-1.8, 3.8, 0.001), sd=0.7)
                )
@@ -198,7 +198,7 @@ mayor_approval <- draw_ordered(x = runif(n = 100, min = -2.5, max = 2.5),
                                                 "Strongly Agree"))
 ```
 
-Users who are new to the `R` programmming language and want to know more about other statistical distributions beyond the `norm` and `unif` distributions used here, should run the command `?Distributions` in the R console. 
+Users who are new to the `R` programmming language and want to know more about other statistical distributions beyond the `norm` and `unif` distributions used here, should run the command `?Distributions` in the R console.
 
 ## Likert Data
 
@@ -225,7 +225,7 @@ These data are often called "categorical" data -- a given person has a probabili
 Imagine that researchers are conducting a survey in Kenya. They wish to capture the country's four largest ethnic groups: Kikuyu, Luhya, Kalenjin, Luo, and are also interested in capturing the smaller Maasai group. Other respondents are identified as "Other". When preparing their research, the researchers must simulate the ethnicity of their expected respondents, so they first gather the proportions of each group,
 
 ```{r echo=FALSE}
-total_pop = 38610097 
+total_pop = 38610097
 group_counts = c(6622576, 5338666, 4967328, 4044440, 841622)
 other_count = total_pop - sum(group_counts)
 display_counts = c(group_counts, other_count)
@@ -261,8 +261,8 @@ efficacy_experiment <- fabricate(
   N = 1000,
   treatment = draw_binary(0.5, N),
   pre_outcome = rnorm(N, mean = 70, sd = 15),
-  post_outcome = pre_outcome + rnorm(N, 
-                                     mean = ifelse(treatment, 15, 0), 
+  post_outcome = pre_outcome + rnorm(N,
+                                     mean = ifelse(treatment, 15, 0),
                                      sd = 10)
 )
 ```
@@ -281,8 +281,8 @@ fixed_efficacy_experiment <- fabricate(
     pmax(rnorm(N, mean = 70, sd = 15), 0),
     100),
   post_outcome = pmin(
-    pmax(pre_outcome + rnorm(N, 
-                             mean = ifelse(treatment, 15, 0), 
+    pmax(pre_outcome + rnorm(N,
+                             mean = ifelse(treatment, 15, 0),
                              sd = 10), 0),
     100)
 )
@@ -298,7 +298,7 @@ hist(fixed_efficacy_experiment$post_outcome,
      xlab = "Post-Treatment Outcome: Score from 0 to 100")
 ```
 
-## Count outcomes and skewed distributions 
+## Count outcomes and skewed distributions
 
 Researchers may be interested in "count" outcomes, which describe a count of events of interest during a fixed time period. For our example in this section, we draw from "Propaganda and Conflict: Evidence from the Rwandan Genocide" (Yanagizawa-Drott 2014), an article which uses a quasi-experimental design to establish an association between the broadcasts of Radio Télévision Libre des Mille Collines and local instances of violence during the Rwandan Genocide. Substantively, the paper's conclusion is that higher density in radio coverage is associated with greater local participation in genocidal violence.
 
@@ -306,11 +306,11 @@ In our version of this data, we have two variables of interest: number of violen
 
 First, to model the number of violent incidents, we make use of **fabricatr**'s `draw_count` function, which is quite simple -- it needs two arguments: `mean`, which describes the mean count, and `N`, which describes how many units you need count data for. Statistically, this function generates "Poisson-distributed" count data. This is one of the typical distributions used for count data.
 
-Second, to model the radio covarage, we might believe radio coverage is an example of skewed data; in other words, few urban areas might have extremely dense radio coverage, while many rural areas might have very low radio coverage. We, thus, need a data distribution that looks like this: 
+Second, to model the radio covarage, we might believe radio coverage is an example of skewed data; in other words, few urban areas might have extremely dense radio coverage, while many rural areas might have very low radio coverage. We, thus, need a data distribution that looks like this:
 
 ```{r echo=FALSE, fig.width=7, fig.height=3}
-plot(seq(0, 10, by=0.01), 
-     dlnorm(seq(0, 10, by=0.01)), 
+plot(seq(0, 10, by=0.01),
+     dlnorm(seq(0, 10, by=0.01)),
      type="l",
      main="Hypothesized distribution of Radio Coverage",
      xlab="Density of Radio Coverage",
@@ -322,7 +322,7 @@ axis(side = 1,
      labels = c("0", "Low", "High"))
 ```
 
-`R` makes available a fairly simple function for generating this sort of data, `rlnorm`, which generates log-normal data. Log-normal data is one of the key distributions used to model data with a skew like the one we hypothesize: for example, income data in a population (where relatively few wealthy people have substantially more income than relatively many working class people). `rlnorm` takes three arguments: `n` (the number of observations), `meanlog` (the mean of the log-transformed data), and `sdlog` (the standard deviation of the log-transformed data). 
+`R` makes available a fairly simple function for generating this sort of data, `rlnorm`, which generates log-normal data. Log-normal data is one of the key distributions used to model data with a skew like the one we hypothesize: for example, income data in a population (where relatively few wealthy people have substantially more income than relatively many working class people). `rlnorm` takes three arguments: `n` (the number of observations), `meanlog` (the mean of the log-transformed data), and `sdlog` (the standard deviation of the log-transformed data).
 
 ```{r results="hide"}
 rtlme_model <- fabricate(
@@ -350,7 +350,7 @@ min_set <- loess_np$fit - 1.96 * loess_np$se.fit
 max_set <- loess_np$fit + 1.96 * loess_np$se.fit
 ordered_x <- order(rtlme_model$radio_coverage)
 rug(rtlme_model$radio_coverage)
-lines(rtlme_model$radio_coverage[ordered_x], 
+lines(rtlme_model$radio_coverage[ordered_x],
       fit_loess$fitted[ordered_x],
       col="red"
       )
@@ -366,7 +366,7 @@ lines(rtlme_model$radio_coverage[ordered_x],
 
 Observe that the uncertainty around our predictions is far wider at the right end of the support, which has relatively little data, than at the left end of the support, where most of the data lives.
 
-Thinking about choosing parameters for `meanlog` and `sdlog` is somewhat more mathematically complex in skewed distributions and depending on your use for, you might choose different parameters. Consult `R`'s documentation on log-normal data by running `?Lognormal`. In addition, you may find it useful to investigate other distributions commonly used for this purpose including `?Beta` and `?Gamma`. 
+Thinking about choosing parameters for `meanlog` and `sdlog` is somewhat more mathematically complex in skewed distributions and depending on your use for, you might choose different parameters. Consult `R`'s documentation on log-normal data by running `?Lognormal`. In addition, you may find it useful to investigate other distributions commonly used for this purpose including `?Beta` and `?Gamma`.
 
 Below we present an example of generating income data which roughly approximates the current U.S. income distribution using the `rgamma` function. The parameters of this income function were derived by [extracting quantiles of the current U.S. income distribution](https://dqydj.com/income-percentile-calculator/) and then selecting the gamma distribution parameters and multipliers which best fit the data:
 
@@ -377,10 +377,10 @@ population_data <- fabricate(
 )
 ```
 
-In addition to the helper functions provided by **fabricatr** and the built-in `R` distributions suitable for generating skewed data, other `R` packages like [**sn**](https://cran.r-project.org/web/packages/sn/index.html) also include useful functions for generating skewed data and can be incorporated into `fabricate` calls.
+In addition to the helper functions provided by **fabricatr** and the built-in `R` distributions suitable for generating skewed data, other `R` packages like [**sn**](https://cran.r-project.org/package=sn) also include useful functions for generating skewed data and can be incorporated into `fabricate` calls.
 
 ## What's next?
 
 This brings us to the end of this introductory tutorial on common social science variables. As a next step, our tutorial on [variable generation with **fabricatr**](http://fabricatr.declaredesign.org/articles/variable_generation.html) -- targeted to a slightly more technical audience -- contains more examples of the kinds of variables you can easily create with **fabricatr**. In addition, we have tutorials on creating [time series variables](http://fabricatr.declaredesign.org/articles/time_series.html), and on [using other variable creation packages with **fabricatr**](http://fabricatr.declaredesign.org/articles/other_packages.html).
 
-Finally, if you are in interested in learning about how to structure your data (for example, to generate multi-level, panel, or cross-classified data), you can consult our tutorials on [http://fabricatr.declaredesign.org/articles/building_importing.html](building data in **fabricatr**), and [http://fabricate.declaredesign.org/articles/cross_classified.html](panel and cross-classified data in **fabricatr**).
+Finally, if you are in interested in learning about how to structure your data (for example, to generate multi-level, panel, or cross-classified data), you can consult our tutorials on [building data in **fabricatr**](http://fabricatr.declaredesign.org/articles/building_importing.html), and [panel and cross-classified data in **fabricatr*](http://fabricatr.declaredesign.org/articles/cross_classified.html).

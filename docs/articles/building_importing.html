@@ -277,8 +277,8 @@ my_data</code></pre></div>
     ),
     <span class="dt">provinces =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(
       <span class="dt">N =</span> <span class="dv">10</span>,
-      <span class="dt">natural_resources =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.3</span>, <span class="dt">N =</span> N),
-      <span class="dt">manufacturing =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.7</span>, <span class="dt">N =</span> N)
+      <span class="dt">natural_resources =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.3</span>, <span class="dt">N =</span> N),
+      <span class="dt">manufacturing =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">prob =</span> <span class="fl">0.7</span>, <span class="dt">N =</span> N)
     )
   )
 <span class="kw">head</span>(country_data)</code></pre></div>
@@ -343,7 +343,7 @@ my_data</code></pre></div>
 </tbody>
 </table>
 <p>Several things can be observed in this example. First, fabricate knows that your second <code><a href="../reference/fabricate.html">add_level()</a></code> command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable “N” changes. During the <code><a href="../reference/fabricate.html">add_level()</a></code> call for countries, N is 5. During the <code><a href="../reference/fabricate.html">add_level()</a></code> call for provinces, N is 10. And the resulting data, of course, has 50 observations.</p>
-<p>Finally, the province-level variables are created using the <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> function. This is a function provided by <strong>fabricatr</strong> to make simulating discrete random variables simple. When you simulate your own data, you can use <strong>fabricatr</strong>’s functions, R’s built-ins, or any custom functions you wish. <code><a href="../reference/draw_binomial.html">draw_binary()</a></code> is explained in <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">our tutorial on variable generation using <strong>fabricatr</strong></a></p>
+<p>Finally, the province-level variables are created using the <code><a href="../reference/draw_discrete.html">draw_binary()</a></code> function. This is a function provided by <strong>fabricatr</strong> to make simulating discrete random variables simple. When you simulate your own data, you can use <strong>fabricatr</strong>’s functions, R’s built-ins, or any custom functions you wish. <code><a href="../reference/draw_discrete.html">draw_binary()</a></code> is explained in <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">our tutorial on variable generation using <strong>fabricatr</strong></a></p>
 </div>
 <div id="adding-hierarchy-to-existing-data" class="section level1">
 <h1 class="hasAnchor">
@@ -526,17 +526,17 @@ my_data</code></pre></div>
     <span class="dt">data =</span> citizen_data,
     <span class="dt">countries =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(<span class="dt">average_temperature =</span> <span class="kw">runif</span>(N, <span class="dv">30</span>, <span class="dv">80</span>)),
     <span class="dt">provinces =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(
-      <span class="dt">conflict_zone =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(N, <span class="dt">prob =</span> <span class="fl">0.2</span> <span class="op">+</span><span class="st"> </span>natural_resources <span class="op">*</span><span class="st"> </span><span class="fl">0.3</span>),
+      <span class="dt">conflict_zone =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(N, <span class="dt">prob =</span> <span class="fl">0.2</span> <span class="op">+</span><span class="st"> </span>natural_resources <span class="op">*</span><span class="st"> </span><span class="fl">0.3</span>),
       <span class="dt">infant_mortality =</span> <span class="kw">runif</span>(N, <span class="dv">0</span>, <span class="dv">10</span>) <span class="op">+</span><span class="st"> </span>conflict_zone <span class="op">*</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span>
 <span class="st">        </span>(average_temperature <span class="op">&gt;</span><span class="st"> </span><span class="dv">70</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>
     ),
     <span class="dt">citizens =</span> <span class="kw"><a href="../reference/fabricate.html">modify_level</a></span>(
-      <span class="dt">college_degree =</span> <span class="kw"><a href="../reference/draw_binomial.html">draw_binary</a></span>(N, <span class="dt">prob =</span> <span class="fl">0.4</span> <span class="op">-</span><span class="st"> </span>(<span class="fl">0.3</span> <span class="op">*</span><span class="st"> </span>conflict_zone))
+      <span class="dt">college_degree =</span> <span class="kw"><a href="../reference/draw_discrete.html">draw_binary</a></span>(N, <span class="dt">prob =</span> <span class="fl">0.4</span> <span class="op">-</span><span class="st"> </span>(<span class="fl">0.3</span> <span class="op">*</span><span class="st"> </span>conflict_zone))
     )
   )</code></pre></div>
 <p>Before assessing what this tells us about <code><a href="../reference/fabricate.html">modify_level()</a></code>, let’s consider what the data simulated does. It creates a new variable at the country level, for a country level average temperature. Subsequently, it creates a province level binary indicator for whether the province is an active conflict site. Provinces that have natural resources are more likely to be in conflict in this simulation, drawing on conclusions from literature on “resource curses”. The infant mortality rate for the province is able to depend both on province level data we have just generated, and country-level data: it is higher in high-temperature areas (reflecting literature on increased disease burden near the equator) and also higher in conflict zones. Citizen access to education is also random, but depends on whether they live in a conflict area.</p>
 <p>There are a lot of things to learn from this example. First, it’s possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according – by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one <code><a href="../reference/fabricate.html">modify_level()</a></code> call can be used in subsequent variables of the same call, or subsequent calls.</p>
-<p>Again, we see the use of <code><a href="../reference/draw_binomial.html">draw_binary()</a></code>. Using this function is covered in our tutorial on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">generating discrete random variables</a>, linked below.</p>
+<p>Again, we see the use of <code><a href="../reference/draw_discrete.html">draw_binary()</a></code>. Using this function is covered in our tutorial on <a href="http://fabricatr.declaredesign.org/articles/variable_generation.html">generating discrete random variables</a>, linked below.</p>
 </div>
 <div id="averages-within-higher-levels-of-hierarchy" class="section level1">
 <h1 class="hasAnchor">

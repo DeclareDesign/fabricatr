@@ -167,8 +167,8 @@ global_trend_example &lt;-<span class="st"> </span><span class="kw"><a href="../
   <span class="dt">years =</span> <span class="kw"><a href="../reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> <span class="dv">5</span>,
     <span class="dt">ts_year =</span> <span class="dv">0</span><span class="op">:</span><span class="dv">4</span>,
-    <span class="dt">gdp_measure =</span> base_gdp <span class="op">+</span><span class="st"> </span>
-<span class="st">      </span>(ts_year <span class="op">*</span><span class="st"> </span>global_trend) <span class="op">+</span><span class="st"> </span>(ts_year <span class="op">*</span><span class="st"> </span>growth_units) <span class="op">+</span><span class="st"> </span>
+    <span class="dt">gdp_measure =</span> base_gdp <span class="op">+</span>
+<span class="st">      </span>(ts_year <span class="op">*</span><span class="st"> </span>global_trend) <span class="op">+</span><span class="st"> </span>(ts_year <span class="op">*</span><span class="st"> </span>growth_units) <span class="op">+</span>
 <span class="st">      </span><span class="kw">rnorm</span>(N, <span class="dt">sd=</span>growth_error)
   )
 )</code></pre></div>

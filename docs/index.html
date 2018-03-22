@@ -149,8 +149,8 @@ house_members &lt;-<span class="st"> </span><span class="kw"><a href="reference/
   ),
   <span class="dt">rep_id =</span> <span class="kw"><a href="reference/fabricate.html">add_level</a></span>(
     <span class="dt">N =</span> party_incumbents, <span class="dt">member_ideology =</span> <span class="kw">rnorm</span>(N, party_ideology, <span class="dt">sd =</span> <span class="fl">0.5</span>),
-    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">mean =</span> <span class="dv">4</span>),
-    <span class="dt">female =</span> <span class="kw"><a href="reference/draw_binomial.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.198</span>)
+    <span class="dt">terms_served =</span> <span class="kw"><a href="reference/draw_discrete.html">draw_count</a></span>(<span class="dt">N =</span> N, <span class="dt">mean =</span> <span class="dv">4</span>),
+    <span class="dt">female =</span> <span class="kw"><a href="reference/draw_discrete.html">draw_binary</a></span>(<span class="dt">N =</span> N, <span class="dt">prob =</span> <span class="fl">0.198</span>)
   )
 )</code></pre></div>
 <table class="table">

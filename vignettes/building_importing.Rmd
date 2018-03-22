@@ -21,7 +21,7 @@ library(fabricatr)
 
 # Basics
 
-Using **fabricatr** begins by calling the function `fabricate()`. `fabricate()` can be used to create single-level of hierarchical data. There are three main ways to call `fabricate()`: 
+Using **fabricatr** begins by calling the function `fabricate()`. `fabricate()` can be used to create single-level of hierarchical data. There are three main ways to call `fabricate()`:
 
 * Making a single-level dataset by specifying how many observations you would like
 * Making a single-level dataset by importing data and optionally modifying it by creating new variables
@@ -152,7 +152,7 @@ head(new_country_data)
 knitr::kable(head(new_country_data), format.args=list(big.mark = ","))
 ```
 
-We can observe that the new variable is created at the level of aggregation you chose -- countries. Also, although N is not specified anywhere, `modify_level()` knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the `modify_level()` command is correctly assigned to the level of interest. We can also modify more than one level. 
+We can observe that the new variable is created at the level of aggregation you chose -- countries. Also, although N is not specified anywhere, `modify_level()` knows how large N should be based on the number of countries it finds in the dataset. It is important, then, to ensure that the `modify_level()` command is correctly assigned to the level of interest. We can also modify more than one level.
 
 Here, we modify our country-province-citizen data from above:
 
@@ -180,7 +180,7 @@ Again, we see the use of `draw_binary()`. Using this function is covered in our 
 
 # Averages within higher levels of hierarchy
 
-A powerful feature of nested data and **fabricatr**'s setup is that variable creating can access variables from higher in 
+A powerful feature of nested data and **fabricatr**'s setup is that variable creating can access variables from higher in
 
 You may want to include the mean value of a variable within a group defined by a higher level of the hierarchy, for example the average income of citizens within city. You can do this with `ave()`, a built-in `R` command:
 

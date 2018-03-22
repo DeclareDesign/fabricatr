@@ -36,7 +36,7 @@ install.packages("fabricatr", dependencies = TRUE,
 
 ### Getting started
 
-Once you have installed **fabricatr**, you can easily import your own data or generate new data. **fabricatr** is designed to help you solve two key problems: 
+Once you have installed **fabricatr**, you can easily import your own data or generate new data. **fabricatr** is designed to help you solve two key problems:
 
 1. Generating variables that look like the real thing, including Likert survey responses, treatment status, demographic variables, and variables correlated by group.
 2. Generating data that are structured like the real thing, including panel data, multi-level ("nested") data or cross-classified data.
