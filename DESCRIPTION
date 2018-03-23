@@ -23,3 +23,4 @@ Suggests:
     testthat,
     data.table,
     mvnfast
+Additional_Repositories: http://r.declaredesign.org	
