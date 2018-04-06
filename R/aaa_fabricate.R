@@ -59,7 +59,7 @@
 #' multi_level_df <- fabricate(
 #'  regions = add_level(N = 5),
 #'  cities = add_level(N = 2, pollution = rnorm(N, mean = 5)))
-#' head(df)
+#' head(multi_level_df)
 #'
 #' # Start with existing data and add a nested level:
 #' company_df <- fabricate(

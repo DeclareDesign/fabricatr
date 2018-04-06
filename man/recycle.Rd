@@ -20,3 +20,10 @@ This function is a helper function designed call `rep_len` to expand the
 length of a data vector, but which can dynamically retrieve N from the
 surrounding level call for use in fabricatr.
 }
+\examples{
+
+fabricate(
+  N = 15,
+  month = recycle(month.abb)
+)
+}
