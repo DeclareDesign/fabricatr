@@ -31,6 +31,7 @@ A data.frame
 \description{
 This function allows you to resample any data frame. The default mode
 performs a single resample of size \code{N} without replacement. Users can
+performs a single resample of size \code{N} with replacement. Users can
 also specify more complex resampling strategies to resample hierarchical
 data.
 }
