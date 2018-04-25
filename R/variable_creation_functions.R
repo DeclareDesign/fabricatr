@@ -214,7 +214,7 @@ draw_categorical <- function(prob = link(latent), N = NULL,
       )
     }
   }
-  if (!all(apply(prob, 1, min) > 0)) {
+  if (any(prob < 0)) {
     stop(
       "For a categorical (multinomial) distribution, the elements of `prob` ",
       "should be positive and sum to a positive number."
