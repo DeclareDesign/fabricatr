@@ -557,18 +557,18 @@ report_results <- function(working_environment) {
 check_variables_named <- function(data_arguments, call_type = "add_level") {
   if(any(names(data_arguments) == "")) {
     # Generate some debug to help the user. Which was unnamed?
-    number_named = sum(names(data_arguments) != "")
-    new_names = paste(ifelse(names(data_arguments) != "",
+    number_named <- sum(names(data_arguments) != "")
+    new_names <- paste(ifelse(names(data_arguments) != "",
                              names(data_arguments),
                              "<unnamed>"),
                       collapse=", ")
-    pluralized_main = ifelse(length(data_arguments) != 1,
+    pluralized_main <- ifelse(length(data_arguments) != 1,
                              "variables",
                              "variable")
-    pluralized_named = ifelse(number_named != 1,
+    pluralized_named <- ifelse(number_named != 1,
                               "variables",
                               "variable")
-    pluralized_verb = ifelse(length(data_arguments) != 1,
+    pluralized_verb <- ifelse(length(data_arguments) != 1,
                              "were",
                              "was")
 
