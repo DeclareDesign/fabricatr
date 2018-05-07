@@ -59,6 +59,8 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     # Coerce the working data frame into a list
     working_data_list <- as.list(working_environment_$data_frame_output_)
 
+    check_variables_named(data_arguments, "modify_level")
+
     # Now loop over the variable creation.
     for (i in names(data_arguments)) {
       # Evaluate the formula in an environment consisting of:
