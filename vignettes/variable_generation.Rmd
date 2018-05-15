@@ -276,7 +276,7 @@ If you do not specify a vector of probabilities or a correlation coefficient, th
 
 `draw_normal_icc()` takes four required arguments: `mean`, a mean or vector of means, one for each cluster; `clusters`, a map of units to clusters (required to generate the correlation structure); `ICC`, the fixed intra-cluster correlation coefficient; and `sd`, a standard deviation or vector of standard deviations, one for each cluster. Users can optionally specify `N`, a number of units, but if it is not supplied `draw_normal_icc()` will determine it based on the length of the `clusters` vector.
 
-If `sd` is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1. If `mean` is not supplied, each cluster will be assumed to be mean zero. If `ICC` is not supplied, it will be set to 0.5.
+If `sd` is not supplied, each cluster will be assumed to have a within-cluster standard deviation of 1 and the `sd_between` will be implied by this `sd` and the `ICC` parameter. If `mean` is not supplied, each cluster will be assumed to be mean zero. 
 
 Here, we model student academic performance by cluster:
 ```{r echo=FALSE}
@@ -308,6 +308,8 @@ knitr::kable(table(clusters, letter_grade))
 ```
 
 It is obvious upon inspection that two of the clusters contain academic high-performers, while two of the clusters have a substantial failure rate. Although each cluster has the same mean in expectation, the induced intra-cluster correlation forces some clusters higher and others lower.
+
+Alternatively, users can specify `ICC` and `total_sd`. The resulting variable will be rescaled to have a standard deviation exactly equal to `total_sd`. 
 
 # Next Steps
 

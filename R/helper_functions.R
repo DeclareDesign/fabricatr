@@ -552,3 +552,45 @@ add_variable_name <- function(working_environment_, variable_name) {
 report_results <- function(working_environment) {
   return(working_environment$data_frame_output_)
 }
+
+# Helper function to check for variable naming errors.
+check_variables_named <- function(data_arguments, call_type = "add_level") {
+  if(any(names(data_arguments) == "")) {
+    # Generate some debug to help the user. Which was unnamed?
+    number_named <- sum(names(data_arguments) != "")
+    new_names <- paste(ifelse(names(data_arguments) != "",
+                             names(data_arguments),
+                             "<unnamed>"),
+                      collapse=", ")
+    pluralized_main <- ifelse(length(data_arguments) != 1,
+                             "variables",
+                             "variable")
+    pluralized_named <- ifelse(number_named != 1,
+                              "variables",
+                              "variable")
+    pluralized_verb <- ifelse(length(data_arguments) != 1,
+                             "were",
+                             "was")
+
+    if(length(data_arguments) > 1 &&
+       any(names(data_arguments)[1:(length(data_arguments)-1)] == "")) {
+      # There was a variable inside the call that wasn't named.
+      stop("All variables inside a level call must be named. This ",
+           call_type, " call contained ", length(data_arguments), " ",
+           pluralized_main, " but ", number_named, " named ",
+           pluralized_named, ". In order, the ", pluralized_main, " supplied ",
+           pluralized_verb, " named: ", new_names, ".")
+    } else {
+      # There was a variable at the end of the call that wasn't named.
+      # Hanging comma? Maybe?
+      stop("All variables inside a level call must be named. This ",
+           call_type, " call contained ", length(data_arguments), " ",
+           pluralized_main, " but ", number_named, " named ",
+           pluralized_named, ". In order, the ", pluralized_main, " supplied ",
+           pluralized_verb, " named: ", new_names, ". A possible cause ",
+           "of this error could be a 'hanging comma' at the end of the ",
+           "list of variables. Please remove 'hanging commas', if any, from ",
+           "the variable list.")
+    }
+  }
+}

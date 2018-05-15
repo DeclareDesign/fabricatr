@@ -92,6 +92,8 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
     add_variable_name(working_environment_, ID_label)
   }
 
+  check_variables_named(data_arguments)
+
   # Loop through each of the variable generating arguments
   for (i in names(data_arguments)) {
 
