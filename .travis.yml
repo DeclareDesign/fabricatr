@@ -8,7 +8,7 @@ matrix:
     r: release
     
   - os: linux
-    r: oldrel
+    r: 3.4
     after_success:
     - echo skipping source packaging on linux/oldrel
     
@@ -22,7 +22,7 @@ matrix:
     if: branch = master
 
   - os: osx
-    r: oldrel
+    r: 3.4
     if: branch = master
 
 env:
