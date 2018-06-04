@@ -86,8 +86,7 @@
 #'                           by=join(ps_quality, ss_quality, rho = 0.5),
 #'                           student_quality = ps_quality + 3*ss_quality + rnorm(N)))
 #' @seealso \code{\link{link_levels}}
-#' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args
-#' @importFrom rlang lang_args_names
+#' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args lang_args_names quo_squash
 #' is_lang get_expr
 #'
 #' @export
@@ -106,21 +105,30 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   # The user did not seem to do one of the three possible things we can do.
   # Maybe they anonymously passed data or N.
   if (!explicit_data_supplied && !explicit_n_supplied) {
+
     first_unnamed_arg <- which(names(data_arguments) == "" &
                                  call_not_level_call(data_arguments))[1]
 
+
     # Let's check the first unnamed argument.
-    if(!is.na(first_unnamed_arg) &&
-       first_unnamed_arg <= length(data_arguments)) {
+    if (!is.na(first_unnamed_arg) &&
+        first_unnamed_arg <= length(data_arguments)) {
+
+      # check if the first unnamed arg is empty (probably misplaced comma)
+      if (quo_squash(data_arguments[[first_unnamed_arg]]) == "") {
+        stop("There appears to be a blank argument. Is there a misplaced comma?", call. = FALSE)
+      }
+
       # Eval it; whether it's data or N, we don't need any environment
       # from anything else. If it fails, not great.
       evaluate_first_arg <- eval_tidy(data_arguments[[first_unnamed_arg]])
 
       # If they supplied a list or data frame, they meant data.
-      if(is.list(evaluate_first_arg) || is.data.frame(evaluate_first_arg)) {
+      if (is.list(evaluate_first_arg) ||
+          is.data.frame(evaluate_first_arg)) {
         data <- evaluate_first_arg
-      } else if(is.null(dim(evaluate_first_arg)) &&
-                is.numeric(evaluate_first_arg) &&
+      } else if (is.null(dim(evaluate_first_arg)) &&
+                 is.numeric(evaluate_first_arg) &&
                 length(evaluate_first_arg) == 1) {
         # If they supplied a number, they meant N, we think.
         N <- evaluate_first_arg

@@ -114,3 +114,10 @@ test_that("Two separate types of unnamed variables", {
                                               rnorm(N),
                                               bob = rnorm(N))))
 })
+
+test_that("Unnamed level", {
+  expect_error(fabricate(my_level_1 = add_level(N = 5),
+            add_level(N = 5)))
+})
+
+
