@@ -15,8 +15,8 @@ ordered, and categorical}
 draw_binomial(prob = link(latent), trials = 1, N = length(prob),
   latent = NULL, link = "identity", quantile_y = NULL)
 
-draw_categorical(prob = link(latent), N = NULL, latent = NULL,
-  link = "identity", category_labels = NULL)
+draw_categorical(prob = latent, N = NULL, latent = NULL,
+  category_labels = NULL)
 
 draw_ordered(x = link(latent), breaks = c(-1, 0, 1), break_labels = NULL,
   N = length(x), latent = NULL, link = "identity", quantile_y = NULL)

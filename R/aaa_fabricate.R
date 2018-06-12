@@ -116,7 +116,8 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
 
       # check if the first unnamed arg is empty (probably misplaced comma)
       if (quo_squash(data_arguments[[first_unnamed_arg]]) == "") {
-        stop("There appears to be a blank argument. Is there a misplaced comma?", call. = FALSE)
+        stop("There appears to be a blank argument. Is there a misplaced ",
+             "comma?", call. = FALSE)
       }
 
       # Eval it; whether it's data or N, we don't need any environment

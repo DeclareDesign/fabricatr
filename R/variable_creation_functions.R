@@ -179,18 +179,9 @@ draw_binomial <- function(prob = link(latent),
 
 #' @rdname draw_discrete
 #' @export
-draw_categorical <- function(prob = link(latent), N = NULL,
+draw_categorical <- function(prob = latent, N = NULL,
                              latent = NULL,
-                             link = "identity",
                              category_labels = NULL) {
-
-  # Handle link function - try matching normal way, and fallback
-  # to manual logic for probit/logit
-  link <- tryCatch(match.fun(link), error = handle_link_functions(link))
-
-  if (!identical(link, identity)) {
-    stop("Categorical data does not accept link functions.")
-  }
 
   if (is.null(dim(prob))) {
     if (is.vector(prob) && is.numeric(prob) && length(prob) > 1) {
