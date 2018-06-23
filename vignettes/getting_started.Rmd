@@ -51,7 +51,7 @@ knitr::kable(voters[sample.int(nrow(voters), 5, replace = FALSE), c(2, 3, 4, 6, 
 
 Modeling data like this allows common analyses in advance of conducting your experiment. This data can also be included in a pre-analysis plan to add clarity to your experimental design and contribute to improving transparency and replicability. **fabricatr** also allows you to import existing data and modify it easily, or to resample existing data into new, simulated populations.
 
-If you'd like to read more about using **fabricatr** to model the variables you plan to collect in your experiment, see our guide on [common social science variables](http://fabricatr.declaredesign.org/articles/common_social.html), our technical manual on [generating variables with **fabricatr**](http://fabricatr.declaredesign.org/articles/variable_generation.html), or our tutorials on [resampling data](http://fabricatr.declaredesign.org/articles/resampling.html) or [integrating other data-generating packages into a **fabricatr** workflow.](http://fabricatr.declaredesign.org/articles/other_packages.html).
+If you'd like to read more about using **fabricatr** to model the variables you plan to collect in your experiment, see our guide on [common social science variables](/R/fabricatr/articles/common_social.html), our technical manual on [generating variables with **fabricatr**](/R/fabricatr/articles/variable_generation.html), or our tutorials on [resampling data](/R/fabricatr/articles/resampling.html) or [integrating other data-generating packages into a **fabricatr** workflow.](/R/fabricatr/articles/other_packages.html).
 
 ## 2. Structuring your data
 
@@ -71,10 +71,10 @@ panel <- fabricate(
 )
 ```
 
-If you'd like to read more about using **fabricatr** to structure your data, see our guides on [building and importing datasets](http://fabricatr.declaredesign.org/articles/building_importing.html) in **fabricatr**, [generating cross-classified and panel  data](http://fabricatr.declaredesign.org/articles/cross_classified.html), or [resampling data](http://fabricatr.declaredesign.org/articles/resampling.html) with **fabricatr**.
+If you'd like to read more about using **fabricatr** to structure your data, see our guides on [building and importing datasets](/R/fabricatr/articles/building_importing.html) in **fabricatr**, [generating cross-classified and panel  data](/R/fabricatr/articles/cross_classified.html), or [resampling data](/R/fabricatr/articles/resampling.html) with **fabricatr**.
 
 ## DeclareDesign
 
-**fabricatr** is one of four packages that make up the DeclareDesign software suite. Along with **fabricatr**, which helps you imagine your data before you collect it, we offer [**estimatr**](http://estimatr.declaredesign.org/), fast estimators for social scientists, [**randomizr**](http://randomizr.declaredesign.org/), an easy to use tools for common forms of random assignment and sampling, and [**DeclareDesign**](http://declaredesign.org/), a package for declaring and diagnosing research designs to understand and improve them.
+**fabricatr** is one of four packages that make up the DeclareDesign software suite. Along with **fabricatr**, which helps you imagine your data before you collect it, we offer [**estimatr**](/R/estimatr), fast estimators for social scientists, [**randomizr**](/R/randomizr), an easy to use tools for common forms of random assignment and sampling, and [**DeclareDesign**](/), a package for declaring and diagnosing research designs to understand and improve them.
 
 In addition to our documentation in `R` and online, we are happy to respond to any questions you have about using our packages, or incorporate your requests for new features. You can contact us via the  [**DeclareDesign** help board](http://discuss.declaredesign.org/).
