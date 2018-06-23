@@ -42,13 +42,15 @@ import_data_list <- function(data) {
 
     uu <- sprintf("%X-%X", as.integer(Sys.time()), sample.int(.Machine$integer.max, 1))
 
+    workspace[[uu]] <- df
+
     # Now copy the current data into the environment
     workspace$data_frame_output_ <- df
     workspace$variable_names_ <- names(df)
 
   }
 
-  structure(workspace, active=uu, insertion_order=c())
+  structure(workspace, active_df=uu, insertion_order=c())
 }
 
 shelf_working_data <- function(working_environment_) {
@@ -472,7 +474,7 @@ add_variable_name <- function(working_environment_, variable_name) {
 # environment. This exists because we may in the future want to return something
 # that is not a data frame.
 report_results <- function(workspace) {
-  # active_df <- attr(workspace, "active")
-  # workspace[[active_df]]
-  workspace$data_frame_output_
+  active_df <- attr(workspace, "active_df")
+  if(!is.null(active_df)) workspace[[active_df]]
+  else workspace$data_frame_output_
 }

@@ -235,6 +235,9 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
 
     }
 
+    uu <- attr(working_environment, "active_df")
+    if(!is.null(uu)) working_environment[[uu]] <- working_environment$data_frame_output_
+
 
     # Run the level adder, report the results, and return
     ret <- if (is_empty(dots)) working_environment else

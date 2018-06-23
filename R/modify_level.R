@@ -42,8 +42,11 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     # There is no subsetting going on, but modify_level was used anyway.
     N <- nrow(working_environment_$data_frame_output_)
 
+    workspace <- working_environment_
+    uu <- attr(workspace, "active_df")
+
     # Coerce the working data frame into a list
-    working_data_list <- as.list(working_environment_$data_frame_output_)
+    working_data_list <- as.list(if(!is.null(uu)) workspace[[uu]] else workspace$data_frame_output_)
 
     # Now loop over the variable creation.
     for (i in names(data_arguments)) {
@@ -60,7 +63,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
       add_variable_name(working_environment_, i)
 
       # Nuke the current data argument -- if we have the same variable name
-      # created twice, this is OK, because it'll only nuke the current one.
+      # created twice, this is OK, because it'll only erase the first one.
       data_arguments[[i]] <- NULL
     }
 
@@ -73,6 +76,8 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
       stringsAsFactors = FALSE,
       row.names = NULL
     )
+
+    if(!is.null(uu)) workspace[[uu]] <- working_environment_[["data_frame_output_"]]
 
     # Return results
     return(working_environment_)
@@ -182,7 +187,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   )
 
   # Return results
-  return(working_environment_)
+  working_environment_
 }
 
 
