@@ -128,10 +128,7 @@ get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
     names_to_check <- setdiff(colnames(data), ID_label)
   }
 
-  # It turns out the call isn't going to use any variables at all!
-  if (length(names_to_check) == 0) {
-    return(c())
-  }
+  if (is_empty(names_to_check)) return(names_to_check)
 
   # Iterate through each column of interest
   # Per column, split that column's data into a list. The split indices come
@@ -181,65 +178,38 @@ handle_id <- function(ID_label, data=NULL) {
   )
 
   # User passed a non-symbol non-null ID_label
-  if (!is.null(ID_label)) {
-    if (is.vector(ID_label) & length(ID_label) > 1) {
-      # Vector of length n>1, error
-      stop("Provided `ID_label` must be a character vector of length 1 or ",
-           "variable name.")
-    } else if (is.vector(ID_label) & is.numeric(ID_label[1])) {
+  if (is.vector(ID_label)) {
+    if (length(ID_label) != 1) {
+      stop("Provided `ID_label` must be a string.")
+    } else if (is.numeric(ID_label)) {
       # Numeric ID_label -- this is OK but variable names can't be numeric
-      warning("Provided `ID_label` is numeric and will be prefixed with the ",
-              "character \"X\"")
+      warning("Provided `ID_label` is numeric and will be prefixed with \"X\"")
       ID_label <- as.character(ID_label)
-    } else if (is.vector(ID_label) & is.character(ID_label[1])) {
-      # Valid ID_label
-      ID_label <- as.character(ID_label)
-    } else if (!is.null(dim(ID_label))) {
-      # Higher dimensional ID_label
-      stop(
-        "Provided `ID_label` must be a character vector or variable name, ",
-        "not a data frame or matrix."
-      )
     }
   }
+
+  # Higher dimensional ID_label
+  if (!is.null(dim(ID_label))) {
+    stop("Provided `ID_label` must be a character vector or variable name, not a data frame or matrix.")
+  }
+
+  if(!is.null(ID_label)) return(ID_label)
 
   # At the end of all this, we still don't have an ID label
-  if (is.null(ID_label)) {
-    if (is.null(data) | missing(data)) {
-      ID_label <- "ID"
-    } else {
-      # We need to come up with an ID, but there's some data, so we're not sure
-      tries <- 0
-      # "ID" isn't taken
-      if (!"ID" %in% names(data)) {
-        ID_label <- "ID"
-      } else {
-        # "ID" is taken, so we're going to try some backups
-        while (tries < 5) {
-          tries <- tries + 1
-          candidate_label <- paste0("fab_ID_", tries)
-          # This backup is available
-          if (!candidate_label %in% names(data)) {
-            ID_label <- candidate_label
-            break
-          }
-        }
+  if (!"ID" %in% names(data)) return("ID")
 
-        # We tried all our backup IDs and still couldn't find a valid ID
-        if (tries >= 5 & is.null(ID_label)) {
-          stop(
-            "No `ID_label` specified for level and supply of default ID ",
-            "labels -- ID, fab_ID_1, fab_ID_2, fab_ID_3, fab_ID_4, fab_ID_5",
-            " -- are all used for data columns. Please specify an `ID_label` ",
-            "for this level."
-          )
-        }
-      }
-    }
+  # "ID" is taken, so we're going to try some backups
+
+  for(candidate_label in setdiff(paste0("fab_ID_", 1:5), names(data))) {
+      return(candidate_label)
   }
 
-  # Return the resulting ID_label
-  return(ID_label)
+  stop(
+    "No `ID_label` specified for level and supply of default ID ",
+    "labels -- ID, fab_ID_1, fab_ID_2, fab_ID_3, fab_ID_4, fab_ID_5",
+    " -- are all used for data columns. Please specify an `ID_label` ",
+    "for this level."
+  )
 }
 
 # Checks if a supplied N is sane for the context it's in

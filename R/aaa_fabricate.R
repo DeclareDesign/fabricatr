@@ -137,21 +137,18 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   working_environment <- import_data_list(data)
 
   if (all_levels) {
+    nm <- names(dots) %||% rep("", length(dots))
     # Ensure the user provided a name for each level call.
-    if (is.null(names(dots)) | any(names(dots) == "")) {
-      # If they didn't, see if we can poach it out of the arguments
-      for(i in seq_len(length(dots))) {
-        if(is.null(names(dots[[i]])) || names(dots[[i]]) == "") {
+    # If they didn't, see if we can poach it out of the arguments
+    for(i in seq_along(dots)) {
+      if(nm[i] != "") next;
 
-          # Can't salvage this one
-          if(!"ID_label" %in% lang_args_names(dots[[i]])) {
-            stop("You must provide a name for each level that you create.")
-          }
-
-          names(dots)[i] <- lang_args(dots[[i]])$ID_label
-
+        # Can't salvage this one
+        if(!"ID_label" %in% lang_args_names(dots[[i]])) {
+          stop("You must provide a name for each level that you create.")
         }
-      }
+
+        names(dots)[i] <- lang_args(dots[[i]])$ID_label
     }
 
 

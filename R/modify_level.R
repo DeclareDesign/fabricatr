@@ -4,25 +4,25 @@
 #' @export
 modify_level <- function(N = NULL, ...) {
   data_arguments <- quos(...)
-  if ("working_environment_" %in% names(data_arguments)) {
-    working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-    data_arguments[["working_environment_"]] <- NULL
-  } else {
-    # This happens if either an add_level call is run external to a fabricate
-    # call OR if add_level is the only argument to a fabricate call and
-    # the data argument tries to resolve an add_level call.
+
+  if(!"working_environment_" %in% names(data_arguments)){
+    # This happens if either an add_level call is run outside of fabricate()
     stop("`modify_level()` calls must be run inside `fabricate()` calls.")
   }
+
+  working_environment_ <- get_expr(data_arguments[["working_environment_"]])
+  data_arguments[["working_environment_"]] <- NULL
+
   if ("ID_label" %in% names(data_arguments)) {
     ID_label <- get_expr(data_arguments[["ID_label"]])
     data_arguments[["ID_label"]] <- NULL
   }
 
-  return(modify_level_internal(
+  modify_level_internal(
     N = N, ID_label = ID_label,
     working_environment_ = working_environment_,
     data_arguments = data_arguments
-  ))
+  )
 }
 
 #' @importFrom rlang eval_tidy
@@ -31,22 +31,8 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
                                   working_environment_ = NULL,
                                   data_arguments=NULL) {
 
-  # Need to supply an ID_label, otherwise we have no idea what to modify.
-  if (is.null(ID_label)) {
-    stop(
-      "You can't modify a level without a known level ID variable. If you ",
-      "are trying to add nested data, please use `add_level()`"
-    )
-  }
 
-  # First, establish that if we have no working data frame, we can't continue
-  if (is.null(dim(working_environment_$data_frame_output_))) {
-    stop(
-      "You can't modify a level if there is no working data frame to ",
-      "modify: you must either load pre-existing data or generate some data ",
-      "before modifying."
-    )
-  }
+  modify_level_internal_checks(ID_label, working_environment_)
 
   # There are two possibilities. One is that we are modifying the lowest level
   # of data. In which case, we simply add variables, like if someone called
@@ -197,4 +183,26 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
 
   # Return results
   return(working_environment_)
+}
+
+
+
+
+modify_level_internal_checks <- function(ID_label, working_environment_) {
+  # Need to supply an ID_label, otherwise we have no idea what to modify.
+  if (is.null(ID_label)) {
+    stop(
+      "You can't modify a level without a known level ID variable. If you ",
+      "are trying to add nested data, please use `add_level()`"
+    )
+  }
+
+  # First, establish that if we have no working data frame, we can't continue
+  if (is.null(dim(working_environment_$data_frame_output_))) {
+    stop(
+      "You can't modify a level if there is no working data frame to ",
+      "modify: you must either load pre-existing data or generate some data ",
+      "before modifying."
+    )
+  }
 }
