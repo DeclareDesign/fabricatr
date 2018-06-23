@@ -450,7 +450,7 @@ check_all_levels <- function(options) {
   }
 
   # Confirm they're all levels
-  is_level[1] && length(is_level) == length(options)
+  length(is_level) == length(options)
 }
 
 
