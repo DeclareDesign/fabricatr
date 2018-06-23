@@ -1,5 +1,5 @@
 ---
-title: "Getting started with **fabricatr**"
+title: "Getting started with fabricatr"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
 vignette: >
