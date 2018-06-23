@@ -27,7 +27,7 @@ recycle <- function(x, .N = NULL) {
 }
 
 import_data_list <- function(data) {
-  working_environment_ <- new_working_environment()
+  working_environment_ <- new_environment()
 
   # If we have multiple sets of data, import them one at a time in order.
   # Type checking beyond this is done in the handle_data call from import_data
@@ -50,7 +50,7 @@ import_data <- function(data,
 
   # If we don't yet have a working environment, create one.
   if (is.null(working_environment_)) {
-    working_environment_ <- new_working_environment()
+    working_environment_ <- new_environment()
   }
 
   # Shelf the current working data if there's any.
@@ -64,37 +64,29 @@ import_data <- function(data,
 }
 
 shelf_working_data <- function(working_environment_) {
-  if ("data_frame_output_" %in% names(working_environment_)) {
+  what <- c(
+    "data_frame_output_",
+    "level_ids_",
+    "variable_names_")
+
+  if (exists("data_frame_output_", working_environment_)) {
     # Construct the shelved version
-    package_df <- list(
-      data_frame_output_ = working_environment_$data_frame_output_,
-      level_ids_ = working_environment_$level_ids_,
-      variable_names_ = names(working_environment_$data_frame_output_)
-    )
+    package_df <- mget(what, working_environment_, ifnotfound = list(NULL))
+    package_df <- filter_out_nulls(package_df)
 
     # Append it to the existing shelf
-    if ("shelved_df" %in% names(working_environment_)) {
-      working_environment_$shelved_df <- append(
-        working_environment_$shelved_df,
-        list(package_df)
-      )
-    } else {
-      # Create a shelf just for this
-      working_environment_$shelved_df <- list(package_df)
-    }
+    working_environment_$shelved_df <- append(
+      working_environment_$shelved_df,
+      list(package_df)
+    )
 
     # Clear the current work-space.
-    working_environment_$data_frame_output_ <-
-      working_environment_$level_ids_ <-
-      working_environment_$variable_names_ <- NULL
+    rm(envir = working_environment_, list=names(package_df)) # rm warns if list has an element not in envir
   }
 
-  return(working_environment_)
+  working_environment_
 }
 
-new_working_environment <- function() {
-  return(new.env(parent = emptyenv()))
-}
 
 #' @importFrom rlang is_quosure
 get_symbols_from_quosures <- function(quosures) {
@@ -556,7 +548,7 @@ add_level_id <- function(working_environment_, ID_label) {
 # Add a variable name to a working environment
 add_variable_name <- function(working_environment_, variable_name) {
   # Add or create variable name list.
-  if ("variable_names_" %in% names(working_environment_)) {
+  if (exists("variable_names_", working_environment_)) {
     working_environment_$variable_names_ <- append(
       working_environment_$variable_names_,
       variable_name
@@ -572,6 +564,8 @@ add_variable_name <- function(working_environment_, variable_name) {
 # Dummy helper function that just extracts the working data frame from the
 # environment. This exists because we may in the future want to return something
 # that is not a data frame.
-report_results <- function(working_environment) {
-  return(working_environment$data_frame_output_)
+report_results <- function(workspace) {
+#  last_df <- attr(workspace, "last")
+#  workspace[[last]]
+  workspace$data_frame_output_
 }

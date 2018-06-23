@@ -94,7 +94,7 @@
 fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   # Store all data generation arguments in a quosure for future evaluation
   # A quosure contains unevaluated formulae and function calls.
-  data_arguments <- quos(...)
+  dots <- quos(...)
 
   # Fabricatr expects either a single-level function call
   # or a series of level calls. You can't mix and match.
@@ -106,15 +106,15 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   # The user did not seem to do one of the three possible things we can do.
   # Maybe they anonymously passed data or N.
   if (!explicit_data_supplied && !explicit_n_supplied) {
-    first_unnamed_arg <- which(names(data_arguments) == "" &
-                                 call_not_level_call(data_arguments))[1]
+    first_unnamed_arg <- which(names(dots) == "" &
+                                 call_not_level_call(dots))[1]
 
     # Let's check the first unnamed argument.
     if(!is.na(first_unnamed_arg) &&
-       first_unnamed_arg <= length(data_arguments)) {
+       first_unnamed_arg <= length(dots)) {
       # Eval it; whether it's data or N, we don't need any environment
       # from anything else. If it fails, not great.
-      evaluate_first_arg <- eval_tidy(data_arguments[[first_unnamed_arg]])
+      evaluate_first_arg <- eval_tidy(dots[[first_unnamed_arg]])
 
       # If they supplied a list or data frame, they meant data.
       if(is.list(evaluate_first_arg) || is.data.frame(evaluate_first_arg)) {
@@ -129,15 +129,15 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       # Whichever it was, remove it from the remaining args, because it's
       # not a variable or level call. If there's not an N or data, this
       # won't be evaluate anyway.
-      data_arguments <- data_arguments[-first_unnamed_arg]
+      dots <- dots[-first_unnamed_arg]
     }
     # If not, we'll error out below
   }
 
   # Now re-run the checks.
-  all_levels <- check_all_levels(data_arguments)
-  data_supplied <- (!missing(data) && !is.null(data) & !all_levels)
-  n_supplied <- (!is.null(N) & !missing(N))
+  all_levels <- check_all_levels(dots)
+  data_supplied <- !is.null(data) & !all_levels
+  n_supplied <- !is.null(N)
 
   # User must provide exactly one of:
   # 1) One or more level calls (with or without importing their own data)
@@ -157,18 +157,17 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   # User provided level calls
   if (all_levels) {
     # Ensure the user provided a name for each level call.
-    if (is.null(names(data_arguments)) | any(names(data_arguments) == "")) {
+    if (is.null(names(dots)) | any(names(dots) == "")) {
       # If they didn't, see if we can poach it out of the arguments
-      for(i in seq_len(length(data_arguments))) {
-        if(is.null(names(data_arguments[[i]])) ||
-           names(data_arguments[[i]]) == "") {
+      for(i in seq_len(length(dots))) {
+        if(is.null(names(dots[[i]])) || names(dots[[i]]) == "") {
 
           # Can't salvage this one
-          if(!"ID_label" %in% lang_args_names(data_arguments[[i]])) {
+          if(!"ID_label" %in% lang_args_names(dots[[i]])) {
             stop("You must provide a name for each level that you create.")
           }
 
-          names(data_arguments)[i] <- lang_args(data_arguments[[i]])$ID_label
+          names(dots)[i] <- lang_args(dots[[i]])$ID_label
 
         }
       }
@@ -178,24 +177,24 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     if (!is.null(data) & !missing(data)) {
       working_environment <- import_data_list(data)
     } else {
-      working_environment <- new_working_environment()
+      working_environment <- new_environment()
     }
 
     # Each of data_arguments is a level call
-    for (i in seq_along(data_arguments)) {
+    for (i in seq_along(dots)) {
       # Add two variables to the argument of the current level call
       # one to pass the working environment so far
       # one to pass the ID_label the user intends for the level
 
-      data_arguments[[i]] <- lang_modify(
-        data_arguments[[i]],
+      dots[[i]] <- lang_modify(
+        dots[[i]],
         working_environment_ = working_environment,
-        ID_label = names(data_arguments)[i]
+        ID_label = names(dots)[i]
       )
 
       # Execute the level build and pass it back to the current working
       # environment.
-      working_environment <- eval_tidy(data_arguments[[i]])
+      working_environment <- eval_tidy(dots[[i]])
     }
 
     # Return the results from the working environment
@@ -203,7 +202,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   }
 
   # User did not pass data -- they passed N
-  if (is.null(data) | missing(data)) {
+  if (n_supplied) {
     # Single level -- maybe the user provided an ID_label, maybe they didn't.
     # Sanity check and/or construct an ID label for the new data.
     ID_label <- handle_id(ID_label, NULL)
@@ -217,8 +216,8 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
         add_level_internal(
           N = N,
           ID_label = ID_label,
-          working_environment_ = new_working_environment(),
-          data_arguments = data_arguments,
+          working_environment_ = new_environment(),
+          data_arguments = dots,
           nest = TRUE
         )
       )
@@ -250,7 +249,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
     add_level_id(working_environment, ID_label)
     add_variable_name(working_environment, ID_label)
-  } else if(length(data_arguments)) {
+  } else if(length(dots)) {
     # We didn't explicitly ask for an ID column, but we are modifying the data
     # so probably we should do it unless there's a column that's exactly this.
     # Generate the ID label and check if there's a column that's exactly this.
@@ -277,19 +276,17 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   }
 
   # If the user does a passthrough for some reason, just return as is.
-  if (!length(data_arguments)) {
+  if (is_empty(dots)) {
     return(report_results(working_environment))
   }
 
   # Run the level adder, report the results, and return
-  return(
-    report_results(
-      modify_level_internal(
-        N = N,
-        ID_label = ID_label,
-        data_arguments = data_arguments,
-        working_environment_ = working_environment
-      )
+  report_results(
+    modify_level_internal(
+      N = N,
+      ID_label = ID_label,
+      data_arguments = dots,
+      working_environment_ = working_environment
     )
   )
 }

@@ -6,5 +6,6 @@
 #'
 #' @docType package
 #' @importFrom stats median rbinom sd
+#' @import rlang
 #' @name fabricatr
 NULL
