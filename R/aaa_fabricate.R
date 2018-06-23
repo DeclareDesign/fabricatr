@@ -294,15 +294,4 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   )
 }
 
-#' Deprecated level call function maintained to provide useful error for
-#' previous fabricatr code.
-#' @keywords internal
-#' @export
-level <- function(N = NULL, ID_label = NULL, ...) {
-  stop(
-    "The `level()` function from early versions of fabricatr is deprecated. ",
-    "Please use `add_level()` or `modify_level()` as necessary."
-  )
-  # Stub, this doesn't do anything yet -- may in the future dispatch to the
-  # relevant levels.
-}
+
