@@ -201,7 +201,7 @@ handle_id <- function(ID_label, data=NULL) {
   # "ID" is taken, so we're going to try some backups
 
   for(candidate_label in setdiff(paste0("fab_ID_", 1:5), names(data))) {
-      return(candidate_label)
+    return(candidate_label)
   }
 
   stop(
@@ -213,24 +213,14 @@ handle_id <- function(ID_label, data=NULL) {
 }
 
 # Checks if a supplied N is sane for the context it's in
-handle_n <- function(N, add_level=TRUE, working_environment=NULL,
+handle_n <- function(N, add_level=TRUE, working_environment,
                      parent_frame_levels=1) {
   # Error handling for user-supplied N
 
   # First, evaluate the N in the context of the working environment's working
   # data frame. Why do we need to do this? Because N could be a function of
   # variables.
-  if (!is.null(working_environment) & "data_frame_output_" %in%
-      names(working_environment)) {
-    # Why do we substitute N in parent.frame()? Because if we substitute in
-    # the current frame, we just get the symbol used for N from the outside
-    # functions, which would just be N. This ensures we get the expression
-    # passed to N in the outer function call.
-    N <- eval_tidy(N, data = working_environment$data_frame_output_)
-  } else {
-    # Unenquose the N data.
-    N <- eval_tidy(N)
-  }
+  N <- eval_tidy(N, data = working_environment$data_frame_output_)
 
   # User provided an unevaluated function
   if (typeof(N) == "closure") {

@@ -179,7 +179,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     ID_label <- handle_id(ID_label, NULL)
 
     # Is the N argument passed here sane? Let's check
-    N <- handle_n(N, add_level = TRUE)
+    N <- handle_n(N, add_level = TRUE, working_environment)
 
     ret <- add_level_internal(
       N = N,

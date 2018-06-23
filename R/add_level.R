@@ -48,7 +48,7 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
   }
 
   # Check to make sure the N here is sane
-  N <- handle_n(N, add_level = TRUE)
+  N <- handle_n(N, add_level = TRUE, working_environment_)
 
   # If the user already has a working data frame, we need to shelf it before
   # we move on.
