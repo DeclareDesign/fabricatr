@@ -22,12 +22,12 @@ add_level <- function(N = NULL,
     data_arguments[["ID_label"]] <- NULL
   }
 
-  return(add_level_internal(
+  add_level_internal(
     N = N, ID_label = ID_label,
     working_environment_ = working_environment_,
     data_arguments = data_arguments,
     nest = nest
-  ))
+  )
 }
 
 #' @importFrom rlang eval_tidy

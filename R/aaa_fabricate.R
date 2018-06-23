@@ -103,6 +103,8 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   data_supplied <- !is.null(data)
   n_supplied    <- !is.null(N)
   all_levels    <- FALSE # recalculated after implicit N / data=
+  explicit_ID_provided <- !is.null(ID_label)
+
 
   # Maybe they anonymously passed data or N.
   if (!data_supplied && !n_supplied) {
@@ -132,6 +134,8 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     fabricate_mode_error()
   }
 
+  working_environment <- import_data_list(data)
+
   if (all_levels) {
     # Ensure the user provided a name for each level call.
     if (is.null(names(dots)) | any(names(dots) == "")) {
@@ -150,12 +154,6 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       }
     }
 
-    # User provided data, if any, should be preloaded into working environment
-    if (!is.null(data) & !missing(data)) {
-      working_environment <- import_data_list(data)
-    } else {
-      working_environment <- new_environment()
-    }
 
     # Each of data_arguments is a level call
     for (i in seq_along(dots)) {
@@ -186,37 +184,32 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     # Is the N argument passed here sane? Let's check
     N <- handle_n(N, add_level = TRUE)
 
-    # Run the level adder, report the results, and return
-    return(
-      report_results(
-        add_level_internal(
-          N = N,
-          ID_label = ID_label,
-          working_environment_ = new_environment(),
-          data_arguments = dots,
-          nest = TRUE
-        )
-      )
+    ret <- add_level_internal(
+      N = N,
+      ID_label = ID_label,
+      working_environment_ = working_environment,
+      data_arguments = dots,
+      nest = TRUE
     )
   }
 
   else if (data_supplied) {
-    working_environment <- import_data_list(data)
+
+    df <- working_environment$data_frame_output_
 
     # Single level -- maybe the user provided an ID_label, maybe they didn't.
     # Sanity check and/or construct an ID label for the new data.
-    explicit_ID_provided <- !is.null(ID_label)
-    ID_label <- handle_id(ID_label, working_environment$data_frame_output_)
+    ID_label <- handle_id(ID_label, df)
 
-    # User passed data, not N
-    # First, let's dynamically get N from the number of rows
-    N <- nrow(working_environment$data_frame_output_)
+    # First, let's get N from the number of rows
+    N <- nrow(df)
 
     # Now, see if we need to staple an ID column on. This is a bit of a mess.
     if(is.na(ID_label)) {
-      # Explicit override of ID_label -- don't add one if ID_label is NA,
-      # explicitly
-    } else if (ID_label %in% names(working_environment$data_frame_output_)) {
+
+      # Explicit override of ID_label -- don't add
+
+    } else if (ID_label %in% names(df)) {
       # There's already an ID column named the thing we want to call the ID
       # column, so keep it. If the user did not specify, then this shouldn't
       # happen because handle_id would have moved to a fallback ID.
@@ -231,42 +224,35 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       # so probably we should do it unless there's a column that's exactly this.
       # Generate the ID label and check if there's a column that's exactly this.
       temp_id <- generate_id_pad(N)
-      already_has_exact_id <- FALSE
-      for(i in seq_len(ncol(working_environment$data_frame_output_))) {
-        if(identical(working_environment$data_frame_output_[[i]], temp_id)) {
-          already_has_exact_id <- TRUE
-          break
-        }
-      }
+
+      id_matches <- vapply(working_environment$data_frame_output_, identical, TRUE, temp_id)
+
 
       # If we didn't find the exact ID label, then we have to add one.
-      if(!already_has_exact_id) {
-        working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
+      if(!any(id_matches)) {
+        working_environment$data_frame_output_[[ID_label]] <- temp_id
         add_level_id(working_environment, ID_label)
         add_variable_name(working_environment, ID_label)
       } else {
         # Just record the one we already have.
-        proximate_id <- names(working_environment$data_frame_output_)[[i]]
+        proximate_id <- names(working_environment$data_frame_output_)[id_matches][1]
         add_level_id(working_environment, proximate_id)
         add_variable_name(working_environment, proximate_id)
       }
     }
 
-    # If the user does a passthrough for some reason, just return as is.
-    if (is_empty(dots)) {
-      return(report_results(working_environment))
-    }
 
     # Run the level adder, report the results, and return
-    report_results(
+    ret <- if (is_empty(dots)) working_environment else
       modify_level_internal(
         N = N,
         ID_label = ID_label,
         data_arguments = dots,
         working_environment_ = working_environment
       )
-    )
   }
+
+  report_results(ret)
 }
 
 

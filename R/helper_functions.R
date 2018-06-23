@@ -27,40 +27,26 @@ recycle <- function(x, .N = NULL) {
 }
 
 import_data_list <- function(data) {
-  working_environment_ <- new_environment()
+  workspace <- new_environment()
 
-  # If we have multiple sets of data, import them one at a time in order.
-  # Type checking beyond this is done in the handle_data call from import_data
-  if (is.list(data) && !is.data.frame(data)) {
-    for (data_item in data) {
-      working_environment_ <- import_data(data_item, working_environment_)
-    }
-  } else {
-    # If not, just import them.
-    working_environment_ <- import_data(data, working_environment_)
+  if(is.null(data)) return(workspace)
+
+  if(is.data.frame(data) || !is.list(data)) data <- list(data)
+
+  for(df in data) {
+    # Sanity check that the data we're bringing in is good.
+    df <- handle_data(data = df)
+
+    # Shelf the current working data if there's any.
+    workspace <- shelf_working_data(workspace)
+
+    # Now copy the current data into the environment
+    workspace$data_frame_output_ <- df
+    workspace$variable_names_ <- names(df)
+
   }
 
-  return(working_environment_)
-}
-
-import_data <- function(data,
-                        working_environment_ = NULL) {
-  # Sanity check that the data we're bringing in is good.
-  data <- handle_data(data = data)
-
-  # If we don't yet have a working environment, create one.
-  if (is.null(working_environment_)) {
-    working_environment_ <- new_environment()
-  }
-
-  # Shelf the current working data if there's any.
-  working_environment_ <- shelf_working_data(working_environment_)
-
-  # Now copy the current data into the environment
-  working_environment_$data_frame_output_ <- data
-  working_environment_$variable_names_ <- names(data)
-
-  return(working_environment_)
+  workspace
 }
 
 shelf_working_data <- function(working_environment_) {
