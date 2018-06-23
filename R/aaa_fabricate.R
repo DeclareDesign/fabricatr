@@ -100,52 +100,36 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   # or a series of level calls. You can't mix and match.
   # This helper function will be TRUE if calls are all levels, FALSE
   # if there are no calls or they are not levels.
-  explicit_data_supplied <-  !is.null(data)
-  explicit_n_supplied <- !is.null(N)
+  data_supplied <- !is.null(data)
+  n_supplied    <- !is.null(N)
+  all_levels    <- FALSE # recalculated after implicit N / data=
 
-  # The user did not seem to do one of the three possible things we can do.
   # Maybe they anonymously passed data or N.
-  if (!explicit_data_supplied && !explicit_n_supplied) {
-    first_unnamed <- which(names(dots) == "" &
-                                 call_not_level_call(dots))[1]
+  if (!data_supplied && !n_supplied) {
+    i <- which(names(dots) == "" & call_not_level_call(dots))[1]
 
-    # Let's check the first unnamed argument.
-    if(!is.na(first_unnamed)) {
-      # Eval it; whether it's data or N, we don't need any environment
-      # from anything else. If it fails, not great.
-      evaluate_first_arg <- eval_tidy(dots[[first_unnamed]])
+    # i is na when dots is length zero, all names are provided => which is integer(0) and integer(0)[1] is NA
+    if(!is.na(i)) {
+      first_unnamed_dot <- eval_tidy(dots[[i]])
+      dots <- dots[-i]
 
       # If they supplied a list or data frame, they meant data.
-      if(is.list(evaluate_first_arg) || is.data.frame(evaluate_first_arg)) {
-        data <- evaluate_first_arg
-      } else if(is.null(dim(evaluate_first_arg)) &&
-                is.numeric(evaluate_first_arg) &&
-                length(evaluate_first_arg) == 1) {
-        # If they supplied a number, they meant N, we think.
-        N <- evaluate_first_arg
+      if(is.list(first_unnamed_dot)) {
+        data <- first_unnamed_dot
+        data_supplied <- TRUE
       }
-
-      # Whichever it was, remove it from the remaining args, because it's
-      # not a variable or level call. If there's not an N or data, this
-      # won't be evaluate anyway.
-      dots <- dots[-first_unnamed]
+      else if(is_scalar_integerish(first_unnamed_dot)) {
+        N <- first_unnamed_dot
+        n_supplied <- TRUE
+      }
     }
-    # If not, we'll error out below
   }
 
   # Now re-run the checks.
   all_levels <- check_all_levels(dots)
-  data_supplied <- !is.null(data) & !all_levels
-  n_supplied <- !is.null(N)
 
-
-  if (sum(all_levels, data_supplied, n_supplied) != 1) {
-    stop(
-      "You must do exactly one of: \n",
-      "1) One or more level calls, with or without existing data \n",
-      "2) Import existing data and add new variables \n",
-      "3) Provide an `N` without importing data or creating levels"
-    )
+  if (n_supplied == (all_levels || data_supplied)) {
+    fabricate_mode_error()
   }
 
   if (all_levels) {
@@ -285,4 +269,14 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   }
 }
 
+
+
+fabricate_mode_error <- function() {
+  stop(
+    "You must do exactly one of: \n",
+    "1) One or more level calls, with or without existing data \n",
+    "2) Import existing data and add new variables \n",
+    "3) Provide an `N` without importing data or creating levels"
+  )
+}
 

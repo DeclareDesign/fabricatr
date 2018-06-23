@@ -31,7 +31,7 @@ import_data_list <- function(data) {
 
   # If we have multiple sets of data, import them one at a time in order.
   # Type checking beyond this is done in the handle_data call from import_data
-  if (is.list(data) & !is.data.frame(data)) {
+  if (is.list(data) && !is.data.frame(data)) {
     for (data_item in data) {
       working_environment_ <- import_data(data_item, working_environment_)
     }
@@ -423,14 +423,13 @@ check_all_levels <- function(options) {
                         function(i) {
                           is_lang(get_expr(i))
                         },
-                        logical(1))
+                        FALSE)
 
   # lang_name gets function name from a quosure
-  func_names <- vapply(options[is_function], lang_name, character(1))
+  func_names <- vapply(options[is_function], lang_name, "")
 
   # Check to see if the function names are one of the valid level operations
-  is_level <- vapply(func_names, function(i) {
-    i %in% c(
+  is_level <- func_names %in% c(
       "level",
       "add_level",
       "nest_level",
@@ -438,14 +437,12 @@ check_all_levels <- function(options) {
       "cross_levels",
       "link_levels"
     )
-  },
-  logical(1))
 
   # Return false if we have no level calls
-  if (length(is_level) == 0) return(FALSE)
+  if (!any(is_level)) return(FALSE)
 
   # If some calls are levels and some aren't, we're unhappy
-  if (any(is_level) != all(is_level)) {
+  if (!all(is_level)) {
     stop(
       "Arguments passed to `...` must either all be calls to create or modify ",
       "levels, or else none of them must be."
