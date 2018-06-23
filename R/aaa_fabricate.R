@@ -110,8 +110,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
                                  call_not_level_call(dots))[1]
 
     # Let's check the first unnamed argument.
-    if(!is.na(first_unnamed_arg) &&
-       first_unnamed_arg <= length(dots)) {
+    if(!is.na(first_unnamed_arg)) {
       # Eval it; whether it's data or N, we don't need any environment
       # from anything else. If it fails, not great.
       evaluate_first_arg <- eval_tidy(dots[[first_unnamed_arg]])
@@ -154,7 +153,6 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     )
   }
 
-  # User provided level calls
   if (all_levels) {
     # Ensure the user provided a name for each level call.
     if (is.null(names(dots)) | any(names(dots) == "")) {
@@ -201,8 +199,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     return(report_results(working_environment))
   }
 
-  # User did not pass data -- they passed N
-  if (n_supplied) {
+  else if (n_supplied) {
     # Single level -- maybe the user provided an ID_label, maybe they didn't.
     # Sanity check and/or construct an ID label for the new data.
     ID_label <- handle_id(ID_label, NULL)
@@ -224,71 +221,73 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     )
   }
 
-  working_environment <- import_data_list(data)
+  else if (data_supplied) {
+    working_environment <- import_data_list(data)
 
-  # Single level -- maybe the user provided an ID_label, maybe they didn't.
-  # Sanity check and/or construct an ID label for the new data.
-  explicit_ID_provided <- !is.null(ID_label)
-  ID_label <- handle_id(ID_label, working_environment$data_frame_output_)
+    # Single level -- maybe the user provided an ID_label, maybe they didn't.
+    # Sanity check and/or construct an ID label for the new data.
+    explicit_ID_provided <- !is.null(ID_label)
+    ID_label <- handle_id(ID_label, working_environment$data_frame_output_)
 
-  # User passed data, not N
-  # First, let's dynamically get N from the number of rows
-  N <- nrow(working_environment$data_frame_output_)
+    # User passed data, not N
+    # First, let's dynamically get N from the number of rows
+    N <- nrow(working_environment$data_frame_output_)
 
-  # Now, see if we need to staple an ID column on. This is a bit of a mess.
-  if(is.na(ID_label)) {
-    # Explicit override of ID_label -- don't add one if ID_label is NA,
-    # explicitly
-  } else if (ID_label %in% names(working_environment$data_frame_output_)) {
-    # There's already an ID column named the thing we want to call the ID
-    # column, so keep it. If the user did not specify, then this shouldn't
-    # happen because handle_id would have moved to a fallback ID.
-    add_level_id(working_environment, ID_label)
-  } else if(explicit_ID_provided) {
-    # We explicitly asked for an ID column, so let's do it.
-    working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
-    add_level_id(working_environment, ID_label)
-    add_variable_name(working_environment, ID_label)
-  } else if(length(dots)) {
-    # We didn't explicitly ask for an ID column, but we are modifying the data
-    # so probably we should do it unless there's a column that's exactly this.
-    # Generate the ID label and check if there's a column that's exactly this.
-    temp_id <- generate_id_pad(N)
-    already_has_exact_id <- FALSE
-    for(i in seq_len(ncol(working_environment$data_frame_output_))) {
-      if(identical(working_environment$data_frame_output_[[i]], temp_id)) {
-        already_has_exact_id <- TRUE
-        break
-      }
-    }
-
-    # If we didn't find the exact ID label, then we have to add one.
-    if(!already_has_exact_id) {
+    # Now, see if we need to staple an ID column on. This is a bit of a mess.
+    if(is.na(ID_label)) {
+      # Explicit override of ID_label -- don't add one if ID_label is NA,
+      # explicitly
+    } else if (ID_label %in% names(working_environment$data_frame_output_)) {
+      # There's already an ID column named the thing we want to call the ID
+      # column, so keep it. If the user did not specify, then this shouldn't
+      # happen because handle_id would have moved to a fallback ID.
+      add_level_id(working_environment, ID_label)
+    } else if(explicit_ID_provided) {
+      # We explicitly asked for an ID column, so let's do it.
       working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
       add_level_id(working_environment, ID_label)
       add_variable_name(working_environment, ID_label)
-    } else {
-      # Just record the one we already have.
-      proximate_id <- names(working_environment$data_frame_output_)[[i]]
-      add_level_id(working_environment, proximate_id)
-      add_variable_name(working_environment, proximate_id)
+    } else if(length(dots)) {
+      # We didn't explicitly ask for an ID column, but we are modifying the data
+      # so probably we should do it unless there's a column that's exactly this.
+      # Generate the ID label and check if there's a column that's exactly this.
+      temp_id <- generate_id_pad(N)
+      already_has_exact_id <- FALSE
+      for(i in seq_len(ncol(working_environment$data_frame_output_))) {
+        if(identical(working_environment$data_frame_output_[[i]], temp_id)) {
+          already_has_exact_id <- TRUE
+          break
+        }
+      }
+
+      # If we didn't find the exact ID label, then we have to add one.
+      if(!already_has_exact_id) {
+        working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
+        add_level_id(working_environment, ID_label)
+        add_variable_name(working_environment, ID_label)
+      } else {
+        # Just record the one we already have.
+        proximate_id <- names(working_environment$data_frame_output_)[[i]]
+        add_level_id(working_environment, proximate_id)
+        add_variable_name(working_environment, proximate_id)
+      }
     }
-  }
 
-  # If the user does a passthrough for some reason, just return as is.
-  if (is_empty(dots)) {
-    return(report_results(working_environment))
-  }
+    # If the user does a passthrough for some reason, just return as is.
+    if (is_empty(dots)) {
+      return(report_results(working_environment))
+    }
 
-  # Run the level adder, report the results, and return
-  report_results(
-    modify_level_internal(
-      N = N,
-      ID_label = ID_label,
-      data_arguments = dots,
-      working_environment_ = working_environment
+    # Run the level adder, report the results, and return
+    report_results(
+      modify_level_internal(
+        N = N,
+        ID_label = ID_label,
+        data_arguments = dots,
+        working_environment_ = working_environment
+      )
     )
-  )
+  }
 }
 
 
