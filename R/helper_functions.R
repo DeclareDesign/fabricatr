@@ -40,13 +40,15 @@ import_data_list <- function(data) {
     # Shelf the current working data if there's any.
     workspace <- shelf_working_data(workspace)
 
+    uu <- sprintf("%X-%X", as.integer(Sys.time()), sample.int(.Machine$integer.max, 1))
+
     # Now copy the current data into the environment
     workspace$data_frame_output_ <- df
     workspace$variable_names_ <- names(df)
 
   }
 
-  workspace
+  structure(workspace, active=uu, insertion_order=c())
 }
 
 shelf_working_data <- function(working_environment_) {
@@ -213,8 +215,7 @@ handle_id <- function(ID_label, data=NULL) {
 }
 
 # Checks if a supplied N is sane for the context it's in
-handle_n <- function(N, add_level=TRUE, working_environment,
-                     parent_frame_levels=1) {
+handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels=1) {
   # Error handling for user-supplied N
 
   # First, evaluate the N in the context of the working environment's working
@@ -224,82 +225,52 @@ handle_n <- function(N, add_level=TRUE, working_environment,
 
   # User provided an unevaluated function
   if (typeof(N) == "closure") {
-    stop(
-      "If you use a function to define `N`, you must evaluate that function ",
-      "rather than passing it in closure form."
-    )
+    stop("`N` must not be a function.")
   }
 
-  # If they provided an N
-  if (!is.null(N)) {
-    # If this is an add_level operation, N must be a single number
-    if (add_level) {
-      if (length(N) > 1) {
-        stop(
-          "When adding a new level, the specified `N` must be a single number."
-        )
-      }
+
+  if(add_level){
+    if (!is_scalar_integerish(N))
+        stop("When adding a new level, the specified `N` must be a single number.")
+  }
+
+  if (length(N) > 1) {
+    # User specified more than one N; presumably this is one N for each
+    # level of the last level variable
+
+    # What's the last level variable?
+    last_level_name <- tail(working_environment$level_ids_)
+
+    # Last level name is null; if this is imported data, we should
+    # use the nrow of the data frame as the unique length of the last
+    # level
+    if(is.null(last_level_name)) {
+      last_level_name <- "the full data frame"
+      length_unique <- nrow(working_environment$data_frame_output_)
     } else {
-      if (length(N) > 1) {
-        # User specified more than one N; presumably this is one N for each
-        # level of the last level variable
-
-        # What's the last level variable?
-        last_level_name <- working_environment$level_ids_[
-          length(working_environment$level_ids_)]
-
-        # Last level name is null; if this is imported data, we should
-        # use the nrow of the data frame as the unique length of the last
-        # level
-        if(is.null(last_level_name)) {
-          last_level_name <- "the full data frame"
-          length_unique <- nrow(working_environment$data_frame_output_)
-        } else {
-          # What are the unique values?
-          unique_values_of_last_level <- unique(
-            working_environment$data_frame_output_[[last_level_name]]
-          )
-          length_unique <- length(unique_values_of_last_level)
-        }
-
-
-        if (length(N) != length_unique) {
-          stop(
-            "`N` must be either a single number or a vector of length ",
-            length_unique,
-            " (one value for each possible level of ",
-            last_level_name,
-            ")"
-          )
-        }
-      }
-      # If this is not an add_level operation, there are other options
+      # What are the unique values?
+      unique_values_of_last_level <- unique(
+        working_environment$data_frame_output_[[last_level_name]]
+      )
+      length_unique <- length(unique_values_of_last_level)
     }
 
-    # If any N is non-numeric or non-integer or negative or zero, fail.
-    if (all(is.numeric(N)) && any(N %% 1 | N <= 0)) {
+
+    if (length(N) != length_unique) {
       stop(
-        "Provided `N` must be a single positive integer."
+        "`N` must be either a single number or a vector of length ",
+        length_unique,
+        " (one value for each possible level of ",
+        last_level_name,
+        ")"
       )
     }
-
-    # Coerce to numeric or fail
-    if (!is.numeric(N)) {
-      tryCatch({
-        N <- as.numeric(N)
-      }, error = function(e) {
-        stop(
-          "Provided values for `N` must be integer numbers"
-        )
-      }, warning = function(e) {
-        stop(
-          "Provided values for `N` must be integer numbers"
-        )
-      })
-    }
   }
 
-  return(N)
+  if (!is_integerish(N))
+    stop("Provided `N` must be a single positive integer.")
+
+  N
 }
 
 # Checks if the user-provided data is sane
@@ -356,6 +327,8 @@ call_not_level_call <- function(calls) {
          logical(1))
 }
 
+
+
 # Function to check if every argument in a quosure options
 # is a level call.
 check_all_levels <- function(options) {
@@ -400,14 +373,13 @@ check_all_levels <- function(options) {
 }
 
 
-# Generates IDs from 1:N with zero left padding for visual display.
-generate_id_pad <- function(N) {
-  # Left-Pad ID variable with zeroes
-  format_left_padded <- paste0("%0", nchar(N), "d")
 
-  # Add it to the data frame.
-  return(sprintf(format_left_padded, 1:N))
+# Generates IDs from 1:N with zero left padding for visual display.
+generate_id_pad <- function(N,zero=c("0", "")) {
+  sprintf(paste0("%", match.arg(zero), nchar(N), "d"), 1:N)
 }
+
+
 
 #' @importFrom rlang f_rhs
 expand_or_error <- function(vector_data, N, variable_name, call_string) {
@@ -442,6 +414,8 @@ expand_or_error <- function(vector_data, N, variable_name, call_string) {
   else { return(vector_data) }
 }
 
+
+
 # Try to overwrite R's recycling of vector operations to ensure the initial
 # data is rectangular -- needs an N to ensure that constants do get recycled.
 check_rectangular <- function(working_data_list, N) {
@@ -475,32 +449,22 @@ check_rectangular <- function(working_data_list, N) {
   return(working_data_list)
 }
 
+
+
 # Add a level ID to a working environment
 add_level_id <- function(working_environment_, ID_label) {
   # Add or create level ID list
-  if ("level_ids_" %in% names(working_environment_)) {
-    working_environment_$level_ids_ <- append(working_environment_$level_ids_,
-                                              ID_label)
-  } else {
-    working_environment_$level_ids_ <- c(ID_label)
-  }
-
-  return()
+  working_environment_$level_ids_ <- append(working_environment_$level_ids_, ID_label)
 }
+
+
 
 # Add a variable name to a working environment
 add_variable_name <- function(working_environment_, variable_name) {
-  # Add or create variable name list.
-  if (exists("variable_names_", working_environment_)) {
-    working_environment_$variable_names_ <- append(
-      working_environment_$variable_names_,
-      variable_name
-    )
-  } else {
-    working_environment_$variable_names_ <- c(variable_name)
-  }
-
-  return()
+  working_environment_$variable_names_ <- append(
+    working_environment_$variable_names_,
+    variable_name
+  )
 }
 
 
@@ -508,7 +472,7 @@ add_variable_name <- function(working_environment_, variable_name) {
 # environment. This exists because we may in the future want to return something
 # that is not a data frame.
 report_results <- function(workspace) {
-#  last_df <- attr(workspace, "last")
-#  workspace[[last]]
+  # active_df <- attr(workspace, "active")
+  # workspace[[active_df]]
   workspace$data_frame_output_
 }
