@@ -100,20 +100,20 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   # or a series of level calls. You can't mix and match.
   # This helper function will be TRUE if calls are all levels, FALSE
   # if there are no calls or they are not levels.
-  explicit_data_supplied <- !missing(data) && !is.null(data)
-  explicit_n_supplied <- (!is.null(N) & !missing(N))
+  explicit_data_supplied <-  !is.null(data)
+  explicit_n_supplied <- !is.null(N)
 
   # The user did not seem to do one of the three possible things we can do.
   # Maybe they anonymously passed data or N.
   if (!explicit_data_supplied && !explicit_n_supplied) {
-    first_unnamed_arg <- which(names(dots) == "" &
+    first_unnamed <- which(names(dots) == "" &
                                  call_not_level_call(dots))[1]
 
     # Let's check the first unnamed argument.
-    if(!is.na(first_unnamed_arg)) {
+    if(!is.na(first_unnamed)) {
       # Eval it; whether it's data or N, we don't need any environment
       # from anything else. If it fails, not great.
-      evaluate_first_arg <- eval_tidy(dots[[first_unnamed_arg]])
+      evaluate_first_arg <- eval_tidy(dots[[first_unnamed]])
 
       # If they supplied a list or data frame, they meant data.
       if(is.list(evaluate_first_arg) || is.data.frame(evaluate_first_arg)) {
@@ -128,7 +128,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       # Whichever it was, remove it from the remaining args, because it's
       # not a variable or level call. If there's not an N or data, this
       # won't be evaluate anyway.
-      dots <- dots[-first_unnamed_arg]
+      dots <- dots[-first_unnamed]
     }
     # If not, we'll error out below
   }
@@ -138,18 +138,13 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   data_supplied <- !is.null(data) & !all_levels
   n_supplied <- !is.null(N)
 
-  # User must provide exactly one of:
-  # 1) One or more level calls (with or without importing their own data)
-  # 2) Import their own data and do not involve level calls
-  # 3) Provide an N without importing their own data
+
   if (sum(all_levels, data_supplied, n_supplied) != 1) {
     stop(
       "You must do exactly one of: \n",
       "1) One or more level calls, with or without existing data \n",
-      "2) Import existing data and optionally, add new variables without ",
-      "adding a level \n",
-      "3) Provide an `N` without importing data and optionally, add new ",
-      "variables"
+      "2) Import existing data and add new variables \n",
+      "3) Provide an `N` without importing data or creating levels"
     )
   }
 
