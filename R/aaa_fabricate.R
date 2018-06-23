@@ -227,18 +227,15 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
 
       id_matches <- vapply(working_environment$data_frame_output_, identical, TRUE, temp_id)
 
-
-      # If we didn't find the exact ID label, then we have to add one.
-      if(!any(id_matches)) {
-        working_environment$data_frame_output_[[ID_label]] <- temp_id
-        add_level_id(working_environment, ID_label)
-        add_variable_name(working_environment, ID_label)
+      if(any(id_matches)) {
+        ID_label <- names(working_environment$data_frame_output_)[id_matches][1]
       } else {
-        # Just record the one we already have.
-        proximate_id <- names(working_environment$data_frame_output_)[id_matches][1]
-        add_level_id(working_environment, proximate_id)
-        add_variable_name(working_environment, proximate_id)
+        working_environment$data_frame_output_[[ID_label]] <- temp_id
       }
+
+      add_level_id(working_environment, ID_label)
+      add_variable_name(working_environment, ID_label)
+
     }
 
 
