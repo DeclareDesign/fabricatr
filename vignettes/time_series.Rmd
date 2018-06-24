@@ -1,5 +1,5 @@
 ---
-title: "Time series data with **fabricatr**"
+title: "Time series data with fabricatr"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
 vignette: >

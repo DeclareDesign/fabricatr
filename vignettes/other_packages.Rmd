@@ -1,5 +1,5 @@
 ---
-title: "Using other data generating packages with **fabricatr**"
+title: "Using other data generating packages with fabricatr"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
 vignette: >
