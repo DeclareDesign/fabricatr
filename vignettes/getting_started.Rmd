@@ -75,6 +75,6 @@ If you'd like to read more about using **fabricatr** to structure your data, see
 
 ## DeclareDesign
 
-**fabricatr** is one of four packages that make up the DeclareDesign software suite. Along with **fabricatr**, which helps you imagine your data before you collect it, we offer [**estimatr**](/R/estimatr), fast estimators for social scientists, [**randomizr**](/R/randomizr), an easy to use tools for common forms of random assignment and sampling, and [**DeclareDesign**](/), a package for declaring and diagnosing research designs to understand and improve them.
+**fabricatr** is one of four packages that make up the DeclareDesign software suite. Along with **fabricatr**, which helps you imagine your data before you collect it, we offer [**estimatr**](/R/estimatr), fast estimators for social scientists, [**randomizr**](/R/randomizr), an easy to use tools for common forms of random assignment and sampling, and [**DeclareDesign**](/R/DeclareDesign/), a package for declaring and diagnosing research designs to understand and improve them.
 
 In addition to our documentation in `R` and online, we are happy to respond to any questions you have about using our packages, or incorporate your requests for new features. You can contact us via the  [**DeclareDesign** help board](http://discuss.declaredesign.org/).
