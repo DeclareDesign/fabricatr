@@ -225,9 +225,7 @@ handle_id <- function(ID_label, data=NULL) {
 handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels=1) {
   # Error handling for user-supplied N
 
-  uu <- attr(working_environment, "active_df")
-  df <- if(is.character(uu)) working_environment[[uu]] else working_environment$data_frame_output
-
+  df <- active_df(working_environment)
   # First, evaluate the N in the context of the working environment's working
   # data frame. Why do we need to do this? Because N could be a function of
   # variables.
@@ -249,7 +247,7 @@ handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels
     # level of the last level variable
 
     # What's the last level variable?
-    last_level_name <- tail(working_environment$level_ids_)
+    last_level_name <- attr(working_environment, "prev_df")
 
     # Last level name is null; if this is imported data, we should
     # use the nrow of the data frame as the unique length of the last
@@ -463,7 +461,7 @@ check_rectangular <- function(working_data_list, N) {
 # Add a level ID to a working environment
 add_level_id <- function(working_environment_, ID_label) {
   # Add or create level ID list
-  working_environment_$level_ids_ <- append(working_environment_$level_ids_, ID_label)
+  attr(working_environment_, "prev_df") <- ID_label
 }
 
 
@@ -526,5 +524,5 @@ do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {
 # that is not a data frame.
 report_results <- active_df <- function(workspace) {
   uu <- attr(workspace, "active_df")
-  workspace[[uu]]
+  if(is.null(uu)) NULL else workspace[[uu]]
 }
