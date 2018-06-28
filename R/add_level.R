@@ -7,15 +7,14 @@ add_level <- function(N = NULL,
                       nest = TRUE) {
   N <- enquo(N)
   data_arguments <- quos(...)
-  if ("working_environment_" %in% names(data_arguments)) {
-    working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-    data_arguments[["working_environment_"]] <- NULL
-  } else {
-    # This happens if either an add_level call is run external to a fabricate
-    # call OR if add_level is the only argument to a fabricate call and
-    # the data argument tries to resolve an add_level call.
+
+  if (!has_name(data_arguments, "working_environment_")) {
     stop("`add_level()` calls must be run inside `fabricate()` calls.")
   }
+
+  working_environment_ <- get_expr(data_arguments[["working_environment_"]])
+  data_arguments[["working_environment_"]] <- NULL
+
 
   if ("ID_label" %in% names(data_arguments)) {
     ID_label <- get_expr(data_arguments[["ID_label"]])
@@ -47,6 +46,9 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
     ))
   }
 
+  check_add_level_args(data_arguments, ID_label)
+
+
   # Check to make sure the N here is sane
   N <- handle_n(N, add_level = TRUE, working_environment_)
 
@@ -60,26 +62,21 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
     working_data_list <- list()
   }
 
+
+
   # Staple in an ID column onto the data list.
-  if (!is.null(ID_label) && !is.na(ID_label)) {
-    # It's actually not possible the working data frame already has an ID label
-    # since we forcibly shelved it earlier -- so let's just plough along.
 
-    # First, add the column to the working data frame
-    working_data_list[[ID_label]] <- generate_id_pad(N)
+  # It's actually not possible the working data frame already has an ID label
+  # since we forcibly shelved it earlier -- so let's just plough along.
 
-    # Next, add the ID_label to the level ids tracker
-    # Why does this not need to return? Because environments are passed by
-    # reference
-    add_level_id(working_environment_, ID_label)
-    add_variable_name(working_environment_, ID_label)
-  } else {
-    stop("Please specify a name for the level call you are creating.")
-  }
+  # First, add the column to the working data frame
+  working_data_list[[ID_label]] <- generate_id_pad(N)
 
-  if(any(names(data_arguments) == "")) {
-    stop("All variables inside an add_level call must be named.")
-  }
+  # Next, add the ID_label to the level ids tracker
+  # Why does this not need to return? Because environments are passed by
+  # reference
+  add_level_id(working_environment_, ID_label)
+  add_variable_name(working_environment_, ID_label)
 
   # Loop through each of the variable generating arguments
   for (i in names(data_arguments)) {
@@ -109,7 +106,23 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
     row.names = NULL
   )
 
+  working_environment_[[ID_label]] <- working_environment_$data_frame_output_
+  attr(working_environment_, "active_df") <- ID_label
+
   # In general the reference should be unchanged, but for single-level calls
   # there won't be a working environment to reference.
-  return(working_environment_)
+  working_environment_
 }
+
+
+check_add_level_args <- function(data_arguments, ID_label) {
+  if(any(names(data_arguments) == "")) {
+    stop("All variables inside an add_level call must be named.")
+  }
+
+  if(is.null(ID_label) || is.na(ID_label)) {
+    stop("Please specify a name for the level call you are creating.")
+
+  }
+}
+
