@@ -59,23 +59,7 @@ import_data_list <- function(data) {
 }
 
 shelf_working_data <- function(working_environment_) {
-  what <- c(
-    "variable_names_")
 
-  if (exists("data_frame_output_", working_environment_)) {
-    # Construct the shelved version
-    package_df <- mget(what, working_environment_, ifnotfound = list(NULL))
-    package_df <- filter_out_nulls(package_df)
-
-    # Append it to the existing shelf
-    working_environment_$shelved_df <- append(
-      working_environment_$shelved_df,
-      list(package_df)
-    )
-
-    # Clear the current work-space.
-    rm(envir = working_environment_, list=names(package_df)) # rm warns if list has an element not in envir
-  }
 
   working_environment_
 }
