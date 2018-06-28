@@ -26,6 +26,11 @@ recycle <- function(x, .N = NULL) {
   rep_len(x, length.out = .N)
 }
 
+makeUU <- function() {
+  sprintf("%X-%X", as.integer(Sys.time()), sample.int(.Machine$integer.max, 1))
+}
+
+
 import_data_list <- function(data) {
   workspace <- new_environment()
 
@@ -40,7 +45,7 @@ import_data_list <- function(data) {
     # Shelf the current working data if there's any.
     workspace <- shelf_working_data(workspace)
 
-    uu <- sprintf("%X-%X", as.integer(Sys.time()), sample.int(.Machine$integer.max, 1))
+    uu <- makeUU()
 
     workspace[[uu]] <- df
 

@@ -6,16 +6,16 @@ nest_level <- function(N = NULL,
                        ...) {
   N <- enquo(N)
   data_arguments <- quos(...)
-  if ("working_environment_" %in% names(data_arguments)) {
-    working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-    data_arguments[["working_environment_"]] <- NULL
-  } else {
-    # This happens if either an add_level call is run external to a fabricate
-    # call OR if add_level is the only argument to a fabricate call and
-    # the data argument tries to resolve an add_level call.
+
+  if(!has_name(data_arguments, "working_environment_")){
+    # This happens if either an add_level call is run outside of fabricate()
     stop("`nest_level()` calls must be run inside `fabricate()` calls.")
   }
-  if ("ID_label" %in% names(data_arguments)) {
+
+  working_environment_ <- get_expr(data_arguments[["working_environment_"]])
+  data_arguments[["working_environment_"]] <- NULL
+
+  if (has_name(data_arguments, "ID_label")) {
     ID_label <- get_expr(data_arguments[["ID_label"]])
     data_arguments[["ID_label"]] <- NULL
   }
@@ -32,6 +32,10 @@ nest_level <- function(N = NULL,
 nest_level_internal <- function(N = NULL, ID_label = NULL,
                                 working_environment_ = NULL,
                                 data_arguments = NULL) {
+
+  workspace <- working_environment_
+  uu <- attr(workspace, "active_df")
+
 
   # Check to make sure we have a data frame to nest on.
   if (is.null(dim(working_environment_$data_frame_output_))) {
@@ -72,10 +76,8 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   inner_N <- N # Length specified for this level
   N <- length(rep_indices) # Length of overall data frame
 
-  # Expand the data frame by duplicating the indices and then coerce the data
-  # frame to a list -- we do this to basically make variables accessible in the
-  # namespace.
-  working_data_list <- as.list(
+  # stretch the data frame
+  working_data_list <- if(!is.null(uu)) as.list(workspace[[uu]][rep_indices, , drop=FALSE]) else as.list(
     working_environment_$data_frame_output_[rep_indices, , drop = FALSE]
     )
 
@@ -147,5 +149,7 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
     row.names = NULL
   )
 
-  return(working_environment_)
+  if(is.character(uu)) working_environment_[[uu]] <-   working_environment_[["data_frame_output_"]]
+
+  working_environment_
 }

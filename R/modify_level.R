@@ -5,7 +5,7 @@
 modify_level <- function(N = NULL, ...) {
   data_arguments <- quos(...)
 
-  if(!"working_environment_" %in% names(data_arguments)){
+  if(!has_name(data_arguments, "working_environment_")){
     # This happens if either an add_level call is run outside of fabricate()
     stop("`modify_level()` calls must be run inside `fabricate()` calls.")
   }
@@ -13,7 +13,7 @@ modify_level <- function(N = NULL, ...) {
   working_environment_ <- get_expr(data_arguments[["working_environment_"]])
   data_arguments[["working_environment_"]] <- NULL
 
-  if ("ID_label" %in% names(data_arguments)) {
+  if (has_name(data_arguments, "ID_label")) {
     ID_label <- get_expr(data_arguments[["ID_label"]])
     data_arguments[["ID_label"]] <- NULL
   }
@@ -34,6 +34,12 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
 
   modify_level_internal_checks(ID_label, working_environment_)
 
+  workspace <- working_environment_
+  uu <- attr(workspace, "active_df")
+
+
+
+
   # There are two possibilities. One is that we are modifying the lowest level
   # of data. In which case, we simply add variables, like if someone called
   # add_level with a dataset. To check if that's the world we're in, check if
@@ -42,11 +48,9 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     # There is no subsetting going on, but modify_level was used anyway.
     N <- nrow(working_environment_$data_frame_output_)
 
-    workspace <- working_environment_
-    uu <- attr(workspace, "active_df")
-
     # Coerce the working data frame into a list
     working_data_list <- as.list(if(!is.null(uu)) workspace[[uu]] else workspace$data_frame_output_)
+
 
     # Now loop over the variable creation.
     for (i in names(data_arguments)) {
@@ -83,48 +87,33 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     return(working_environment_)
   }
 
+
+  # Coerce the working data frame into a list
+  working_data <- if(!is.null(uu)) workspace[[uu]] else workspace$data_frame_output_
+
+
   # If we're here, then at least some subsetting is used in the modify call
   # first, subset to unique observations, then generate new data, then
   # re-expand. To do this, we need a mapping between observations and unique
   # observations. First, get the unique values of the level:
-  unique_values_of_level <- unique(
-    working_environment_$data_frame_output_[[ID_label]]
-    )
+  unique_values_of_level <- unique(working_data[[ID_label]])
 
-  index_maps <- as.numeric(factor(
-    working_environment_$data_frame_output_[[ID_label]],
-    levels = unique_values_of_level,
-    labels = seq_len(length(unique_values_of_level))
-  ))
+  index_maps <- match(working_data[[ID_label]], unique_values_of_level)
 
-  # Now, which variables are we going to write to (do we need to subset)?
-  write_variables <- unname(unlist(get_symbols_from_quosures(data_arguments)))
-  # Remove the ID label from the variables we are going to write to.
-  write_variables <- setdiff(write_variables, ID_label)
-  # Let's also remove anything that doesn't seem to be a valid variable
-  write_variables <- write_variables[write_variables %in%
-    names(working_environment_$data_frame_output_)]
+  # Now, which variables are we going to from to (do we need to subset)?
+  input_variables <- unname(unlist(get_symbols_from_quosures(data_arguments)))
+  input_variables <- intersect(setdiff(input_variables, ID_label), names(working_data))
+  input_variables <- working_data[input_variables]
 
   # Level unique variables:
   level_unique_variables <- get_unique_variables_by_level(
-    data = working_environment_$data_frame_output_,
+    data = working_data,
     ID_label = ID_label,
-    superset = write_variables
+    superset = input_variables
   )
 
-  # Error if we try to write using a variable that's not unique to the level.
-  if (length(level_unique_variables) != length(write_variables) &
-    length(write_variables) != 0) {
-    stop(
-      "Your modify_level command attempts to generate a new variable at the ",
-      "level \"", ID_label,
-      "\" but requires reading from the existing variable(s) [",
-      paste(setdiff(write_variables, level_unique_variables), collapse = ", "),
-      "] which are not defined at the level \"", ID_label, "\"\n\n",
-      "To prevent this error, you may modify the data at the level of ",
-      "interest, or change the definition of your new variables."
-    )
-  }
+  check_uniqueness_at_level(level_unique_variables, input_variables, ID_label)
+
 
   # Our subset needs these columns -- the level variable, all the unique
   # variables we are going to use to write, and then in case the latter is "",
@@ -133,23 +122,23 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
 
   # And these rows:
   row_indices_keep <- !duplicated(
-    working_environment_$data_frame_output_[[ID_label]])
+    working_data[[ID_label]])
 
   # Now subset it:
-  working_subset <- working_environment_$data_frame_output_[
+  working_subset <- working_data[
     row_indices_keep,
     merged_set,
     drop = FALSE
   ]
 
   # Set the N variable correctly moving forward:
-  super_N <- nrow(working_environment_$data_frame_output_)
+  super_N <- nrow(working_data)
   N <- nrow(working_subset)
 
   # Get the subset into a list:
   working_data_list <- as.list(working_subset)
   # And our original working data frame:
-  super_working_data_list <- as.list(working_environment_$data_frame_output_)
+  super_working_data_list <- as.list(working_data)
 
   # Now loop
   for (i in names(data_arguments)) {
@@ -170,14 +159,12 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     # might need the non-expanded version to generate new variables.
     super_working_data_list[[i]] <- working_data_list[[i]][index_maps]
 
-    # Nuke the current data argument -- if we have the same variable name
-    # created twice, this is OK, because it'll only nuke the current one.
+    # clean up as above
     data_arguments[[i]] <- NULL
   }
 
   # Before handing back data, ensure it's actually rectangular
-  super_working_data_list <- check_rectangular(super_working_data_list,
-                                               super_N)
+  super_working_data_list <- check_rectangular(super_working_data_list, super_N)
 
   # Overwrite the working data frame.
   working_environment_$data_frame_output_ <- data.frame(
@@ -185,6 +172,8 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     stringsAsFactors = FALSE,
     row.names = NULL
   )
+
+  if(is.character(uu)) working_environment_[[uu]] <- working_environment_$data_frame_output_
 
   # Return results
   working_environment_
@@ -208,6 +197,23 @@ modify_level_internal_checks <- function(ID_label, working_environment_) {
       "You can't modify a level if there is no working data frame to ",
       "modify: you must either load pre-existing data or generate some data ",
       "before modifying."
+    )
+  }
+}
+
+
+check_uniqueness_at_level <- function(level_unique_variables, write_variables, ID_label) {
+  # Error if we try to write using a variable that's not unique to the level.
+  if (length(level_unique_variables) != length(write_variables) &&
+      length(write_variables) != 0) {
+    stop(
+      "Your modify_level command attempts to generate a new variable at the ",
+      "level \"", ID_label,
+      "\" but requires reading from the existing variable(s) [",
+      paste(setdiff(write_variables, level_unique_variables), collapse = ", "),
+      "] which are not defined at the level \"", ID_label, "\"\n\n",
+      "To prevent this error, you may modify the data at the level of ",
+      "interest, or change the definition of your new variables."
     )
   }
 }

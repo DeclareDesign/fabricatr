@@ -92,11 +92,11 @@ link_levels <- function(N = NULL,
     data_arguments[["ID_label"]] <- NULL
   }
 
-  return(cross_levels_internal(
+  cross_levels_internal(
     N = N, ID_label = ID_label, by = by,
     working_environment_ = working_environment_,
     data_arguments = data_arguments
-  ))
+  )
 }
 
 #' @importFrom rlang quo_text eval_tidy
@@ -201,6 +201,10 @@ cross_levels_internal <- function(N = NULL,
 
   # Overwrite the working data frame.
   working_environment_$data_frame_output_ <- out
+
+
+  working_environment_[[ID_label]] <- out
+  attr(working_environment_, "active_df") <- ID_label
 
   if (length(data_arguments)) {
     working_environment_ <- modify_level_internal(
