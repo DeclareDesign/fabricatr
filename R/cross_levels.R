@@ -172,10 +172,6 @@ cross_levels_internal <- function(N = NULL,
     add_variable_name(working_environment_, ID_label)
   }
 
-  # Overwrite the working data frame.
-  working_environment_$data_frame_output_ <- out
-
-
   working_environment_[[ID_label]] <- out
   attr(working_environment_, "active_df") <- ID_label
 
@@ -188,7 +184,7 @@ cross_levels_internal <- function(N = NULL,
   }
 
   # Return results
-  return(working_environment_)
+  working_environment_
 }
 
 #' Helper function handling specification of which variables to join a

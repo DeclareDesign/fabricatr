@@ -37,6 +37,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   workspace <- working_environment_
   uu <- attr(workspace, "active_df")
 
+  df <- workspace[[uu]]
 
 
 
@@ -44,12 +45,12 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   # of data. In which case, we simply add variables, like if someone called
   # add_level with a dataset. To check if that's the world we're in, check if
   # we have any duplicates in the ID label:
-  if (!anyDuplicated(working_environment_$data_frame_output_[[ID_label]])) {
+  if (!anyDuplicated(df[[ID_label]])) {
     # There is no subsetting going on, but modify_level was used anyway.
-    N <- nrow(working_environment_$data_frame_output_)
+    N <- nrow(df)
 
     # Coerce the working data frame into a list
-    working_data_list <- as.list(if(!is.null(uu)) workspace[[uu]] else workspace$data_frame_output_)
+    working_data_list <- as.list(df)
 
 
     # Now loop over the variable creation.
@@ -75,13 +76,11 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     working_data_list <- check_rectangular(working_data_list, N)
 
     # Overwrite the working data frame.
-    working_environment_[["data_frame_output_"]] <- data.frame(
+    workspace[[uu]] <- data.frame(
       working_data_list,
       stringsAsFactors = FALSE,
       row.names = NULL
     )
-
-    if(!is.null(uu)) workspace[[uu]] <- working_environment_[["data_frame_output_"]]
 
     # Return results
     return(working_environment_)
@@ -191,8 +190,10 @@ modify_level_internal_checks <- function(ID_label, working_environment_) {
     )
   }
 
+  uu <- attr(working_environment_, "active_df")
+
   # First, establish that if we have no working data frame, we can't continue
-  if (is.null(dim(working_environment_$data_frame_output_))) {
+  if (is.null(dim(working_environment_[[uu]]))) {
     stop(
       "You can't modify a level if there is no working data frame to ",
       "modify: you must either load pre-existing data or generate some data ",
