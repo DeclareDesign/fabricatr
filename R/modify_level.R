@@ -87,26 +87,22 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   }
 
 
-  # Coerce the working data frame into a list
-  working_data <- if(!is.null(uu)) workspace[[uu]] else workspace$data_frame_output_
-
-
   # If we're here, then at least some subsetting is used in the modify call
   # first, subset to unique observations, then generate new data, then
   # re-expand. To do this, we need a mapping between observations and unique
   # observations. First, get the unique values of the level:
-  unique_values_of_level <- unique(working_data[[ID_label]])
+  unique_values_of_level <- unique(df[[ID_label]])
 
-  index_maps <- match(working_data[[ID_label]], unique_values_of_level)
+  index_maps <- match(df[[ID_label]], unique_values_of_level)
 
   # Now, which variables are we going to from to (do we need to subset)?
   input_variables <- unname(unlist(get_symbols_from_quosures(data_arguments)))
-  input_variables <- intersect(setdiff(input_variables, ID_label), names(working_data))
-  input_variables <- working_data[input_variables]
+  input_variables <- intersect(setdiff(input_variables, ID_label), names(df))
+  input_variables <- df[input_variables]
 
   # Level unique variables:
   level_unique_variables <- get_unique_variables_by_level(
-    data = working_data,
+    data = df,
     ID_label = ID_label,
     superset = input_variables
   )
@@ -121,23 +117,23 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
 
   # And these rows:
   row_indices_keep <- !duplicated(
-    working_data[[ID_label]])
+    df[[ID_label]])
 
   # Now subset it:
-  working_subset <- working_data[
+  working_subset <- df[
     row_indices_keep,
     merged_set,
     drop = FALSE
   ]
 
   # Set the N variable correctly moving forward:
-  super_N <- nrow(working_data)
+  super_N <- nrow(df)
   N <- nrow(working_subset)
 
   # Get the subset into a list:
   working_data_list <- as.list(working_subset)
   # And our original working data frame:
-  super_working_data_list <- as.list(working_data)
+  super_working_data_list <- as.list(df)
 
   # Now loop
   for (i in names(data_arguments)) {
@@ -166,13 +162,11 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   super_working_data_list <- check_rectangular(super_working_data_list, super_N)
 
   # Overwrite the working data frame.
-  working_environment_$data_frame_output_ <- data.frame(
+  working_environment_[[uu]] <- data.frame(
     super_working_data_list,
     stringsAsFactors = FALSE,
     row.names = NULL
   )
-
-  if(is.character(uu)) working_environment_[[uu]] <- working_environment_$data_frame_output_
 
   # Return results
   working_environment_
