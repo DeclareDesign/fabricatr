@@ -95,8 +95,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   merged_set <- unique(c(ID_label, setdiff(level_unique_variables, "")))
 
   # And these rows:
-  row_indices_keep <- !duplicated(
-    df[[ID_label]])
+  row_indices_keep <- !duplicated(df[[ID_label]])
 
   # Now subset it:
   working_subset <- df[

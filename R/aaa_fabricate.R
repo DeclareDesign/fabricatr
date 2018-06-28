@@ -192,7 +192,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
 
   else if (data_supplied) {
 
-    df <- working_environment$data_frame_output_
+    df <- active_df(working_environment)
 
     # Single level -- maybe the user provided an ID_label, maybe they didn't.
     # Sanity check and/or construct an ID label for the new data.
@@ -212,27 +212,26 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       # happen because handle_id would have moved to a fallback ID.
     } else if(explicit_ID_provided) {
       # We explicitly asked for an ID column, so let's do it.
-      working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
+      df[[ID_label]] <- generate_id_pad(N)
     } else if(length(dots)) {
       # We didn't explicitly ask for an ID column, but we are modifying the data
       # so probably we should do it unless there's a column that's exactly this.
       # Generate the ID label and check if there's a column that's exactly this.
       temp_id <- generate_id_pad(N)
 
-      id_matches <- vapply(working_environment$data_frame_output_, identical, TRUE, temp_id)
+      id_matches <- vapply(df, identical, TRUE, temp_id)
 
       if(any(id_matches)) {
-        ID_label <- names(working_environment$data_frame_output_)[id_matches][1]
+        ID_label <- names(df)[id_matches][1]
       } else {
-        working_environment$data_frame_output_[[ID_label]] <- temp_id
+        df[[ID_label]] <- temp_id
       }
 
 
     }
 
     uu <- attr(working_environment, "active_df")
-    if(!is.null(uu)) working_environment[[uu]] <- working_environment$data_frame_output_
-
+    working_environment[[uu]] <- df
 
     # Run the level adder, report the results, and return
     ret <- if (is_empty(dots)) working_environment else

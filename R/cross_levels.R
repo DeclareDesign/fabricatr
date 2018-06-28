@@ -82,8 +82,6 @@ cross_levels_internal <- function(N = NULL,
                                   by = NULL,
                                   data_arguments = NULL) {
 
-  if(exists("data_frame_output_", working_environment_))rm("data_frame_output_", envir = working_environment_)
-
   check_cross_level_args(working_environment_, by)
 
 

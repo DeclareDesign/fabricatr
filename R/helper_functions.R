@@ -46,10 +46,6 @@ import_data_list <- function(data) {
 
     workspace[[uu]] <- df
 
-    # Now copy the current data into the environment
-    workspace$data_frame_output_ <- df
-    workspace$variable_names_ <- names(df)
-
   }
 
   structure(workspace, active_df=uu, insertion_order=c())

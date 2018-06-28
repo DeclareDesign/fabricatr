@@ -117,13 +117,11 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   working_data_list <- check_rectangular(working_data_list, N)
 
   # Overwrite the working data frame.
-  working_environment_[["data_frame_output_"]] <- data.frame(
+  working_environment_[[uu]] <- data.frame(
     working_data_list,
     stringsAsFactors = FALSE,
     row.names = NULL
   )
-
-  if(is.character(uu)) working_environment_[[uu]] <-   working_environment_[["data_frame_output_"]]
 
   working_environment_
 }
