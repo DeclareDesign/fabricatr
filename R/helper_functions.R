@@ -478,9 +478,9 @@ add_variable_name <- function(working_environment_, variable_name) {
 
 
 do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {
-  data_arguments <- quos(...)
-  if(!has_name(data_arguments, "working_environment_")){
-    # This happens if either an add_level call is run external to a fabricate
+  dots <- quos(...)
+  if(!has_name(dots, "working_environment_")){
+    # This happens if either call is run external to a fabricate
     # call OR if add_level is the only argument to a fabricate call and
     # the data argument tries to resolve an add_level call.
     stop(
@@ -488,13 +488,13 @@ do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {
     )
   }
 
-  working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-  data_arguments[["working_environment_"]] <- NULL
+  working_environment_ <- get_expr(dots[["working_environment_"]])
+  dots[["working_environment_"]] <- NULL
 
 
-  if ("ID_label" %in% names(data_arguments)) {
-    ID_label <- get_expr(data_arguments[["ID_label"]])
-    data_arguments[["ID_label"]] <- NULL
+  if (has_name(dots, "ID_label")) {
+    ID_label <- get_expr(dots[["ID_label"]])
+    dots[["ID_label"]] <- NULL
   }
 
   # worse is better :()
@@ -502,20 +502,20 @@ do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {
     FUN(
       N = N, ID_label = ID_label, by = by,
       working_environment_ = working_environment_,
-      data_arguments = data_arguments
+      data_arguments = dots
     )
   } else if (has_name(formals(FUN), "nest")){
     FUN(
       N = N, ID_label = ID_label,
       working_environment_ = working_environment_,
-      data_arguments = data_arguments,
+      data_arguments = dots,
       nest = nest
     )
   } else {
     FUN(
       N = N, ID_label = ID_label,
       working_environment_ = working_environment_,
-      data_arguments = data_arguments
+      data_arguments = dots
     )
   }
 }
