@@ -108,39 +108,14 @@ cross_levels_internal <- function(N = NULL,
 
   if(exists("data_frame_output_", working_environment_))rm("data_frame_output_", envir = working_environment_)
 
-  if(length(working_environment_) <= 1){
-    stop(
-          "You must provide at least two separate level hierarchies to create ",
-          "cross-classified data. If you have specified multiple levels, please ",
-          "ensure that you use the `nest=FALSE` argument to specify they are ",
-          "non-nested"
-    )
-  }
+  check_cross_level_args(working_environment_, by)
 
-  if (is.null(by) || !length(by$variable_names)) {
-    stop(
-      "You must specify a join structure using the `by` argument to create ",
-      "cross-classified data."
-    )
-  }
 
-  # Shelf the working data frame before continuing, so now all our data is on
-  # the shelf.
 
-  # Loop over the variable name
   variable_names <- by$variable_names
-  data_frame_indices <- integer(length(variable_names))
-
-  if (anyDuplicated(variable_names)) {
-    stop(
-      "Variable names for joining cross-classified data must be unique. ",
-      "Currently, you are joining on a variable named \"",
-      variable_names[anyDuplicated(variable_names)[1]],
-      "\" more than once."
-    )
-  }
 
   df_names <- names(working_environment_)
+  data_frame_indices <- integer(length(variable_names))
 
   # Figure out which dfs we're joining on which variables
   for (i in seq_along(variable_names)) {
@@ -243,4 +218,37 @@ join <- function(..., rho=0, sigma=NULL) {
     rho = rho,
     sigma = sigma
   ))
+}
+
+
+check_cross_level_args <- function(working_environment_, by) {
+  if(length(working_environment_) <= 1){
+    stop(
+      "You must provide at least two separate level hierarchies to create ",
+      "cross-classified data. If you have specified multiple levels, please ",
+      "ensure that you use the `nest=FALSE` argument to specify they are ",
+      "non-nested"
+    )
+  }
+
+  if (is.null(by) || !length(by$variable_names)) {
+    stop(
+      "You must specify a join structure using the `by` argument to create ",
+      "cross-classified data."
+    )
+  }
+
+  # Shelf the working data frame before continuing, so now all our data is on
+  # the shelf.
+
+  # Loop over the variable name
+
+  if (anyDuplicated(by$variable_names)) {
+    stop(
+      "Variable names for joining cross-classified data must be unique. ",
+      "Currently, you are joining on a variable named \"",
+      by$variable_names[duplicated(by$variable_names)],
+      "\" more than once."
+    )
+  }
 }
