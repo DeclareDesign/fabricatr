@@ -175,7 +175,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
 
 
 
-modify_level_internal_checks <- function(ID_label, working_environment_) {
+modify_level_internal_checks <- function(ID_label, workspace) {
   # Need to supply an ID_label, otherwise we have no idea what to modify.
   if (is.null(ID_label)) {
     stop(
@@ -184,10 +184,10 @@ modify_level_internal_checks <- function(ID_label, working_environment_) {
     )
   }
 
-  uu <- attr(working_environment_, "active_df")
+  uu <- attr(workspace, "active_df")
 
   # First, establish that if we have no working data frame, we can't continue
-  if (is.null(dim(working_environment_[[uu]]))) {
+  if (is.null(dim(workspace[[uu]]))) {
     stop(
       "You can't modify a level if there is no working data frame to ",
       "modify: you must either load pre-existing data or generate some data ",
@@ -195,6 +195,8 @@ modify_level_internal_checks <- function(ID_label, working_environment_) {
     )
   }
 }
+
+
 
 
 check_uniqueness_at_level <- function(level_unique_variables, write_variables, ID_label) {

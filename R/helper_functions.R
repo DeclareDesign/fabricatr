@@ -481,7 +481,6 @@ add_variable_name <- function(working_environment_, variable_name) {
 # environment. This exists because we may in the future want to return something
 # that is not a data frame.
 report_results <- function(workspace) {
-  active_df <- attr(workspace, "active_df")
-  if(!is.null(active_df)) workspace[[active_df]]
-  else workspace$data_frame_output_
+  uu <- attr(workspace, "active_df")
+  workspace[[uu]]
 }
