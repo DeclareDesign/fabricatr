@@ -2,31 +2,8 @@
 #'
 #' @rdname fabricate
 #' @export
-add_level <- function(N = NULL,
-                      ...,
-                      nest = TRUE) {
-  N <- enquo(N)
-  data_arguments <- quos(...)
-
-  if (!has_name(data_arguments, "working_environment_")) {
-    stop("`add_level()` calls must be run inside `fabricate()` calls.")
-  }
-
-  working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-  data_arguments[["working_environment_"]] <- NULL
-
-
-  if ("ID_label" %in% names(data_arguments)) {
-    ID_label <- get_expr(data_arguments[["ID_label"]])
-    data_arguments[["ID_label"]] <- NULL
-  }
-
-  add_level_internal(
-    N = N, ID_label = ID_label,
-    working_environment_ = working_environment_,
-    data_arguments = data_arguments,
-    nest = nest
-  )
+add_level <- function(N = NULL, ..., nest = TRUE) {
+  do_internal(enquo(N), ..., FUN=add_level_internal, nest=nest)
 }
 
 #' @importFrom rlang eval_tidy

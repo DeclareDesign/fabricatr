@@ -3,26 +3,7 @@
 #' @rdname fabricate
 #' @export
 modify_level <- function(N = NULL, ...) {
-  data_arguments <- quos(...)
-
-  if(!has_name(data_arguments, "working_environment_")){
-    # This happens if either an add_level call is run outside of fabricate()
-    stop("`modify_level()` calls must be run inside `fabricate()` calls.")
-  }
-
-  working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-  data_arguments[["working_environment_"]] <- NULL
-
-  if (has_name(data_arguments, "ID_label")) {
-    ID_label <- get_expr(data_arguments[["ID_label"]])
-    data_arguments[["ID_label"]] <- NULL
-  }
-
-  modify_level_internal(
-    N = N, ID_label = ID_label,
-    working_environment_ = working_environment_,
-    data_arguments = data_arguments
-  )
+  do_internal(N, ..., FUN=modify_level_internal, "modify_level")
 }
 
 #' @importFrom rlang eval_tidy
@@ -184,10 +165,8 @@ modify_level_internal_checks <- function(ID_label, workspace) {
     )
   }
 
-  uu <- attr(workspace, "active_df")
-
   # First, establish that if we have no working data frame, we can't continue
-  if (is.null(dim(workspace[[uu]]))) {
+  if (is.null(dim(active_df(workspace)))) {
     stop(
       "You can't modify a level if there is no working data frame to ",
       "modify: you must either load pre-existing data or generate some data ",

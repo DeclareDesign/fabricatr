@@ -2,29 +2,8 @@
 #'
 #' @rdname fabricate
 #' @export
-nest_level <- function(N = NULL,
-                       ...) {
-  N <- enquo(N)
-  data_arguments <- quos(...)
-
-  if(!has_name(data_arguments, "working_environment_")){
-    # This happens if either an add_level call is run outside of fabricate()
-    stop("`nest_level()` calls must be run inside `fabricate()` calls.")
-  }
-
-  working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-  data_arguments[["working_environment_"]] <- NULL
-
-  if (has_name(data_arguments, "ID_label")) {
-    ID_label <- get_expr(data_arguments[["ID_label"]])
-    data_arguments[["ID_label"]] <- NULL
-  }
-
-  return(nest_level_internal(
-    N = N, ID_label = ID_label,
-    working_environment_ = working_environment_,
-    data_arguments = data_arguments
-  ))
+nest_level <- function(N = NULL, ...) {
+  do_internal(N, ..., FUN = nest_level_internal, from="nest_level")
 }
 
 #' @importFrom rlang eval_tidy
@@ -35,7 +14,7 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
 
   workspace <- working_environment_
   uu <- attr(workspace, "active_df")
-  df <- workspace[[uu]] %||% working_environment_$data_frame_output
+  df <- workspace[[uu]]
 
 
   # Check to make sure we have a data frame to nest on.

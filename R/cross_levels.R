@@ -60,44 +60,20 @@ cross_levels <- function(by = NULL,
     )
   }
 
-  link_levels(
-    N = NULL,
-    by = by,
-    ...
-  )
+  do_internal(N = NULL, by = by, ..., FUN=cross_levels_internal, from="cross_level" )
 }
 
 #' @importFrom rlang quos get_expr
 #'
 #' @rdname cross_levels
 #' @export
-link_levels <- function(N = NULL,
-                        by = NULL,
-                        ...) {
-  data_arguments <- quos(...)
-  if ("working_environment_" %in% names(data_arguments)) {
-    working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-    data_arguments[["working_environment_"]] <- NULL
-  } else {
-    # This happens if either an add_level call is run external to a fabricate
-    # call OR if add_level is the only argument to a fabricate call and
-    # the data argument tries to resolve an add_level call.
-    stop(
-      "`cross_levels()` and `link_levels()` calls must be run inside ",
-      "`fabricate()` calls."
-    )
-  }
-  if ("ID_label" %in% names(data_arguments)) {
-    ID_label <- get_expr(data_arguments[["ID_label"]])
-    data_arguments[["ID_label"]] <- NULL
-  }
-
-  cross_levels_internal(
-    N = N, ID_label = ID_label, by = by,
-    working_environment_ = working_environment_,
-    data_arguments = data_arguments
-  )
+link_levels <- function(N = NULL, by = NULL, ...) {
+  do_internal(N, by = by, ..., FUN = cross_levels_internal, from="link_level")
 }
+
+
+
+
 
 #' @importFrom rlang quo_text eval_tidy
 cross_levels_internal <- function(N = NULL,
@@ -215,8 +191,8 @@ join <- function(..., rho=0, sigma=NULL) {
 }
 
 
-check_cross_level_args <- function(working_environment_, by) {
-  if(length(working_environment_) <= 1){
+check_cross_level_args <- function(workspace, by) {
+  if(length(workspace) <= 1){
     stop(
       "You must provide at least two separate level hierarchies to create ",
       "cross-classified data. If you have specified multiple levels, please ",
@@ -225,7 +201,7 @@ check_cross_level_args <- function(working_environment_, by) {
     )
   }
 
-  if (is.null(by) || !length(by$variable_names)) {
+  if (is.null(by) || length(by$variable_names) == 0) {
     stop(
       "You must specify a join structure using the `by` argument to create ",
       "cross-classified data."
