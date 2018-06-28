@@ -1,4 +1,4 @@
-context("Fabricate")
+context("Fabricate Cross Classified")
 
 test_that("Panel data, well-formed", {
   set.seed(19861108)

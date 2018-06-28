@@ -38,7 +38,9 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
   # Pass-through mapper to nest_level.
   # This needs to be done after we read the working environment and
   # before we check N or do the shelving procedure.
-  if (nest && "data_frame_output_" %in% names(working_environment_)) {
+  if (nest && ("data_frame_output_" %in% names(working_environment_) ||
+               is.character(attr(working_environment_, "active_df")))
+               ) {
     return(nest_level_internal(
       N = N, ID_label = ID_label,
       working_environment_ = working_environment_,
@@ -108,6 +110,8 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
 
   working_environment_[[ID_label]] <- working_environment_$data_frame_output_
   attr(working_environment_, "active_df") <- ID_label
+
+  rm("data_frame_output_", envir = working_environment_)
 
   # In general the reference should be unchanged, but for single-level calls
   # there won't be a working environment to reference.

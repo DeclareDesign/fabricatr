@@ -105,13 +105,15 @@ cross_levels_internal <- function(N = NULL,
                                   working_environment_ = NULL,
                                   by = NULL,
                                   data_arguments = NULL) {
-  if (any(!c("data_frame_output_", "shelved_df") %in%
-    names(working_environment_))) {
+
+  if(exists("data_frame_output_", working_environment_))rm("data_frame_output_", envir = working_environment_)
+
+  if(length(working_environment_) <= 1){
     stop(
-      "You must provide at least two separate level hierarchies to create ",
-      "cross-classified data. If you have specified multiple levels, please ",
-      "ensure that you use the `nest=FALSE` argument to specify they are ",
-      "non-nested"
+          "You must provide at least two separate level hierarchies to create ",
+          "cross-classified data. If you have specified multiple levels, please ",
+          "ensure that you use the `nest=FALSE` argument to specify they are ",
+          "non-nested"
     )
   }
 
@@ -124,7 +126,6 @@ cross_levels_internal <- function(N = NULL,
 
   # Shelf the working data frame before continuing, so now all our data is on
   # the shelf.
-  working_environment_ <- shelf_working_data(working_environment_)
 
   # Loop over the variable name
   variable_names <- by$variable_names
@@ -139,11 +140,12 @@ cross_levels_internal <- function(N = NULL,
     )
   }
 
+  df_names <- names(working_environment_)
+
   # Figure out which dfs we're joining on which variables
   for (i in seq_along(variable_names)) {
-    for (j in seq_along(working_environment_$shelved_df)) {
-      if (variable_names[i] %in%
-        working_environment_$shelved_df[[j]]$variable_names_) {
+    for (j in seq_along(df_names)) {
+      if (variable_names[i] %in% names(working_environment_[[df_names[j]]])) {
 
         # If we've already found this one, that's bad news for us...
         if (data_frame_indices[i]) {
@@ -175,12 +177,8 @@ cross_levels_internal <- function(N = NULL,
   }
 
   # Actually fetch the df objects
-  data_frame_objects <- lapply(
-    data_frame_indices,
-    function(x) {
-      working_environment_$shelved_df[[x]]$data_frame_output_
-    }
-  )
+  data_frame_objects <- mget(df_names[data_frame_indices], working_environment_)
+
 
   # Do the join.
   if (!is.null(N)) {

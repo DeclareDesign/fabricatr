@@ -225,21 +225,24 @@ handle_id <- function(ID_label, data=NULL) {
 handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels=1) {
   # Error handling for user-supplied N
 
+  uu <- attr(working_environment, "active_df")
+  df <- if(is.character(uu)) working_environment[[uu]] else working_environment$data_frame_output
+
   # First, evaluate the N in the context of the working environment's working
   # data frame. Why do we need to do this? Because N could be a function of
   # variables.
-  N <- eval_tidy(N, data = working_environment$data_frame_output_)
+  N <- eval_tidy(N, data = df)
 
   # User provided an unevaluated function
   if (typeof(N) == "closure") {
     stop("`N` must not be a function.")
   }
 
+  if (!is_integerish(N))
+    stop("Provided `N` must be a single positive integer.")
 
-  if(add_level){
-    if (!is_scalar_integerish(N))
+  if(add_level && !is_scalar_integerish(N))
         stop("When adding a new level, the specified `N` must be a single number.")
-  }
 
   if (length(N) > 1) {
     # User specified more than one N; presumably this is one N for each
@@ -253,11 +256,11 @@ handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels
     # level
     if(is.null(last_level_name)) {
       last_level_name <- "the full data frame"
-      length_unique <- nrow(working_environment$data_frame_output_)
+      length_unique <- nrow(df)
     } else {
       # What are the unique values?
       unique_values_of_last_level <- unique(
-        working_environment$data_frame_output_[[last_level_name]]
+        df[[last_level_name]]
       )
       length_unique <- length(unique_values_of_last_level)
     }
@@ -274,8 +277,7 @@ handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels
     }
   }
 
-  if (!is_integerish(N))
-    stop("Provided `N` must be a single positive integer.")
+
 
   N
 }

@@ -76,7 +76,6 @@ test_that("fabricate with a level call", {
 })
 
 test_that("Fabricate with multiple level calls", {
-  # TODO: This test is marked as empty
 
   fab_nest <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),

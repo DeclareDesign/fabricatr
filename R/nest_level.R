@@ -35,10 +35,11 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
 
   workspace <- working_environment_
   uu <- attr(workspace, "active_df")
+  df <- workspace[[uu]] %||% working_environment_$data_frame_output
 
 
   # Check to make sure we have a data frame to nest on.
-  if (is.null(dim(working_environment_$data_frame_output_))) {
+  if (is.null(dim(df))) {
     stop(
       "You can't nest a level if there is no level to nest inside. You can ",
       "resolve this issue by using `add_level()` instead of `nest_level()` ",
@@ -57,7 +58,7 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
 
   # We need to expand the size of the current working data frame by copying it
   # Let's start by getting the size of the current working data frame
-  past_level_N <- nrow(working_environment_$data_frame_output_)
+  past_level_N <- nrow(df)
   # And now make an index set 1:past_level_N
   indices <- seq_len(past_level_N)
 
@@ -77,9 +78,7 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   N <- length(rep_indices) # Length of overall data frame
 
   # stretch the data frame
-  working_data_list <- if(!is.null(uu)) as.list(workspace[[uu]][rep_indices, , drop=FALSE]) else as.list(
-    working_environment_$data_frame_output_[rep_indices, , drop = FALSE]
-    )
+  working_data_list <- as.list(df[rep_indices, , drop=FALSE])
 
   # Everything after here is non-unique to nest_level versus add_level -- need
   # to think about how to refactor this out.
