@@ -136,7 +136,6 @@ cross_levels_internal <- function(N = NULL,
     out <- panel_dfs(data_frame_objects)
     N <- nrow(out)
   }
-  working_environment_$variable_names_ <- names(out)
 
   # Staple in an ID column onto the data list.
   if (!is.null(ID_label) && (!ID_label %in% names(out))) {
@@ -204,16 +203,12 @@ check_cross_level_args <- function(workspace, by) {
     )
   }
 
-  # Shelf the working data frame before continuing, so now all our data is on
-  # the shelf.
-
-  # Loop over the variable name
 
   if (anyDuplicated(by$variable_names)) {
     stop(
       "Variable names for joining cross-classified data must be unique. ",
       "Currently, you are joining on a variable named \"",
-      by$variable_names[duplicated(by$variable_names)],
+      unique(by$variable_names[duplicated(by$variable_names)]),
       "\" more than once."
     )
   }
