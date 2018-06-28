@@ -42,9 +42,6 @@ import_data_list <- function(data) {
     # Sanity check that the data we're bringing in is good.
     df <- handle_data(data = df)
 
-    # Shelf the current working data if there's any.
-    workspace <- shelf_working_data(workspace)
-
     uu <- makeUU()
 
     workspace[[uu]] <- df
@@ -56,12 +53,6 @@ import_data_list <- function(data) {
   }
 
   structure(workspace, active_df=uu, insertion_order=c())
-}
-
-shelf_working_data <- function(working_environment_) {
-
-
-  working_environment_
 }
 
 

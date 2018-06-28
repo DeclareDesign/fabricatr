@@ -33,7 +33,6 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
 
   # If the user already has a working data frame, we need to shelf it before
   # we move on.
-  working_environment_ <- shelf_working_data(working_environment_)
 
   if ("data_frame_output_" %in% names(working_environment_)) {
     working_data_list <- as.list(working_environment_$data_frame_output_)
