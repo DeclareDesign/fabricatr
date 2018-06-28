@@ -60,8 +60,6 @@ import_data_list <- function(data) {
 
 shelf_working_data <- function(working_environment_) {
   what <- c(
-    "data_frame_output_",
-    "level_ids_",
     "variable_names_")
 
   if (exists("data_frame_output_", working_environment_)) {
