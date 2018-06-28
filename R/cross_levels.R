@@ -210,14 +210,12 @@ cross_levels_internal <- function(N = NULL,
 #' @export
 join <- function(..., rho=0, sigma=NULL) {
   data_arguments <- quos(...)
-  variable_names <- unlist(lapply(data_arguments, function(x) {
-    quo_text(x)
-  }))
-  return(list(
+  variable_names <- unlist(lapply(data_arguments,quo_text))
+  list(
     variable_names = variable_names,
     rho = rho,
     sigma = sigma
-  ))
+  )
 }
 
 
