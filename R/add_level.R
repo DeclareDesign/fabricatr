@@ -34,11 +34,8 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
   # If the user already has a working data frame, we need to shelf it before
   # we move on.
 
-  if ("data_frame_output_" %in% names(working_environment_)) {
-    working_data_list <- as.list(working_environment_$data_frame_output_)
-  } else {
-    working_data_list <- list()
-  }
+
+  working_data_list <- list()
 
 
 
@@ -50,11 +47,7 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
   # First, add the column to the working data frame
   working_data_list[[ID_label]] <- generate_id_pad(N)
 
-  # Next, add the ID_label to the level ids tracker
-  # Why does this not need to return? Because environments are passed by
-  # reference
-  add_level_id(working_environment_, ID_label)
-  add_variable_name(working_environment_, ID_label)
+
 
   # Loop through each of the variable generating arguments
   for (i in names(data_arguments)) {
@@ -65,9 +58,6 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
       data_arguments[[i]],
       append(working_data_list, list(N = N))
     ), N, i, data_arguments[[i]])
-
-    # Write the variable name to the list of variable names
-    add_variable_name(working_environment_, i)
 
     # Nuke the current data argument -- if we have the same variable name
     # created twice, this is OK, because it'll only nuke the current one.

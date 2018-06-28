@@ -68,8 +68,6 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
     # First, add the column to the working data frame
     working_data_list[[ID_label]] <- generate_id_pad(N)
 
-    add_level_id(working_environment_, ID_label)
-    add_variable_name(working_environment_, ID_label)
   }
 
   # Loop through each of the variable generating arguments
@@ -108,8 +106,6 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
       )
     }
 
-    # Write the variable name to the list of variable names
-    add_variable_name(working_environment_, i)
 
     # Nuke the current data argument -- if we have the same variable name
     # created twice, this is OK, because it'll only nuke the current one.

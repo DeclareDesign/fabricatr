@@ -431,21 +431,6 @@ check_rectangular <- function(working_data_list, N) {
 
 
 
-# Add a level ID to a working environment
-add_level_id <- function(working_environment_, ID_label) {
-  # Add or create level ID list
-  attr(working_environment_, "prev_df") <- ID_label
-}
-
-
-
-# Add a variable name to a working environment
-add_variable_name <- function(working_environment_, variable_name) {
-  working_environment_$variable_names_ <- append(
-    working_environment_$variable_names_,
-    variable_name
-  )
-}
 
 
 do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {

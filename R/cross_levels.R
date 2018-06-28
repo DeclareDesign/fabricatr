@@ -144,8 +144,6 @@ cross_levels_internal <- function(N = NULL,
   if (!is.null(ID_label) && (!ID_label %in% names(out))) {
     out[, ID_label] <- generate_id_pad(N)
 
-    add_level_id(working_environment_, ID_label)
-    add_variable_name(working_environment_, ID_label)
   }
 
   working_environment_[[ID_label]] <- out

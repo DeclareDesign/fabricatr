@@ -210,12 +210,9 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       # There's already an ID column named the thing we want to call the ID
       # column, so keep it. If the user did not specify, then this shouldn't
       # happen because handle_id would have moved to a fallback ID.
-      add_level_id(working_environment, ID_label)
     } else if(explicit_ID_provided) {
       # We explicitly asked for an ID column, so let's do it.
       working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
-      add_level_id(working_environment, ID_label)
-      add_variable_name(working_environment, ID_label)
     } else if(length(dots)) {
       # We didn't explicitly ask for an ID column, but we are modifying the data
       # so probably we should do it unless there's a column that's exactly this.
@@ -230,8 +227,6 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
         working_environment$data_frame_output_[[ID_label]] <- temp_id
       }
 
-      add_level_id(working_environment, ID_label)
-      add_variable_name(working_environment, ID_label)
 
     }
 

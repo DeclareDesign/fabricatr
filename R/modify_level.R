@@ -45,8 +45,6 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
         append(working_data_list, list(N = N))
       ), N, i, data_arguments[[i]])
 
-      # Write the variable name to the list of variable names
-      add_variable_name(working_environment_, i)
 
       # Nuke the current data argument -- if we have the same variable name
       # created twice, this is OK, because it'll only erase the first one.
@@ -126,9 +124,6 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
       data_arguments[[i]],
       append(working_data_list, list(N = N))
     ), N, i, data_arguments[[i]])
-
-    # Write the variable name to the list of variable names
-    add_variable_name(working_environment_, i)
 
     # Expand the variable and store it in the actual, expanded working data
     # list. Why do we keep these in parallel? Because subsequent variables
