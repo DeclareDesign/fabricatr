@@ -77,6 +77,19 @@ test_that("Error handlers: check_rectangular", {
   expect_error(check_rectangular(test, N))
 })
 
+test_that("Error handlers: check_rectangular nested structures", {
+
+  sleep[["nested"]] <- list(sleep)
+  N <- 20
+  expect_true(is.data.frame(check_rectangular(sleep, N)))
+
+  sleep <- as.list(sleep)
+  sleep$mtcars <- mtcars
+
+  expect_error(check_rectangular(sleep, N))
+})
+
+
 test_that("get_unique_variables_by_level", {
   df <- datasets::ChickWeight
   expect_equal(length(get_unique_variables_by_level(df, "Diet")), 0)
