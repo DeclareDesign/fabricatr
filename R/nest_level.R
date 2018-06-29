@@ -14,16 +14,14 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
 
   workspace <- working_environment_
   uu <- attr(workspace, "active_df")
-  df <- workspace[[uu]]
+  df <- active_df(workspace)
 
 
   # Check to make sure we have a data frame to nest on.
   if (is.null(dim(df))) {
     stop(
-      "You can't nest a level if there is no level to nest inside. You can ",
-      "resolve this issue by using `add_level()` instead of `nest_level()` ",
-      "or by ensuring that data has been created or imported before using ",
-      "`nest_level()`"
+      "`nest_level()`` cannot be the top of a hierarchy. Use `add_level()`",
+      "to either import or create a top level."
     )
   }
 

@@ -103,3 +103,10 @@ test_that("modify is the same as fabricate when no lower-level variation", {
 
   expect_identical(fab, mod)
 })
+
+
+test_that("Nested level edge case",{
+  expect_error(fabricate(e=nest_level(N=2)), "top level")
+
+
+})
