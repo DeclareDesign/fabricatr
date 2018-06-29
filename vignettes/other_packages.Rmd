@@ -1,5 +1,5 @@
 ---
-title: "Using other data generating packages with **fabricatr**"
+title: "Using other data generating packages with fabricatr"
 author: "Aaron Rudkin"
 output: rmarkdown::html_vignette
 vignette: >
@@ -14,7 +14,7 @@ set.seed(19861108)
 library(fabricatr)
 ```
 
-In general, **fabricatr** is going to be compatible with any existing packages you use to generate synthetic data in one of two ways: either using those packages to create variables within a `fabricate` call, or using those packages to make complete data frames which are then imported into a `fabricate`. Below we provide examples for some of the most popular packages that serve this purpose. Please feel free to [http://discuss.declaredesign.org/](Contact Us) if you have any questions about using another package in concert with **fabricatr**.
+In general, **fabricatr** is going to be compatible with any existing packages you use to generate synthetic data in one of two ways: either using those packages to create variables within a `fabricate` call, or using those packages to make complete data frames which are then imported into a `fabricate`. Below we provide examples for some of the most popular packages that serve this purpose.
 
 ## **wakefield**: simulating common demographic features
 

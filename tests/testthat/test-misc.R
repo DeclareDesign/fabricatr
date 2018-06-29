@@ -95,3 +95,17 @@ test_that("Uniquify vector factor", {
   expect_equal(result_out, c("A_1", "B_1", "C_1", "D_1", "E_1",
                              "A_2", "B_2", "C_2", "D_2", "E_2"))
 })
+
+test_that("Two separate types of unnamed variables", {
+  expect_error(fabricate(my_level = add_level(N = 50, )))
+  expect_error(fabricate(my_level = add_level(N = 50,
+                                              rnorm(N),
+                                              bob = rnorm(N))))
+})
+
+test_that("Unnamed level", {
+  expect_error(fabricate(my_level_1 = add_level(N = 5),
+            add_level(N = 5)))
+})
+
+

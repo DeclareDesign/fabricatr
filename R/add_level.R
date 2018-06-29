@@ -3,7 +3,7 @@
 #' @rdname fabricate
 #' @export
 add_level <- function(N = NULL, ..., nest = TRUE) {
-  do_internal(enquo(N), ..., FUN=add_level_internal, nest=nest)
+  do_internal(enquo(N), ..., FUN=add_level_internal, nest=nest, from="add_level")
 }
 
 #' @importFrom rlang eval_tidy
@@ -46,6 +46,7 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
   working_data_list[[ID_label]] <- generate_id_pad(N)
 
 
+  check_variables_named(data_arguments)
 
   # Loop through each of the variable generating arguments
   for (i in names(data_arguments)) {
