@@ -59,7 +59,7 @@
 #' multi_level_df <- fabricate(
 #'  regions = add_level(N = 5),
 #'  cities = add_level(N = 2, pollution = rnorm(N, mean = 5)))
-#' head(df)
+#' head(multi_level_df)
 #'
 #' # Start with existing data and add a nested level:
 #' company_df <- fabricate(
@@ -86,8 +86,7 @@
 #'                           by=join(ps_quality, ss_quality, rho = 0.5),
 #'                           student_quality = ps_quality + 3*ss_quality + rnorm(N)))
 #' @seealso \code{\link{link_levels}}
-#' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args
-#' @importFrom rlang lang_args_names
+#' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args lang_args_names quo_squash
 #' is_lang get_expr
 #'
 #' @export
@@ -112,8 +111,14 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
 
     # i is na when dots is length zero, all names are provided => which is integer(0) and integer(0)[1] is NA
     if(!is.na(i)) {
+
+      if (quo_squash(dots[[i]]) == "") {
+        stop("There appears to be a blank argument. Is there a misplaced comma?", call. = FALSE)
+      }
+
       first_unnamed_dot <- eval_tidy(dots[[i]])
       dots <- dots[-i]
+
 
       # If they supplied a list or data frame, they meant data.
       if(is.list(first_unnamed_dot)) {

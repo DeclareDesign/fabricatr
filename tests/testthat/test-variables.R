@@ -207,7 +207,8 @@ test_that("Categorical valid tests", {
   category_labels = c("A", "B", "C"))
 
   # Convert vector of probabilities to matrix of probabilities
-  expect_message(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
+  # Sunset as per #121, leaving deprecated test.
+  #expect_message(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
 })
 
 test_that("Ordered data invalid tests", {
@@ -444,6 +445,23 @@ test_that("Normal ICC", {
   cluster_means <- sample(rep(1:10, 10))
   expect_error(draw_normal_icc(mean = cluster_means,
                                clusters = clusters, ICC = 0.5))
+
+  # Confirm total_sd works:
+  result <- draw_normal_icc(mean = 10, clusters = clusters, ICC = 0.5,
+                           total_sd = 10)
+  expect_equal(sd(result), 10)
+
+  # And check that it can't be provided without its other helpers:
+  expect_error(draw_normal_icc(clusters = clusters, total_sd = 10))
+  expect_error(draw_normal_icc(clusters = clusters, total_sd = 10, ICC = 0.5,
+                               sd = 10))
+  expect_error(draw_normal_icc(clusters = clusters, total_sd = 10, ICC = 0.5,
+                               sd_between = 10))
+  expect_error(draw_normal_icc(clusters = clusters, ICC = 0.5, total_sd = -1))
+  expect_error(draw_normal_icc(clusters = clusters, ICC = 0.5,
+                               total_sd = "hello"))
+  expect_error(draw_normal_icc(clusters = clusters, ICC = 0.5,
+                               total_sd = c(1, 2)))
 })
 
 test_that("Likert alias", {

@@ -3,7 +3,7 @@
 #' @rdname fabricate
 #' @export
 modify_level <- function(N = NULL, ...) {
-  do_internal(N, ..., FUN=modify_level_internal, "modify_level")
+  do_internal(N, ..., FUN=modify_level_internal, from="modify_level")
 }
 
 #' @importFrom rlang eval_tidy
@@ -33,6 +33,8 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     # Coerce the working data frame into a list
     working_data_list <- as.list(df)
 
+
+    check_variables_named(data_arguments, "modify_level")
 
     # Now loop over the variable creation.
     for (i in names(data_arguments)) {
