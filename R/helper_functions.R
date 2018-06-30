@@ -453,6 +453,11 @@ active_df <- function(workspace) {
   if(is.null(uu)) NULL else workspace[[uu]]
 }
 
+activate <- function(workspace, data_name){
+  attr(workspace, "active_df") <- data_name
+  workspace
+}
+
 # Helper function to check for variable naming errors.
 check_variables_named <- function(data_arguments, call_type = "add_level") {
   nm <- names(data_arguments)
@@ -465,3 +470,31 @@ check_variables_named <- function(data_arguments, call_type = "add_level") {
 
   }
 }
+
+
+append_child <- function(workspace, child, parents=NULL, child_df=NULL) {
+
+  parent <- parents %||% attr(workspace, "active_df")
+
+  ATTR <- "fabricatr::children"
+
+  for(p in parents) {
+    siblings <- attr(workspace[[p]], ATTR)
+
+    attr(workspace[[p]], ATTR) <- append(siblings, child)
+  }
+
+  if(!is.null(child_df)) {
+    workspace[[child]] <- structure(
+      data.frame(child_df, stringsAsFactors = FALSE, row.names = NULL),
+      "fabricatr::parent_df" = parents,
+      "fabricatr::ID_label"  = child
+      )
+  }
+
+
+
+  workspace
+}
+
+

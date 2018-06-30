@@ -112,17 +112,8 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   # this should be covered by the error message above.
   working_data_list <- check_rectangular(working_data_list, N)
 
-  # Overwrite the working data frame.
-  workspace[[ID_label]] <- structure(data.frame(
-      working_data_list,
-      stringsAsFactors = FALSE,
-      row.names = NULL
-    ),
-    "fabricatr::parent_df" = attr(workspace, "active_df"),
-    "fabricatr::ID_label" = ID_label)
-
-  attr(workspace, "active_df") <- ID_label
+  append_child(workspace, child=ID_label, child_df=working_data_list)
 
 
-  workspace
+  activate(workspace, ID_label)
 }
