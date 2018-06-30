@@ -143,8 +143,9 @@ cross_levels_internal <- function(N = NULL,
 
   }
 
-  workspace[[ID_label]] <- out
-  attr(workspace, "active_df") <- ID_label
+  append_child(workspace, ID_label, df_names[data_frame_indices], out)
+
+  activate(workspace, ID_label);
 
   if (length(data_arguments)) {
     workspace <- modify_level_internal(

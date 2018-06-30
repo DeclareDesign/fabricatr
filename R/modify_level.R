@@ -17,7 +17,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
 
   uu <- attr(workspace, "active_df")
 
-  df <- workspace[[uu]]
+  df <- active_df(workspace)
 
 
 
@@ -61,6 +61,9 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
       stringsAsFactors = FALSE,
       row.names = NULL
     )
+
+    attr_names <- grep("^fabricatr::", names(attributes(df)), value = TRUE)
+    attributes(workspace[[uu]])[attr_names] <- attributes(df)[attr_names]
 
     # Return results
     return(workspace)
@@ -154,7 +157,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
       stringsAsFactors = FALSE,
       row.names = NULL
     )
-    attr(workspace, "active_df") <- ID_label
+    activate(workspace, ID_label)
 
   }
 
