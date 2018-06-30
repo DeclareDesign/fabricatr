@@ -1,4 +1,4 @@
-context("Fabricate")
+context("Fabricate misc")
 
 test_that("Weird edge cases: missingness in draw_binomial", {
   # Missing data in prob -> still runs.
