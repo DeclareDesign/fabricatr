@@ -9,10 +9,10 @@ nest_level <- function(N = NULL, ...) {
 #' @importFrom rlang eval_tidy
 #'
 nest_level_internal <- function(N = NULL, ID_label = NULL,
-                                working_environment_ = NULL,
+                                workspace = NULL,
                                 data_arguments = NULL) {
 
-  workspace <- working_environment_
+  workspace <- workspace
   uu <- attr(workspace, "active_df")
   df <- active_df(workspace)
 
@@ -29,7 +29,7 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   # Pass the working environment because N might not be a singleton here
   N <- handle_n(
     N, add_level = FALSE,
-    working_environment = working_environment_,
+    working_environment = workspace,
     parent_frame_levels = 3
   )
 
@@ -117,12 +117,12 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   working_data_list <- check_rectangular(working_data_list, N)
 
   # Overwrite the working data frame.
-  working_environment_[[ID_label]] <- data.frame(
+  workspace[[ID_label]] <- data.frame(
     working_data_list,
     stringsAsFactors = FALSE,
     row.names = NULL
   )
-  attr(working_environment_, "active_df") <- ID_label
+  attr(workspace, "active_df") <- ID_label
 
-  working_environment_
+  workspace
 }

@@ -189,7 +189,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     ret <- add_top_level_internal(
       N = N,
       ID_label = ID_label,
-      working_environment_ = working_environment,
+      workspace = working_environment,
       data_arguments = dots)
   }
 
@@ -242,7 +242,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
         N = N,
         ID_label = ID_label,
         data_arguments = dots,
-        working_environment_ = working_environment
+        workspace = working_environment
       )
   }
 

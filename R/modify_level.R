@@ -9,13 +9,12 @@ modify_level <- function(...) {
 #' @importFrom rlang eval_tidy
 #'
 modify_level_internal <- function(N = NULL, ID_label = NULL,
-                                  working_environment_ = NULL,
+                                  workspace = NULL,
                                   data_arguments=NULL) {
 
 
-  modify_level_internal_checks(ID_label, working_environment_)
+  modify_level_internal_checks(ID_label, workspace)
 
-  workspace <- working_environment_
   uu <- attr(workspace, "active_df")
 
   df <- workspace[[uu]]

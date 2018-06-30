@@ -12,12 +12,12 @@ sac_level <- function(by = NULL, ...) {
 #' @importFrom rlang quo_text eval_tidy
 sac_level_internal <- function(N = NULL,
                               ID_label = NULL,
-                              working_environment_ = NULL,
+                              workspace = NULL,
                               by = NULL,
                               data_arguments = NULL) {
 
-    uu <- attr(working_environment_, "active_df")
-    df <- working_environment_[[uu]]
+    uu <- attr(workspace, "active_df")
+    df <- workspace[[uu]]
 
 
     idx <- split(seq_len(nrow(df)), df[by], drop = TRUE)
@@ -37,7 +37,7 @@ sac_level_internal <- function(N = NULL,
 
     }
 
-    working_environment_[[uu]] <- df
+    workspace[[uu]] <- df
 
-    working_environment_
+    workspace
 }

@@ -421,13 +421,13 @@ do_internal <- function(N = NULL, ..., FUN, from, by = NULL) {
   if(has_name(formals(FUN), "by")){
     FUN(
       N = N, ID_label = ID_label, by = by,
-      working_environment_ = working_environment_,
+      workspace = working_environment_,
       data_arguments = dots
     )
   } else {
     FUN(
       N = N, ID_label = ID_label,
-      working_environment_ = working_environment_,
+      workspace = working_environment_,
       data_arguments = dots
     )
   }

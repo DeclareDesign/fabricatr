@@ -9,21 +9,21 @@ add_level <- function(N = NULL, ..., nest = TRUE) {
 
 
 can_nest <- function(...){
-  pred <- function(N, ID_label, working_environment_, data_arguments)
-    is.character(attr(working_environment_, "active_df"))
+  pred <- function(N, ID_label, workspace, data_arguments)
+    is.character(attr(workspace, "active_df"))
   do_internal(N=NULL, ..., FUN=pred)
 }
 
 #' @importFrom rlang eval_tidy
 add_top_level_internal <- function(N = NULL, ID_label = NULL,
-                               working_environment_ = NULL,
+                               workspace = NULL,
                                data_arguments = NULL) {
 
   check_add_level_args(data_arguments, ID_label)
 
 
   # Check to make sure the N here is sane
-  N <- handle_n(N, add_level = TRUE, working_environment_)
+  N <- handle_n(N, add_level = TRUE, workspace)
 
   # If the user already has a working data frame, we need to shelf it before
   # we move on.
@@ -63,16 +63,16 @@ add_top_level_internal <- function(N = NULL, ID_label = NULL,
   working_data_list <- check_rectangular(working_data_list, N)
 
   # Coerce our working data list into a working data frame
-  working_environment_[[ID_label]] <- data.frame(
+  workspace[[ID_label]] <- data.frame(
     working_data_list,
     stringsAsFactors = FALSE,
     row.names = NULL
   )
 
-  attr(working_environment_, "active_df") <- ID_label
+  attr(workspace, "active_df") <- ID_label
 
 
-  working_environment_
+  workspace
 }
 
 
