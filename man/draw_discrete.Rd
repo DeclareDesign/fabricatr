@@ -30,7 +30,7 @@ draw_binary(prob = link(latent), N = length(prob), link = "identity",
 draw_likert(x, type = 7, breaks = NULL, N = length(x), latent = NULL,
   link = "identity", quantile_y = NULL)
 
-draw_quantile(type = NULL, N = NULL)
+draw_quantile(type, N)
 }
 \arguments{
 \item{prob}{A number or vector of numbers representing the probability for

@@ -264,13 +264,20 @@ handle_data <- function(data) {
 
 # Function to check if something is a level call
 call_not_level_call <- function(calls) {
-  vapply(calls, function(i) {
-      !is_lang(get_expr(i)) || !lang_name(i) %in% c("level", "add_level",
-                                                    "nest_level", "modify_level",
-                                                    "cross_levels", "link_levels")
+  !vapply(calls, function(i) {
+      is_lang(get_expr(i)) && is_level_token(lang_name(i))
     }, FALSE)
 }
 
+is_level_token <- function(x) x %in% c(
+  "level",
+  "add_level",
+  "nest_level",
+  "modify_level",
+  "cross_levels",
+  "link_levels",
+  "sac_level"
+)
 
 
 # Function to check if every argument in a quosure options
@@ -292,14 +299,7 @@ check_all_levels <- function(options) {
   func_names <- vapply(options[is_function], lang_name, "")
 
   # Check to see if the function names are one of the valid level operations
-  is_level <- func_names %in% c(
-      "level",
-      "add_level",
-      "nest_level",
-      "modify_level",
-      "cross_levels",
-      "link_levels"
-    )
+  is_level <- is_level_token(func_names)
 
   # Return false if we have no level calls
   if (!any(is_level)) return(FALSE)
