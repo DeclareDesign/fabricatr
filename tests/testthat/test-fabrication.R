@@ -254,6 +254,10 @@ test_that("modify_level call where you don't specify which level", {
   ))
 })
 
+test_that("modify_level call where you don't specify which level", {
+  expect_error(fabricate(a=modify_level(b=1)), "no working data frame to modify")
+})
+
 test_that("nest_level call when there was no data to nest", {
   # No import data, nest level
   expect_error(fabricate(countries = nest_level(N = 10, new_var = rnorm(N))))
@@ -309,7 +313,7 @@ test_that("Multivariate", {
   expect_named(df, c("ID", "Y.A", "Y.B", "Y.C"), info = "names borrowed from data.frame")
   expect_equal(dim(df), c(100,4))
 
-
+  expect_error(fabricate(N=10, Y=MASS::mvrnorm(20, 0:2, Sigma = matrix(1, 3,3)) ), "Nested structures must have `N.` rows")
 })
 
 test_that("Error on blank argument when no data or N explicitly passed in",{

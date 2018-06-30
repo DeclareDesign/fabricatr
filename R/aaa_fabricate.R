@@ -190,9 +190,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       N = N,
       ID_label = ID_label,
       working_environment_ = working_environment,
-      data_arguments = dots,
-      nest = TRUE
-    )
+      data_arguments = dots)
   }
 
   else if (data_supplied) {

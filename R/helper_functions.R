@@ -200,41 +200,20 @@ handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels
     stop("`N` must not be a function.")
   }
 
-  if (!is_integerish(N))
-    stop("Provided `N` must be a single positive integer.")
+  if (!is_integerish(N) || any(N <= 0))
+    stop("Provided `N` must be positive integers.")
 
   if(add_level && !is_scalar_integerish(N))
         stop("When adding a new level, the specified `N` must be a single number.")
 
   if (length(N) > 1) {
     # User specified more than one N; presumably this is one N for each
-    # level of the last level variable
+    # obs of the active data set
 
-    # What's the last level variable?
-    last_level_name <- attr(working_environment, "prev_df")
-
-    # Last level name is null; if this is imported data, we should
-    # use the nrow of the data frame as the unique length of the last
-    # level
-    if(is.null(last_level_name)) {
-      last_level_name <- "the full data frame"
-      length_unique <- nrow(df)
-    } else {
-      # What are the unique values?
-      unique_values_of_last_level <- unique(
-        df[[last_level_name]]
-      )
-      length_unique <- length(unique_values_of_last_level)
-    }
-
-
-    if (length(N) != length_unique) {
+    if (length(N) != nrow(df)) {
       stop(
         "`N` must be either a single number or a vector of length ",
-        length_unique,
-        " (one value for each possible level of ",
-        last_level_name,
-        ")"
+        nrow(df)
       )
     }
   }
@@ -418,7 +397,7 @@ check_rectangular <- function(working_data_list, N) {
 
 
 
-do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {
+do_internal <- function(N = NULL, ..., FUN, from, by = NULL) {
   dots <- quos(...)
   if(!has_name(dots, "working_environment_")){
     # This happens if either call is run external to a fabricate
@@ -445,13 +424,6 @@ do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {
       working_environment_ = working_environment_,
       data_arguments = dots
     )
-  } else if (has_name(formals(FUN), "nest")){
-    FUN(
-      N = N, ID_label = ID_label,
-      working_environment_ = working_environment_,
-      data_arguments = dots,
-      nest = nest
-    )
   } else {
     FUN(
       N = N, ID_label = ID_label,
@@ -472,42 +444,13 @@ report_results <- active_df <- function(workspace) {
 
 # Helper function to check for variable naming errors.
 check_variables_named <- function(data_arguments, call_type = "add_level") {
-  if(any(names(data_arguments) == "")) {
+  nm <- names(data_arguments)
+  if(any(nm == "")) {
     # Generate some debug to help the user. Which was unnamed?
-    number_named <- sum(names(data_arguments) != "")
-    new_names <- paste(ifelse(names(data_arguments) != "",
-                             names(data_arguments),
-                             "<unnamed>"),
-                      collapse=", ")
-    pluralized_main <- ifelse(length(data_arguments) != 1,
-                             "variables",
-                             "variable")
-    pluralized_named <- ifelse(number_named != 1,
-                              "variables",
-                              "variable")
-    pluralized_verb <- ifelse(length(data_arguments) != 1,
-                             "were",
-                             "was")
+    nm[nm == ""] <- "<unnamed>"
 
-    if(length(data_arguments) > 1 &&
-       any(names(data_arguments)[1:(length(data_arguments)-1)] == "")) {
-      # There was a variable inside the call that wasn't named.
-      stop("All variables inside a level call must be named. This ",
-           call_type, " call contained ", length(data_arguments), " ",
-           pluralized_main, " but ", number_named, " named ",
-           pluralized_named, ". In order, the ", pluralized_main, " supplied ",
-           pluralized_verb, " named: ", new_names, ".")
-    } else {
-      # There was a variable at the end of the call that wasn't named.
-      # Hanging comma? Maybe?
-      stop("All variables inside a level call must be named. This ",
-           call_type, " call contained ", length(data_arguments), " ",
-           pluralized_main, " but ", number_named, " named ",
-           pluralized_named, ". In order, the ", pluralized_main, " supplied ",
-           pluralized_verb, " named: ", new_names, ". A possible cause ",
-           "of this error could be a 'hanging comma' at the end of the ",
-           "list of variables. Please remove 'hanging commas', if any, from ",
-           "the variable list.")
-    }
+    stop("All variables within a level call must be named; recieved variables named:",
+         sprintf("\n - '%s'", nm))
+
   }
 }

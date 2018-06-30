@@ -2,8 +2,8 @@
 #'
 #' @rdname fabricate
 #' @export
-modify_level <- function(N = NULL, ...) {
-  do_internal(N, ..., FUN=modify_level_internal, from="modify_level")
+modify_level <- function(...) {
+  do_internal(N=NULL, ..., FUN=modify_level_internal, from="modify_level")
 }
 
 #' @importFrom rlang eval_tidy

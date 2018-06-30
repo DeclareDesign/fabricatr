@@ -3,25 +3,19 @@
 #' @rdname fabricate
 #' @export
 add_level <- function(N = NULL, ..., nest = TRUE) {
-  do_internal(enquo(N), ..., FUN=add_level_internal, nest=nest, from="add_level")
+  fun <- if(nest && do_internal(N=NULL, ..., FUN=can_nest)) nest_level_internal else add_level_internal
+  do_internal(enquo(N), ..., FUN=fun, from="add_level")
+}
+
+
+can_nest <- function(N, ID_label, working_environment_, data_arguments){
+  !is.null(attr(working_environment_, "active_df"))
 }
 
 #' @importFrom rlang eval_tidy
 add_level_internal <- function(N = NULL, ID_label = NULL,
                                working_environment_ = NULL,
-                               data_arguments = NULL,
-                               nest = TRUE) {
-
-  # Pass-through mapper to nest_level.
-  # This needs to be done after we read the working environment and
-  # before we check N or do the shelving procedure.
-  if (nest &&  is.character(attr(working_environment_, "active_df"))) {
-    return(nest_level_internal(
-      N = N, ID_label = ID_label,
-      working_environment_ = working_environment_,
-      data_arguments = data_arguments
-    ))
-  }
+                               data_arguments = NULL) {
 
   check_add_level_args(data_arguments, ID_label)
 
