@@ -320,3 +320,8 @@ test_that("Error on blank argument when no data or N explicitly passed in",{
   expect_error(fabricate(,sleep), "blank argument")
 })
 
+
+test_that("malformed call where ID is both only column and nonuniqe",{
+  df <- fabricate(a=add_level(N=10), a=modify_level(a=as.numeric(a) %/% 2), a=modify_level(b=1))
+  expect_equal(dim(df), c(10,2))
+})
