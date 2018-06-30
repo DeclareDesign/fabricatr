@@ -107,11 +107,7 @@ get_symbols_from_quosures <- function(quosures) {
 #' @return a character vector enumerating the unique variables
 #' @keywords internal
 get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
-  if (is.character(superset)) {
-    names_to_check <- intersect(colnames(data), superset)
-  } else {
-    names_to_check <- setdiff(colnames(data), ID_label)
-  }
+  names_to_check <- setdiff(colnames(data), ID_label)
 
   if (is_empty(names_to_check)) return(names_to_check)
 

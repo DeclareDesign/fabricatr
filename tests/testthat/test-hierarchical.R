@@ -110,3 +110,10 @@ test_that("Nested level edge case",{
 
 
 })
+
+
+test_that("modify_level hierarchical edge cases", {
+
+  expect_equal(fabricate(a=add_level(N=10), b = add_level(2), a=modify_level(x=1))$x, rep(1,10))
+
+})
