@@ -3,17 +3,19 @@
 #' @rdname fabricate
 #' @export
 add_level <- function(N = NULL, ..., nest = TRUE) {
-  fun <- if(nest && do_internal(N=NULL, ..., FUN=can_nest)) nest_level_internal else add_level_internal
+  fun <- if(nest && can_nest(...)) nest_level_internal else add_top_level_internal
   do_internal(enquo(N), ..., FUN=fun, from="add_level")
 }
 
 
-can_nest <- function(N, ID_label, working_environment_, data_arguments){
-  !is.null(attr(working_environment_, "active_df"))
+can_nest <- function(...){
+  pred <- function(N, ID_label, working_environment_, data_arguments)
+    is.character(attr(working_environment_, "active_df"))
+  do_internal(N=NULL, ..., FUN=pred)
 }
 
 #' @importFrom rlang eval_tidy
-add_level_internal <- function(N = NULL, ID_label = NULL,
+add_top_level_internal <- function(N = NULL, ID_label = NULL,
                                working_environment_ = NULL,
                                data_arguments = NULL) {
 
@@ -70,8 +72,6 @@ add_level_internal <- function(N = NULL, ID_label = NULL,
   attr(working_environment_, "active_df") <- ID_label
 
 
-  # In general the reference should be unchanged, but for single-level calls
-  # there won't be a working environment to reference.
   working_environment_
 }
 

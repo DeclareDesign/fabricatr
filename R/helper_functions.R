@@ -437,7 +437,18 @@ do_internal <- function(N = NULL, ..., FUN, from, by = NULL) {
 # Dummy helper function that just extracts the working data frame from the
 # environment. This exists because we may in the future want to return something
 # that is not a data frame.
-report_results <- active_df <- function(workspace) {
+report_results <- function(workspace) {
+  df <- active_df(workspace)
+
+  attr_names <- names(attributes(df))
+
+  attributes(df)[grep("^fabricatr::", attr_names)] <- NULL
+
+  df
+}
+
+
+active_df <- function(workspace) {
   uu <- attr(workspace, "active_df")
   if(is.null(uu)) NULL else workspace[[uu]]
 }
