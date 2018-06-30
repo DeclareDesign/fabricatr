@@ -311,3 +311,8 @@ test_that("Multivariate", {
 
 
 })
+
+test_that("Error on blank argument when no data or N explicitly passed in",{
+  expect_error(fabricate(,sleep), "blank argument")
+})
+

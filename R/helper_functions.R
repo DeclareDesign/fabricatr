@@ -297,17 +297,11 @@ handle_data <- function(data) {
 
 # Function to check if something is a level call
 call_not_level_call <- function(calls) {
-  vapply(calls,
-         function(i) {
-           if(is_lang(get_expr(i))) {
-             return(!lang_name(i) %in% c("level", "add_level",
-                                         "nest_level", "modify_level",
-                                         "cross_levels", "link_levels"))
-           } else {
-             return(TRUE)
-           }
-         },
-         logical(1))
+  vapply(calls, function(i) {
+      !is_lang(get_expr(i)) || !lang_name(i) %in% c("level", "add_level",
+                                                    "nest_level", "modify_level",
+                                                    "cross_levels", "link_levels")
+    }, FALSE)
 }
 
 
