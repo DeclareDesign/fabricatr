@@ -12,8 +12,6 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
                                 workspace = NULL,
                                 data_arguments = NULL) {
 
-  workspace <- workspace
-  uu <- attr(workspace, "active_df")
   df <- active_df(workspace)
 
 
@@ -61,11 +59,9 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   # to think about how to refactor this out.
 
   # Staple in an ID column onto the data list.
-  if (!is.null(ID_label) && (is.null(names(working_data_list)) ||
-    !ID_label %in% names(working_data_list))) {
+  if (!ID_label %in% names(working_data_list)) {
     # First, add the column to the working data frame
     working_data_list[[ID_label]] <- generate_id_pad(N)
-
   }
 
   check_variables_named(data_arguments)
@@ -117,12 +113,16 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   working_data_list <- check_rectangular(working_data_list, N)
 
   # Overwrite the working data frame.
-  workspace[[ID_label]] <- data.frame(
-    working_data_list,
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
+  workspace[[ID_label]] <- structure(data.frame(
+      working_data_list,
+      stringsAsFactors = FALSE,
+      row.names = NULL
+    ),
+    "fabricatr::parent_df" = attr(workspace, "active_df"),
+    "fabricatr::ID_label" = ID_label)
+
   attr(workspace, "active_df") <- ID_label
+
 
   workspace
 }
