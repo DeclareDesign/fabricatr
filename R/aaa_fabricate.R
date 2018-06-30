@@ -102,7 +102,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   data_supplied <- !is.null(data)
   n_supplied    <- !is.null(N)
   all_levels    <- FALSE # recalculated after implicit N / data=
-  explicit_ID_provided <- !is.null(ID_label)
+  explicit_ID_provided <- !missing(ID_label)
 
 
   # Maybe they anonymously passed data or N.

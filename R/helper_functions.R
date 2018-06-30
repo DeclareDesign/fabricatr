@@ -158,30 +158,19 @@ handle_id <- function(ID_label, data=NULL) {
     }
   )
 
-  # User passed a non-symbol non-null ID_label
-  if (is.vector(ID_label)) {
-    if (length(ID_label) != 1) {
+  if(is.null(ID_label)) return(synthetic_ID(data))
+
+  if(!is_scalar_character(ID_label) && !is.na(ID_label))
       stop("Provided `ID_label` must be a string.")
-    } else if (is.numeric(ID_label)) {
-      # Numeric ID_label -- this is OK but variable names can't be numeric
-      warning("Provided `ID_label` is numeric and will be prefixed with \"X\"")
-      ID_label <- as.character(ID_label)
-    }
-  }
 
-  # Higher dimensional ID_label
-  if (!is.null(dim(ID_label))) {
-    stop("Provided `ID_label` must be a character vector or variable name, not a data frame or matrix.")
-  }
+  ID_label
+}
 
-  if(!is.null(ID_label)) return(ID_label)
+synthetic_ID <- function(data) {
 
-  # At the end of all this, we still don't have an ID label
-  if (!"ID" %in% names(data)) return("ID")
+  candidates <- c("ID",  paste0("fab_ID_", 1:5) )
 
-  # "ID" is taken, so we're going to try some backups
-
-  for(candidate_label in setdiff(paste0("fab_ID_", 1:5), names(data))) {
+  for(candidate_label in setdiff(candidates, names(data))) {
     return(candidate_label)
   }
 
@@ -191,6 +180,9 @@ handle_id <- function(ID_label, data=NULL) {
     " -- are all used for data columns. Please specify an `ID_label` ",
     "for this level."
   )
+
+
+
 }
 
 # Checks if a supplied N is sane for the context it's in

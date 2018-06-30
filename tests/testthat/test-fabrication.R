@@ -194,8 +194,8 @@ test_that("trigger errors", {
                          test2 = rpois(10, lambda = 2),
                          ID_label = matrix(rep(c(1, 2, 3), 3),
                                            byrow = TRUE, ncol = 3, nrow = 3)))
-  # Numeric as ID_label
-  expect_warning(fabricate(N = 10,
+  # Numeric as ID_label is an error
+  expect_error(fabricate(N = 10,
                            test1 = rnorm(10),
                            test2 = rpois(10, lambda = 2),
                            ID_label = 7))
@@ -208,7 +208,7 @@ test_that("trigger errors", {
             test1 = rnorm(10),
             test2 = rpois(10, lambda = 2),
             ID_label = c("hello"))
-  # Symbol as ID_label
+  # undefined object as ID_label
   expect_error(fabricate(N = 10,
                          test1 = rnorm(10),
                          test2 = rpois(10, lambda = 2),
