@@ -158,30 +158,19 @@ handle_id <- function(ID_label, data=NULL) {
     }
   )
 
-  # User passed a non-symbol non-null ID_label
-  if (is.vector(ID_label)) {
-    if (length(ID_label) != 1) {
+  if(is.null(ID_label)) return(synthetic_ID(data))
+
+  if(!is_scalar_character(ID_label) && !is.na(ID_label))
       stop("Provided `ID_label` must be a string.")
-    } else if (is.numeric(ID_label)) {
-      # Numeric ID_label -- this is OK but variable names can't be numeric
-      warning("Provided `ID_label` is numeric and will be prefixed with \"X\"")
-      ID_label <- as.character(ID_label)
-    }
-  }
 
-  # Higher dimensional ID_label
-  if (!is.null(dim(ID_label))) {
-    stop("Provided `ID_label` must be a character vector or variable name, not a data frame or matrix.")
-  }
+  ID_label
+}
 
-  if(!is.null(ID_label)) return(ID_label)
+synthetic_ID <- function(data) {
 
-  # At the end of all this, we still don't have an ID label
-  if (!"ID" %in% names(data)) return("ID")
+  candidates <- c("ID",  paste0("fab_ID_", 1:5) )
 
-  # "ID" is taken, so we're going to try some backups
-
-  for(candidate_label in setdiff(paste0("fab_ID_", 1:5), names(data))) {
+  for(candidate_label in setdiff(candidates, names(data))) {
     return(candidate_label)
   }
 
@@ -191,6 +180,9 @@ handle_id <- function(ID_label, data=NULL) {
     " -- are all used for data columns. Please specify an `ID_label` ",
     "for this level."
   )
+
+
+
 }
 
 # Checks if a supplied N is sane for the context it's in
@@ -208,41 +200,20 @@ handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels
     stop("`N` must not be a function.")
   }
 
-  if (!is_integerish(N))
-    stop("Provided `N` must be a single positive integer.")
+  if (!is_integerish(N) || any(N <= 0))
+    stop("Provided `N` must be positive integers.")
 
   if(add_level && !is_scalar_integerish(N))
         stop("When adding a new level, the specified `N` must be a single number.")
 
   if (length(N) > 1) {
     # User specified more than one N; presumably this is one N for each
-    # level of the last level variable
+    # obs of the active data set
 
-    # What's the last level variable?
-    last_level_name <- attr(working_environment, "prev_df")
-
-    # Last level name is null; if this is imported data, we should
-    # use the nrow of the data frame as the unique length of the last
-    # level
-    if(is.null(last_level_name)) {
-      last_level_name <- "the full data frame"
-      length_unique <- nrow(df)
-    } else {
-      # What are the unique values?
-      unique_values_of_last_level <- unique(
-        df[[last_level_name]]
-      )
-      length_unique <- length(unique_values_of_last_level)
-    }
-
-
-    if (length(N) != length_unique) {
+    if (length(N) != nrow(df)) {
       stop(
         "`N` must be either a single number or a vector of length ",
-        length_unique,
-        " (one value for each possible level of ",
-        last_level_name,
-        ")"
+        nrow(df)
       )
     }
   }
@@ -293,13 +264,20 @@ handle_data <- function(data) {
 
 # Function to check if something is a level call
 call_not_level_call <- function(calls) {
-  vapply(calls, function(i) {
-      !is_lang(get_expr(i)) || !lang_name(i) %in% c("level", "add_level",
-                                                    "nest_level", "modify_level",
-                                                    "cross_levels", "link_levels")
+  !vapply(calls, function(i) {
+      is_lang(get_expr(i)) && is_level_token(lang_name(i))
     }, FALSE)
 }
 
+is_level_token <- function(x) x %in% c(
+  "level",
+  "add_level",
+  "nest_level",
+  "modify_level",
+  "cross_levels",
+  "link_levels",
+  "sac_level"
+)
 
 
 # Function to check if every argument in a quosure options
@@ -321,14 +299,7 @@ check_all_levels <- function(options) {
   func_names <- vapply(options[is_function], lang_name, "")
 
   # Check to see if the function names are one of the valid level operations
-  is_level <- func_names %in% c(
-      "level",
-      "add_level",
-      "nest_level",
-      "modify_level",
-      "cross_levels",
-      "link_levels"
-    )
+  is_level <- is_level_token(func_names)
 
   # Return false if we have no level calls
   if (!any(is_level)) return(FALSE)
@@ -426,7 +397,7 @@ check_rectangular <- function(working_data_list, N) {
 
 
 
-do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {
+do_internal <- function(N = NULL, ..., FUN, from, by = NULL) {
   dots <- quos(...)
   if(!has_name(dots, "working_environment_")){
     # This happens if either call is run external to a fabricate
@@ -450,20 +421,13 @@ do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {
   if(has_name(formals(FUN), "by")){
     FUN(
       N = N, ID_label = ID_label, by = by,
-      working_environment_ = working_environment_,
+      workspace = working_environment_,
       data_arguments = dots
-    )
-  } else if (has_name(formals(FUN), "nest")){
-    FUN(
-      N = N, ID_label = ID_label,
-      working_environment_ = working_environment_,
-      data_arguments = dots,
-      nest = nest
     )
   } else {
     FUN(
       N = N, ID_label = ID_label,
-      working_environment_ = working_environment_,
+      workspace = working_environment_,
       data_arguments = dots
     )
   }
@@ -473,49 +437,31 @@ do_internal <- function(N = NULL, ..., FUN, from, by = NULL, nest = NULL) {
 # Dummy helper function that just extracts the working data frame from the
 # environment. This exists because we may in the future want to return something
 # that is not a data frame.
-report_results <- active_df <- function(workspace) {
+report_results <- function(workspace) {
+  df <- active_df(workspace)
+
+  attr_names <- names(attributes(df))
+
+  attributes(df)[grep("^fabricatr::", attr_names)] <- NULL
+
+  df
+}
+
+
+active_df <- function(workspace) {
   uu <- attr(workspace, "active_df")
   if(is.null(uu)) NULL else workspace[[uu]]
 }
 
 # Helper function to check for variable naming errors.
 check_variables_named <- function(data_arguments, call_type = "add_level") {
-  if(any(names(data_arguments) == "")) {
+  nm <- names(data_arguments)
+  if(any(nm == "")) {
     # Generate some debug to help the user. Which was unnamed?
-    number_named <- sum(names(data_arguments) != "")
-    new_names <- paste(ifelse(names(data_arguments) != "",
-                             names(data_arguments),
-                             "<unnamed>"),
-                      collapse=", ")
-    pluralized_main <- ifelse(length(data_arguments) != 1,
-                             "variables",
-                             "variable")
-    pluralized_named <- ifelse(number_named != 1,
-                              "variables",
-                              "variable")
-    pluralized_verb <- ifelse(length(data_arguments) != 1,
-                             "were",
-                             "was")
+    nm[nm == ""] <- "<unnamed>"
 
-    if(length(data_arguments) > 1 &&
-       any(names(data_arguments)[1:(length(data_arguments)-1)] == "")) {
-      # There was a variable inside the call that wasn't named.
-      stop("All variables inside a level call must be named. This ",
-           call_type, " call contained ", length(data_arguments), " ",
-           pluralized_main, " but ", number_named, " named ",
-           pluralized_named, ". In order, the ", pluralized_main, " supplied ",
-           pluralized_verb, " named: ", new_names, ".")
-    } else {
-      # There was a variable at the end of the call that wasn't named.
-      # Hanging comma? Maybe?
-      stop("All variables inside a level call must be named. This ",
-           call_type, " call contained ", length(data_arguments), " ",
-           pluralized_main, " but ", number_named, " named ",
-           pluralized_named, ". In order, the ", pluralized_main, " supplied ",
-           pluralized_verb, " named: ", new_names, ". A possible cause ",
-           "of this error could be a 'hanging comma' at the end of the ",
-           "list of variables. Please remove 'hanging commas', if any, from ",
-           "the variable list.")
-    }
+    stop("All variables within a level call must be named; recieved variables named:",
+         sprintf("\n - '%s'", nm))
+
   }
 }

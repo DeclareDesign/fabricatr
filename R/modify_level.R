@@ -2,20 +2,19 @@
 #'
 #' @rdname fabricate
 #' @export
-modify_level <- function(N = NULL, ...) {
-  do_internal(N, ..., FUN=modify_level_internal, from="modify_level")
+modify_level <- function(...) {
+  do_internal(N=NULL, ..., FUN=modify_level_internal, from="modify_level")
 }
 
 #' @importFrom rlang eval_tidy
 #'
 modify_level_internal <- function(N = NULL, ID_label = NULL,
-                                  working_environment_ = NULL,
+                                  workspace = NULL,
                                   data_arguments=NULL) {
 
 
-  modify_level_internal_checks(ID_label, working_environment_)
+  modify_level_internal_checks(ID_label, workspace)
 
-  workspace <- working_environment_
   uu <- attr(workspace, "active_df")
 
   df <- workspace[[uu]]
