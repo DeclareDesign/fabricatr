@@ -64,7 +64,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     )
 
     # Return results
-    return(working_environment_)
+    return(workspace)
   }
 
 
@@ -99,8 +99,11 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   # And these rows:
   row_indices_keep <- !duplicated(df[[ID_label]])
 
+
+  mode2 <- exists(ID_label, workspace)
+
   # Now subset it:
-  working_subset <- df[
+  working_subset <- if(mode2) workspace[[ID_label]] else df[
     row_indices_keep,
     merged_set,
     drop = FALSE
@@ -139,14 +142,25 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   super_working_data_list <- check_rectangular(super_working_data_list, super_N)
 
   # Overwrite the working data frame.
-  working_environment_[[uu]] <- data.frame(
+  workspace[[uu]] <- data.frame(
     super_working_data_list,
     stringsAsFactors = FALSE,
     row.names = NULL
   )
 
+  if(mode2) {
+    working_data_list <- check_rectangular(working_data_list, N)
+    workspace[[ID_label]] <- data.frame(
+      working_data_list,
+      stringsAsFactors = FALSE,
+      row.names = NULL
+    )
+    attr(workspace, "active_df") <- ID_label
+
+  }
+
   # Return results
-  working_environment_
+  workspace
 }
 
 
