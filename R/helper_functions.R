@@ -107,11 +107,7 @@ get_symbols_from_quosures <- function(quosures) {
 #' @return a character vector enumerating the unique variables
 #' @keywords internal
 get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
-  if (is.character(superset)) {
-    names_to_check <- intersect(colnames(data), superset)
-  } else {
-    names_to_check <- setdiff(colnames(data), ID_label)
-  }
+  names_to_check <- setdiff(colnames(data), ID_label)
 
   if (is_empty(names_to_check)) return(names_to_check)
 
@@ -297,17 +293,11 @@ handle_data <- function(data) {
 
 # Function to check if something is a level call
 call_not_level_call <- function(calls) {
-  vapply(calls,
-         function(i) {
-           if(is_lang(get_expr(i))) {
-             return(!lang_name(i) %in% c("level", "add_level",
-                                         "nest_level", "modify_level",
-                                         "cross_levels", "link_levels"))
-           } else {
-             return(TRUE)
-           }
-         },
-         logical(1))
+  vapply(calls, function(i) {
+      !is_lang(get_expr(i)) || !lang_name(i) %in% c("level", "add_level",
+                                                    "nest_level", "modify_level",
+                                                    "cross_levels", "link_levels")
+    }, FALSE)
 }
 
 

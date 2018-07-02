@@ -296,3 +296,23 @@ test_that("ID_label stapling for fabricate calls with no levels", {
   df5 <- fabricate(df)
   expect_equal(length(colnames(df5)), 2)
 })
+
+test_that("Multivariate", {
+  skip_if_not_installed("MASS")
+  set.seed(99999)
+  df <- fabricate(N=100, Y=MASS::mvrnorm(N, 0:2, Sigma = matrix(1, 3,3)))
+  expect_named(df, c("ID", "Y.1", "Y.2", "Y.3"))
+  expect_equal(dim(df), c(100,4))
+
+
+  df <- fabricate(N=100, Y=setNames(data.frame(MASS::mvrnorm(N, 0:2, Sigma = matrix(1, 3,3))), c("A","B","C")))
+  expect_named(df, c("ID", "Y.A", "Y.B", "Y.C"), info = "names borrowed from data.frame")
+  expect_equal(dim(df), c(100,4))
+
+
+})
+
+test_that("Error on blank argument when no data or N explicitly passed in",{
+  expect_error(fabricate(,sleep), "blank argument")
+})
+

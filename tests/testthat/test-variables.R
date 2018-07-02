@@ -195,17 +195,19 @@ test_that("Categorical invalid tests", {
 })
 
 test_that("Categorical valid tests", {
-  draw_categorical(prob = matrix(
-    rep(c(0.3, 0.3, 0.4), 3),
+  first <- draw_categorical(prob = matrix(
+    rep(c(0, 1, 0), 3),
     byrow = TRUE, ncol = 3, nrow = 3
   ))
 
-  draw_categorical(prob = matrix(
-    rep(c(0.3, 0.3, 0.4), 3),
-    byrow = TRUE, ncol = 3, nrow = 3
-  ),
-  category_labels = c("A", "B", "C"))
+  expect_equal(first, c(2,2,2))
 
+  second <- draw_categorical(prob = matrix(
+      rep(c(0, 1, 0), 3),
+      byrow = TRUE, ncol = 3, nrow = 3
+    ),category_labels = c("A", "B", "C"))
+
+  expect_equal(second, c("B","B","B"))
   # Convert vector of probabilities to matrix of probabilities
   # Sunset as per #121, leaving deprecated test.
   #expect_message(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
