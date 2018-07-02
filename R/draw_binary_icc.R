@@ -33,107 +33,63 @@
 #'
 #' @export
 draw_binary_icc <- function(prob = 0.5, N = NULL, clusters, ICC = 0) {
+  check_draw_icc_args (clusters, N, prob, ICC);
 
-    if(is.null(clusters)) {
-    stop("You must provide clusters to `draw_binary_icc`")
-  }
+  uclusters <- sort(unique(clusters));
+  clusters <- match(clusters, uclusters)
 
-  # Let's not worry about how clusters are provided
-  if(!is.null(dim(clusters))) {
-    stop(
-      "You must provide cluster IDs for draw_normal_icc as a vector, not a ",
-      "higher dimensional object like a data frame or similar."
-    )
-  }
+  N <- length(clusters)
+  k <- length(uclusters)
 
-  tryCatch({
-    clusters <- as.numeric(as.factor(clusters))
-  }, error = function(e) {
-    stop(
-      "Error coercing cluster IDs to factor levels. Please ensure the ",
-      "`clusters` argument is numeric, factor, or can be coerced into being ",
-      "a factor."
-    )
-  })
-
-  number_of_clusters <- length(unique(clusters))
-
-  # Sanity check N
-  if (!is.null(N) && !is.numeric(N)) {
-    stop("If you provide an N for `draw_binary_icc()`, it must be numeric.")
-  }
-  if (!is.null(N) && N != length(clusters)) {
-    stop(
-      "If you provide an N for `draw_binary_icc()`, it must be equal to the ",
-      "length of provided cluster ids"
-    )
-  }
-
-  # Sanity check prob
-  if (!is.vector(prob)) {
-    stop("`prob` must be a number or vector of numbers.")
-  }
-  if (!length(prob) %in% c(1, number_of_clusters, length(clusters))) {
-    stop("`prob` must be either one number or one number per cluster.")
-  }
-  if (length(prob) == length(clusters) &&
-    nrow(unique(cbind(prob, clusters))) != number_of_clusters) {
-    stop("If `prob` is provided for each observation, it must be unique per ",
-         "cluster.")
-  }
-
-  if (any(!is.numeric(prob))) {
-    stop("`prob` must be a number or vector of numbers.")
-  }
-  if (any(prob > 1 | prob < 0)) {
-    stop("`prob` must be numeric probabilities between 0 and 1 inclusive.")
-  }
-
-  # Sanity check ICC
-  if (length(ICC) > 1) {
-    stop("The ICC provided to `draw_binary_icc()` must be a single number.")
-  }
-  if (!is.numeric(ICC)) {
-    stop("The ICC provided to `draw_binary_icc()` must be a number.")
-  }
-  if (ICC > 1 | ICC < 0) {
-    stop("The ICC provided to `draw_binary_icc()` must be a number between 0 ",
-         "and 1.")
-  }
 
   # Generate cluster and individual probabilities
-  if (length(prob) == 1) {
-    cluster_prob <- rep(prob, number_of_clusters)
-  } else {
-    cluster_prob <- prob
-  }
-  # Individual probabilities: subset operator maps cluster probs to units.
+  cluster_prob <- if (length(prob) == 1) rep(prob, k) else prob
   individual_prob <- cluster_prob[clusters]
 
   # Draw the z_ijs
-  cluster_draw <- rbinom(
-    n = number_of_clusters,
-    size = 1,
-    prob = cluster_prob
-  )[clusters]
+  z_i <- rbinom(n = k, size = 1, prob = cluster_prob)[clusters]
 
   # Draw the y_ijs
-  individual_draw <- rbinom(
-    n = length(clusters),
-    size = 1,
-    prob = individual_prob
-  )
+  y_i <- rbinom(n = N, size = 1,prob = individual_prob)
 
   # Draw the u_ijs -- sqrt(ICC) because the actual ICC for this data will be
   # ICC^2 -- sqrt(ICC^2) = ICC, to ensure users can enter in the terms they feel
   # most comfortable in
-  switch_draw <- rbinom(
-    n = length(clusters),
-    size = 1,
-    prob = sqrt(ICC)
-  )
+  u_i <- rbinom(n = N,size = 1,prob = sqrt(ICC))
 
   # Return either the cluster outcome or individual outcome depending on the
   # switch
-  ifelse(switch_draw, cluster_draw, individual_draw)
+  ifelse(u_i, z_i, y_i)
+}
+
+
+check_draw_icc_args <- function(clusters, N, prob, ICC) {
+  if(!is_vector(clusters)) {
+    stop("`clusters` must be a vector.")
+  }
+
+  # Sanity check N
+  if (!is.null(N)) {
+    if(N != length(clusters))
+      stop(
+        "If you provide an N for `draw_binary_icc()`, it must be equal to the length of provided cluster ids"
+      )
+  }
+
+  k <- length(unique(clusters))
+
+  # Sanity check prob
+  if (!is.vector(prob) || any(prob > 1 | prob < 0)  ||
+      !length(prob) %in% c(1, k, length(clusters)) ) {
+    stop("`prob` must be a number or vector of numbers between 0 and 1, of length 1, k or n.")
+  }
+
+  if (length(prob) == length(clusters) && nrow(unique(cbind(prob, clusters))) != k) {
+    stop("If `prob` is provided for each observation, it must be unique per cluster.")
+  }
+
+  # Sanity check ICC
+  if (length(ICC) > 1 || !is.numeric(ICC) || ICC > 1 || ICC < 0) {
+    stop("ICC must be a single number between 0 and 1.")
+  }
 }

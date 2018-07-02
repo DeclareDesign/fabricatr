@@ -362,14 +362,14 @@ draw_binary <- function(prob = link(latent), N = length(prob),
   # to manual logic for probit/logit
   link <- tryCatch(match.fun(link), error = handle_link_functions(link))
 
-  return(draw_binomial(
+  draw_binomial(
     prob = prob,
     N = N,
     link = link,
     trials = 1,
     latent = latent,
     quantile_y = quantile_y
-  ))
+  )
 }
 
 #' @rdname draw_discrete
@@ -430,7 +430,7 @@ draw_likert <- function(x,
     )
   }
 
-  return(draw_ordered(
+  draw_ordered(
     x = x,
     breaks = breaks,
     N = N,
@@ -438,36 +438,20 @@ draw_likert <- function(x,
     latent = latent,
     break_labels = break_labels,
     quantile_y = quantile_y
-  ))
+  )
 }
 
 #' @rdname draw_discrete
 #' @importFrom stats runif
 #' @export
-draw_quantile <- function(type = NULL,
-                          N = NULL) {
+draw_quantile <- function(type, N) {
 
-  if(is.null(N) || !is.numeric(N)) {
-    stop("`N` must be provided to `draw_quantile()` and must be numeric.")
-  }
-  if(!is.null(dim(N)) || length(N) > 1) {
-    stop("`N` must be a single number.")
-  }
-  if(N <= 0) {
-    stop("`N` provided to `draw_quantile()` must be positive.")
+  if(!is_scalar_integerish(N) || N <= 0) {
+    stop("`N` must be provided to `draw_quantile()` and must be a single positive number.")
   }
 
-  if(is.null(type) || !is.numeric(type)) {
-    stop("`type` must be provided to `draw_quantile()` and must be numeric.")
-  }
-  if(!is.null(dim(type)) || length(type) > 1) {
-    stop("`type` must be a single number.")
-  }
-  if(type <= 1) {
-    stop("`type` provided to `draw_quantile()` must be at least 2.")
-  }
-  if(type >= N) {
-    stop("`type` provided to `draw_quantile()` must be less than `N`.")
+  if(!is_scalar_integerish(type) || type <= 1 || type >= N) {
+    stop("`type` must be a single number between 2 and N-1.")
   }
 
   latent_data <- runif(n = N, min = 0, max = 1)
@@ -499,11 +483,11 @@ draw_quantile <- function(type = NULL,
 #' @export
 split_quantile <- function(x = NULL,
                            type = NULL) {
-  if(is.null(x) || length(x) < 2) {
+  if(length(x) < 2) {
     stop("The `x` argument provided to quantile split must be non-null and ",
          "length at least 2.")
   }
-  if(is.null(type) || !is.numeric(type)) {
+  if(!is.numeric(type)) {
     stop("The `type` argument provided to quantile split must be non-null and ",
          "numeric.")
   }

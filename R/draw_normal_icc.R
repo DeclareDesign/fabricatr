@@ -253,8 +253,7 @@ check_sd_error_helper <- function(data, data_name, number_of_clusters) {
   # Sanity check sd or sd_between
   if (!is.null(data)) {
     if (!length(data) %in% c(1, number_of_clusters)) {
-      stop("`", data_name, "` must be either a number or one number per ",
-           "cluster.")
+      stop("`", data_name, "` must be either a number or one number per ", "cluster.")
     }
     if (!is.vector(data)) {
       stop("`", data_name, "` must be a number or vector of numbers.")

@@ -1,17 +1,5 @@
 context("Fabricate")
 
-test_that("Weird edge cases: importing", {
-  # No one should ever call import_data directly, and import_data_list
-  # will generate a non-null environment, but let's make sure import_data
-  # can catch a null environment
-  we <- import_data(mtcars)
-  expect_equal(class(we), "environment")
-  expect_equal(
-    "data_frame_output_" %in% names(we),
-    TRUE
-  )
-})
-
 test_that("Weird edge cases: missingness in draw_binomial", {
   # Missing data in prob -> still runs.
   expect_warning(draw_binomial(c(rep(0.5, 5), NA), trials = 8))

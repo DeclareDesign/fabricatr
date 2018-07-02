@@ -78,7 +78,7 @@ resample_data <- function(data, N, ID_labels=NULL, unique_labels=FALSE) {
                                 ID_labels = ID_labels,
                                 unique_labels = unique_labels)
   rownames(df) <- NULL
-  return(df)
+  df
 }
 
 #' Magic number constant to allow users to specify \code{ALL} for passthrough
@@ -243,7 +243,7 @@ ALL <- -20171101L
     attr(res, ".internal.selfref") <- NULL
   }
   # Return to preceding level
-  return(res)
+  res
 }
 
 resample_single_level <- function(data, ID_label = NULL, N,

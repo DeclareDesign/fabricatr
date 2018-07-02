@@ -42,22 +42,28 @@ test_that("Error handlers: handle_id", {
 })
 
 test_that("Error handlers: handle_n", {
+
+  e <- new.env()
+
+  # working env now req'd
+  expect_error(handle_n(N=10, FALSE))
+
   # Passed closure as N, didn't evaluate it
   expect_error(handle_n(N = function(x) {
     x * 2
-  }))
+  }, working_environment = e))
 
-  # Passed closure as N, did evaluate it
+  # Passed function call as N, did evaluate it
   func <- function(x) {
     x * 2
   }
-  handle_n(N = func(4))
+  handle_n(N = func(4), working_environment=e)
 
   # Non-numeric type where coercion gives a warning
-  expect_error(handle_n(N = "hello"))
+  expect_error(handle_n(N = "hello", working_environment =e))
 
   # Non-numeric type where coercion gives an explicit error
-  expect_error(handle_n(N = list(Z = Y ~ X)))
+  expect_error(handle_n(N = list(Z = Y ~ X), working_environment = e))
 })
 
 test_that("Error handlers: check_rectangular", {
@@ -76,6 +82,19 @@ test_that("Error handlers: check_rectangular", {
   test[["K"]] <- 5:7
   expect_error(check_rectangular(test, N))
 })
+
+test_that("Error handlers: check_rectangular nested structures", {
+
+  sleep[["nested"]] <- list(sleep)
+  N <- 20
+  expect_true(is.data.frame(check_rectangular(sleep, N)))
+
+  sleep <- as.list(sleep)
+  sleep$mtcars <- mtcars
+
+  expect_error(check_rectangular(sleep, N))
+})
+
 
 test_that("get_unique_variables_by_level", {
   df <- datasets::ChickWeight

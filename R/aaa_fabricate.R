@@ -93,224 +93,172 @@
 fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   # Store all data generation arguments in a quosure for future evaluation
   # A quosure contains unevaluated formulae and function calls.
-  data_arguments <- quos(...)
+  dots <- quos(...)
 
   # Fabricatr expects either a single-level function call
   # or a series of level calls. You can't mix and match.
   # This helper function will be TRUE if calls are all levels, FALSE
   # if there are no calls or they are not levels.
-  explicit_data_supplied <- !missing(data) && !is.null(data)
-  explicit_n_supplied <- (!is.null(N) & !missing(N))
+  data_supplied <- !is.null(data)
+  n_supplied    <- !is.null(N)
+  all_levels    <- FALSE # recalculated after implicit N / data=
+  explicit_ID_provided <- !is.null(ID_label)
 
-  # The user did not seem to do one of the three possible things we can do.
+
   # Maybe they anonymously passed data or N.
-  if (!explicit_data_supplied && !explicit_n_supplied) {
+  if (!data_supplied && !n_supplied) {
+    i <- which(names(dots) == "" & call_not_level_call(dots))[1]
 
-    first_unnamed_arg <- which(names(data_arguments) == "" &
-                                 call_not_level_call(data_arguments))[1]
+    # i is na when dots is length zero, all names are provided => which is integer(0) and integer(0)[1] is NA
+    if(!is.na(i)) {
 
-
-    # Let's check the first unnamed argument.
-    if (!is.na(first_unnamed_arg) &&
-        first_unnamed_arg <= length(data_arguments)) {
-
-      # check if the first unnamed arg is empty (probably misplaced comma)
-      if (quo_squash(data_arguments[[first_unnamed_arg]]) == "") {
+      if (quo_squash(dots[[i]]) == "") {
         stop("There appears to be a blank argument. Is there a misplaced comma?", call. = FALSE)
       }
 
-      # Eval it; whether it's data or N, we don't need any environment
-      # from anything else. If it fails, not great.
-      evaluate_first_arg <- eval_tidy(data_arguments[[first_unnamed_arg]])
+      first_unnamed_dot <- eval_tidy(dots[[i]])
+      dots <- dots[-i]
+
 
       # If they supplied a list or data frame, they meant data.
-      if (is.list(evaluate_first_arg) ||
-          is.data.frame(evaluate_first_arg)) {
-        data <- evaluate_first_arg
-      } else if (is.null(dim(evaluate_first_arg)) &&
-                 is.numeric(evaluate_first_arg) &&
-                length(evaluate_first_arg) == 1) {
-        # If they supplied a number, they meant N, we think.
-        N <- evaluate_first_arg
+      if(is.list(first_unnamed_dot)) {
+        data <- first_unnamed_dot
+        data_supplied <- TRUE
       }
-
-      # Whichever it was, remove it from the remaining args, because it's
-      # not a variable or level call. If there's not an N or data, this
-      # won't be evaluate anyway.
-      data_arguments <- data_arguments[-first_unnamed_arg]
+      else if(is_scalar_integerish(first_unnamed_dot)) {
+        N <- first_unnamed_dot
+        n_supplied <- TRUE
+      }
     }
-    # If not, we'll error out below
   }
 
   # Now re-run the checks.
-  all_levels <- check_all_levels(data_arguments)
-  data_supplied <- (!missing(data) && !is.null(data) & !all_levels)
-  n_supplied <- (!is.null(N) & !missing(N))
+  all_levels <- check_all_levels(dots)
 
-  # User must provide exactly one of:
-  # 1) One or more level calls (with or without importing their own data)
-  # 2) Import their own data and do not involve level calls
-  # 3) Provide an N without importing their own data
-  if (sum(all_levels, data_supplied, n_supplied) != 1) {
-    stop(
-      "You must do exactly one of: \n",
-      "1) One or more level calls, with or without existing data \n",
-      "2) Import existing data and optionally, add new variables without ",
-      "adding a level \n",
-      "3) Provide an `N` without importing data and optionally, add new ",
-      "variables"
-    )
+  if (n_supplied == (all_levels || data_supplied)) {
+    fabricate_mode_error()
   }
 
-  # User provided level calls
+  working_environment <- import_data_list(data)
+
   if (all_levels) {
+    nm <- names(dots) %||% rep("", length(dots))
     # Ensure the user provided a name for each level call.
-    if (is.null(names(data_arguments)) | any(names(data_arguments) == "")) {
-      # If they didn't, see if we can poach it out of the arguments
-      for(i in seq_len(length(data_arguments))) {
-        if(is.null(names(data_arguments[[i]])) ||
-           names(data_arguments[[i]]) == "") {
+    # If they didn't, see if we can poach it out of the arguments
+    for(i in seq_along(dots)) {
+      if(nm[i] != "") next;
 
-          # Can't salvage this one
-          if(!"ID_label" %in% lang_args_names(data_arguments[[i]])) {
-            stop("You must provide a name for each level that you create.")
-          }
-
-          names(data_arguments)[i] <- lang_args(data_arguments[[i]])$ID_label
-
+        # Can't salvage this one
+        if(!"ID_label" %in% lang_args_names(dots[[i]])) {
+          stop("You must provide a name for each level that you create.")
         }
-      }
+
+        names(dots)[i] <- lang_args(dots[[i]])$ID_label
     }
 
-    # User provided data, if any, should be preloaded into working environment
-    if (!is.null(data) & !missing(data)) {
-      working_environment <- import_data_list(data)
-    } else {
-      working_environment <- new_working_environment()
-    }
 
     # Each of data_arguments is a level call
-    for (i in seq_along(data_arguments)) {
+    for (i in seq_along(dots)) {
       # Add two variables to the argument of the current level call
       # one to pass the working environment so far
       # one to pass the ID_label the user intends for the level
 
-      data_arguments[[i]] <- lang_modify(
-        data_arguments[[i]],
+      dots[[i]] <- lang_modify(
+        dots[[i]],
         working_environment_ = working_environment,
-        ID_label = names(data_arguments)[i]
+        ID_label = names(dots)[i]
       )
 
       # Execute the level build and pass it back to the current working
       # environment.
-      working_environment <- eval_tidy(data_arguments[[i]])
+      working_environment <- eval_tidy(dots[[i]])
     }
 
     # Return the results from the working environment
     return(report_results(working_environment))
   }
 
-  # User did not pass data -- they passed N
-  if (is.null(data) | missing(data)) {
+  else if (n_supplied) {
     # Single level -- maybe the user provided an ID_label, maybe they didn't.
     # Sanity check and/or construct an ID label for the new data.
     ID_label <- handle_id(ID_label, NULL)
 
     # Is the N argument passed here sane? Let's check
-    N <- handle_n(N, add_level = TRUE)
+    N <- handle_n(N, add_level = TRUE, working_environment)
 
-    # Run the level adder, report the results, and return
-    return(
-      report_results(
-        add_level_internal(
-          N = N,
-          ID_label = ID_label,
-          working_environment_ = new_working_environment(),
-          data_arguments = data_arguments,
-          nest = TRUE
-        )
-      )
+    ret <- add_level_internal(
+      N = N,
+      ID_label = ID_label,
+      working_environment_ = working_environment,
+      data_arguments = dots,
+      nest = TRUE
     )
   }
 
-  working_environment <- import_data_list(data)
+  else if (data_supplied) {
 
-  # Single level -- maybe the user provided an ID_label, maybe they didn't.
-  # Sanity check and/or construct an ID label for the new data.
-  explicit_ID_provided <- !is.null(ID_label)
-  ID_label <- handle_id(ID_label, working_environment$data_frame_output_)
+    df <- active_df(working_environment)
 
-  # User passed data, not N
-  # First, let's dynamically get N from the number of rows
-  N <- nrow(working_environment$data_frame_output_)
+    # Single level -- maybe the user provided an ID_label, maybe they didn't.
+    # Sanity check and/or construct an ID label for the new data.
+    ID_label <- handle_id(ID_label, df)
 
-  # Now, see if we need to staple an ID column on. This is a bit of a mess.
-  if(is.na(ID_label)) {
-    # Explicit override of ID_label -- don't add one if ID_label is NA,
-    # explicitly
-  } else if (ID_label %in% names(working_environment$data_frame_output_)) {
-    # There's already an ID column named the thing we want to call the ID
-    # column, so keep it. If the user did not specify, then this shouldn't
-    # happen because handle_id would have moved to a fallback ID.
-    add_level_id(working_environment, ID_label)
-  } else if(explicit_ID_provided) {
-    # We explicitly asked for an ID column, so let's do it.
-    working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
-    add_level_id(working_environment, ID_label)
-    add_variable_name(working_environment, ID_label)
-  } else if(length(data_arguments)) {
-    # We didn't explicitly ask for an ID column, but we are modifying the data
-    # so probably we should do it unless there's a column that's exactly this.
-    # Generate the ID label and check if there's a column that's exactly this.
-    temp_id <- generate_id_pad(N)
-    already_has_exact_id <- FALSE
-    for(i in seq_len(ncol(working_environment$data_frame_output_))) {
-      if(identical(working_environment$data_frame_output_[[i]], temp_id)) {
-        already_has_exact_id <- TRUE
-        break
+    # First, let's get N from the number of rows
+    N <- nrow(df)
+
+    # Now, see if we need to staple an ID column on. This is a bit of a mess.
+    if(is.na(ID_label)) {
+
+      # Explicit override of ID_label -- don't add
+
+    } else if (ID_label %in% names(df)) {
+      # There's already an ID column named the thing we want to call the ID
+      # column, so keep it. If the user did not specify, then this shouldn't
+      # happen because handle_id would have moved to a fallback ID.
+    } else if(explicit_ID_provided) {
+      # We explicitly asked for an ID column, so let's do it.
+      df[[ID_label]] <- generate_id_pad(N)
+    } else if(length(dots)) {
+      # We didn't explicitly ask for an ID column, but we are modifying the data
+      # so probably we should do it unless there's a column that's exactly this.
+      # Generate the ID label and check if there's a column that's exactly this.
+      temp_id <- generate_id_pad(N)
+
+      id_matches <- vapply(df, identical, TRUE, temp_id)
+
+      if(any(id_matches)) {
+        ID_label <- names(df)[id_matches][1]
+      } else {
+        df[[ID_label]] <- temp_id
       }
+
+
     }
 
-    # If we didn't find the exact ID label, then we have to add one.
-    if(!already_has_exact_id) {
-      working_environment$data_frame_output_[[ID_label]] <- generate_id_pad(N)
-      add_level_id(working_environment, ID_label)
-      add_variable_name(working_environment, ID_label)
-    } else {
-      # Just record the one we already have.
-      proximate_id <- names(working_environment$data_frame_output_)[[i]]
-      add_level_id(working_environment, proximate_id)
-      add_variable_name(working_environment, proximate_id)
-    }
-  }
+    uu <- attr(working_environment, "active_df")
+    working_environment[[uu]] <- df
 
-  # If the user does a passthrough for some reason, just return as is.
-  if (!length(data_arguments)) {
-    return(report_results(working_environment))
-  }
-
-  # Run the level adder, report the results, and return
-  return(
-    report_results(
+    # Run the level adder, report the results, and return
+    ret <- if (is_empty(dots)) working_environment else
       modify_level_internal(
         N = N,
         ID_label = ID_label,
-        data_arguments = data_arguments,
+        data_arguments = dots,
         working_environment_ = working_environment
       )
-    )
+  }
+
+  report_results(ret)
+}
+
+
+
+fabricate_mode_error <- function() {
+  stop(
+    "You must do exactly one of: \n",
+    "1) One or more level calls, with or without existing data \n",
+    "2) Import existing data and add new variables \n",
+    "3) Provide an `N` without importing data or creating levels"
   )
 }
 
-#' Deprecated level call function maintained to provide useful error for
-#' previous fabricatr code.
-#' @keywords internal
-#' @export
-level <- function(N = NULL, ID_label = NULL, ...) {
-  stop(
-    "The `level()` function from early versions of fabricatr is deprecated. ",
-    "Please use `add_level()` or `modify_level()` as necessary."
-  )
-  # Stub, this doesn't do anything yet -- may in the future dispatch to the
-  # relevant levels.
-}
