@@ -78,23 +78,23 @@ link_levels <- function(N = NULL, by = NULL, ...) {
 #' @importFrom rlang quo_text eval_tidy
 cross_levels_internal <- function(N = NULL,
                                   ID_label = NULL,
-                                  working_environment_ = NULL,
+                                  workspace = NULL,
                                   by = NULL,
                                   data_arguments = NULL) {
 
-  check_cross_level_args(working_environment_, by)
+  check_cross_level_args(workspace, by)
 
 
 
   variable_names <- by$variable_names
 
-  df_names <- names(working_environment_)
+  df_names <- names(workspace)
   data_frame_indices <- integer(length(variable_names))
 
   # Figure out which dfs we're joining on which variables
   for (i in seq_along(variable_names)) {
     for (j in seq_along(df_names)) {
-      if (variable_names[i] %in% names(working_environment_[[df_names[j]]])) {
+      if (variable_names[i] %in% names(workspace[[df_names[j]]])) {
 
         # If we've already found this one, that's bad news for us...
         if (data_frame_indices[i]) {
@@ -126,7 +126,7 @@ cross_levels_internal <- function(N = NULL,
   }
 
   # Actually fetch the df objects
-  data_frame_objects <- mget(df_names[data_frame_indices], working_environment_)
+  data_frame_objects <- mget(df_names[data_frame_indices], workspace)
 
 
   # Do the join.
@@ -143,19 +143,20 @@ cross_levels_internal <- function(N = NULL,
 
   }
 
-  working_environment_[[ID_label]] <- out
-  attr(working_environment_, "active_df") <- ID_label
+  append_child(workspace, ID_label, df_names[data_frame_indices], out)
+
+  activate(workspace, ID_label);
 
   if (length(data_arguments)) {
-    working_environment_ <- modify_level_internal(
+    workspace <- modify_level_internal(
       ID_label = ID_label,
-      working_environment_ = working_environment_,
+      workspace = workspace,
       data_arguments = data_arguments
     )
   }
 
   # Return results
-  working_environment_
+  workspace
 }
 
 #' Helper function handling specification of which variables to join a

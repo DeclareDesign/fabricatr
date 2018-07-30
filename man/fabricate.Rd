@@ -12,7 +12,7 @@ fabricate(..., data = NULL, N = NULL, ID_label = NULL)
 
 add_level(N = NULL, ..., nest = TRUE)
 
-modify_level(N = NULL, ...)
+modify_level(..., by = NULL)
 
 nest_level(N = NULL, ...)
 }

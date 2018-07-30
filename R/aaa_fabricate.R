@@ -102,7 +102,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   data_supplied <- !is.null(data)
   n_supplied    <- !is.null(N)
   all_levels    <- FALSE # recalculated after implicit N / data=
-  explicit_ID_provided <- !is.null(ID_label)
+  explicit_ID_provided <- !missing(ID_label)
 
 
   # Maybe they anonymously passed data or N.
@@ -186,13 +186,11 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     # Is the N argument passed here sane? Let's check
     N <- handle_n(N, add_level = TRUE, working_environment)
 
-    ret <- add_level_internal(
+    ret <- add_top_level_internal(
       N = N,
       ID_label = ID_label,
-      working_environment_ = working_environment,
-      data_arguments = dots,
-      nest = TRUE
-    )
+      workspace = working_environment,
+      data_arguments = dots)
   }
 
   else if (data_supplied) {
@@ -242,9 +240,9 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     ret <- if (is_empty(dots)) working_environment else
       modify_level_internal(
         N = N,
-        ID_label = ID_label,
+        ID_label = uu,
         data_arguments = dots,
-        working_environment_ = working_environment
+        workspace = working_environment
       )
   }
 
