@@ -240,7 +240,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     ret <- if (is_empty(dots)) working_environment else
       modify_level_internal(
         N = N,
-        ID_label = ID_label,
+        ID_label = uu,
         data_arguments = dots,
         workspace = working_environment
       )

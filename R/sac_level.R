@@ -2,7 +2,7 @@
 #'
 #' @export
 sac_level <- function(by = NULL, ...) {
-  do_internal(N = NULL, by = by, ..., FUN = sac_level_internal, from="sac_level")
+  do_internal(N = NULL, by = by, ..., FUN = modify_level_internal, from="sac_level")
 }
 
 

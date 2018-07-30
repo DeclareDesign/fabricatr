@@ -2,22 +2,22 @@
 #'
 #' @rdname fabricate
 #' @export
-modify_level <- function(...) {
-  do_internal(N=NULL, ..., FUN=modify_level_internal, from="modify_level")
+modify_level <- function(..., by=NULL) {
+  do_internal(N=NULL, ..., by=by, FUN=modify_level_internal, from="modify_level")
 }
 
 #' @importFrom rlang eval_tidy
 #'
 modify_level_internal <- function(N = NULL, ID_label = NULL,
-                                  workspace = NULL,
+                                  workspace = NULL, by = NULL,
                                   data_arguments=NULL) {
 
 
   modify_level_internal_checks(ID_label, workspace)
 
-  uu <- attr(workspace, "active_df")
+  uu <- ID_label %||% attr(workspace, "active_df")
 
-  df <- active_df(workspace)
+  df <- workspace[[uu]] %||% active_df(workspace)
 
 
 
@@ -25,7 +25,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
   # of data. In which case, we simply add variables, like if someone called
   # add_level with a dataset. To check if that's the world we're in, check if
   # we have any duplicates in the ID label:
-  if (!anyDuplicated(df[[ID_label]])) {
+  if (!is.character(by)) {
     # There is no subsetting going on, but modify_level was used anyway.
     N <- nrow(df)
 
@@ -65,104 +65,34 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     attr_names <- grep("^fabricatr::", names(attributes(df)), value = TRUE)
     attributes(workspace[[uu]])[attr_names] <- attributes(df)[attr_names]
 
+    activate(workspace, uu)
     # Return results
     return(workspace)
   }
 
 
-  # If we're here, then at least some subsetting is used in the modify call
-  # first, subset to unique observations, then generate new data, then
-  # re-expand. To do this, we need a mapping between observations and unique
-  # observations. First, get the unique values of the level:
-  unique_values_of_level <- unique(df[[ID_label]])
-
-  index_maps <- match(df[[ID_label]], unique_values_of_level)
-
-  # Now, which variables are we going to from to (do we need to subset)?
-  input_variables <- unname(unlist(get_symbols_from_quosures(data_arguments)))
-  input_variables <- intersect(setdiff(input_variables, ID_label), names(df))
-  input_variables <- df[input_variables]
-
-  # Level unique variables:
-  level_unique_variables <- get_unique_variables_by_level(
-    data = df,
-    ID_label = ID_label,
-    superset = input_variables
-  )
-
-  check_uniqueness_at_level(level_unique_variables, input_variables, ID_label)
+  idx <- split(seq_len(nrow(df)), df[by], drop = TRUE)
 
 
-  # Our subset needs these columns -- the level variable, all the unique
-  # variables we are going to use to write, and then in case the latter is "",
-  # remove that dummy obs.:
-  merged_set <- unique(c(ID_label, setdiff(level_unique_variables, "")))
+  for(slice in idx) {
+    wenv <- import_data_list(df[slice, ,drop=FALSE])
 
-  # And these rows:
-  row_indices_keep <- !duplicated(df[[ID_label]])
+    wenv <- modify_level_internal(N, ID_label, wenv, data_arguments=data_arguments)
 
+    ret <- active_df(wenv)
 
-  mode2 <- exists(ID_label, workspace)
+    # If new columns were created, preallocate them, ow will be ignored w/ a warning
+    df[setdiff(names(ret), names(df))] <- NA
 
-  # Now subset it:
-  working_subset <- if(mode2) workspace[[ID_label]] else df[
-    row_indices_keep,
-    merged_set,
-    drop = FALSE
-  ]
-
-  # Set the N variable correctly moving forward:
-  super_N <- nrow(df)
-  N <- nrow(working_subset)
-
-  # Get the subset into a list:
-  working_data_list <- as.list(working_subset)
-  # And our original working data frame:
-  super_working_data_list <- as.list(df)
-
-  # Now loop
-  for (i in names(data_arguments)) {
-    # Evaluate the formula in an environment consisting of:
-    # 1) The current working data list
-    # 2) A list that tells everyone what N means in this context.
-    # Store it in the currently working data list
-    working_data_list[[i]] <- expand_or_error(eval_tidy(
-      data_arguments[[i]],
-      append(working_data_list, list(N = N))
-    ), N, i, data_arguments[[i]])
-
-    # Expand the variable and store it in the actual, expanded working data
-    # list. Why do we keep these in parallel? Because subsequent variables
-    # might need the non-expanded version to generate new variables.
-    super_working_data_list[[i]] <- working_data_list[[i]][index_maps]
-
-    # clean up as above
-    data_arguments[[i]] <- NULL
-  }
-
-  # Before handing back data, ensure it's actually rectangular
-  super_working_data_list <- check_rectangular(super_working_data_list, super_N)
-
-  # Overwrite the working data frame.
-  workspace[[uu]] <- data.frame(
-    super_working_data_list,
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
-
-  if(mode2) {
-    working_data_list <- check_rectangular(working_data_list, N)
-    workspace[[ID_label]] <- data.frame(
-      working_data_list,
-      stringsAsFactors = FALSE,
-      row.names = NULL
-    )
-    activate(workspace, ID_label)
+    df[slice, names(ret)] <- ret
 
   }
 
-  # Return results
+  workspace[[uu]] <- df
+
+  activate(workspace, uu)
   workspace
+
 }
 
 

@@ -51,14 +51,16 @@ test_that("Start with existing multi-level data and add variables", {
 })
 
 test_that("Modify variable at wrong level", {
-  df <- fabricate(
-    country = add_level(N = 50, population = runif(N, 10000, 20000)),
-    state = add_level(N = 10, latitude = runif(N, 40, 50)),
-    town = add_level(N = 5, stop_lights = draw_binary(prob = 0.7, N = N))
+  expect_error(
+    df <- fabricate(
+      country = add_level(N = 50, population = runif(N, 10000, 20000)),
+      state = add_level(N = 10, latitude = runif(N, 40, 50)),
+      town = add_level(N = 5, stop_lights = draw_binary(prob = 0.7, N = N)),
+
+      state = modify_level(
+        crime = 0.5 + stop_lights + latitude)
+    )
   )
-  expect_error(fabricate(df,
-                         state = modify_level(
-                           crime = 0.5 + stop_lights + latitude)))
 })
 
 test_that("Import -> nest with special length N, test for #80", {
