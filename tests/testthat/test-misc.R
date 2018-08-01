@@ -109,3 +109,15 @@ test_that("Unnamed level", {
 })
 
 
+test_that("column N is masked", {
+
+
+  golden <- structure(list(N = 1:3, ID = c("1", "2", "3"), Z = c(4, 4, 4)), .Names = c("N",
+             "ID", "Z"), row.names = c(NA, 3L), class = "data.frame")
+
+  df <- fabricate(data.frame(N=1:3), Z=4)
+
+  expect_identical(df, golden)
+
+
+})
