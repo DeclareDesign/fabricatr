@@ -37,13 +37,13 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
 
     # Now loop over the variable creation.
     for (i in names(data_arguments)) {
-      # Evaluate the formula in an environment consisting of:
-      # 1) The current working data list
-      # 2) A list that tells everyone what N means in this context.
-      # Store it in the current environment
+      # Explicity mask N
+      dm <- as_data_mask(working_data_list)
+      dm$N <- N
+
       working_data_list[[i]] <- expand_or_error(eval_tidy(
         data_arguments[[i]],
-        append(working_data_list, list(N = N))
+        dm
       ), N, i, data_arguments[[i]])
 
 
