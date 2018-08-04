@@ -102,7 +102,7 @@ knitr::kable(head(country_data), format.args=list(big.mark = ","))
 
 Several things can be observed in this example. First, fabricate knows that your second `add_level()` command will be nested under the first level of data. Each level gets its own ID variable, in addition to the variables you create. Second, the meaning of the variable "N" changes. During the `add_level()` call for countries, N is 5. During the `add_level()` call for provinces, N is 10. And the resulting data, of course, has 50 observations.
 
-Finally, the province-level variables are created using the `draw_binary()` function. This is a function provided by **fabricatr** to make simulating discrete random variables simple. When you simulate your own data, you can use **fabricatr**'s functions, R's built-ins, or any custom functions you wish. `draw_binary()` is explained in [our tutorial on variable generation using **fabricatr**](/R/fabricatr/articles/variable_generation.html)
+Finally, the province-level variables are created using the `draw_binary()` function. This is a function provided by **fabricatr** to make simulating discrete random variables simple. When you simulate your own data, you can use **fabricatr**'s functions, R's built-ins, or any custom functions you wish. `draw_binary()` is explained in [our tutorial on variable generation using **fabricatr**](/r/fabricatr/articles/variable_generation.html)
 
 # Adding hierarchy to existing data
 
@@ -176,7 +176,7 @@ Before assessing what this tells us about `modify_level()`, let's consider what 
 
 There are a lot of things to learn from this example. First, it's possible to modify multiple levels. Any new variable created will automatically propagate to the lower level data according -- by setting an average temperature for a country, all provinces, and all citizens of those provinces, have the value for the country. Values created from one `modify_level()` call can be used in subsequent variables of the same call, or subsequent calls.
 
-Again, we see the use of `draw_binary()`. Using this function is covered in our tutorial on [generating discrete random variables](/R/fabricatr/articles/variable_generation.html), linked below.
+Again, we see the use of `draw_binary()`. Using this function is covered in our tutorial on [generating discrete random variables](/r/fabricatr/articles/variable_generation.html), linked below.
 
 # Averages within higher levels of hierarchy
 
@@ -202,4 +202,4 @@ Here, we can create citizen-level data which relies on the data of other citizen
 
 # Next Steps
 
-You've seen **fabricatr**'s ability to generate single-level and hierarchical data, which is enough to get you started on using the package. From here, you can explore more about modeling the structure of data by reading our [tutorial on panel and cross-classified data](/R/fabricatr/articles/cross_classified.html) or [using **fabricatr** to bootstrap or resample hierarchical data](/R/fabricatr/articles/resampling.html). Or, if you would like to learn about modeling specific variables using **fabricatr**, you can read our tutorial on [common social science variables](/R/fabricatr/articles/common_social.html); our technical manual on [generating discrete random variables](/R/fabricatr/articles/variable_generation.html); or our guide on [using other data generation packages](/R/fabricatr/articles/other_packages.html) with **fabricatr**.
+You've seen **fabricatr**'s ability to generate single-level and hierarchical data, which is enough to get you started on using the package. From here, you can explore more about modeling the structure of data by reading our [tutorial on panel and cross-classified data](/r/fabricatr/articles/cross_classified.html) or [using **fabricatr** to bootstrap or resample hierarchical data](/r/fabricatr/articles/resampling.html). Or, if you would like to learn about modeling specific variables using **fabricatr**, you can read our tutorial on [common social science variables](/r/fabricatr/articles/common_social.html); our technical manual on [generating discrete random variables](/r/fabricatr/articles/variable_generation.html); or our guide on [using other data generation packages](/r/fabricatr/articles/other_packages.html) with **fabricatr**.
