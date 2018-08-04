@@ -123,7 +123,7 @@ population <- fabricate(
 )
 ```
 
-This parameterization of the income variable was derived by researching U.S. individual income data and using numerical optimization to derive the parameterization that best approximated a series of quantiles from that data. Many other data generation packages, including **wakefield**, implement automatic generation of income data. For more information about using **fabricatr** with other data generating packages, see [our online tutorial](/R/fabricatr/articles/other_packages.html)
+This parameterization of the income variable was derived by researching U.S. individual income data and using numerical optimization to derive the parameterization that best approximated a series of quantiles from that data. Many other data generation packages, including **wakefield**, implement automatic generation of income data. For more information about using **fabricatr** with other data generating packages, see [our online tutorial](/r/fabricatr/articles/other_packages.html)
 
 ## Count outcomes
 
@@ -225,7 +225,7 @@ student_report_card <- fabricate(
 )
 ```
 
-Please observe that the first argument to correlate, `draw_handler`, must be supplied as an unquoted name of a variable generating function. By default, this function works with any of the base `R` distributions; for information about using a third party or custom data generating function, see our [advanced features tutorial](/R/fabricatr/articles/advanced_features.html)
+Please observe that the first argument to correlate, `draw_handler`, must be supplied as an unquoted name of a variable generating function. By default, this function works with any of the base `R` distributions; for information about using a third party or custom data generating function, see our [advanced features tutorial](/r/fabricatr/articles/advanced_features.html)
 
 A note about correlated data: Although the method used will generate data that is correlated on average with rank correlation `rho`, some variance is normal, and distributions which have less flexibility will be less likely to achieve the target correlation. For example, if the first variable is normally distributed with a wide range of values, and the target variable is a binary 0/1 variable, the correlation will be imprecise by the lack of flexibility in the target variable.
 
@@ -313,9 +313,9 @@ Alternatively, users can specify `ICC` and `total_sd`. The resulting variable wi
 
 # Next Steps
 
-If you are interested in reading more about how to generate specific variables with **fabricatr**, you can read our tutorial on [common social science variables](/R/fabricatr/articles/common_social.html), or learn how to [use other data-generating packages with **fabricatr**](/R/fabricatr/articles/other_packages.html).
+If you are interested in reading more about how to generate specific variables with **fabricatr**, you can read our tutorial on [common social science variables](/r/fabricatr/articles/common_social.html), or learn how to [use other data-generating packages with **fabricatr**](/r/fabricatr/articles/other_packages.html).
 
-If you are interested in learning how to import or build data, you can read our [introduction to building and importing data](/R/fabricatr/articles/building_importing.html). More advanced users can read our tutorial on [generating panel or cross-classified data](/R/fabricatr/articles/cross_classified.html). You can also learn about [bootstrapping and resampling hierarchical data](/R/fabricatr/articles/resampling.html).
+If you are interested in learning how to import or build data, you can read our [introduction to building and importing data](/r/fabricatr/articles/building_importing.html). More advanced users can read our tutorial on [generating panel or cross-classified data](/r/fabricatr/articles/cross_classified.html). You can also learn about [bootstrapping and resampling hierarchical data](/r/fabricatr/articles/resampling.html).
 
 # Technical Appendix
 
