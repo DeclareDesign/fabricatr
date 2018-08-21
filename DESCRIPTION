@@ -18,7 +18,7 @@ Depends: R (>= 3.4.0)
 Imports: rlang (>= 0.2.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Suggests:
     testthat,
     data.table,

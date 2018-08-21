@@ -18,8 +18,9 @@ draw_binomial(prob = link(latent), trials = 1, N = length(prob),
 draw_categorical(prob = link(latent), N = NULL, latent = NULL,
   link = "identity", category_labels = NULL)
 
-draw_ordered(x = link(latent), breaks = c(-1, 0, 1), break_labels = NULL,
-  N = length(x), latent = NULL, link = "identity", quantile_y = NULL)
+draw_ordered(x = link(latent), breaks = c(-1, 0, 1),
+  break_labels = NULL, N = length(x), latent = NULL,
+  link = "identity", quantile_y = NULL)
 
 draw_count(mean = link(latent), N = length(mean), latent = NULL,
   link = "identity", quantile_y = NULL)
@@ -27,8 +28,8 @@ draw_count(mean = link(latent), N = length(mean), latent = NULL,
 draw_binary(prob = link(latent), N = length(prob), link = "identity",
   latent = NULL, quantile_y = NULL)
 
-draw_likert(x, type = 7, breaks = NULL, N = length(x), latent = NULL,
-  link = "identity", quantile_y = NULL)
+draw_likert(x, type = 7, breaks = NULL, N = length(x),
+  latent = NULL, link = "identity", quantile_y = NULL)
 
 draw_quantile(type, N)
 }
