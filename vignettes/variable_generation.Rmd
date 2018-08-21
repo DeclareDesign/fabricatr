@@ -165,6 +165,8 @@ warn_draw_cat_example <- fabricate(
 
 # Correlated random variables
 
+*This functionality is EXPERIMENTAL, and we cannot guarantee its properties for all data structures. Be sure to diagnose your design and assess the distributions of your variables.*
+
 **fabricatr** makes it easy to generate correlated random variables one at a time. All you need is a reference variable, a desired rank correlation coefficient (from -1 to 1), and a `draw_` function to specify the target distribution of the correlated variable.
 
 This is done using a function called `correlate()`, which takes four distinct arguments: `draw_handler`, which is the un-quoted name of your desired outcome distribution (e.g. `draw_binary`, `draw_binomial`, `draw_count`); any parameters needed for that distribution (e.g. `mean` for `draw_count`); `given`, which is the reference variable your new variable will be correlated with, and `rho`, which is the rank correlation coefficient you are targeting.
