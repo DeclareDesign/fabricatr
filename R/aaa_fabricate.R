@@ -70,7 +70,7 @@
 #' # Start with existing data and add variables to hierarchical data
 #' # at levels which are already present in the existing data.
 #' # Note: do not provide N when adding variables to an existing level
-#' modified_multi_level_df <- fabricate(
+#' fabricate(
 #'   data = multi_level_df,
 #'   regions = modify_level(watershed = sample(c(0, 1), N, replace = TRUE)),
 #'   cities = modify_level(runoff = rnorm(N))
