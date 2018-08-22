@@ -42,7 +42,7 @@ of units in a specific level of a hierarchical dataset.}
 or create a separate hierarchy of levels. See our vignette for
 cross-classified, non-nested data for details.}
 
-\item{by}{(optional) quoted name of level \code{modify_level} uses to split-modify-combine data.}
+\item{by}{(optional) quoted name of variable \code{modify_level} uses to split-modify-combine data by.}
 }
 \value{
 data.frame
@@ -96,7 +96,7 @@ company_df <- fabricate(
 # Start with existing data and add variables to hierarchical data
 # at levels which are already present in the existing data.
 # Note: do not provide N when adding variables to an existing level
-modified_multi_level_df <- fabricate(
+fabricate(
   data = multi_level_df,
   regions = modify_level(watershed = sample(c(0, 1), N, replace = TRUE)),
   cities = modify_level(runoff = rnorm(N))
