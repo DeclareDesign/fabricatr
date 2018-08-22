@@ -12,7 +12,7 @@ Description: Helps you imagine your data before you collect it. Hierarchical dat
    and correlated data can be easily simulated, either from random number generators or
    by resampling from existing data sources. This package is faster with 'data.table' and
    'mvnfast' installed.
-URL: http://fabricatr.declaredesign.org, https://github.com/DeclareDesign/fabricatr
+URL: https://declaredesign.org/r/fabricatr, https://github.com/DeclareDesign/fabricatr
 BugReports: https://github.com/DeclareDesign/fabricatr/issues
 Depends: R (>= 3.4.0)
 Imports: rlang (>= 0.2.0)
@@ -22,4 +22,5 @@ RoxygenNote: 6.1.0
 Suggests:
     testthat,
     data.table,
-    mvnfast
+    mvnfast,
+    MASS
