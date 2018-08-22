@@ -1,3 +1,5 @@
+#' @param by (optional) quoted name of level \code{modify_level} uses to split-modify-combine data.
+#'
 #' @importFrom rlang quos get_expr
 #'
 #' @rdname fabricate

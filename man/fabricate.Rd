@@ -41,6 +41,8 @@ of units in a specific level of a hierarchical dataset.}
 \code{add_level()} call will be nested under the current working data frame
 or create a separate hierarchy of levels. See our vignette for
 cross-classified, non-nested data for details.}
+
+\item{by}{(optional) quoted name of level \code{modify_level} uses to split-modify-combine data.}
 }
 \value{
 data.frame
