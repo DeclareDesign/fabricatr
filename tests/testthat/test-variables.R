@@ -261,6 +261,42 @@ test_that("Ordered data valid tests", {
   )
   expect_equal(length(base_ordered), 200)
   expect_equal(length(table(base_ordered)), 4)
+})
+
+
+test_that("MH's tests",{
+  expect_equal(
+    draw_ordered(c(-1, .5, .5, .5, 5), breaks = c(1/3, 2/3)),
+    c(1, 2, 2, 2, 3))
+
+  expect_equal(
+    draw_ordered(c(.3, .5, .5), breaks = c(1/3, 2/3), strict = TRUE),
+    c(NA, 1, 1))
+
+  expect_equal(
+    draw_ordered(c(.3, .5, .5), breaks = c(1/3, 2/3)),
+    c(1, 2, 2))
+
+  expect_equal(
+    draw_ordered(c(.5, .5, .7), breaks = c(1/3, 2/3)),
+    c(2, 2, 3)
+  )
+
+  expect_equal(
+    draw_ordered(c(.5, .5, .7), breaks = c(1/3, 2/3), strict = TRUE),
+    c(1, 1, NA)
+  )
+
+  # now try with manual Inf's
+  expect_equal(
+    draw_ordered(c(.5, .5, 2/3, 1), breaks = c(-Inf, 2/3), strict = TRUE),
+    c(1, 1, 2, NA)
+  )
+
+  expect_equal(
+    draw_ordered(c(.5, .5, 2/3, 1), breaks = c(-Inf, 2/3)),
+    c(1, 1, 2, 2)
+  )
 
 })
 

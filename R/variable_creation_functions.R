@@ -38,6 +38,7 @@
 #' link, the latent variable must be a probability.
 #' @param latent If the user provides a link argument other than identity, they
 #' should provide the variable `latent` rather than `prob` or `mean`
+#' @param strict Logical indicating whether values outside the provided breaks should be coded as NA. Defaults to \code{FALSE}, in which case effectively additional breaks are added between -Inf and the lowest break and between the highest break and Inf.
 #' @param quantile_y A vector of quantiles; if provided, rather than drawing
 #' stochastically from the distribution of interest, data will be drawn at
 #' exactly those quantiles.
@@ -244,10 +245,13 @@ draw_categorical <- function(prob = link(latent), N = NULL,
 
 #' @rdname draw_discrete
 #' @export
-draw_ordered <- function(x = link(latent), breaks = c(-1, 0, 1),
+draw_ordered <- function(x = link(latent),
+                         breaks = c(-1, 0, 1),
                          break_labels = NULL,
-                         N = length(x), latent = NULL,
-                         link = "identity", quantile_y = NULL) {
+                         N = length(x),
+                         latent = NULL,
+                         strict = FALSE,
+                         link = "identity") {
 
   # Handle link function - try matching normal way, and fallback
   # to manual logic for probit/logit
@@ -276,37 +280,35 @@ draw_ordered <- function(x = link(latent), breaks = c(-1, 0, 1),
     stop("`N` must be an even multiple of the length of `x`.")
   }
 
-  # Pre-pend -Inf
-  if (any(breaks[1] > x)) {
-    breaks <- c(-Inf, breaks)
-  }
-  # Post-pend Inf
-  if (any(breaks[length(breaks)] < x)) {
-    breaks <- c(breaks, Inf)
-  }
+  add_to_value <- !strict & !any(is.infinite(breaks) & sign(breaks))
 
   # Make sure break labels are concordant with breaks.
   if (!is.null(break_labels) &&
     (is.vector(break_labels) &&
       !is.logical(break_labels) &&
       all(!is.na(break_labels)) &&
-      length(break_labels) != length(breaks) - 1)) {
+      length(break_labels) != length(breaks) + ifelse(add_to_value, 1, -1))) {
     stop(
-      "Break labels should be of length one less than breaks. ",
+      "Break labels should be of length one more than breaks. ",
       "Currently you have ", length(break_labels), " bucket labels and ",
       length(breaks) - 1, " buckets of data."
     )
   }
 
   # Output
+
   if (!is.null(break_labels)) {
-    return(factor(
-      break_labels[findInterval(x, breaks)],
+    ret <- factor(
+      break_labels[findInterval(x, breaks) + add_to_value],
       levels = break_labels
-    ))
+    )
   } else {
-    return(findInterval(x, breaks))
+    ret <- findInterval(x, breaks) + add_to_value
   }
+  if(strict == TRUE){
+    ret[x > breaks[length(breaks)] | x < breaks[1]] <- NA
+  }
+  return(ret)
 }
 
 #' @rdname draw_discrete
@@ -380,7 +382,7 @@ draw_likert <- function(x,
                         N = length(x),
                         latent = NULL,
                         link = "identity",
-                        quantile_y = NULL) {
+                        strict = !is.null(breaks)) {
   if (is.null(breaks) && is.null(type)) {
     stop("You must provide either `breaks` or `type` to a `draw_likert()` ",
          "call.")
@@ -437,7 +439,7 @@ draw_likert <- function(x,
     link = link,
     latent = latent,
     break_labels = break_labels,
-    quantile_y = quantile_y
+    strict = strict
   )
 }
 
