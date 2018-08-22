@@ -76,6 +76,16 @@
 #'   cities = modify_level(runoff = rnorm(N))
 #' )
 #'
+#' # fabricatr can add variables that are higher-level summaries of lower-level
+#' # variables via a split-modify-combine logic and the \code{by} argument
+#'
+#' multi_level_df <-
+#'  fabricate(
+#'    regions = add_level(N = 5, elevation = rnorm(N)),
+#'    cities = add_level(N = 2, pollution = rnorm(N, mean = 5)),
+#'    cities = modify_level(by = "regions", regional_pollution = mean(pollution))
+#'  )
+#'
 #' # fabricatr can also make panel or cross-classified data. For more
 #' # information about syntax for this functionality please read our vignette
 #' # or check documentation for \code{link_levels}:
