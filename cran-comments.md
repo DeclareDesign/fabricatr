@@ -14,5 +14,5 @@ We are submitting a small update, `fabricatr 0.6.0`. Thank you again for your ti
 No errors, warnings, or notes.
 
 ## Downstream dependencies:
-Package `estimatr` suggests `fabricatr`. This version should not cause any breaking changes, and I am in contact with Luke Sonnet, package author of `estimatr` to ensure compatibility is maintained going forward.
+Several packages by an overlapping set of authors depend on `fabricatr`: `DeclareDesign`, `DesignLibrary`, and `estimatr`. We have prepared updates to those packages and will submit them in the coming days after this update is on CRAN.
 
