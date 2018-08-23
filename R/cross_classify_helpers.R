@@ -47,7 +47,7 @@ join_dfs <- function(dfs, variables, N, sigma=NULL, rho=0) {
   # the indices for each df of dfs. Subset by row the df. This will return
   # a list of new dfs. We need to cbind these dfs to make the merged data.
   merged_data <- do.call(
-    "cbind",
+    cbind.data.frame,
     Map(
       function(df, indices) {
         df[indices, ]
