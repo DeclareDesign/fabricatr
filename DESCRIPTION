@@ -24,3 +24,4 @@ Suggests:
     data.table,
     mvnfast,
     MASS
+VignetteBuilder: knitr
