@@ -41,6 +41,8 @@ of units in a specific level of a hierarchical dataset.}
 \code{add_level()} call will be nested under the current working data frame
 or create a separate hierarchy of levels. See our vignette for
 cross-classified, non-nested data for details.}
+
+\item{by}{(optional) quoted name of variable \code{modify_level} uses to split-modify-combine data by.}
 }
 \value{
 data.frame
@@ -94,11 +96,21 @@ company_df <- fabricate(
 # Start with existing data and add variables to hierarchical data
 # at levels which are already present in the existing data.
 # Note: do not provide N when adding variables to an existing level
-modified_multi_level_df <- fabricate(
+fabricate(
   data = multi_level_df,
   regions = modify_level(watershed = sample(c(0, 1), N, replace = TRUE)),
   cities = modify_level(runoff = rnorm(N))
 )
+
+# fabricatr can add variables that are higher-level summaries of lower-level
+# variables via a split-modify-combine logic and the \\code{by} argument
+
+multi_level_df <-
+ fabricate(
+   regions = add_level(N = 5, elevation = rnorm(N)),
+   cities = add_level(N = 2, pollution = rnorm(N, mean = 5)),
+   cities = modify_level(by = "regions", regional_pollution = mean(pollution))
+ )
 
 # fabricatr can also make panel or cross-classified data. For more
 # information about syntax for this functionality please read our vignette
