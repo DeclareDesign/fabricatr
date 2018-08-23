@@ -103,3 +103,14 @@ test_that("modify is the same as fabricate when no lower-level variation", {
 
   expect_identical(fab, mod)
 })
+
+test_that("you can create structure without variables", {
+
+  expect_equivalent(nrow(fabricate(
+    primary_schools   = add_level(N = 5),
+    secondary_schools = add_level(N = 6, nest = FALSE),
+    students          =
+      link_levels(N = 15, by = join(primary_schools, secondary_schools))
+  )), 15)
+
+})
