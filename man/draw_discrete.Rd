@@ -48,7 +48,7 @@ probabilities or latent data you provided.}
 should provide the variable `latent` rather than `prob` or `mean`}
 
 \item{link}{link function between the latent variable and the probability of
-a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
+a positive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 link, the latent variable must be a probability.}
 
 \item{quantile_y}{A vector of quantiles; if provided, rather than drawing

@@ -34,7 +34,7 @@
 #' @param N number of units to draw. Defaults to the length of the vector of
 #' probabilities or latent data you provided.
 #' @param link link function between the latent variable and the probability of
-#' a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
+#' a positive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 #' link, the latent variable must be a probability.
 #' @param latent If the user provides a link argument other than identity, they
 #' should provide the variable `latent` rather than `prob` or `mean`
