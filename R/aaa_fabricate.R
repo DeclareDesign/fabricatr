@@ -59,7 +59,7 @@
 #' multi_level_df <- fabricate(
 #'  regions = add_level(N = 5),
 #'  cities = add_level(N = 2, pollution = rnorm(N, mean = 5)))
-#' head(df)
+#' head(multi_level_df)
 #'
 #' # Start with existing data and add a nested level:
 #' company_df <- fabricate(
@@ -70,11 +70,21 @@
 #' # Start with existing data and add variables to hierarchical data
 #' # at levels which are already present in the existing data.
 #' # Note: do not provide N when adding variables to an existing level
-#' modified_multi_level_df <- fabricate(
+#' fabricate(
 #'   data = multi_level_df,
 #'   regions = modify_level(watershed = sample(c(0, 1), N, replace = TRUE)),
 #'   cities = modify_level(runoff = rnorm(N))
 #' )
+#'
+#' # fabricatr can add variables that are higher-level summaries of lower-level
+#' # variables via a split-modify-combine logic and the \code{by} argument
+#'
+#' multi_level_df <-
+#'  fabricate(
+#'    regions = add_level(N = 5, elevation = rnorm(N)),
+#'    cities = add_level(N = 2, pollution = rnorm(N, mean = 5)),
+#'    cities = modify_level(by = "regions", regional_pollution = mean(pollution))
+#'  )
 #'
 #' # fabricatr can also make panel or cross-classified data. For more
 #' # information about syntax for this functionality please read our vignette
@@ -86,8 +96,7 @@
 #'                           by=join(ps_quality, ss_quality, rho = 0.5),
 #'                           student_quality = ps_quality + 3*ss_quality + rnorm(N)))
 #' @seealso \code{\link{link_levels}}
-#' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args
-#' @importFrom rlang lang_args_names
+#' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args lang_args_names quo_squash
 #' is_lang get_expr
 #'
 #' @export
@@ -103,7 +112,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
   data_supplied <- !is.null(data)
   n_supplied    <- !is.null(N)
   all_levels    <- FALSE # recalculated after implicit N / data=
-  explicit_ID_provided <- !is.null(ID_label)
+  explicit_ID_provided <- !missing(ID_label)
 
 
   # Maybe they anonymously passed data or N.
@@ -112,8 +121,14 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
 
     # i is na when dots is length zero, all names are provided => which is integer(0) and integer(0)[1] is NA
     if(!is.na(i)) {
+
+      if (quo_squash(dots[[i]]) == "") {
+        stop("There appears to be a blank argument. Is there a misplaced comma?", call. = FALSE)
+      }
+
       first_unnamed_dot <- eval_tidy(dots[[i]])
       dots <- dots[-i]
+
 
       # If they supplied a list or data frame, they meant data.
       if(is.list(first_unnamed_dot)) {
@@ -181,13 +196,11 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     # Is the N argument passed here sane? Let's check
     N <- handle_n(N, add_level = TRUE, working_environment)
 
-    ret <- add_level_internal(
+    ret <- add_top_level_internal(
       N = N,
       ID_label = ID_label,
-      working_environment_ = working_environment,
-      data_arguments = dots,
-      nest = TRUE
-    )
+      workspace = working_environment,
+      data_arguments = dots)
   }
 
   else if (data_supplied) {
@@ -237,9 +250,9 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
     ret <- if (is_empty(dots)) working_environment else
       modify_level_internal(
         N = N,
-        ID_label = ID_label,
+        ID_label = uu,
         data_arguments = dots,
-        working_environment_ = working_environment
+        workspace = working_environment
       )
   }
 

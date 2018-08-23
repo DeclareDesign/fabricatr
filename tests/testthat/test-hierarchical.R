@@ -114,3 +114,16 @@ test_that("you can create structure without variables", {
   )), 15)
 
 })
+
+test_that("Nested level edge case",{
+  expect_error(fabricate(e=nest_level(N=2)), "top level")
+
+
+})
+
+
+test_that("modify_level hierarchical edge cases", {
+
+  expect_equal(fabricate(a=add_level(N=10), b = add_level(2), a=modify_level(x=1))$x, rep(1,10))
+
+})

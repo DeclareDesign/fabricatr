@@ -9,21 +9,17 @@ nest_level <- function(N = NULL, ...) {
 #' @importFrom rlang eval_tidy
 #'
 nest_level_internal <- function(N = NULL, ID_label = NULL,
-                                working_environment_ = NULL,
+                                workspace = NULL,
                                 data_arguments = NULL) {
 
-  workspace <- working_environment_
-  uu <- attr(workspace, "active_df")
-  df <- workspace[[uu]]
+  df <- active_df(workspace)
 
 
   # Check to make sure we have a data frame to nest on.
   if (is.null(dim(df))) {
     stop(
-      "You can't nest a level if there is no level to nest inside. You can ",
-      "resolve this issue by using `add_level()` instead of `nest_level()` ",
-      "or by ensuring that data has been created or imported before using ",
-      "`nest_level()`"
+      "`nest_level()`` cannot be the top of a hierarchy. Use `add_level()`",
+      "to either import or create a top level."
     )
   }
 
@@ -31,7 +27,7 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   # Pass the working environment because N might not be a singleton here
   N <- handle_n(
     N, add_level = FALSE,
-    working_environment = working_environment_,
+    working_environment = workspace,
     parent_frame_levels = 3
   )
 
@@ -63,12 +59,12 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   # to think about how to refactor this out.
 
   # Staple in an ID column onto the data list.
-  if (!is.null(ID_label) && (is.null(names(working_data_list)) ||
-    !ID_label %in% names(working_data_list))) {
+  if (!ID_label %in% names(working_data_list)) {
     # First, add the column to the working data frame
     working_data_list[[ID_label]] <- generate_id_pad(N)
-
   }
+
+  check_variables_named(data_arguments)
 
   # Loop through each of the variable generating arguments
   for (i in names(data_arguments)) {
@@ -116,12 +112,8 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   # this should be covered by the error message above.
   working_data_list <- check_rectangular(working_data_list, N)
 
-  # Overwrite the working data frame.
-  working_environment_[[uu]] <- data.frame(
-    working_data_list,
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
+  append_child(workspace, child=ID_label, child_df=working_data_list)
 
-  working_environment_
+
+  activate(workspace, ID_label)
 }

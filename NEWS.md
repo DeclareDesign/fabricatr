@@ -1,3 +1,10 @@
+# **fabricatr** 0.6.0
+
+- Added split-modify-combine functionality to `modify_level` via the `by` argument.
+- Changed behavior of `draw_ordered` to ensure categories are data-independent and adding a `strict` option that replaces values with `NA` if values are outside all breaks.
+- Labeled `correlate` functionality as experimental.
+- Many bug fixes.
+
 # **fabricatr** 0.4.0
 
 - `recycle()` helper function for expanding and recycling data

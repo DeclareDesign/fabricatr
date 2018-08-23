@@ -195,19 +195,22 @@ test_that("Categorical invalid tests", {
 })
 
 test_that("Categorical valid tests", {
-  draw_categorical(prob = matrix(
-    rep(c(0.3, 0.3, 0.4), 3),
+  first <- draw_categorical(prob = matrix(
+    rep(c(0, 1, 0), 3),
     byrow = TRUE, ncol = 3, nrow = 3
   ))
 
-  draw_categorical(prob = matrix(
-    rep(c(0.3, 0.3, 0.4), 3),
-    byrow = TRUE, ncol = 3, nrow = 3
-  ),
-  category_labels = c("A", "B", "C"))
+  expect_equal(first, c(2,2,2))
 
+  second <- draw_categorical(prob = matrix(
+      rep(c(0, 1, 0), 3),
+      byrow = TRUE, ncol = 3, nrow = 3
+    ),category_labels = c("A", "B", "C"))
+
+  expect_equal(second, c("B","B","B"))
   # Convert vector of probabilities to matrix of probabilities
-  expect_message(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
+  # Sunset as per #121, leaving deprecated test.
+  #expect_message(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
 })
 
 test_that("Ordered data invalid tests", {
@@ -258,6 +261,42 @@ test_that("Ordered data valid tests", {
   )
   expect_equal(length(base_ordered), 200)
   expect_equal(length(table(base_ordered)), 4)
+})
+
+
+test_that("MH's tests",{
+  expect_equal(
+    draw_ordered(c(-1, .5, .5, .5, 5), breaks = c(1/3, 2/3)),
+    c(1, 2, 2, 2, 3))
+
+  expect_equal(
+    draw_ordered(c(.3, .5, .5), breaks = c(1/3, 2/3), strict = TRUE),
+    c(NA, 1, 1))
+
+  expect_equal(
+    draw_ordered(c(.3, .5, .5), breaks = c(1/3, 2/3)),
+    c(1, 2, 2))
+
+  expect_equal(
+    draw_ordered(c(.5, .5, .7), breaks = c(1/3, 2/3)),
+    c(2, 2, 3)
+  )
+
+  expect_equal(
+    draw_ordered(c(.5, .5, .7), breaks = c(1/3, 2/3), strict = TRUE),
+    c(1, 1, NA)
+  )
+
+  # now try with manual Inf's
+  expect_equal(
+    draw_ordered(c(.5, .5, 2/3, 1), breaks = c(-Inf, 2/3), strict = TRUE),
+    c(1, 1, 2, NA)
+  )
+
+  expect_equal(
+    draw_ordered(c(.5, .5, 2/3, 1), breaks = c(-Inf, 2/3)),
+    c(1, 1, 2, 2)
+  )
 
 })
 
@@ -444,6 +483,23 @@ test_that("Normal ICC", {
   cluster_means <- sample(rep(1:10, 10))
   expect_error(draw_normal_icc(mean = cluster_means,
                                clusters = clusters, ICC = 0.5))
+
+  # Confirm total_sd works:
+  result <- draw_normal_icc(mean = 10, clusters = clusters, ICC = 0.5,
+                           total_sd = 10)
+  expect_equal(sd(result), 10)
+
+  # And check that it can't be provided without its other helpers:
+  expect_error(draw_normal_icc(clusters = clusters, total_sd = 10))
+  expect_error(draw_normal_icc(clusters = clusters, total_sd = 10, ICC = 0.5,
+                               sd = 10))
+  expect_error(draw_normal_icc(clusters = clusters, total_sd = 10, ICC = 0.5,
+                               sd_between = 10))
+  expect_error(draw_normal_icc(clusters = clusters, ICC = 0.5, total_sd = -1))
+  expect_error(draw_normal_icc(clusters = clusters, ICC = 0.5,
+                               total_sd = "hello"))
+  expect_error(draw_normal_icc(clusters = clusters, ICC = 0.5,
+                               total_sd = c(1, 2)))
 })
 
 test_that("Likert alias", {

@@ -20,7 +20,7 @@ draw_categorical(prob = link(latent), N = NULL, latent = NULL,
 
 draw_ordered(x = link(latent), breaks = c(-1, 0, 1),
   break_labels = NULL, N = length(x), latent = NULL,
-  link = "identity", quantile_y = NULL)
+  strict = FALSE, link = "identity")
 
 draw_count(mean = link(latent), N = length(mean), latent = NULL,
   link = "identity", quantile_y = NULL)
@@ -29,7 +29,7 @@ draw_binary(prob = link(latent), N = length(prob), link = "identity",
   latent = NULL, quantile_y = NULL)
 
 draw_likert(x, type = 7, breaks = NULL, N = length(x),
-  latent = NULL, link = "identity", quantile_y = NULL)
+  latent = NULL, link = "identity", strict = !is.null(breaks))
 
 draw_quantile(type, N)
 }
@@ -48,7 +48,7 @@ probabilities or latent data you provided.}
 should provide the variable `latent` rather than `prob` or `mean`}
 
 \item{link}{link function between the latent variable and the probability of
-a postiive outcome, e.g. "logit", "probit", or "identity". For the "identity"
+a positive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 link, the latent variable must be a probability.}
 
 \item{quantile_y}{A vector of quantiles; if provided, rather than drawing
@@ -67,6 +67,8 @@ categories with `draw_ordered` or `draw_likert`}
 
 \item{break_labels}{vector of labels for the breaks to cut a latent outcome
 into ordered categories with `draw_ordered`. (Optional)}
+
+\item{strict}{Logical indicating whether values outside the provided breaks should be coded as NA. Defaults to \code{FALSE}, in which case effectively additional breaks are added between -Inf and the lowest break and between the highest break and Inf.}
 
 \item{mean}{for `draw_count`, the mean number of count units for each observation}
 

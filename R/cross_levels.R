@@ -78,23 +78,23 @@ link_levels <- function(N = NULL, by = NULL, ...) {
 #' @importFrom rlang quo_text eval_tidy
 cross_levels_internal <- function(N = NULL,
                                   ID_label = NULL,
-                                  working_environment_ = NULL,
+                                  workspace = NULL,
                                   by = NULL,
                                   data_arguments = NULL) {
 
-  check_cross_level_args(working_environment_, by)
+  check_cross_level_args(workspace, by)
 
 
 
   variable_names <- by$variable_names
 
-  df_names <- names(working_environment_)
+  df_names <- names(workspace)
   data_frame_indices <- integer(length(variable_names))
 
   # Figure out which dfs we're joining on which variables
   for (i in seq_along(variable_names)) {
     for (j in seq_along(df_names)) {
-      if (variable_names[i] %in% names(working_environment_[[df_names[j]]])) {
+      if (variable_names[i] %in% names(workspace[[df_names[j]]])) {
 
         # If we've already found this one, that's bad news for us...
         if (data_frame_indices[i]) {
@@ -126,7 +126,7 @@ cross_levels_internal <- function(N = NULL,
   }
 
   # Actually fetch the df objects
-  data_frame_objects <- mget(df_names[data_frame_indices], working_environment_)
+  data_frame_objects <- mget(df_names[data_frame_indices], workspace)
 
 
   # Do the join.
@@ -143,19 +143,20 @@ cross_levels_internal <- function(N = NULL,
 
   }
 
-  working_environment_[[ID_label]] <- out
-  attr(working_environment_, "active_df") <- ID_label
+  append_child(workspace, ID_label, df_names[data_frame_indices], out)
+
+  activate(workspace, ID_label);
 
   if (length(data_arguments)) {
-    working_environment_ <- modify_level_internal(
+    workspace <- modify_level_internal(
       ID_label = ID_label,
-      working_environment_ = working_environment_,
+      workspace = workspace,
       data_arguments = data_arguments
     )
   }
 
   # Return results
-  working_environment_
+  workspace
 }
 
 #' Helper function handling specification of which variables to join a
@@ -174,6 +175,30 @@ cross_levels_internal <- function(N = NULL,
 #' are joining on, specifying the correlation for the resulting joined data.
 #' Only one of rho and sigma should be provided. Do not provide \code{sigma} if
 #' making panel data.
+#' @examples
+#'
+#' panels <- fabricate(
+#'   countries = add_level(N = 150, country_fe = runif(N, 1, 10)),
+#'   years = add_level(N = 25, year_shock = runif(N, 1, 10), nest = FALSE),
+#'   obs = cross_levels(
+#'     by = join(countries, years),
+#'     new_variable = country_fe + year_shock + rnorm(N, 0, 2)
+#'   )
+#' )
+#'
+#' schools_data <- fabricate(
+#'   primary_schools = add_level(N = 20, ps_quality = runif(N, 1, 10)),
+#'   secondary_schools = add_level(
+#'     N = 15,
+#'     ss_quality = runif(N, 1, 10),
+#'     nest = FALSE),
+#'   students = link_levels(
+#'     N = 1500,
+#'     by = join(primary_schools, secondary_schools),
+#'     SAT_score = 800 + 13 * ps_quality + 26 * ss_quality + rnorm(N, 0, 50)
+#'   )
+#' )
+#'
 #' @export
 join <- function(..., rho=0, sigma=NULL) {
   data_arguments <- quos(...)
