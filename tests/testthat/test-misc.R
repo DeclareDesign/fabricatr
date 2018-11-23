@@ -1,16 +1,4 @@
-context("Fabricate")
-
-test_that("Weird edge cases: importing", {
-  # No one should ever call import_data directly, and import_data_list
-  # will generate a non-null environment, but let's make sure import_data
-  # can catch a null environment
-  we <- import_data(mtcars)
-  expect_equal(class(we), "environment")
-  expect_equal(
-    "data_frame_output_" %in% names(we),
-    TRUE
-  )
-})
+context("Fabricate misc")
 
 test_that("Weird edge cases: missingness in draw_binomial", {
   # Missing data in prob -> still runs.
@@ -106,4 +94,30 @@ test_that("Uniquify vector factor", {
   result_out <- uniquify_vector(test_df$X, c(1:5, 1:5))
   expect_equal(result_out, c("A_1", "B_1", "C_1", "D_1", "E_1",
                              "A_2", "B_2", "C_2", "D_2", "E_2"))
+})
+
+test_that("Two separate types of unnamed variables", {
+  expect_error(fabricate(my_level = add_level(N = 50, )))
+  expect_error(fabricate(my_level = add_level(N = 50,
+                                              rnorm(N),
+                                              bob = rnorm(N))))
+})
+
+test_that("Unnamed level", {
+  expect_error(fabricate(my_level_1 = add_level(N = 5),
+            add_level(N = 5)))
+})
+
+
+test_that("column N is masked", {
+
+
+  golden <- structure(list(N = 1:3, ID = c("1", "2", "3"), Z = c(4, 4, 4)), .Names = c("N",
+             "ID", "Z"), row.names = c(NA, 3L), class = "data.frame")
+
+  df <- fabricate(data.frame(N=1:3), Z=4)
+
+  expect_identical(df, golden)
+
+
 })

@@ -5,7 +5,7 @@
 \title{Draw normal data with fixed intra-cluster correlation.}
 \usage{
 draw_normal_icc(mean = 0, N = NULL, clusters, sd = NULL,
-  sd_between = NULL, ICC = NULL)
+  sd_between = NULL, total_sd = NULL, ICC = NULL)
 }
 \arguments{
 \item{mean}{A number or vector of numbers, one mean per cluster. If none is
@@ -22,6 +22,9 @@ each cluster's error terms -- standard deviation within a cluster (default 1)}
 
 \item{sd_between}{A number or vector of numbers, indicating the standard deviation
 between clusters.}
+
+\item{total_sd}{A number indicating the total sd of the resulting variable.
+May only be specified if ICC is specified and `sd` and `sd_between` are not.}
 
 \item{ICC}{A number indicating the desired ICC.}
 }
@@ -62,6 +65,10 @@ draw_normal_icc(mean = 10, clusters = clusters, sd = 3, ICC = 0.3)
 
 # Can specify between-cluster standard deviation instead:
 draw_normal_icc(clusters = clusters, sd_between = 4, ICC = 0.2)
+
+# Can specify total SD instead:
+total_sd_draw = draw_normal_icc(clusters = clusters, ICC = 0.5, total_sd = 3)
+sd(total_sd_draw)
 
 # Verify that ICC generated is accurate
 corr_draw = draw_normal_icc(clusters = clusters, ICC = 0.4)

@@ -76,7 +76,6 @@ test_that("fabricate with a level call", {
 })
 
 test_that("Fabricate with multiple level calls", {
-  # TODO: This test is marked as empty
 
   fab_nest <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),
@@ -195,8 +194,8 @@ test_that("trigger errors", {
                          test2 = rpois(10, lambda = 2),
                          ID_label = matrix(rep(c(1, 2, 3), 3),
                                            byrow = TRUE, ncol = 3, nrow = 3)))
-  # Numeric as ID_label
-  expect_warning(fabricate(N = 10,
+  # Numeric as ID_label is an error
+  expect_error(fabricate(N = 10,
                            test1 = rnorm(10),
                            test2 = rpois(10, lambda = 2),
                            ID_label = 7))
@@ -209,7 +208,7 @@ test_that("trigger errors", {
             test1 = rnorm(10),
             test2 = rpois(10, lambda = 2),
             ID_label = c("hello"))
-  # Symbol as ID_label
+  # undefined object as ID_label
   expect_error(fabricate(N = 10,
                          test1 = rnorm(10),
                          test2 = rpois(10, lambda = 2),
@@ -255,6 +254,10 @@ test_that("modify_level call where you don't specify which level", {
   ))
 })
 
+test_that("modify_level call where you don't specify which level", {
+  expect_error(fabricate(a=modify_level(b=1)), "no working data frame to modify")
+})
+
 test_that("nest_level call when there was no data to nest", {
   # No import data, nest level
   expect_error(fabricate(countries = nest_level(N = 10, new_var = rnorm(N))))
@@ -296,4 +299,29 @@ test_that("ID_label stapling for fabricate calls with no levels", {
   # Verify we do not staple if nothing changes
   df5 <- fabricate(df)
   expect_equal(length(colnames(df5)), 2)
+})
+
+test_that("Multivariate", {
+  skip_if_not_installed("MASS")
+  set.seed(99999)
+  df <- fabricate(N=100, Y=MASS::mvrnorm(N, 0:2, Sigma = matrix(1, 3,3)))
+  expect_named(df, c("ID", "Y.1", "Y.2", "Y.3"))
+  expect_equal(dim(df), c(100,4))
+
+
+  df <- fabricate(N=100, Y=setNames(data.frame(MASS::mvrnorm(N, 0:2, Sigma = matrix(1, 3,3))), c("A","B","C")))
+  expect_named(df, c("ID", "Y.A", "Y.B", "Y.C"), info = "names borrowed from data.frame")
+  expect_equal(dim(df), c(100,4))
+
+  expect_error(fabricate(N=10, Y=MASS::mvrnorm(20, 0:2, Sigma = matrix(1, 3,3)) ), "Nested structures must have `N.` rows")
+})
+
+test_that("Error on blank argument when no data or N explicitly passed in",{
+  expect_error(fabricate(,sleep), "blank argument")
+})
+
+
+test_that("malformed call where ID is both only column and nonuniqe",{
+  df <- fabricate(a=add_level(N=10), a=modify_level(a=as.numeric(a) %/% 2), a=modify_level(b=1))
+  expect_equal(dim(df), c(10,2))
 })

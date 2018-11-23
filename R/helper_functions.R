@@ -8,6 +8,13 @@
 #' @param .N the length to recycle the data to, typically provided implicitly by
 #' a or fabricate call wrapped around the function call.
 #' @return A vector of data padded to length `N`
+#'
+#' @examples
+#'
+#' fabricate(
+#'   N = 15,
+#'   month = recycle(month.abb)
+#' )
 #' @export
 recycle <- function(x, .N = NULL) {
   if(is.null(.N)) {
@@ -26,75 +33,31 @@ recycle <- function(x, .N = NULL) {
   rep_len(x, length.out = .N)
 }
 
+makeUU <- function() {
+  sprintf("%X-%X", as.integer(Sys.time()), sample.int(.Machine$integer.max, 1))
+}
+
+
 import_data_list <- function(data) {
-  working_environment_ <- new_working_environment()
+  workspace <- new_environment()
 
-  # If we have multiple sets of data, import them one at a time in order.
-  # Type checking beyond this is done in the handle_data call from import_data
-  if (is.list(data) & !is.data.frame(data)) {
-    for (data_item in data) {
-      working_environment_ <- import_data(data_item, working_environment_)
-    }
-  } else {
-    # If not, just import them.
-    working_environment_ <- import_data(data, working_environment_)
+  if(is.null(data)) return(workspace)
+
+  if(is.data.frame(data) || !is.list(data)) data <- list(data)
+
+  for(df in data) {
+    # Sanity check that the data we're bringing in is good.
+    df <- handle_data(data = df)
+
+    uu <- makeUU()
+
+    workspace[[uu]] <- df
+
   }
 
-  return(working_environment_)
+  structure(workspace, active_df=uu, insertion_order=c())
 }
 
-import_data <- function(data,
-                        working_environment_ = NULL) {
-  # Sanity check that the data we're bringing in is good.
-  data <- handle_data(data = data)
-
-  # If we don't yet have a working environment, create one.
-  if (is.null(working_environment_)) {
-    working_environment_ <- new_working_environment()
-  }
-
-  # Shelf the current working data if there's any.
-  working_environment_ <- shelf_working_data(working_environment_)
-
-  # Now copy the current data into the environment
-  working_environment_$data_frame_output_ <- data
-  working_environment_$variable_names_ <- names(data)
-
-  return(working_environment_)
-}
-
-shelf_working_data <- function(working_environment_) {
-  if ("data_frame_output_" %in% names(working_environment_)) {
-    # Construct the shelved version
-    package_df <- list(
-      data_frame_output_ = working_environment_$data_frame_output_,
-      level_ids_ = working_environment_$level_ids_,
-      variable_names_ = names(working_environment_$data_frame_output_)
-    )
-
-    # Append it to the existing shelf
-    if ("shelved_df" %in% names(working_environment_)) {
-      working_environment_$shelved_df <- append(
-        working_environment_$shelved_df,
-        list(package_df)
-      )
-    } else {
-      # Create a shelf just for this
-      working_environment_$shelved_df <- list(package_df)
-    }
-
-    # Clear the current work-space.
-    working_environment_$data_frame_output_ <-
-      working_environment_$level_ids_ <-
-      working_environment_$variable_names_ <- NULL
-  }
-
-  return(working_environment_)
-}
-
-new_working_environment <- function() {
-  return(new.env(parent = emptyenv()))
-}
 
 #' @importFrom rlang is_quosure
 get_symbols_from_quosures <- function(quosures) {
@@ -144,16 +107,9 @@ get_symbols_from_quosures <- function(quosures) {
 #' @return a character vector enumerating the unique variables
 #' @keywords internal
 get_unique_variables_by_level <- function(data, ID_label, superset=NULL) {
-  if (is.character(superset)) {
-    names_to_check <- intersect(colnames(data), superset)
-  } else {
-    names_to_check <- setdiff(colnames(data), ID_label)
-  }
+  names_to_check <- setdiff(colnames(data), ID_label)
 
-  # It turns out the call isn't going to use any variables at all!
-  if (length(names_to_check) == 0) {
-    return(c())
-  }
+  if (is_empty(names_to_check)) return(names_to_check)
 
   # Iterate through each column of interest
   # Per column, split that column's data into a list. The split indices come
@@ -202,166 +158,69 @@ handle_id <- function(ID_label, data=NULL) {
     }
   )
 
-  # User passed a non-symbol non-null ID_label
-  if (!is.null(ID_label)) {
-    if (is.vector(ID_label) & length(ID_label) > 1) {
-      # Vector of length n>1, error
-      stop("Provided `ID_label` must be a character vector of length 1 or ",
-           "variable name.")
-    } else if (is.vector(ID_label) & is.numeric(ID_label[1])) {
-      # Numeric ID_label -- this is OK but variable names can't be numeric
-      warning("Provided `ID_label` is numeric and will be prefixed with the ",
-              "character \"X\"")
-      ID_label <- as.character(ID_label)
-    } else if (is.vector(ID_label) & is.character(ID_label[1])) {
-      # Valid ID_label
-      ID_label <- as.character(ID_label)
-    } else if (!is.null(dim(ID_label))) {
-      # Higher dimensional ID_label
-      stop(
-        "Provided `ID_label` must be a character vector or variable name, ",
-        "not a data frame or matrix."
-      )
-    }
+  if(is.null(ID_label)) return(synthetic_ID(data))
+
+  if(!is_scalar_character(ID_label) && !is.na(ID_label))
+      stop("Provided `ID_label` must be a string.")
+
+  ID_label
+}
+
+synthetic_ID <- function(data) {
+
+  candidates <- c("ID",  paste0("fab_ID_", 1:5) )
+
+  for(candidate_label in setdiff(candidates, names(data))) {
+    return(candidate_label)
   }
 
-  # At the end of all this, we still don't have an ID label
-  if (is.null(ID_label)) {
-    if (is.null(data) | missing(data)) {
-      ID_label <- "ID"
-    } else {
-      # We need to come up with an ID, but there's some data, so we're not sure
-      tries <- 0
-      # "ID" isn't taken
-      if (!"ID" %in% names(data)) {
-        ID_label <- "ID"
-      } else {
-        # "ID" is taken, so we're going to try some backups
-        while (tries < 5) {
-          tries <- tries + 1
-          candidate_label <- paste0("fab_ID_", tries)
-          # This backup is available
-          if (!candidate_label %in% names(data)) {
-            ID_label <- candidate_label
-            break
-          }
-        }
+  stop(
+    "No `ID_label` specified for level and supply of default ID ",
+    "labels -- ID, fab_ID_1, fab_ID_2, fab_ID_3, fab_ID_4, fab_ID_5",
+    " -- are all used for data columns. Please specify an `ID_label` ",
+    "for this level."
+  )
 
-        # We tried all our backup IDs and still couldn't find a valid ID
-        if (tries >= 5 & is.null(ID_label)) {
-          stop(
-            "No `ID_label` specified for level and supply of default ID ",
-            "labels -- ID, fab_ID_1, fab_ID_2, fab_ID_3, fab_ID_4, fab_ID_5",
-            " -- are all used for data columns. Please specify an `ID_label` ",
-            "for this level."
-          )
-        }
-      }
-    }
-  }
 
-  # Return the resulting ID_label
-  return(ID_label)
+
 }
 
 # Checks if a supplied N is sane for the context it's in
-handle_n <- function(N, add_level=TRUE, working_environment=NULL,
-                     parent_frame_levels=1) {
+handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels=1) {
   # Error handling for user-supplied N
 
+  df <- active_df(working_environment)
   # First, evaluate the N in the context of the working environment's working
   # data frame. Why do we need to do this? Because N could be a function of
   # variables.
-  if (!is.null(working_environment) & "data_frame_output_" %in%
-      names(working_environment)) {
-    # Why do we substitute N in parent.frame()? Because if we substitute in
-    # the current frame, we just get the symbol used for N from the outside
-    # functions, which would just be N. This ensures we get the expression
-    # passed to N in the outer function call.
-    N <- eval_tidy(N, data = working_environment$data_frame_output_)
-  } else {
-    # Unenquose the N data.
-    N <- eval_tidy(N)
-  }
+  N <- eval_tidy(N, data = df)
 
   # User provided an unevaluated function
   if (typeof(N) == "closure") {
-    stop(
-      "If you use a function to define `N`, you must evaluate that function ",
-      "rather than passing it in closure form."
-    )
+    stop("`N` must not be a function.")
   }
 
-  # If they provided an N
-  if (!is.null(N)) {
-    # If this is an add_level operation, N must be a single number
-    if (add_level) {
-      if (length(N) > 1) {
-        stop(
-          "When adding a new level, the specified `N` must be a single number."
-        )
-      }
-    } else {
-      if (length(N) > 1) {
-        # User specified more than one N; presumably this is one N for each
-        # level of the last level variable
+  if (!is_integerish(N) || any(N <= 0))
+    stop("Provided `N` must be positive integers.")
 
-        # What's the last level variable?
-        last_level_name <- working_environment$level_ids_[
-          length(working_environment$level_ids_)]
+  if(add_level && !is_scalar_integerish(N))
+        stop("When adding a new level, the specified `N` must be a single number.")
 
-        # Last level name is null; if this is imported data, we should
-        # use the nrow of the data frame as the unique length of the last
-        # level
-        if(is.null(last_level_name)) {
-          last_level_name <- "the full data frame"
-          length_unique <- nrow(working_environment$data_frame_output_)
-        } else {
-          # What are the unique values?
-          unique_values_of_last_level <- unique(
-            working_environment$data_frame_output_[[last_level_name]]
-          )
-          length_unique <- length(unique_values_of_last_level)
-        }
+  if (length(N) > 1) {
+    # User specified more than one N; presumably this is one N for each
+    # obs of the active data set
 
-
-        if (length(N) != length_unique) {
-          stop(
-            "`N` must be either a single number or a vector of length ",
-            length_unique,
-            " (one value for each possible level of ",
-            last_level_name,
-            ")"
-          )
-        }
-      }
-      # If this is not an add_level operation, there are other options
-    }
-
-    # If any N is non-numeric or non-integer or negative or zero, fail.
-    if (all(is.numeric(N)) && any(N %% 1 | N <= 0)) {
+    if (length(N) != nrow(df)) {
       stop(
-        "Provided `N` must be a single positive integer."
+        "`N` must be either a single number or a vector of length ",
+        nrow(df)
       )
     }
-
-    # Coerce to numeric or fail
-    if (!is.numeric(N)) {
-      tryCatch({
-        N <- as.numeric(N)
-      }, error = function(e) {
-        stop(
-          "Provided values for `N` must be integer numbers"
-        )
-      }, warning = function(e) {
-        stop(
-          "Provided values for `N` must be integer numbers"
-        )
-      })
-    }
   }
 
-  return(N)
+
+
+  N
 }
 
 # Checks if the user-provided data is sane
@@ -405,18 +264,21 @@ handle_data <- function(data) {
 
 # Function to check if something is a level call
 call_not_level_call <- function(calls) {
-  vapply(calls,
-         function(i) {
-           if(is_lang(get_expr(i))) {
-             return(!lang_name(i) %in% c("level", "add_level",
-                                         "nest_level", "modify_level",
-                                         "cross_levels", "link_levels"))
-           } else {
-             return(TRUE)
-           }
-         },
-         logical(1))
+  !vapply(calls, function(i) {
+      is_lang(get_expr(i)) && is_level_token(lang_name(i))
+    }, FALSE)
 }
+
+is_level_token <- function(x) x %in% c(
+  "level",
+  "add_level",
+  "nest_level",
+  "modify_level",
+  "cross_levels",
+  "link_levels",
+  "sac_level"
+)
+
 
 # Function to check if every argument in a quosure options
 # is a level call.
@@ -431,29 +293,19 @@ check_all_levels <- function(options) {
                         function(i) {
                           is_lang(get_expr(i))
                         },
-                        logical(1))
+                        FALSE)
 
   # lang_name gets function name from a quosure
-  func_names <- vapply(options[is_function], lang_name, character(1))
+  func_names <- vapply(options[is_function], lang_name, "")
 
   # Check to see if the function names are one of the valid level operations
-  is_level <- vapply(func_names, function(i) {
-    i %in% c(
-      "level",
-      "add_level",
-      "nest_level",
-      "modify_level",
-      "cross_levels",
-      "link_levels"
-    )
-  },
-  logical(1))
+  is_level <- is_level_token(func_names)
 
   # Return false if we have no level calls
-  if (length(is_level) == 0) return(FALSE)
+  if (!any(is_level)) return(FALSE)
 
   # If some calls are levels and some aren't, we're unhappy
-  if (any(is_level) != all(is_level)) {
+  if (!all(is_level)) {
     stop(
       "Arguments passed to `...` must either all be calls to create or modify ",
       "levels, or else none of them must be."
@@ -461,23 +313,37 @@ check_all_levels <- function(options) {
   }
 
   # Confirm they're all levels
-  is_level[1] && length(is_level) == length(options)
+  length(is_level) == length(options)
 }
+
 
 
 # Generates IDs from 1:N with zero left padding for visual display.
-generate_id_pad <- function(N) {
-  # Left-Pad ID variable with zeroes
-  format_left_padded <- paste0("%0", nchar(N), "d")
-
-  # Add it to the data frame.
-  return(sprintf(format_left_padded, 1:N))
+generate_id_pad <- function(N,zero=c("0", "")) {
+  sprintf(paste0("%", match.arg(zero), nchar(N), "d"), 1:N)
 }
+
+
 
 #' @importFrom rlang f_rhs
 expand_or_error <- function(vector_data, N, variable_name, call_string) {
   # NULL data means deleting a variable -- this is OK
   if(is.null(vector_data)) { return(NULL) }
+  vector_dims <- dim(vector_data)
+  if(length(vector_dims) > 1) {
+    if(vector_dims[1] == N){
+      return(vector_data)
+    }
+    else {
+      stop(simpleError(paste0("Nested structures must have `N.` rows ",
+                              "In this call, `N` = ", N, " while the variable ",
+                              variable_name, " is length ", vector_dims[1]),
+                       call = f_rhs(call_string)))
+
+    }
+
+  }
+
 
   # Error if it's neither N nor 1
   if(!length(vector_data) %in% c(1, N)) {
@@ -492,56 +358,143 @@ expand_or_error <- function(vector_data, N, variable_name, call_string) {
   else { return(vector_data) }
 }
 
+
+
 # Try to overwrite R's recycling of vector operations to ensure the initial
 # data is rectangular -- needs an N to ensure that constants do get recycled.
 check_rectangular <- function(working_data_list, N) {
 
   for (i in seq_along(working_data_list)) {
-    if (length(working_data_list[[i]]) == 1) {
-      # Variable is a constant -- repeat it N times
-      working_data_list[[i]] <- rep(working_data_list[[i]], N)
-    } else if (length(working_data_list[[i]]) != N) {
-      # Variable is not of length N. Oops.
-      stop("Variable lengths must all be equal to `N.` ",
-           "In this call, `N` = ", N, " while the variable `",
-           i, "` is equal to length ", length(i))
+    wdl_i <- working_data_list[[i]]
+    d <- dim(wdl_i)
+    if(length(d)  %in% 0:1) {
+      len <- length(wdl_i)
+      if (len == 1) {
+        # Variable is a constant -- repeat it N times
+        working_data_list[[i]] <- rep_len(wdl_i, N)
+      } else if (len != N) {
+        # Variable is not of length N. Oops.
+        stop("Variables  must all be length `N.` ",
+             "In this call, `N` = ", N, " while the variable `",
+             names(working_data_list)[i], "` is length ", len)
+      }
+    }
+    else if(length(d) == 2){
+      if(d[1] != N) {
+        stop("Nested structures must all have `N.` rows. ",
+             "In this call, `N` = ", N, " while the variable `",
+             names(working_data_list)[i], "` has ", d[1], " rows.")
+
+
+      }
+
     }
   }
   return(working_data_list)
 }
 
-# Add a level ID to a working environment
-add_level_id <- function(working_environment_, ID_label) {
-  # Add or create level ID list
-  if ("level_ids_" %in% names(working_environment_)) {
-    working_environment_$level_ids_ <- append(working_environment_$level_ids_,
-                                              ID_label)
-  } else {
-    working_environment_$level_ids_ <- c(ID_label)
+
+
+
+
+do_internal <- function(N = NULL, ..., FUN, from, by = NULL) {
+  dots <- quos(...)
+  if(!has_name(dots, "working_environment_")){
+    # This happens if either call is run external to a fabricate
+    # call OR if add_level is the only argument to a fabricate call and
+    # the data argument tries to resolve an add_level call.
+    stop(
+      "`", from, "()` calls must be used inside `fabricate()` calls."
+    )
   }
 
-  return()
-}
+  working_environment_ <- get_expr(dots[["working_environment_"]])
+  dots[["working_environment_"]] <- NULL
 
-# Add a variable name to a working environment
-add_variable_name <- function(working_environment_, variable_name) {
-  # Add or create variable name list.
-  if ("variable_names_" %in% names(working_environment_)) {
-    working_environment_$variable_names_ <- append(
-      working_environment_$variable_names_,
-      variable_name
+
+  if (has_name(dots, "ID_label")) {
+    ID_label <- get_expr(dots[["ID_label"]])
+    dots[["ID_label"]] <- NULL
+  }
+
+  # worse is better :()
+  if(has_name(formals(FUN), "by")){
+    FUN(
+      N = N, ID_label = ID_label, by = by,
+      workspace = working_environment_,
+      data_arguments = dots
     )
   } else {
-    working_environment_$variable_names_ <- c(variable_name)
+    FUN(
+      N = N, ID_label = ID_label,
+      workspace = working_environment_,
+      data_arguments = dots
+    )
   }
-
-  return()
 }
 
 
 # Dummy helper function that just extracts the working data frame from the
 # environment. This exists because we may in the future want to return something
 # that is not a data frame.
-report_results <- function(working_environment) {
-  return(working_environment$data_frame_output_)
+report_results <- function(workspace) {
+  df <- active_df(workspace)
+
+  attr_names <- names(attributes(df))
+
+  attributes(df)[grep("^fabricatr::", attr_names)] <- NULL
+
+  df
 }
+
+
+active_df <- function(workspace) {
+  uu <- attr(workspace, "active_df")
+  if(is.null(uu)) NULL else workspace[[uu]]
+}
+
+activate <- function(workspace, data_name){
+  attr(workspace, "active_df") <- data_name
+  workspace
+}
+
+# Helper function to check for variable naming errors.
+check_variables_named <- function(data_arguments, call_type = "add_level") {
+  nm <- names(data_arguments)
+  if(any(nm == "")) {
+    # Generate some debug to help the user. Which was unnamed?
+    nm[nm == ""] <- "<unnamed>"
+
+    stop("All variables within a level call must be named; recieved variables named:",
+         sprintf("\n - '%s'", nm))
+
+  }
+}
+
+
+append_child <- function(workspace, child, parents=NULL, child_df=NULL) {
+
+  parent <- parents %||% attr(workspace, "active_df")
+
+  ATTR <- "fabricatr::children"
+
+  for(p in parents) {
+    siblings <- attr(workspace[[p]], ATTR)
+
+    attr(workspace[[p]], ATTR) <- append(siblings, child)
+  }
+
+  if(!is.null(child_df)) {
+    workspace[[child]] <- structure(
+      data.frame(child_df, stringsAsFactors = FALSE, row.names = NULL),
+      "fabricatr::parent_df" = parents,
+      "fabricatr::ID_label"  = child
+      )
+  }
+
+
+
+  workspace
+}
+
+

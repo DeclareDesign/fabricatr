@@ -2,44 +2,24 @@
 #'
 #' @rdname fabricate
 #' @export
-nest_level <- function(N = NULL,
-                       ...) {
-  N <- enquo(N)
-  data_arguments <- quos(...)
-  if ("working_environment_" %in% names(data_arguments)) {
-    working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-    data_arguments[["working_environment_"]] <- NULL
-  } else {
-    # This happens if either an add_level call is run external to a fabricate
-    # call OR if add_level is the only argument to a fabricate call and
-    # the data argument tries to resolve an add_level call.
-    stop("`nest_level()` calls must be run inside `fabricate()` calls.")
-  }
-  if ("ID_label" %in% names(data_arguments)) {
-    ID_label <- get_expr(data_arguments[["ID_label"]])
-    data_arguments[["ID_label"]] <- NULL
-  }
-
-  return(nest_level_internal(
-    N = N, ID_label = ID_label,
-    working_environment_ = working_environment_,
-    data_arguments = data_arguments
-  ))
+nest_level <- function(N = NULL, ...) {
+  do_internal(N, ..., FUN = nest_level_internal, from="nest_level")
 }
 
 #' @importFrom rlang eval_tidy
 #'
 nest_level_internal <- function(N = NULL, ID_label = NULL,
-                                working_environment_ = NULL,
+                                workspace = NULL,
                                 data_arguments = NULL) {
 
+  df <- active_df(workspace)
+
+
   # Check to make sure we have a data frame to nest on.
-  if (is.null(dim(working_environment_$data_frame_output_))) {
+  if (is.null(dim(df))) {
     stop(
-      "You can't nest a level if there is no level to nest inside. You can ",
-      "resolve this issue by using `add_level()` instead of `nest_level()` ",
-      "or by ensuring that data has been created or imported before using ",
-      "`nest_level()`"
+      "`nest_level()`` cannot be the top of a hierarchy. Use `add_level()`",
+      "to either import or create a top level."
     )
   }
 
@@ -47,13 +27,13 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   # Pass the working environment because N might not be a singleton here
   N <- handle_n(
     N, add_level = FALSE,
-    working_environment = working_environment_,
+    working_environment = workspace,
     parent_frame_levels = 3
   )
 
   # We need to expand the size of the current working data frame by copying it
   # Let's start by getting the size of the current working data frame
-  past_level_N <- nrow(working_environment_$data_frame_output_)
+  past_level_N <- nrow(df)
   # And now make an index set 1:past_level_N
   indices <- seq_len(past_level_N)
 
@@ -72,25 +52,19 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   inner_N <- N # Length specified for this level
   N <- length(rep_indices) # Length of overall data frame
 
-  # Expand the data frame by duplicating the indices and then coerce the data
-  # frame to a list -- we do this to basically make variables accessible in the
-  # namespace.
-  working_data_list <- as.list(
-    working_environment_$data_frame_output_[rep_indices, , drop = FALSE]
-    )
+  # stretch the data frame
+  working_data_list <- as.list(df[rep_indices, , drop=FALSE])
 
   # Everything after here is non-unique to nest_level versus add_level -- need
   # to think about how to refactor this out.
 
   # Staple in an ID column onto the data list.
-  if (!is.null(ID_label) && (is.null(names(working_data_list)) ||
-    !ID_label %in% names(working_data_list))) {
+  if (!ID_label %in% names(working_data_list)) {
     # First, add the column to the working data frame
     working_data_list[[ID_label]] <- generate_id_pad(N)
-
-    add_level_id(working_environment_, ID_label)
-    add_variable_name(working_environment_, ID_label)
   }
+
+  check_variables_named(data_arguments)
 
   # Loop through each of the variable generating arguments
   for (i in names(data_arguments)) {
@@ -128,8 +102,6 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
       )
     }
 
-    # Write the variable name to the list of variable names
-    add_variable_name(working_environment_, i)
 
     # Nuke the current data argument -- if we have the same variable name
     # created twice, this is OK, because it'll only nuke the current one.
@@ -140,12 +112,8 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
   # this should be covered by the error message above.
   working_data_list <- check_rectangular(working_data_list, N)
 
-  # Overwrite the working data frame.
-  working_environment_[["data_frame_output_"]] <- data.frame(
-    working_data_list,
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
+  append_child(workspace, child=ID_label, child_df=working_data_list)
 
-  return(working_environment_)
+
+  activate(workspace, ID_label)
 }

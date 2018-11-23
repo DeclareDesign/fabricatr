@@ -1,4 +1,4 @@
-context("Fabricate")
+context("Fabricate Cross Classified")
 
 test_that("Panel data, well-formed", {
   set.seed(19861108)
@@ -357,4 +357,24 @@ test_that("Malformed sigma in link_levels", {
                            by = join(ps_quality, ss_quality, u_quality,
                                      sigma=non_psd_matrix)
                          )))
+})
+
+test_that("crossing from common parent", {
+  set.seed(19861108)
+
+  # Well formed
+  panel <- fabricate(
+    a = add_level(N = 5),
+    b = add_level(N = 4),
+    a = modify_level(a=a),
+    c = add_level(N=3),
+    obs = cross_levels(
+      by = join(b,c)
+    )
+  )
+  expect_equal(nrow(panel), 15*20)
+  expect_named(
+    panel,
+    c("a.x", "b", "a.y", "c", "obs")
+  )
 })

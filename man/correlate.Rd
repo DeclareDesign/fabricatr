@@ -18,12 +18,17 @@ Y will be correlated with.}
 \item{rho}{A rank correlation coefficient between -1 and 1.}
 }
 \description{
+This function is EXPERIMENTAL, and we cannot guarantee its properties for
+all data structures. Be sure to diagnose your design and assess the
+distribution of your variables.
+}
+\details{
 In order to generate a random variable of a specific distribution based on
 another variable of any distribution and a correlation coefficient `rho`,
 we map the first, known variable into the standard normal space via affine
 transformation, generate the conditional distribution of the resulting
 variable as a standard normal, and then map that standard normal back to
-the target distribution. The result ensures, in expectation, a rank-order
+the target distribution. The result should ensure, in expectation, a rank-order
 correlation of `rho`.
 }
 \examples{

@@ -1,6 +1,6 @@
-## Resubmission
+## Submission
 
-This is a resubmission of `fabricatr 0.4.0`, originally submitted last week. On our most recent submission, we had included a VignetteBuilder in DESCRIPTION although we have moved to not including vignettes with the package. This has been suppressed, which should resolve the issue. Thank you again for your time reviewing the submission.
+We are submitting a small update, `fabricatr 0.6.0`. Thank you again for your time reviewing the submission.
 
 ## Test environments
 * local macOS install, R 3.4.3
@@ -14,5 +14,5 @@ This is a resubmission of `fabricatr 0.4.0`, originally submitted last week. On 
 No errors, warnings, or notes.
 
 ## Downstream dependencies:
-Package `estimatr` suggests `fabricatr`. This version should not cause any breaking changes, and I am in contact with Luke Sonnet, package author of `estimatr` to ensure compatibility is maintained going forward.
+Several packages by an overlapping set of authors depend on `fabricatr`: `DeclareDesign`, `DesignLibrary`, and `estimatr`. We have prepared updates to those packages and will submit them in the coming days after this update is on CRAN.
 

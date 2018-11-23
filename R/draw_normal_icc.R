@@ -28,6 +28,8 @@
 #' each cluster's error terms -- standard deviation within a cluster (default 1)
 #' @param sd_between A number or vector of numbers, indicating the standard deviation
 #' between clusters.
+#' @param total_sd A number indicating the total sd of the resulting variable.
+#' May only be specified if ICC is specified and `sd` and `sd_between` are not.
 #' @param ICC A number indicating the desired ICC.
 #' @return A vector of numbers corresponding to the observations from
 #' the supplied cluster IDs.
@@ -45,6 +47,10 @@
 #' # Can specify between-cluster standard deviation instead:
 #' draw_normal_icc(clusters = clusters, sd_between = 4, ICC = 0.2)
 #'
+#' # Can specify total SD instead:
+#' total_sd_draw = draw_normal_icc(clusters = clusters, ICC = 0.5, total_sd = 3)
+#' sd(total_sd_draw)
+#'
 #' # Verify that ICC generated is accurate
 #' corr_draw = draw_normal_icc(clusters = clusters, ICC = 0.4)
 #' summary(lm(corr_draw ~ as.factor(clusters)))$r.squared
@@ -57,6 +63,7 @@ draw_normal_icc <- function(mean = 0,
                             clusters,
                             sd = NULL,
                             sd_between = NULL,
+                            total_sd = NULL,
                             ICC = NULL) {
 
   # Let's not worry about how clusters are provided
@@ -107,6 +114,9 @@ draw_normal_icc <- function(mean = 0,
 
   # Sanity check ICC
   if (is.null(ICC)) {
+    if(!is.null(total_sd)) {
+      stop("If `ICC` is not provided, `total_sd` may not be provided.")
+    }
     if (is.null(sd) || is.null(sd_between)) {
       stop("If `ICC` is not provided, both `sd` and `sd_between` must be ",
            "provided.")
@@ -116,6 +126,19 @@ draw_normal_icc <- function(mean = 0,
               round(implied_ICC, 3))
     }
   } else {
+    if(!is.null(total_sd)) {
+      if(!is.null(sd) || !is.null(sd_between)) {
+        stop("If `ICC` and `total_sd` are provided, both `sd` and `sd_between`",
+             " must be left blank.")
+      } else if(!is.numeric(total_sd) ||
+                length(total_sd) > 1 ||
+                total_sd <= 0) {
+        stop("If `total_sd` is provided, it must be a single non-negative ",
+             "number.")
+      }
+    }
+
+
     # Fill in a default value if only ICC is specified; sd within-cluster = 1
     # i.e. each cluster is unit variance.
     if (is.null(sd) && is.null(sd_between)) {
@@ -217,15 +240,20 @@ draw_normal_icc <- function(mean = 0,
   # And error terms, which are truly individual
   epsilon_ij <- rnorm(length(clusters), 0, sd)
 
-  individual_mean + alpha_individual + epsilon_ij
+  result <- individual_mean + alpha_individual + epsilon_ij
+
+  if(!is.null(total_sd)) {
+    rescale_variable_sd(result, total_sd)
+  } else {
+    result
+  }
 }
 
 check_sd_error_helper <- function(data, data_name, number_of_clusters) {
   # Sanity check sd or sd_between
   if (!is.null(data)) {
     if (!length(data) %in% c(1, number_of_clusters)) {
-      stop("`", data_name, "` must be either a number or one number per ",
-           "cluster.")
+      stop("`", data_name, "` must be either a number or one number per ", "cluster.")
     }
     if (!is.vector(data)) {
       stop("`", data_name, "` must be a number or vector of numbers.")
@@ -237,4 +265,12 @@ check_sd_error_helper <- function(data, data_name, number_of_clusters) {
       stop("Numbers provided to `", data_name, "` must be non-negative.")
     }
   }
+}
+
+
+rescale_variable_sd <- function(vector, new_sd) {
+  # Standardize, expand to new SD, re-mean
+  base_mean <- mean(vector)
+  base_sd <- sd(vector)
+  ((vector - base_mean) * new_sd / base_sd) + base_mean
 }

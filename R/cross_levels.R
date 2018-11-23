@@ -60,90 +60,41 @@ cross_levels <- function(by = NULL,
     )
   }
 
-  link_levels(
-    N = NULL,
-    by = by,
-    ...
-  )
+  do_internal(N = NULL, by = by, ..., FUN=cross_levels_internal, from="cross_level" )
 }
 
 #' @importFrom rlang quos get_expr
 #'
 #' @rdname cross_levels
 #' @export
-link_levels <- function(N = NULL,
-                        by = NULL,
-                        ...) {
-  data_arguments <- quos(...)
-  if ("working_environment_" %in% names(data_arguments)) {
-    working_environment_ <- get_expr(data_arguments[["working_environment_"]])
-    data_arguments[["working_environment_"]] <- NULL
-  } else {
-    # This happens if either an add_level call is run external to a fabricate
-    # call OR if add_level is the only argument to a fabricate call and
-    # the data argument tries to resolve an add_level call.
-    stop(
-      "`cross_levels()` and `link_levels()` calls must be run inside ",
-      "`fabricate()` calls."
-    )
-  }
-  if ("ID_label" %in% names(data_arguments)) {
-    ID_label <- get_expr(data_arguments[["ID_label"]])
-    data_arguments[["ID_label"]] <- NULL
-  }
-
-  return(cross_levels_internal(
-    N = N, ID_label = ID_label, by = by,
-    working_environment_ = working_environment_,
-    data_arguments = data_arguments
-  ))
+link_levels <- function(N = NULL, by = NULL, ...) {
+  do_internal(N, by = by, ..., FUN = cross_levels_internal, from="link_level")
 }
+
+
+
+
 
 #' @importFrom rlang quo_text eval_tidy
 cross_levels_internal <- function(N = NULL,
                                   ID_label = NULL,
-                                  working_environment_ = NULL,
+                                  workspace = NULL,
                                   by = NULL,
                                   data_arguments = NULL) {
-  if (any(!c("data_frame_output_", "shelved_df") %in%
-    names(working_environment_))) {
-    stop(
-      "You must provide at least two separate level hierarchies to create ",
-      "cross-classified data. If you have specified multiple levels, please ",
-      "ensure that you use the `nest=FALSE` argument to specify they are ",
-      "non-nested"
-    )
-  }
 
-  if (is.null(by) || !length(by$variable_names)) {
-    stop(
-      "You must specify a join structure using the `by` argument to create ",
-      "cross-classified data."
-    )
-  }
+  check_cross_level_args(workspace, by)
 
-  # Shelf the working data frame before continuing, so now all our data is on
-  # the shelf.
-  working_environment_ <- shelf_working_data(working_environment_)
 
-  # Loop over the variable name
+
   variable_names <- by$variable_names
-  data_frame_indices <- integer(length(variable_names))
 
-  if (anyDuplicated(variable_names)) {
-    stop(
-      "Variable names for joining cross-classified data must be unique. ",
-      "Currently, you are joining on a variable named \"",
-      variable_names[anyDuplicated(variable_names)[1]],
-      "\" more than once."
-    )
-  }
+  df_names <- names(workspace)
+  data_frame_indices <- integer(length(variable_names))
 
   # Figure out which dfs we're joining on which variables
   for (i in seq_along(variable_names)) {
-    for (j in seq_along(working_environment_$shelved_df)) {
-      if (variable_names[i] %in%
-        working_environment_$shelved_df[[j]]$variable_names_) {
+    for (j in seq_along(df_names)) {
+      if (variable_names[i] %in% names(workspace[[df_names[j]]])) {
 
         # If we've already found this one, that's bad news for us...
         if (data_frame_indices[i]) {
@@ -175,12 +126,8 @@ cross_levels_internal <- function(N = NULL,
   }
 
   # Actually fetch the df objects
-  data_frame_objects <- lapply(
-    data_frame_indices,
-    function(x) {
-      working_environment_$shelved_df[[x]]$data_frame_output_
-    }
-  )
+  data_frame_objects <- mget(df_names[data_frame_indices], workspace)
+
 
   # Do the join.
   if (!is.null(N)) {
@@ -189,29 +136,27 @@ cross_levels_internal <- function(N = NULL,
     out <- panel_dfs(data_frame_objects)
     N <- nrow(out)
   }
-  working_environment_$variable_names_ <- names(out)
 
   # Staple in an ID column onto the data list.
   if (!is.null(ID_label) && (!ID_label %in% names(out))) {
     out[, ID_label] <- generate_id_pad(N)
 
-    add_level_id(working_environment_, ID_label)
-    add_variable_name(working_environment_, ID_label)
   }
 
-  # Overwrite the working data frame.
-  working_environment_$data_frame_output_ <- out
+  append_child(workspace, ID_label, df_names[data_frame_indices], out)
+
+  activate(workspace, ID_label);
 
   if (length(data_arguments)) {
-    working_environment_ <- modify_level_internal(
+    workspace <- modify_level_internal(
       ID_label = ID_label,
-      working_environment_ = working_environment_,
+      workspace = workspace,
       data_arguments = data_arguments
     )
   }
 
   # Return results
-  return(working_environment_)
+  workspace
 }
 
 #' Helper function handling specification of which variables to join a
@@ -230,15 +175,66 @@ cross_levels_internal <- function(N = NULL,
 #' are joining on, specifying the correlation for the resulting joined data.
 #' Only one of rho and sigma should be provided. Do not provide \code{sigma} if
 #' making panel data.
+#' @examples
+#'
+#' panels <- fabricate(
+#'   countries = add_level(N = 150, country_fe = runif(N, 1, 10)),
+#'   years = add_level(N = 25, year_shock = runif(N, 1, 10), nest = FALSE),
+#'   obs = cross_levels(
+#'     by = join(countries, years),
+#'     new_variable = country_fe + year_shock + rnorm(N, 0, 2)
+#'   )
+#' )
+#'
+#' schools_data <- fabricate(
+#'   primary_schools = add_level(N = 20, ps_quality = runif(N, 1, 10)),
+#'   secondary_schools = add_level(
+#'     N = 15,
+#'     ss_quality = runif(N, 1, 10),
+#'     nest = FALSE),
+#'   students = link_levels(
+#'     N = 1500,
+#'     by = join(primary_schools, secondary_schools),
+#'     SAT_score = 800 + 13 * ps_quality + 26 * ss_quality + rnorm(N, 0, 50)
+#'   )
+#' )
+#'
 #' @export
 join <- function(..., rho=0, sigma=NULL) {
   data_arguments <- quos(...)
-  variable_names <- unlist(lapply(data_arguments, function(x) {
-    quo_text(x)
-  }))
-  return(list(
+  variable_names <- unlist(lapply(data_arguments,quo_text))
+  list(
     variable_names = variable_names,
     rho = rho,
     sigma = sigma
-  ))
+  )
+}
+
+
+check_cross_level_args <- function(workspace, by) {
+  if(length(workspace) <= 1){
+    stop(
+      "You must provide at least two separate level hierarchies to create ",
+      "cross-classified data. If you have specified multiple levels, please ",
+      "ensure that you use the `nest=FALSE` argument to specify they are ",
+      "non-nested"
+    )
+  }
+
+  if (is.null(by) || length(by$variable_names) == 0) {
+    stop(
+      "You must specify a join structure using the `by` argument to create ",
+      "cross-classified data."
+    )
+  }
+
+
+  if (anyDuplicated(by$variable_names)) {
+    stop(
+      "Variable names for joining cross-classified data must be unique. ",
+      "Currently, you are joining on a variable named \"",
+      unique(by$variable_names[duplicated(by$variable_names)]),
+      "\" more than once."
+    )
+  }
 }
