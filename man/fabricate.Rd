@@ -35,7 +35,7 @@ single-level data. If provided in \code{add_level}, e.g.
 \code{fabricate(cities = add_level(N = 5))}, \code{N} determines the number
 of units in a specific level of a hierarchical dataset.}
 
-\item{ID_label}{(optional) variable name for ID variable, e.g. citizen_ID}
+\item{ID_label}{(optional) variable name for ID variable, e.g. citizen_ID. It can be set to NA.}
 
 \item{nest}{(Default TRUE) Boolean determining whether data in an
 \code{add_level()} call will be nested under the current working data frame
