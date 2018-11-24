@@ -26,7 +26,7 @@
 #' single-level data. If provided in \code{add_level}, e.g.
 #' \code{fabricate(cities = add_level(N = 5))}, \code{N} determines the number
 #' of units in a specific level of a hierarchical dataset.
-#' @param ID_label (optional) variable name for ID variable, e.g. citizen_ID
+#' @param ID_label (optional) variable name for ID variable, e.g. citizen_ID. Set to NA to suppress the creation of an ID variable.
 #' @param ... Variable or level-generating arguments, such as
 #' \code{my_var = rnorm(N)}. For \code{fabricate}, you may also pass
 #' \code{add_level()} or \code{modify_level()} arguments, which define a level
