@@ -29,7 +29,7 @@
 #' @param sd_between A number or vector of numbers, indicating the standard deviation
 #' between clusters.
 #' @param total_sd A number indicating the total sd of the resulting variable.
-#' May only be specified if ICC is specified and `sd` and `sd_between` are not.
+#' May only be specified if ICC is specified and \code{sd} and \code{sd_between} are not.
 #' @param ICC A number indicating the desired ICC.
 #' @return A vector of numbers corresponding to the observations from
 #' the supplied cluster IDs.

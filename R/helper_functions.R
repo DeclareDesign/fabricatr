@@ -1,13 +1,13 @@
 #' Expands data to a given length through recycling.
 #'
-#' This function is a helper function designed call `rep_len` to expand the
+#' This function is a helper function designed call \code{rep_len} to expand the
 #' length of a data vector, but which can dynamically retrieve N from the
 #' surrounding level call for use in fabricatr.
 #'
-#' @param x Data to recycle into length `N`
+#' @param x Data to recycle into length \code{N}
 #' @param .N the length to recycle the data to, typically provided implicitly by
 #' a or fabricate call wrapped around the function call.
-#' @return A vector of data padded to length `N`
+#' @return A vector of data padded to length \code{N}
 #'
 #' @examples
 #'
@@ -496,5 +496,3 @@ append_child <- function(workspace, child, parents=NULL, child_df=NULL) {
 
   workspace
 }
-
-
