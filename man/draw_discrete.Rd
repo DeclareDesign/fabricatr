@@ -39,13 +39,13 @@ binary or binomial outcomes; or a number, vector, or matrix of numbers
 representing probabilities for categorical outcomes. If you supply a link
 function, these underlying probabilities will be transformed.}
 
-\item{trials}{for `draw_binomial`, the number of trials for each observation}
+\item{trials}{for \code{draw_binomial}, the number of trials for each observation}
 
 \item{N}{number of units to draw. Defaults to the length of the vector of
 probabilities or latent data you provided.}
 
 \item{latent}{If the user provides a link argument other than identity, they
-should provide the variable `latent` rather than `prob` or `mean`}
+should provide the variable \code{latent} rather than \code{prob} or \code{mean}}
 
 \item{link}{link function between the latent variable and the probability of
 a positive outcome, e.g. "logit", "probit", or "identity". For the "identity"
@@ -56,28 +56,28 @@ stochastically from the distribution of interest, data will be drawn at
 exactly those quantiles.}
 
 \item{category_labels}{vector of labels for the categories produced by
-`draw_categorical`. If provided, must be equal to the number of categories
-provided in the `prob` argument.}
+\code{draw_categorical}. If provided, must be equal to the number of categories
+provided in the \code{prob} argument.}
 
-\item{x}{for `draw_ordered` or `draw_likert`, the latent data for each
+\item{x}{for \code{draw_ordered} or \code{draw_likert}, the latent data for each
 observation.}
 
 \item{breaks}{vector of breaks to cut a latent outcome into ordered
-categories with `draw_ordered` or `draw_likert`}
+categories with \code{draw_ordered} or \code{draw_likert}}
 
 \item{break_labels}{vector of labels for the breaks to cut a latent outcome
-into ordered categories with `draw_ordered`. (Optional)}
+into ordered categories with \code{draw_ordered}. (Optional)}
 
 \item{strict}{Logical indicating whether values outside the provided breaks should be coded as NA. Defaults to \code{FALSE}, in which case effectively additional breaks are added between -Inf and the lowest break and between the highest break and Inf.}
 
-\item{mean}{for `draw_count`, the mean number of count units for each observation}
+\item{mean}{for \code{draw_count}, the mean number of count units for each observation}
 
-\item{type}{Type of Likert scale data for `draw_likert`. Valid options are 4,
+\item{type}{Type of Likert scale data for \code{draw_likert}. Valid options are 4,
 5, and 7. Type corresponds to the number of categories in the Likert scale.}
 }
 \value{
 A vector of data in accordance with the specification; generally
-numeric but for some functions, including `draw_ordered`, may be factor if
+numeric but for some functions, including \code{draw_ordered}, may be factor if
 break labels are provided.
 }
 \description{

@@ -24,7 +24,7 @@ each cluster's error terms -- standard deviation within a cluster (default 1)}
 between clusters.}
 
 \item{total_sd}{A number indicating the total sd of the resulting variable.
-May only be specified if ICC is specified and `sd` and `sd_between` are not.}
+May only be specified if ICC is specified and \code{sd} and \code{sd_between} are not.}
 
 \item{ICC}{A number indicating the desired ICC.}
 }
