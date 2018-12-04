@@ -162,7 +162,7 @@ cross_levels_internal <- function(N = NULL,
 #' Helper function handling specification of which variables to join a
 #' cross-classified data on, and what kind of correlation structure needed.
 #' Correlation structures can only be provided if the underlying call is
-#' a `link_levels()` call.
+#' a \code{link_levels()} call.
 #'
 #' @param ... A series of two or more variable names, unquoted, to join on in
 #' order to create cross-classified data.
