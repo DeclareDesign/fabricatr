@@ -19,8 +19,8 @@ for deciles, 10.}
 Survey data is often presented in aggregated, depersonalized form, which
 can involve binning underlying data into quantile buckets; for example,
 rather than reporting underlying income, a survey might report income by
-decile. `split_quantile` can automatically produce this split using any
-data `x` and any number of splits `type.
+decile. \code{split_quantile} can automatically produce this split using any
+data \code{x} and any number of splits `type.
 }
 \examples{
 

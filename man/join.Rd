@@ -5,7 +5,7 @@
 \title{Helper function handling specification of which variables to join a
 cross-classified data on, and what kind of correlation structure needed.
 Correlation structures can only be provided if the underlying call is
-a `link_levels()` call.}
+a \code{link_levels()} call.}
 \usage{
 join(..., rho = 0, sigma = NULL)
 }
@@ -28,7 +28,7 @@ making panel data.}
 Helper function handling specification of which variables to join a
 cross-classified data on, and what kind of correlation structure needed.
 Correlation structures can only be provided if the underlying call is
-a `link_levels()` call.
+a \code{link_levels()} call.
 }
 \examples{
 

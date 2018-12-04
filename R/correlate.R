@@ -5,16 +5,16 @@
 #' distribution of your variables.
 #'
 #' In order to generate a random variable of a specific distribution based on
-#' another variable of any distribution and a correlation coefficient `rho`,
+#' another variable of any distribution and a correlation coefficient \code{rho},
 #' we map the first, known variable into the standard normal space via affine
 #' transformation, generate the conditional distribution of the resulting
 #' variable as a standard normal, and then map that standard normal back to
 #' the target distribution. The result should ensure, in expectation, a rank-order
-#' correlation of `rho`.
+#' correlation of \code{rho}.
 #'
 #' @param draw_handler The unquoted name of a function to generate data.
-#' Currently, `draw_binary`, `draw_binomial`, and `draw_count` are supported.
-#' @param ... The arguments to draw_handler (e.g. `prob`, `mean`, etc.)
+#' Currently, \code{draw_binary}, \code{draw_binomial}, and \code{draw_count} are supported.
+#' @param ... The arguments to draw_handler (e.g. \code{prob}, \code{mean}, etc.)
 #' @param given A vector that can be ordered; the reference distribution X that
 #' Y will be correlated with.
 #' @param rho A rank correlation coefficient between -1 and 1.

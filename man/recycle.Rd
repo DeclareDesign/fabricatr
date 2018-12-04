@@ -7,16 +7,16 @@
 recycle(x, .N = NULL)
 }
 \arguments{
-\item{x}{Data to recycle into length `N`}
+\item{x}{Data to recycle into length \code{N}}
 
 \item{.N}{the length to recycle the data to, typically provided implicitly by
 a or fabricate call wrapped around the function call.}
 }
 \value{
-A vector of data padded to length `N`
+A vector of data padded to length \code{N}
 }
 \description{
-This function is a helper function designed call `rep_len` to expand the
+This function is a helper function designed call \code{rep_len} to expand the
 length of a data vector, but which can dynamically retrieve N from the
 surrounding level call for use in fabricatr.
 }

@@ -18,18 +18,18 @@
 #' binary or binomial outcomes; or a number, vector, or matrix of numbers
 #' representing probabilities for categorical outcomes. If you supply a link
 #' function, these underlying probabilities will be transformed.
-#' @param trials for `draw_binomial`, the number of trials for each observation
-#' @param mean for `draw_count`, the mean number of count units for each observation
-#' @param x for `draw_ordered` or `draw_likert`, the latent data for each
+#' @param trials for \code{draw_binomial}, the number of trials for each observation
+#' @param mean for \code{draw_count}, the mean number of count units for each observation
+#' @param x for \code{draw_ordered} or \code{draw_likert}, the latent data for each
 #' observation.
 #' @param breaks vector of breaks to cut a latent outcome into ordered
-#' categories with `draw_ordered` or `draw_likert`
+#' categories with \code{draw_ordered} or \code{draw_likert}
 #' @param break_labels vector of labels for the breaks to cut a latent outcome
-#' into ordered categories with `draw_ordered`. (Optional)
+#' into ordered categories with \code{draw_ordered}. (Optional)
 #' @param category_labels vector of labels for the categories produced by
-#' `draw_categorical`. If provided, must be equal to the number of categories
-#' provided in the `prob` argument.
-#' @param type Type of Likert scale data for `draw_likert`. Valid options are 4,
+#' \code{draw_categorical}. If provided, must be equal to the number of categories
+#' provided in the \code{prob} argument.
+#' @param type Type of Likert scale data for \code{draw_likert}. Valid options are 4,
 #' 5, and 7. Type corresponds to the number of categories in the Likert scale.
 #' @param N number of units to draw. Defaults to the length of the vector of
 #' probabilities or latent data you provided.
@@ -37,13 +37,13 @@
 #' a positive outcome, e.g. "logit", "probit", or "identity". For the "identity"
 #' link, the latent variable must be a probability.
 #' @param latent If the user provides a link argument other than identity, they
-#' should provide the variable `latent` rather than `prob` or `mean`
+#' should provide the variable \code{latent} rather than \code{prob} or \code{mean}
 #' @param strict Logical indicating whether values outside the provided breaks should be coded as NA. Defaults to \code{FALSE}, in which case effectively additional breaks are added between -Inf and the lowest break and between the highest break and Inf.
 #' @param quantile_y A vector of quantiles; if provided, rather than drawing
 #' stochastically from the distribution of interest, data will be drawn at
 #' exactly those quantiles.
 #' @return A vector of data in accordance with the specification; generally
-#' numeric but for some functions, including `draw_ordered`, may be factor if
+#' numeric but for some functions, including \code{draw_ordered}, may be factor if
 #' break labels are provided.
 #' @name draw_discrete
 #' @examples
@@ -466,8 +466,8 @@ draw_quantile <- function(type, N) {
 #' Survey data is often presented in aggregated, depersonalized form, which
 #' can involve binning underlying data into quantile buckets; for example,
 #' rather than reporting underlying income, a survey might report income by
-#' decile. `split_quantile` can automatically produce this split using any
-#' data `x` and any number of splits `type.
+#' decile. \code{split_quantile} can automatically produce this split using any
+#' data \code{x} and any number of splits `type.
 #'
 #' @param x A vector of any type that can be ordered -- i.e. numeric or factor
 #' where factor levels are ordered.
