@@ -36,7 +36,7 @@ panels <- fabricate(
   countries = add_level(N = 150, country_fe = runif(N, 1, 10)),
   years = add_level(N = 25, year_shock = runif(N, 1, 10), nest = FALSE),
   obs = cross_levels(
-    by = join(countries, years),
+    by = join_by(countries, years),
     new_variable = country_fe + year_shock + rnorm(N, 0, 2)
   )
 )
@@ -49,7 +49,7 @@ schools_data <- fabricate(
     nest = FALSE),
   students = link_levels(
     N = 1500,
-    by = join(primary_schools, secondary_schools),
+    by = join_by(primary_schools, secondary_schools),
     SAT_score = 800 + 13 * ps_quality + 26 * ss_quality + rnorm(N, 0, 50)
   )
 )

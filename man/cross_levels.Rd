@@ -10,7 +10,7 @@ cross_levels(by = NULL, ...)
 link_levels(N = NULL, by = NULL, ...)
 }
 \arguments{
-\item{by}{The result of a call to \code{join()} which specifies how
+\item{by}{The result of a call to \code{join_by()} which specifies how
 the cross-classified data will be created}
 
 \item{...}{A variable or series of variables to add to the resulting data
@@ -31,7 +31,7 @@ two or many source levels. Common examples of panels include country-year
 data which have country-level and year-level characteristics.
 }
 \details{
-By specifying the appropriate arguments in \code{join()} within the
+By specifying the appropriate arguments in \code{join_by()} within the
 function call, it is possible to induce correlation in cross-classified data.
 }
 \examples{
@@ -40,7 +40,7 @@ function call, it is possible to induce correlation in cross-classified data.
 panel <- fabricate(
  countries = add_level(N = 20, country_shock = runif(N, 1, 10)),
  years = add_level(N = 20, year_shock = runif(N, 1, 10), nest=FALSE),
- obs = cross_levels(by=join(countries, years), GDP_it = country_shock + year_shock)
+ obs = cross_levels(by=join_by(countries, years), GDP_it = country_shock + year_shock)
 )
 
 # Include an "N" argument to allow for cross-classified
@@ -48,7 +48,7 @@ panel <- fabricate(
 students <- fabricate(
  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
- students = link_levels(N = 500, by = join(primary_school, secondary_school))
+ students = link_levels(N = 500, by = join_by(primary_school, secondary_school))
 )
 head(students)
 
@@ -57,7 +57,7 @@ head(students)
 students <- fabricate(
  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
- students = link_levels(N = 500, by = join(ps_quality, ss_quality, rho = 0.5))
+ students = link_levels(N = 500, by = join_by(ps_quality, ss_quality, rho = 0.5))
 )
 cor(students$ps_quality, students$ss_quality)
 

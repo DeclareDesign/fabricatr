@@ -6,14 +6,14 @@
 #' two or many source levels. Common examples of panels include country-year
 #' data which have country-level and year-level characteristics.
 #'
-#' By specifying the appropriate arguments in \code{join()} within the
+#' By specifying the appropriate arguments in \code{join_by()} within the
 #' function call, it is possible to induce correlation in cross-classified data.
 #'
 #' @param N The number of observations in the resulting data frame.
 #' If \code{N} is NULL or not provided, the join will be an "outer product" --
 #' merging each row of each provided data frame with each other data frame to
 #' make a full panel.
-#' @param by The result of a call to \code{join()} which specifies how
+#' @param by The result of a call to \code{join_by()} which specifies how
 #' the cross-classified data will be created
 #' @param ... A variable or series of variables to add to the resulting data
 #' frame after the cross-classified data is created.
@@ -26,7 +26,7 @@
 #' panel <- fabricate(
 #'  countries = add_level(N = 20, country_shock = runif(N, 1, 10)),
 #'  years = add_level(N = 20, year_shock = runif(N, 1, 10), nest=FALSE),
-#'  obs = cross_levels(by=join(countries, years), GDP_it = country_shock + year_shock)
+#'  obs = cross_levels(by=join_by(countries, years), GDP_it = country_shock + year_shock)
 #' )
 #'
 #' # Include an "N" argument to allow for cross-classified
@@ -34,7 +34,7 @@
 #' students <- fabricate(
 #'  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
 #'  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
-#'  students = link_levels(N = 500, by = join(primary_school, secondary_school))
+#'  students = link_levels(N = 500, by = join_by(primary_school, secondary_school))
 #' )
 #' head(students)
 #'
@@ -43,7 +43,7 @@
 #' students <- fabricate(
 #'  primary_school = add_level(N = 20, ps_quality = runif(N, 1, 10)),
 #'  secondary_school = add_level(N = 15, ss_quality = runif(N, 1, 10), nest=FALSE),
-#'  students = link_levels(N = 500, by = join(ps_quality, ss_quality, rho = 0.5))
+#'  students = link_levels(N = 500, by = join_by(ps_quality, ss_quality, rho = 0.5))
 #' )
 #' cor(students$ps_quality, students$ss_quality)
 #'
@@ -181,7 +181,7 @@ cross_levels_internal <- function(N = NULL,
 #'   countries = add_level(N = 150, country_fe = runif(N, 1, 10)),
 #'   years = add_level(N = 25, year_shock = runif(N, 1, 10), nest = FALSE),
 #'   obs = cross_levels(
-#'     by = join(countries, years),
+#'     by = join_by(countries, years),
 #'     new_variable = country_fe + year_shock + rnorm(N, 0, 2)
 #'   )
 #' )
@@ -194,7 +194,7 @@ cross_levels_internal <- function(N = NULL,
 #'     nest = FALSE),
 #'   students = link_levels(
 #'     N = 1500,
-#'     by = join(primary_schools, secondary_schools),
+#'     by = join_by(primary_schools, secondary_schools),
 #'     SAT_score = 800 + 13 * ps_quality + 26 * ss_quality + rnorm(N, 0, 50)
 #'   )
 #' )

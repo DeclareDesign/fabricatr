@@ -110,7 +110,7 @@ test_that("you can create structure without variables", {
     primary_schools   = add_level(N = 5),
     secondary_schools = add_level(N = 6, nest = FALSE),
     students          =
-      link_levels(N = 15, by = join(primary_schools, secondary_schools))
+      link_levels(N = 15, by = join_by(primary_schools, secondary_schools))
   )), 15)
 
 })

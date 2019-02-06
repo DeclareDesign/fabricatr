@@ -166,7 +166,7 @@
     <span class="dt">new_variable =</span> country_fe <span class="op">+</span><span class="st"> </span>year_shock <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">2</span>)
   )
 )</code></pre></div>
-<p>Note that <code><a href="../reference/cross_levels.html">cross_levels()</a></code> takes a single required argument, which is of the form <code>by = join(...)</code>. This join command tells <strong>fabricatr</strong> how to assemble your data. In this case, we are telling it to join the countries data frame to the years data frame, resulting in country-year observations.</p>
+<p>Note that <code><a href="../reference/cross_levels.html">cross_levels()</a></code> takes a single required argument, which is of the form <code>by = join_by(...)</code>. This join command tells <strong>fabricatr</strong> how to assemble your data. In this case, we are telling it to join the countries data frame to the years data frame, resulting in country-year observations.</p>
 <p>Just like with regular <code><a href="../reference/fabricate.html">add_level()</a></code> commands, you can add new variables which have full access to the existing columns.</p>
 </div>
 </div>
@@ -258,7 +258,7 @@
 <span class="st">      </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">50</span>)
   )
 )</code></pre></div>
-<p>Here, we have changed the structure of our <code><a href="../reference/join.html">join()</a></code> function call. First, the variables we are joining on are <code>ps_quality</code> and <code>ss_quality</code>. <strong>fabricatr</strong> locates these variables within the data frames they come from. Second we specify a Spearman’s (rank) correlation coefficient, <code>rho</code>, which will induce a correlation in the resulting data based on the join function. In this case, we want a correlation between <code>ps_quality</code> and <code>ss_quality</code> of 0.5.</p>
+<p>Here, we have changed the structure of our <code><a href="../reference/join.html">join_by()</a></code> function call. First, the variables we are joining on are <code>ps_quality</code> and <code>ss_quality</code>. <strong>fabricatr</strong> locates these variables within the data frames they come from. Second we specify a Spearman’s (rank) correlation coefficient, <code>rho</code>, which will induce a correlation in the resulting data based on the join function. In this case, we want a correlation between <code>ps_quality</code> and <code>ss_quality</code> of 0.5.</p>
 <p>Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that <code>rho</code> can be any value from -1 to 1, and that the resulting correlation will be approximately equal to <code>rho</code>.</p>
 <p><em>Note: Because of the technical details of our implementation, the true correlation in the resulting data will be slightly attenuated (smaller in magnitude) from the specified <code>rho</code>. There is no general purpose correction to compensate for this attenuation.</em></p>
 <p>We can check the resulting correlation here:</p>
