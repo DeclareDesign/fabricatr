@@ -160,7 +160,7 @@ handle_id <- function(ID_label, data=NULL) {
 
   if(is.null(ID_label)) return(synthetic_ID(data))
 
-  if(!is_scalar_character(ID_label) && any(is.na(ID_label)))
+  if(!is_scalar_character(ID_label) && !any(is.na(ID_label)))
     stop("Provided `ID_label` must be a string.")
 
   ID_label
