@@ -1,3 +1,7 @@
+# **fabricatr** 0.8.0
+
+- Changes to prepare for R 3.6.0
+
 # **fabricatr** 0.6.0
 
 - Added split-modify-combine functionality to `modify_level` via the `by` argument.
