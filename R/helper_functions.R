@@ -74,7 +74,7 @@ get_symbols_from_quosures <- function(quosures) {
     } else if (is.language(l_arg)) {
       # If it's a language call, then we need to unpack some more
       # Extract the args from the call, (drop names on arguments)
-      recurse <- unname(lang_args(l_arg))
+      recurse <- unname(call_args(l_arg))
       # For each arg, extract
       temp <- lapply(recurse, extract)
       unlist(temp)
@@ -265,7 +265,7 @@ handle_data <- function(data) {
 # Function to check if something is a level call
 call_not_level_call <- function(calls) {
   !vapply(calls, function(i) {
-      is_lang(get_expr(i)) && is_level_token(lang_name(i))
+      is_call(get_expr(i)) && is_level_token(call_name(i))
     }, FALSE)
 }
 
@@ -288,15 +288,15 @@ check_all_levels <- function(options) {
   if (length(options) == 0) return(FALSE)
 
   # get_expr returns the expression for an item in a quosure
-  # is_lang checks if it's a function
+  # is_call checks if it's a function
   is_function <- vapply(options,
                         function(i) {
-                          is_lang(get_expr(i))
+                          is_call(get_expr(i))
                         },
                         FALSE)
 
-  # lang_name gets function name from a quosure
-  func_names <- vapply(options[is_function], lang_name, "")
+  # call_name gets function name from a quosure
+  func_names <- vapply(options[is_function], call_name, "")
 
   # Check to see if the function names are one of the valid level operations
   is_level <- is_level_token(func_names)
