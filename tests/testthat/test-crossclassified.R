@@ -8,7 +8,7 @@ test_that("Panel data, well-formed", {
     year = add_level(N = 20, year_shock = runif(N, 1, 10)),
     country = add_level(N = 20, country_shock = runif(N, 1, 10), nest = FALSE),
     obs = cross_levels(
-      by = join_by(year, country),
+      by = join_using(year, country),
       GDP_it = country_shock + year_shock
     )
   )
@@ -27,7 +27,7 @@ test_that("Panel data, errors.", {
     year = add_level(N = 20, year_shock = runif(N, 1, 10)),
     country = add_level(N = 20, country_shock = runif(N, 1, 10), nest = FALSE),
     obs = cross_levels(
-      by = join_by(year, country, rho = 0.5),
+      by = join_using(year, country, rho = 0.5),
       GDP_it = country_shock + year_shock
     )
   ))
@@ -37,7 +37,7 @@ test_that("Panel data, errors.", {
     year = add_level(N = 20, year_shock = runif(N, 1, 10)),
     country = add_level(N = 20, country_shock = runif(N, 1, 10), nest = FALSE),
     obs = cross_levels(
-      by = join_by(year),
+      by = join_using(year),
       GDP_it = country_shock + year_shock
     )
   ))
@@ -63,7 +63,7 @@ test_that("Cross-classified data", {
     ),
     students = link_levels(
       N = 1000,
-      by = join_by(ps_quality, ss_quality, rho = 0.5),
+      by = join_using(ps_quality, ss_quality, rho = 0.5),
       student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
       student_score_2 = student_score * 2,
       extracurricular = ps_hasband + ss_hascomputers
@@ -95,7 +95,7 @@ test_that("Cross-classified data, uncorrelated", {
     ),
     students = link_levels(
       N = 1000,
-      by = join_by(ps_quality, ss_quality, rho = 0),
+      by = join_using(ps_quality, ss_quality, rho = 0),
       student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
       student_score_2 = student_score * 2,
       extracurricular = ps_hasband + ss_hascomputers
@@ -114,7 +114,7 @@ test_that("Cross-classified, sigma in lieu of rho.", {
     l2 = add_level(N = 50, j2 = rnorm(N), nest = FALSE),
     joined = link_levels(
       N = 200,
-      by = join_by(j1, j2, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))
+      by = join_using(j1, j2, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))
     )
   )
 
@@ -175,7 +175,7 @@ test_that("Deliberate failures in link_levels", {
       l2 = add_level(N = 50, j2 = rnorm(N), nest = FALSE),
       joined = link_levels(
         N = 200,
-        by = join_by(
+        by = join_using(
           j1,
           j_error,
           sigma = matrix(
@@ -196,7 +196,7 @@ test_that("Deliberate failures in link_levels", {
                      nest = FALSE),
       joined = link_levels(
         N = 200,
-        by = join_by(j1, j_var, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))
+        by = join_using(j1, j_var, sigma = matrix(c(1, 0.5, 0.5, 1), ncol = 2))
       )
     )
   )
@@ -220,7 +220,7 @@ test_that("Deliberate failures in link_levels", {
     fabricate(
       l1 = add_level(N = 50, v1 = rnorm(N), v2 = rnorm(N), v3 = rnorm(N)),
       l2 = add_level(N = 30, v4 = rnorm(N), nest = FALSE),
-      joined = link_levels(N = 100, by = join_by(v1, v2))
+      joined = link_levels(N = 100, by = join_using(v1, v2))
     )
   )
 
@@ -228,7 +228,7 @@ test_that("Deliberate failures in link_levels", {
     fabricate(
       l1 = add_level(N = 50, v1 = rnorm(N), v2 = rnorm(N), v3 = rnorm(N)),
       l2 = add_level(N = 30, v4 = rnorm(N), nest = FALSE),
-      joined = link_levels(N = 100, by = join_by(v1, v4, v1))
+      joined = link_levels(N = 100, by = join_using(v1, v4, v1))
     )
   )
 })
@@ -255,7 +255,7 @@ test_that("Cross-classified with double import", {
     list(primary_schools, secondary_schools),
     students = link_levels(
       N = 1000,
-      by = join_by(ps_quality, ss_quality, rho = 0.5),
+      by = join_using(ps_quality, ss_quality, rho = 0.5),
       student_score = ps_testscores * 5 + ss_testscores * 10 + rnorm(N, 10, 5),
       student_score_2 = student_score * 2,
       extracurricular = ps_hasband + ss_hascomputers
@@ -272,19 +272,19 @@ test_that("Cross_levels wrapper.", {
   expect_error(fabricate(
     l1 = add_level(N = 10),
     l2 = add_level(N = 10, nest = FALSE),
-    l3 = cross_levels(N = 10, by = join_by(l1, l2))
+    l3 = cross_levels(N = 10, by = join_using(l1, l2))
   ))
 
   expect_error(fabricate(
     l1 = add_level(N = 10),
     l2 = add_level(N = 10, nest = FALSE),
-    l3 = cross_levels(by = join_by(l1, l2, rho = 0.2))
+    l3 = cross_levels(by = join_using(l1, l2, rho = 0.2))
   ))
 
   expect_error(fabricate(
     l1 = add_level(N = 10),
     l2 = add_level(N = 10, nest = FALSE),
-    l3 = cross_levels(N = 10, by = join_by(
+    l3 = cross_levels(N = 10, by = join_using(
       l1, l2,
       sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2)
     ))
@@ -293,7 +293,7 @@ test_that("Cross_levels wrapper.", {
   z <- fabricate(
     l1 = add_level(N = 10),
     l2 = add_level(N = 10, nest = FALSE),
-    l3 = cross_levels(by = join_by(l1, l2))
+    l3 = cross_levels(by = join_using(l1, l2))
   )
   expect_equal(nrow(z), 100)
   expect_equal(ncol(z), 3)
@@ -333,28 +333,28 @@ test_that("Malformed sigma in link_levels", {
   expect_error(fabricate(list(primary_schools, secondary_schools),
                          students = link_levels(
                            N = 1000,
-                           by = join_by(ps_quality, ss_quality,
+                           by = join_using(ps_quality, ss_quality,
                                      sigma=non_square_matrix)
                          )))
 
   expect_error(fabricate(list(primary_schools, secondary_schools),
                          students = link_levels(
                            N = 1000,
-                           by = join_by(ps_quality, ss_quality,
+                           by = join_using(ps_quality, ss_quality,
                                      sigma=out_of_range_matrix)
                          )))
 
   expect_error(fabricate(list(primary_schools, secondary_schools),
                          students = link_levels(
                            N = 1000,
-                           by = join_by(ps_quality, ss_quality,
+                           by = join_using(ps_quality, ss_quality,
                                      sigma=asymmetric_matrix)
                          )))
 
   expect_error(fabricate(list(primary_schools, secondary_schools, universities),
                          students = link_levels(
                            N = 1000,
-                           by = join_by(ps_quality, ss_quality, u_quality,
+                           by = join_using(ps_quality, ss_quality, u_quality,
                                      sigma=non_psd_matrix)
                          )))
 })
@@ -369,7 +369,7 @@ test_that("crossing from common parent", {
     a = modify_level(a=a),
     c = add_level(N=3),
     obs = cross_levels(
-      by = join_by(b,c)
+      by = join_using(b,c)
     )
   )
   expect_equal(nrow(panel), 15*20)

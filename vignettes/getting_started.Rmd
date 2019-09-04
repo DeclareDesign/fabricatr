@@ -65,7 +65,7 @@ panel <- fabricate(
   countries = add_level(N = 150, country_fe = runif(N, 1, 10)),
   years = add_level(N = 25, year_shock = runif(N, 1, 10), nest = FALSE),
   observations = cross_levels(
-    by = join_by(countries, years),
+    by = join_using(countries, years),
     outcome_it = country_fe + year_shock + rnorm(N, 0, 2)
   )
 )

@@ -119,7 +119,7 @@ cross_classified <- fabricate(
   primary_schools = add_level(N = 50, ps_quality = runif(N, 0, 10)),
   secondary_schools = add_level(N = 100, ss_quality = runif(N, 0, 10), nest=FALSE),
   students = link_levels(N = 2000,
-                          by=join_by(ps_quality, ss_quality, rho = 0.5),
+                          by=join_using(ps_quality, ss_quality, rho = 0.5),
                           student_quality = ps_quality + 3*ss_quality + rnorm(N)))
 }
 \seealso{
