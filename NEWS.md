@@ -1,3 +1,8 @@
+# **fabricatr** 0.10.0
+
+- Changes for compatibility with `rlang` 0.4.0
+- Minor bug fixes
+
 # **fabricatr** 0.8.0
 
 - Changes to prepare for R 3.6.0
