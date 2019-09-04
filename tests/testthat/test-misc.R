@@ -120,3 +120,33 @@ test_that("column N is masked", {
 
 
 })
+
+
+test_that("fab_ID_1 is not added when it should not be", {
+  my_data <- data.frame(ID = 1:5, some_var = rnorm(5))
+
+  expect_equal(sum("fab_ID_1" %in% colnames(fabricate(data = my_data, add_var = 5))), 0)
+
+
+  my_data <- data.frame(ID = as.character(1:5), some_var = rnorm(5))
+
+  # has fab_ID_1
+
+  expect_equal(sum("fab_ID_1" %in% colnames(fabricate(data = my_data, add_var = 5))), 0)
+
+
+
+  my_data <- data.frame(ID = as.character(1:5), some_var = rnorm(5), stringsAsFactors = FALSE)
+
+  # *does not* have fab_ID_1
+
+
+  expect_equal(sum("fab_ID_1" %in% colnames(fabricate(data = my_data, add_var = 5))), 0)
+
+
+  test_df_does <- data.frame(ID = "5", S_inclusion_prob = 0.2, stringsAsFactors = FALSE)
+
+  # has fab_ID_1
+  expect_equal(sum("fab_ID_1" %in% colnames(fabricate(data = test_df_does, my_var = 5))), 1)
+
+})
