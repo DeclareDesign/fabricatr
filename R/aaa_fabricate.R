@@ -232,7 +232,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       # Generate the ID label and check if there's a column that's exactly this.
       temp_id <- generate_id_pad(N)
 
-      id_matches <- vapply(df, identical, TRUE, temp_id)
+      id_matches <- vapply(lapply(df, as.character), identical, TRUE, temp_id)
 
       if(any(id_matches)) {
         ID_label <- names(df)[id_matches][1]
