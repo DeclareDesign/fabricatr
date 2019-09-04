@@ -96,8 +96,8 @@
 #'                           by=join_using(ps_quality, ss_quality, rho = 0.5),
 #'                           student_quality = ps_quality + 3*ss_quality + rnorm(N)))
 #' @seealso \code{\link{link_levels}}
-#' @importFrom rlang quos quo_name eval_tidy lang_name lang_modify lang_args lang_args_names quo_squash
-#' is_lang get_expr
+#' @importFrom rlang quos quo_name eval_tidy call_name call_modify call_args call_args_names quo_squash
+#' is_call get_expr
 #'
 #' @export
 fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
@@ -159,11 +159,11 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       if(nm[i] != "") next;
 
         # Can't salvage this one
-        if(!"ID_label" %in% lang_args_names(dots[[i]])) {
+        if(!"ID_label" %in% call_args_names(dots[[i]])) {
           stop("You must provide a name for each level that you create.")
         }
 
-        names(dots)[i] <- lang_args(dots[[i]])$ID_label
+        names(dots)[i] <- call_args(dots[[i]])$ID_label
     }
 
 
@@ -173,7 +173,7 @@ fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
       # one to pass the working environment so far
       # one to pass the ID_label the user intends for the level
 
-      dots[[i]] <- lang_modify(
+      dots[[i]] <- call_modify(
         dots[[i]],
         working_environment_ = working_environment,
         ID_label = names(dots)[i]
