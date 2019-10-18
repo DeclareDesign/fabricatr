@@ -127,3 +127,11 @@ test_that("modify_level hierarchical edge cases", {
   expect_equal(fabricate(a=add_level(N=10), b = add_level(2), a=modify_level(x=1))$x, rep(1,10))
 
 })
+
+test_that("176 - allow nested levels to have N=0 for implicit filtering", {
+
+  expect_equal(c(1,3,3),
+              fabricate(data=list(foo=data.frame(a=1:3)), zzz=nest_level(N=c(1,0,2), X=N))$a
+              )
+
+})
