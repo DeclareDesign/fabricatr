@@ -203,7 +203,7 @@ handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels
       if(!is_scalar_integerish(N)) stop("New level has length(N) > 1 ")
   }
   else { # If not adding then nesting
-      if(! N %in% c(1, nrow(df)))
+      if(! length(N) %in% c(1, nrow(df)))
           stop("Nested levels must have `N` of length 1 or same size as parent data frame.")
   }
 
