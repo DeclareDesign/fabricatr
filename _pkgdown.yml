@@ -1,2 +1,44 @@
 template:
   package: ddpkgdowntemplate
+
+navbar:
+  left:
+  - text: "Ask for Help"
+    href: http://discuss.declaredesign.org
+  - text: "Packages"
+    menu:
+      - text: DeclareDesign
+        href: http://declaredesign.org/r/declaredesign/
+      - text: randomizr
+        href: https://declaredesign.org/r/randomizr/
+      - text: fabricatr
+        href: https://declaredesign.org/r/fabricatr/
+      - text: estimatr
+        href: https://declaredesign.org/r/estimatr/
+      - text: DesignLibrary
+        href: https://declaredesign.org/r/designlibrary/
+  right:
+  - text: fabricatr home
+    href: https://declaredesign.org/r/fabricatr/
+  - text: Reference
+    href: reference/index.html
+  - text: Articles
+    menu:
+    - text: Getting started with fabricatr
+      href: "getting_started.html
+    - text: Building and Importing Data
+      href: "building_importing.html
+    - text: Common Social Science variables
+      href: "common_social.html
+    - text: Panel and Cross-classified data
+      href: "cross_classified.html
+    - text: Resampling data with fabricatr
+      href: "resampling.html
+    - text: Time series data with fabricatr
+      href: "time_series.html
+    - text: Generating discrete random variables with fabricatr
+      href: "variable_generation.html
+    - text: Using other data generating packages with fabricatr
+      href: "other_packages.html
+    - text: Advanced features
+      href: advanced_features.html
