@@ -24,20 +24,20 @@ navbar:
   - text: Articles
     menu:
     - text: Getting started with fabricatr
-      href: getting_started.html
+      href: articles/getting_started.html
     - text: Building and Importing Data
-      href: building_importing.html
+      href: articles/building_importing.html
     - text: Common Social Science variables
-      href: common_social.html
+      href: articles/common_social.html
     - text: Panel and Cross-classified data
-      href: cross_classified.html
+      href: articles/cross_classified.html
     - text: Resampling data with fabricatr
-      href: resampling.html
+      href: articles/resampling.html
     - text: Time series data with fabricatr
-      href: time_series.html
+      href: articles/time_series.html
     - text: Generating discrete random variables with fabricatr
-      href: variable_generation.html
+      href: articles/variable_generation.html
     - text: Using other data generating packages with fabricatr
-      href: other_packages.html
+      href: articles/other_packages.html
     - text: Advanced features
-      href: advanced_features.html
+      href: articles/advanced_features.html
