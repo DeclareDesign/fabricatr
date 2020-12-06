@@ -17,8 +17,8 @@ navbar:
     href: http://discuss.declaredesign.org
 
   right:
-  - text: fabricatr home
-    href: https://declaredesign.org/r/fabricatr/
+  - text: Get started
+    href: articles/getting_started.html
   - text: Reference
     href: reference/index.html
   - text: Articles
@@ -41,3 +41,5 @@ navbar:
       href: articles/other_packages.html
     - text: Advanced features
       href: articles/advanced_features.html
+  - text: fabricatr home
+    href: https://declaredesign.org/r/fabricatr/
