@@ -15,6 +15,7 @@ can_nest <- function(...){
 }
 
 #' @importFrom rlang eval_tidy
+#' @importFrom tibble as_tibble
 add_top_level_internal <- function(N = NULL, ID_label = NULL,
                                workspace = NULL,
                                data_arguments = NULL) {
@@ -49,10 +50,19 @@ add_top_level_internal <- function(N = NULL, ID_label = NULL,
     # Evaluate the formula in an environment consisting of:
     # 1) The current working data list
     # 2) A list that tells everyone what N means in this context.
-    working_data_list[[i]] <- expand_or_error(eval_tidy(
-      data_arguments[[i]],
-      append(working_data_list, list(N = N))
-    ), N, i, data_arguments[[i]])
+    # working_data_list[[i]] <-
+
+    res <- expand_or_error(
+      eval_tidy(
+        data_arguments[[i]],
+        append(working_data_list, list(N = N))
+      ), N, i, data_arguments[[i]])
+
+    if(inherits(res, "list")){
+      working_data_list <- c(working_data_list, res)
+    } else {
+      working_data_list[[i]] <- res
+    }
 
     # Nuke the current data argument -- if we have the same variable name
     # created twice, this is OK, because it'll only nuke the current one.
@@ -63,11 +73,7 @@ add_top_level_internal <- function(N = NULL, ID_label = NULL,
   working_data_list <- check_rectangular(working_data_list, N)
 
   # Coerce our working data list into a working data frame
-  workspace[[ID_label]] <- data.frame(
-    working_data_list,
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
+  workspace[[ID_label]] <- as_tibble(working_data_list)
 
   attr(workspace, "active_df") <- ID_label
 

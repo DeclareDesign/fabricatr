@@ -61,7 +61,6 @@ import_data_list <- function(data) {
 
 #' @importFrom rlang is_quosure
 get_symbols_from_quosures <- function(quosures) {
-
   extract <- function(l_arg) {
     # We have some sort of language expression in R, let's extract
     # the symbols it's going to refer to
@@ -236,7 +235,7 @@ handle_data <- function(data) {
 
     # Convert user data to a data frame
     tryCatch({
-      data <- data.frame(data, stringsAsFactors = FALSE)
+      data <- tibble(data)
     }, error = function(e) {
       # We can't make it a data frame -- this should probably never happen,
       # since it relies on something with a dim attribute not converting to
@@ -332,13 +331,13 @@ expand_or_error <- function(vector_data, N, variable_name, call_string) {
   }
 
 
-  # Error if it's neither N nor 1
-  if(!length(vector_data) %in% c(1, N)) {
-    stop(simpleError(paste0("Variable lengths must all be equal to `N.` ",
-                            "In this call, `N` = ", N, " while the variable ",
-                            variable_name, " is length ", length(vector_data)),
-                     call = f_rhs(call_string)))
-  }
+  # # Error if it's neither N nor 1
+  # if(!length(vector_data) %in% c(1, N)) {
+  #   stop(simpleError(paste0("Variable lengths must all be equal to `N.` ",
+  #                           "In this call, `N` = ", N, " while the variable ",
+  #                           variable_name, " is length ", length(vector_data)),
+  #                    call = f_rhs(call_string)))
+  # }
 
   # Recycle if it's 1, if not return data as-is.
   if(length(vector_data) == 1) { return(rep(vector_data, N)) }
@@ -458,7 +457,7 @@ check_variables_named <- function(data_arguments, call_type = "add_level") {
   }
 }
 
-
+#' @importFrom tibble tibble
 append_child <- function(workspace, child, parents=NULL, child_df=NULL) {
 
   parent <- parents %||% attr(workspace, "active_df")
@@ -473,7 +472,7 @@ append_child <- function(workspace, child, parents=NULL, child_df=NULL) {
 
   if(!is.null(child_df)) {
     workspace[[child]] <- structure(
-      data.frame(child_df, stringsAsFactors = FALSE, row.names = NULL),
+      tibble(child_df),
       "fabricatr::parent_df" = parents,
       "fabricatr::ID_label"  = child
       )
