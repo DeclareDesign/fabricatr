@@ -3,7 +3,6 @@
 \docType{package}
 \name{fabricatr}
 \alias{fabricatr}
-\alias{fabricatr-package}
 \title{fabricatr package}
 \description{
 fabricatr helps you imagine your data before you collect it. Hierarchical

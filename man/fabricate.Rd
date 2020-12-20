@@ -103,7 +103,7 @@ fabricate(
 )
 
 # fabricatr can add variables that are higher-level summaries of lower-level
-# variables via a split-modify-combine logic and the \\code{by} argument
+# variables via a split-modify-combine logic and the \code{by} argument
 
 multi_level_df <-
  fabricate(
@@ -114,7 +114,7 @@ multi_level_df <-
 
 # fabricatr can also make panel or cross-classified data. For more
 # information about syntax for this functionality please read our vignette
-# or check documentation for \\code{link_levels}:
+# or check documentation for \code{link_levels}:
 cross_classified <- fabricate(
   primary_schools = add_level(N = 50, ps_quality = runif(N, 0, 10)),
   secondary_schools = add_level(N = 100, ss_quality = runif(N, 0, 10), nest=FALSE),
