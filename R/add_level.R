@@ -57,7 +57,9 @@ add_top_level_internal <- function(N = NULL, ID_label = NULL,
     if(names(data_arguments)[i] != "") {
       working_data_list[[names(data_arguments)[i]]] <- tmp
     } else {
-      working_data_list <- c(working_data_list, tmp)
+      for(j in seq_along(tmp)) {
+        working_data_list[[names(tmp)[j]]] <- tmp[[j]]
+      }
     }
 
 
