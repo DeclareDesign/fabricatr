@@ -20,3 +20,4 @@ fabricatr_.*\.tar\.gz
 ^vignettes/.*$
 vignettes
 ^pkgdown$
+^\.github$
