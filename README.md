@@ -4,13 +4,13 @@ fabricatr: Imagine your data before you collect it
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![CRAN
-Status](https://www.r-pkg.org/badges/version/fabricatr)](https://cran.r-project.org/package=fabricatr)
-[![Travis-CI Build
-Status](https://travis-ci.org/DeclareDesign/fabricatr.svg?branch=master)](https://travis-ci.org/DeclareDesign/fabricatr)
-[![AppVeyor Build
-Status](https://ci.appveyor.com/api/projects/status/github/DeclareDesign/fabricatr?branch=master&svg=true)](https://ci.appveyor.com/project/DeclareDesign/fabricatr)
-[![Coverage
-Status](https://coveralls.io/repos/github/DeclareDesign/fabricatr/badge.svg?branch=master)](https://coveralls.io/github/DeclareDesign/fabricatr?branch=master)
+status](https://www.r-pkg.org/badges/version/fabricatr)](https://cran.r-project.org/package=fabricatr)
+[![CRAN RStudio mirror
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/fabricatr?color=green)](https://r-pkg.org/pkg/fabricatr)
+[![Build
+status](https://github.com/DeclareDesign/fabricatr/workflows/R-CMD-check/badge.svg)](https://github.com/DeclareDesign/fabricatr/actions)
+[![Code
+coverage](https://codecov.io/gh/DeclareDesign/fabricatr/branch/master/graph/badge.svg?token=x9MpkuKobc)](https://codecov.io/gh/DeclareDesign/fabricatr)
 
 Making decisions about research design and analysis strategies is often
 difficult before data is collected, because it is hard to imagine the
