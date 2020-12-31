@@ -1,5 +1,19 @@
-#' @param x
-#' @param conditions
+
+#' Build potential outcomes variables
+#'
+#' Function to draw multiple potential outcomes, one for each condition that an assignment variable can be set to.
+#'
+#' @param x Formula describing the potential outcomes with the outcome name on the left hand side and the expression describing the potential outcomes on the right hand side, e.g. \code{Y ~ 0.1 * Z + rnorm(N)} (this would draw two potential outcomes columns by default, named Y_Z_0 and Y_Z_1).
+#' @param conditions A list of conditions for each assignment variable. Defaults to \code{list(Z = c(0, 1))}.
+#' @param sep Separator inserted between the outcome name and the assignment variable name used to construct the potential outcome variable names, defaults to "_".
+#'
+#' @examples
+#'
+#' fabricate(
+#'   N = 10,
+#'   U = rnorm(N),
+#'   potential_outcomes(Y ~ 0.1 * Z + U)
+#' )
 #'
 #' @importFrom rlang eval_tidy as_quosure f_lhs
 #' @export
@@ -15,9 +29,25 @@ potential_outcomes <- function(x, conditions = list(Z = c(0, 1)), sep = "_") {
   as.data.frame(pos)
 }
 
-
-#' @param x
-#' @param conditions
+#' Reveal outcomes
+#'
+#' Implements a generalized switching equation. Reveals observed outcomes from multiple potential outcomes variables and an assignment variable.
+#'
+#' @param x A formula with the outcome name on the left hand side and the assignment variable on the right hand side (e.g., \code{Y ~ Z}). The LHS can include multiple variables (e.g., \code{c(Y1, Y2) ~ Z}).
+#'
+#' @examples
+#'
+#' dat <- fabricate(
+#'   N = 10,
+#'   U = rnorm(N),
+#'   potential_outcomes(Y ~ 0.1 * Z + U)
+#' )
+#'
+#' dat %>%
+#'   fabricate(
+#'     Z = rbinom(N, 1, prob = 0.5),
+#'     Y = reveal_outcomes(Y ~ Z)
+#'   )
 #'
 #' @importFrom rlang eval_tidy f_lhs as_name
 #' @export
