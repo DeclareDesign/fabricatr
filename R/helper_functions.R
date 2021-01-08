@@ -320,13 +320,13 @@ expand_or_error <- function(vector_data, N, variable_name, call_string) {
   if(length(vector_dims) > 1) {
     if(vector_dims[1] == N){
       return(vector_data)
-    }
-    else {
+    } else if (vector_dims[1] == 1) {
+      return(vector_data[rep(seq_len(nrow(vector_data)), each = N), , drop = FALSE])
+    } else {
       stop(simpleError(paste0("Nested structures must have `N.` rows ",
                               "In this call, `N` = ", N, " while the variable ",
                               variable_name, " is length ", vector_dims[1]),
                        call = f_rhs(call_string)))
-
     }
 
   }

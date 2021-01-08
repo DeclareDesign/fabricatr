@@ -134,7 +134,7 @@ test_that("Extremely high volume data creation.", {
 })
 
 test_that("Multi-level Resample validity", {
-  set.seed(19861108)
+  set.seed(234)
 
   two_levels <- fabricate(
     regions = add_level(N = 5, gdp = rnorm(N)),

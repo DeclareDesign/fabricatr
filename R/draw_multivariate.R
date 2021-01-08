@@ -10,10 +10,40 @@
 #'
 #' @examples
 #'
-#' library(extraDistr)
-#' # draw from multinomial (multivariate binomial) distribution
-#' draw_multivariate(Y ~ rmnom(5, size = 3, prob = c(0.25, 0.1)))
-#' draw_multivariate(c(Y_1, Y_2) ~ rmnom(5, size = 3, prob = c(0.25, 0.1)))
+#' library(MASS)
+#'
+#' # draw from multivariate normal distribution
+#' draw_multivariate(c(Y_1, Y_2) ~ mvrnorm(
+#'   n = 5,
+#'   mu = c(0, 0),
+#'   Sigma = matrix(c(10, 3, 3, 2), 2, 2)
+#' ))
+#'
+#' # equivalently, you can provide a prefix for the variable names
+#' # (easier if you have many variables)
+#' draw_multivariate(Y ~ mvrnorm(
+#'   n = 5,
+#'   mu = c(0, 0),
+#'   Sigma = matrix(c(10, 3, 3, 2), 2, 2)
+#' ))
+#'
+#' # within fabricate
+#' fabricate(
+#'   N = 100,
+#'   draw_multivariate(c(Y_1, Y_2) ~ mvrnorm(
+#'     n = N,
+#'     mu = c(0, 0),
+#'     Sigma = matrix(c(10, 3, 3, 2), 2, 2)
+#'   ))
+#' )
+#'
+#' # You can also write the following, which works but gives less control over the names
+#' fabricate(N = 100,
+#' Y = mvrnorm(
+#'   n = N,
+#'   mu = c(0, 0),
+#'   Sigma = matrix(c(10, 3, 3, 2), 2, 2)
+#' ))
 #'
 #' @importFrom rlang f_lhs f_rhs eval_tidy as_label call_args
 #' @importFrom tibble as_tibble
@@ -23,6 +53,7 @@ draw_multivariate <- function(formula, sep = "_") {
 
   # handle naming
   lhs <- f_lhs(formula)
+  if(is.null(lhs)) stop("Please provide a way to name the variables on the lefthand side of the formula, either a prefix or a vector of names.")
   if(inherits(lhs, "name")) {
     nm <- paste0(lhs, sep, seq_len(ncol(mat)))
   } else if(inherits(lhs, "call")) {
