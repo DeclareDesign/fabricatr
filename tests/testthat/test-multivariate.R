@@ -13,13 +13,13 @@ test_that("potential_outcomes", {
                                                                                                                                                                                                                                3L))
   )
 
-  expect_equal(
-    fabricate(
-      N = 3,
-      potential_outcomes(Y ~ Z)
-    ),
-
-  )
+  # expect_equal(
+  #   fabricate(
+  #     N = 3,
+  #     potential_outcomes(Y ~ Z)
+  #   ),
+  #
+  # )
 
 })
 

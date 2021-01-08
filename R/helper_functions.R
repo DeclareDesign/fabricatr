@@ -199,7 +199,7 @@ handle_n <- function(N, add_level=TRUE, working_environment, parent_frame_levels
     stop("Provided `N` must be positive integers.")
 
   if(add_level) {
-      if(N == 0) stop("New level has N == 0")
+      if(length(N) == 1 && N == 0) stop("New level has N == 0")
       if(!is_scalar_integerish(N)) stop("New level has length(N) > 1 ")
   }
   else { # If not adding then nesting

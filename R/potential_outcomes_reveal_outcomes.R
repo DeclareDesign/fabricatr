@@ -43,13 +43,14 @@ potential_outcomes <- function(x, conditions = list(Z = c(0, 1)), sep = "_") {
 #'   potential_outcomes(Y ~ 0.1 * Z + U)
 #' )
 #'
-#' dat %>%
-#'   fabricate(
-#'     Z = rbinom(N, 1, prob = 0.5),
-#'     Y = reveal_outcomes(Y ~ Z)
-#'   )
+#' fabricate(
+#'   data = dat,
+#'   Z = rbinom(N, 1, prob = 0.5),
+#'   Y = reveal_outcomes(Y ~ Z)
+#' )
 #'
 #' @importFrom rlang eval_tidy f_lhs as_name
+#' @importFrom stats terms
 #' @export
 reveal_outcomes <- function(x){
 

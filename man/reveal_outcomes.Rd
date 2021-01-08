@@ -20,10 +20,10 @@ dat <- fabricate(
   potential_outcomes(Y ~ 0.1 * Z + U)
 )
 
-dat \%>\%
-  fabricate(
-    Z = rbinom(N, 1, prob = 0.5),
-    Y = reveal_outcomes(Y ~ Z)
-  )
+fabricate(
+  data = dat,
+  Z = rbinom(N, 1, prob = 0.5),
+  Y = reveal_outcomes(Y ~ Z)
+)
 
 }
