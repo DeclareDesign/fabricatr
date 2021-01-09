@@ -1,3 +1,9 @@
+# **fabricatr** 0.12.0
+
+- Added potential_outcomes (creates multiple columns of potential outcomes according to a formula)
+- Added reveal_outcomes (reveals observed outcomes on the basis of potential outcomes and a treatment assignment)
+- Added draw_multivariate (interface for adding correlated draws to fabricate calls)
+
 # **fabricatr** 0.10.0
 
 - Changes for compatibility with `rlang` 0.4.0

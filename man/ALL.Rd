@@ -5,9 +5,7 @@
 \alias{ALL}
 \title{Magic number constant to allow users to specify \code{ALL} for passthrough
 resampling}
-\format{
-An object of class \code{integer} of length 1.
-}
+\format{An object of class \code{integer} of length 1.}
 \usage{
 ALL
 }
