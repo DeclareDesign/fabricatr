@@ -12,23 +12,58 @@
 \title{Draw discrete variables including binary, binomial count, poisson count,
 ordered, and categorical}
 \usage{
-draw_binomial(prob = link(latent), trials = 1, N = length(prob),
-  latent = NULL, link = "identity", quantile_y = NULL)
+draw_binomial(
+  prob = link(latent),
+  trials = 1,
+  N = length(prob),
+  latent = NULL,
+  link = "identity",
+  quantile_y = NULL
+)
 
-draw_categorical(prob = link(latent), N = NULL, latent = NULL,
-  link = "identity", category_labels = NULL)
+draw_categorical(
+  prob = link(latent),
+  N = NULL,
+  latent = NULL,
+  link = "identity",
+  category_labels = NULL
+)
 
-draw_ordered(x = link(latent), breaks = c(-1, 0, 1), break_labels = NULL,
-  N = length(x), latent = NULL, strict = FALSE, link = "identity")
+draw_ordered(
+  x = link(latent),
+  breaks = c(-1, 0, 1),
+  break_labels = NULL,
+  N = length(x),
+  latent = NULL,
+  strict = FALSE,
+  link = "identity"
+)
 
-draw_count(mean = link(latent), N = length(mean), latent = NULL,
-  link = "identity", quantile_y = NULL)
+draw_count(
+  mean = link(latent),
+  N = length(mean),
+  latent = NULL,
+  link = "identity",
+  quantile_y = NULL
+)
 
-draw_binary(prob = link(latent), N = length(prob), link = "identity",
-  latent = NULL, quantile_y = NULL)
+draw_binary(
+  prob = link(latent),
+  N = length(prob),
+  link = "identity",
+  latent = NULL,
+  quantile_y = NULL
+)
 
-draw_likert(x, type = 7, breaks = NULL, N = length(x), latent = NULL,
-  link = "identity", strict = !is.null(breaks))
+draw_likert(
+  x,
+  type = 7,
+  breaks = NULL,
+  N = length(x),
+  latent = NULL,
+  link = "identity",
+  strict = !is.null(breaks)
+)
 
 draw_quantile(type, N)
 }

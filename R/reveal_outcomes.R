@@ -1,3 +1,14 @@
+# small helper
+if (getRversion() < "3.6.0") {
+  # https://github.com/r-lib/backports/blob/master/R/str2lang.R
+  str2lang <- function(s) {
+    stopifnot(length(s) == 1L)
+    ex <- parse(text = s, keep.source = FALSE)
+    stopifnot(length(ex) == 1L)
+    ex[[1L]]
+  }
+}
+
 #' Reveal outcomes
 #'
 #' Implements a generalized switching equation. Reveals observed outcomes from multiple potential outcomes variables and an assignment variable.
@@ -64,4 +75,6 @@ reveal_outcomes <- function(x){
 
   as.data.frame(po_data)[cbind(matching_rows, matching_cols)]
 }
+
+
 
