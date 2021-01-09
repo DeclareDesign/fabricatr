@@ -62,12 +62,6 @@ add_top_level_internal <- function(N = NULL, ID_label = NULL,
       }
     }
 
-
-    # c(working_data_list, expand_or_error(eval_tidy(
-    #   data_arguments[[i]],
-    #   append(working_data_list, list(N = N))
-    # ), N, i, data_arguments[[i]]))
-
     # Nuke the current data argument -- if we have the same variable name
     # created twice, this is OK, because it'll only nuke the current one.
     # data_arguments[[i]] <- NULL
