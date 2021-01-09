@@ -34,24 +34,30 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
     # Coerce the working data frame into a list
     working_data_list <- as.list(df)
 
-
-    check_variables_named(data_arguments, "modify_level")
+    # check_variables_named(data_arguments, "modify_level")
 
     # Now loop over the variable creation.
-    for (i in names(data_arguments)) {
+    for (i in seq_along(data_arguments)) {
       # Explicity mask N
       dm <- as_data_mask(working_data_list)
       dm$N <- N
 
-      working_data_list[[i]] <- expand_or_error(eval_tidy(
+      tmp <- expand_or_error(eval_tidy(
         data_arguments[[i]],
         dm
       ), N, i, data_arguments[[i]])
 
+      if(names(data_arguments)[i] != "") {
+        working_data_list[[names(data_arguments)[i]]] <- tmp
+      } else {
+        for(j in seq_along(tmp)) {
+          working_data_list[[names(tmp)[j]]] <- tmp[[j]]
+        }
+      }
 
       # Nuke the current data argument -- if we have the same variable name
       # created twice, this is OK, because it'll only erase the first one.
-      data_arguments[[i]] <- NULL
+      # data_arguments[[i]] <- NULL
     }
 
     # Before handing back data, ensure it's actually rectangular

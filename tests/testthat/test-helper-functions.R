@@ -113,6 +113,6 @@ test_that("Advance lookahead symbol evaluator", {
 })
 
 
-test_that("check_variable_names works",{
-  expect_error(fabricate(a=add_level(10), a=modify_level('b')), "<unnamed>")
-})
+# test_that("check_variable_names works",{
+#   expect_error(fabricate(a=add_level(10), a=modify_level('b')), "<unnamed>")
+# })
