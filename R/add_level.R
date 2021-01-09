@@ -19,7 +19,7 @@ add_top_level_internal <- function(N = NULL, ID_label = NULL,
                                workspace = NULL,
                                data_arguments = NULL) {
 
-  check_add_level_args(data_arguments, ID_label)
+  # check_add_level_args(data_arguments, ID_label)
 
 
   # Check to make sure the N here is sane
@@ -42,21 +42,35 @@ add_top_level_internal <- function(N = NULL, ID_label = NULL,
   working_data_list[[ID_label]] <- generate_id_pad(N)
 
 
-  check_variables_named(data_arguments)
+  # check_variables_named(data_arguments)
 
   # Loop through each of the variable generating arguments
-  for (i in names(data_arguments)) {
+  for (i in seq_along(data_arguments)) {
     # Evaluate the formula in an environment consisting of:
     # 1) The current working data list
     # 2) A list that tells everyone what N means in this context.
-    working_data_list[[i]] <- expand_or_error(eval_tidy(
+    tmp <- expand_or_error(eval_tidy(
       data_arguments[[i]],
       append(working_data_list, list(N = N))
     ), N, i, data_arguments[[i]])
 
+    if(names(data_arguments)[i] != "") {
+      working_data_list[[names(data_arguments)[i]]] <- tmp
+    } else {
+      for(j in seq_along(tmp)) {
+        working_data_list[[names(tmp)[j]]] <- tmp[[j]]
+      }
+    }
+
+
+    # c(working_data_list, expand_or_error(eval_tidy(
+    #   data_arguments[[i]],
+    #   append(working_data_list, list(N = N))
+    # ), N, i, data_arguments[[i]]))
+
     # Nuke the current data argument -- if we have the same variable name
     # created twice, this is OK, because it'll only nuke the current one.
-    data_arguments[[i]] <- NULL
+    # data_arguments[[i]] <- NULL
   }
 
   # Before handing back data, ensure it's actually rectangular
@@ -87,3 +101,10 @@ check_add_level_args <- function(data_arguments, ID_label) {
   }
 }
 
+make_list <- function(x, nm) {
+  if(!is.list(x)){
+    x <- list(x)
+    names(x) <- nm
+  }
+  x
+}
