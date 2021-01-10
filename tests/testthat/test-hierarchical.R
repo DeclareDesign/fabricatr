@@ -117,8 +117,6 @@ test_that("you can create structure without variables", {
 
 test_that("Nested level edge case",{
   expect_error(fabricate(e=nest_level(N=2)), "top level")
-
-
 })
 
 
@@ -131,7 +129,27 @@ test_that("modify_level hierarchical edge cases", {
 test_that("176 - allow nested levels to have N=0 for implicit filtering", {
 
   expect_equal(c(1,3,3),
-              fabricate(data=list(foo=data.frame(a=1:3)), zzz=nest_level(N=c(1,0,2), X=N))$a
+               fabricate(data = list(foo = data.frame(a = 1:3)),
+                         zzz = nest_level(N = c(1, 0, 2), X = N))$a
               )
+
+  fabricate(data = data.frame(a = 1:3),
+            zzz = add_level(N = c(1, 0, 2), X = N))$a
+
+  dat <- fabricate(N = 3, a = 1:3)
+  fabricate(
+    dat,
+    low = add_level(N = c(1, 0, 2), X = 1)
+  )
+
+  fabricate(
+    top = add_level(N = 5, N_low = c(0, 1, 1, 1, 1)),
+    low = add_level(N = N_low)
+  )
+
+  fabricate(
+    top = add_level(N = 5),
+    low = add_level(N = c(0, 1, 1, 1, 1), var = N)
+  )
 
 })

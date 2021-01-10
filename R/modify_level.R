@@ -38,6 +38,9 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
 
     # Now loop over the variable creation.
     for (i in seq_along(data_arguments)) {
+
+      nm <- names(data_arguments)[i]
+
       # Explicity mask N
       dm <- as_data_mask(working_data_list)
       dm$N <- N
@@ -48,7 +51,7 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
       ), N, i, data_arguments[[i]])
 
       if(names(data_arguments)[i] != "") {
-        working_data_list[[names(data_arguments)[i]]] <- tmp
+        working_data_list[[nm]] <- tmp
       } else {
         for(j in seq_along(tmp)) {
           working_data_list[[names(tmp)[j]]] <- tmp[[j]]
