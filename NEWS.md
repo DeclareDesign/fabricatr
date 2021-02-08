@@ -1,3 +1,7 @@
+# **fabricatr** 0.14.0
+
+- Bug fixes
+
 # **fabricatr** 0.12.0
 
 - Added potential_outcomes (creates multiple columns of potential outcomes according to a formula)
