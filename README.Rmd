@@ -9,6 +9,7 @@ title: "fabricatr: Imagine your data before you collect it"
 ```{r, echo = FALSE}
 options(digits=2)
 set.seed(19861108)
+set.seed(1)
 ```
 
 [![CRAN status](https://www.r-pkg.org/badges/version/fabricatr)](https://cran.r-project.org/package=fabricatr)
@@ -20,17 +21,10 @@ Making decisions about research design and analysis strategies is often difficul
 
 ### Installing fabricatr
 
-To install the latest stable release of **fabricatr**, please ensure that you are running version 3.3 or later of R and run the following code:
+To install the latest stable release of **fabricatr**, please ensure that you are running version 3.5 or later of R and run the following code:
 
 ```{r, eval=F}
 install.packages("fabricatr")
-```
-
-To install the latest development release of **fabricatr**, please ensure that you are running version 3.3 or later of R and run the following code:
-
-```{r, eval=F}
-install.packages("fabricatr", dependencies = TRUE,
-                 repos = c("http://r.declaredesign.org", "https://cloud.r-project.org"))
 ```
 
 ### Getting started
@@ -43,7 +37,6 @@ Once you have installed **fabricatr**, you can easily import your own data or ge
 **fabricatr** is easy to learn and easy to read. Consider this example which generates data modeling the United States House of Representatives:
 
 ```{r}
-set.seed(1)
 library(fabricatr)
 
 house_members <- fabricate(
