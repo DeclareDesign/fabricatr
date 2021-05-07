@@ -46,27 +46,28 @@ add_top_level_internal <- function(N = NULL, ID_label = NULL,
 
   # Loop through each of the variable generating arguments
   for (i in seq_along(data_arguments)) {
+
+    nm <- names(data_arguments)[i]
+
+    # Explicity mask N
+    dm <- as_data_mask(working_data_list)
+    dm$N <- N
+
     # Evaluate the formula in an environment consisting of:
     # 1) The current working data list
     # 2) A list that tells everyone what N means in this context.
     tmp <- expand_or_error(eval_tidy(
       data_arguments[[i]],
-      append(working_data_list, list(N = N))
+      dm
     ), N, i, data_arguments[[i]])
 
     if(names(data_arguments)[i] != "") {
-      working_data_list[[names(data_arguments)[i]]] <- tmp
+      working_data_list[[nm]] <- tmp
     } else {
       for(j in seq_along(tmp)) {
         working_data_list[[names(tmp)[j]]] <- tmp[[j]]
       }
     }
-
-
-    # c(working_data_list, expand_or_error(eval_tidy(
-    #   data_arguments[[i]],
-    #   append(working_data_list, list(N = N))
-    # ), N, i, data_arguments[[i]]))
 
     # Nuke the current data argument -- if we have the same variable name
     # created twice, this is OK, because it'll only nuke the current one.
@@ -101,10 +102,10 @@ check_add_level_args <- function(data_arguments, ID_label) {
   }
 }
 
-make_list <- function(x, nm) {
-  if(!is.list(x)){
-    x <- list(x)
-    names(x) <- nm
-  }
-  x
-}
+# make_list <- function(x, nm) {
+#   if(!is.list(x)){
+#     x <- list(x)
+#     names(x) <- nm
+#   }
+#   x
+# }

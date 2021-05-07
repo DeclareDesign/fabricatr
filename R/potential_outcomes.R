@@ -53,5 +53,5 @@ potential_outcomes <- function(x, conditions = list(Z = c(0, 1)), sep = "_") {
     list2env(x = as.list(cond), environment(x))
     pos[[nm]] <- eval_tidy(as_quosure(x))
   }
-  as.data.frame(pos)
+  data.frame(pos)
 }

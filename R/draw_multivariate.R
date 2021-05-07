@@ -46,7 +46,6 @@
 #' ))
 #'
 #' @importFrom rlang f_lhs f_rhs eval_tidy as_label call_args
-#' @importFrom tibble as_tibble
 draw_multivariate <- function(formula, sep = "_") {
   # draw from multivariate function that returns matrix
   mat <- eval_tidy(f_rhs(formula), env = environment(formula))
@@ -65,6 +64,6 @@ draw_multivariate <- function(formula, sep = "_") {
   colnames(mat) <- nm
 
   # return matrix converted to tibble
-  as_tibble(mat)
+  data.frame(mat)
 }
 

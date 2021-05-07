@@ -64,17 +64,23 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
     working_data_list[[ID_label]] <- generate_id_pad(N)
   }
 
-  check_variables_named(data_arguments)
+  # check_variables_named(data_arguments)
 
   # Loop through each of the variable generating arguments
-  for (i in names(data_arguments)) {
+  for (i in seq_along(data_arguments)) {
+
+    nm <- names(data_arguments)[i]
+
+    # Explicity mask N
+    dm <- as_data_mask(working_data_list)
+    dm$N <- N
 
     # Evaluate the formula in an environment consisting of:
     # 1) The current working data list
     # 2) A list that tells everyone what N means in this context.
-    working_data_list[[i]] <- eval_tidy(
+    variable_data <- eval_tidy(
       data_arguments[[i]],
-      append(working_data_list, list(N = N))
+      dm
     )
 
     # User provided a fixed-length data variable whose length is the length of
@@ -83,29 +89,62 @@ nest_level_internal <- function(N = NULL, ID_label = NULL,
     #           cities = nest_level(N=2, capital=c(TRUE, FALSE)))
     # We need to expand this to each setting of the outer level.
     # Only evaluate if inner_N is a single number
-    if (length(inner_N) == 1 && length(working_data_list[[i]]) == inner_N) {
-      working_data_list[[i]] <- rep(working_data_list[[i]], (N / inner_N))
-    }
 
-    # Length one is a special case.
-    if(length(working_data_list[[i]]) == 1) {
-      working_data_list[[i]] <- rep(working_data_list[[i]], N)
-    }
+    is_vector <- nm != ""
 
-    if (length(working_data_list[[i]]) != N) {
-      stop(
-        "Nested data length for the variable \"", i, "\" ",
-        "appears to be incorrect. Nested data must either inherit the length ",
-        "N or be fixed-length variables equal to the total number of ",
-        "observations at the outer level. (In this case, ", N, "). Variable ",
-        "supplied was length ", length(working_data_list[[i]]), "\n\n"
-      )
-    }
+    if(is_vector){
 
+      # vector: length inner_N
+      if (length(inner_N) == 1 && length(variable_data) == inner_N) {
+        variable_data <- rep(variable_data, (N / inner_N))
+      }
+      # vector: length one
+      if(length(variable_data) == 1) {
+        variable_data <- rep(variable_data, N)
+      }
+
+      working_data_list[[nm]] <- variable_data
+
+      if (length(working_data_list[[nm]]) != N) {
+        stop(
+          "Nested data length for the variable \"", i, "\" ",
+          "appears to be incorrect. Nested data must either inherit the length ",
+          "N or be fixed-length variables equal to the total number of ",
+          "observations at the outer level. (In this case, ", N, "). Variable ",
+          "supplied was length ", length(working_data_list[[nm]]), "\n\n"
+        )
+      }
+
+    } else {
+      # data.frame: length inner N
+      if(nrow(variable_data) == inner_N) {
+        variable_data <- variable_data[rep(seq_len(nrow(variable_data)), each = N / inner_N), , drop = FALSE]
+      }
+
+      # data.frame: length one
+      if(nrow(variable_data) == 1) {
+        variable_data <- variable_data[rep(seq_len(nrow(variable_data)), each = N), , drop = FALSE]
+      }
+
+      if (nrow(variable_data) != N) {
+        stop(
+          "Nested data length for the variable \"", i, "\" ",
+          "appears to be incorrect. Nested data must either inherit the length ",
+          "N or be fixed-length variables equal to the total number of ",
+          "observations at the outer level. (In this case, ", N, "). Variable ",
+          "supplied was length ", nrow(variable_data), "\n\n"
+        )
+      }
+
+      for(j in seq_along(variable_data)) {
+        working_data_list[[names(variable_data)[j]]] <- variable_data[[j]]
+      }
+
+    }
 
     # Nuke the current data argument -- if we have the same variable name
     # created twice, this is OK, because it'll only nuke the current one.
-    data_arguments[[i]] <- NULL
+    # data_arguments[[nm]] <- NULL
   }
 
   # Before handing back data, ensure it's actually rectangular -- although
