@@ -1,6 +1,8 @@
 template:
   package: ddpkgdowntemplate
 
+url: https://declaredesign.org/r/fabricatr
+
 navbar:
   left:
   - text: "Software"
