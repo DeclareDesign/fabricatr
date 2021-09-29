@@ -97,7 +97,7 @@
 #'                           student_quality = ps_quality + 3*ss_quality + rnorm(N)))
 #' @seealso \code{\link{link_levels}}
 #' @importFrom rlang quos quo_name eval_tidy call_name call_modify call_args call_args_names quo_squash
-#' is_call get_expr
+#' is_call_simple get_expr
 #'
 #' @export
 fabricate <- function(..., data = NULL, N = NULL, ID_label = NULL) {
