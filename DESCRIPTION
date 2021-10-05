@@ -25,3 +25,5 @@ Suggests:
     mvnfast,
     MASS,
     extraDistr
+Remotes:
+    r-lib/rlang

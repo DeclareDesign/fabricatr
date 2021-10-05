@@ -252,7 +252,7 @@ handle_data <- function(data) {
 # Function to check if something is a level call
 call_not_level_call <- function(calls) {
   !vapply(calls, function(i) {
-      is_call(get_expr(i)) && is_level_token(call_name(i))
+      is_call_simple(i) && is_level_token(call_name(i))
     }, FALSE)
 }
 
@@ -274,13 +274,9 @@ check_all_levels <- function(options) {
   # There were no levels, or indeed arguments, at all
   if (length(options) == 0) return(FALSE)
 
-  # get_expr returns the expression for an item in a quosure
-  # is_call checks if it's a function
-  is_function <- vapply(options,
-                        function(i) {
-                          is_call(get_expr(i))
-                        },
-                        FALSE)
+  # is_call_simple checks whether an expression or quosure has a
+  # function name
+  is_function <- vapply(options, is_call_simple, FALSE)
 
   # call_name gets function name from a quosure
   func_names <- vapply(options[is_function], call_name, "")
