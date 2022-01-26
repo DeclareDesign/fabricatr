@@ -158,9 +158,8 @@ draw_normal_icc <- function(mean = 0,
     }
     if (ICC >= 0.999 & !is.null(sd)) {
       stop(
-        "An `ICC` of 1 with a finite within-cluster variance requires ",
-        "division by zero to infer between-cluster variance. Try a lower ICC ",
-        "or specify between- and within-cluster variance (`sd_between` and ",
+        "An ICC of 1 is not possible with positive within-cluster variance.",
+        "Try a lower ICC or specify between- and within-cluster variance (`sd_between` and ",
         "`sd`) to infer ICC."
       )
     }
