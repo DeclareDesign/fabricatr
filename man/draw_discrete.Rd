@@ -7,7 +7,6 @@
 \alias{draw_ordered}
 \alias{draw_count}
 \alias{draw_binary}
-\alias{draw_likert}
 \alias{draw_quantile}
 \title{Draw discrete variables including binary, binomial count, poisson count,
 ordered, and categorical}
@@ -55,16 +54,6 @@ draw_binary(
   quantile_y = NULL
 )
 
-draw_likert(
-  x,
-  type = 7,
-  breaks = NULL,
-  N = length(x),
-  latent = NULL,
-  link = "identity",
-  strict = !is.null(breaks)
-)
-
 draw_quantile(type, N)
 }
 \arguments{
@@ -93,11 +82,11 @@ exactly those quantiles.}
 \code{draw_categorical}. If provided, must be equal to the number of categories
 provided in the \code{prob} argument.}
 
-\item{x}{for \code{draw_ordered} or \code{draw_likert}, the latent data for each
+\item{x}{for \code{draw_ordered}, the latent data for each
 observation.}
 
 \item{breaks}{vector of breaks to cut a latent outcome into ordered
-categories with \code{draw_ordered} or \code{draw_likert}}
+categories with \code{draw_ordered}}
 
 \item{break_labels}{vector of labels for the breaks to cut a latent outcome
 into ordered categories with \code{draw_ordered}. (Optional)}
@@ -105,9 +94,6 @@ into ordered categories with \code{draw_ordered}. (Optional)}
 \item{strict}{Logical indicating whether values outside the provided breaks should be coded as NA. Defaults to \code{FALSE}, in which case effectively additional breaks are added between -Inf and the lowest break and between the highest break and Inf.}
 
 \item{mean}{for \code{draw_count}, the mean number of count units for each observation}
-
-\item{type}{Type of Likert scale data for \code{draw_likert}. Valid options are 4,
-5, and 7. Type corresponds to the number of categories in the Likert scale.}
 }
 \value{
 A vector of data in accordance with the specification; generally
@@ -121,9 +107,7 @@ a different type of discrete data: \code{draw_binary} creates binary 0/1 data,
 \code{draw_binomial} creates binomial data (repeated trial binary data),
 \code{draw_categorical} creates categorical data, \code{draw_ordered}
 transforms latent data into observed ordered categories, \code{draw_count}
-creates count data (poisson-distributed). \code{draw_likert} is an alias to
-\code{draw_ordered} that pre-specifies break labels and offers default breaks
-appropriate for a likert survey question.
+creates count data (poisson-distributed).
 }
 \details{
 For variables with intra-cluster correlations, see
@@ -163,10 +147,6 @@ fabricate(N = 3,
                                            "Somewhat concerned",
                                            "Very concerned")))
 
-# Likert data: often used for survey data
-fabricate(N = 10,
-          support_free_college = draw_likert(x = rnorm(N),
-                                             type = 5))
 
 # Count data: useful for rates of occurrences over time.
 fabricate(N = 5,

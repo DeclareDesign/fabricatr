@@ -502,31 +502,6 @@ test_that("Normal ICC", {
                                total_sd = c(1, 2)))
 })
 
-test_that("Likert alias", {
-  # Without specifying anything
-  draw_likert(x = rnorm(100))
-
-  # Specifying breaks
-  draw_likert(x = rnorm(100),
-              breaks = c(-Inf, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, Inf))
-  draw_likert(x = rnorm(100),
-              breaks = c(-Inf, -1.5, -0.5, 0.5, 1.5, Inf))
-  draw_likert(x = rnorm(100),
-              breaks = c(-Inf, -1, 0, 1, Inf))
-
-  # Specifying types
-  draw_likert(x = rnorm(100), type = 7)
-  draw_likert(x = rnorm(100), type = 5)
-  draw_likert(x = rnorm(100), type = 4)
-
-  # Errors: bad breaks, bad types
-  expect_error(draw_likert(x = rnorm(100), breaks = c(-Inf, -1, 0, Inf)))
-  expect_error(draw_likert(x = rnorm(100), type = 3))
-
-  # Should be impossible, but verify if someone accidentally overrides type.
-  # and doesn't provide breaks.
-  expect_error(draw_likert(x = rnorm(100), type = NULL))
-})
 
 test_that("Quantile and quantile split", {
   # Null N
@@ -645,3 +620,27 @@ test_that("Correlated variable draws and our distributions", {
   # Using a poorly specified function
   expect_error(correlate(print, given = base_dist, rho = 0.5))
 })
+
+
+test_that("Likert works",{
+ x <- 1:100
+
+ y <- draw_likert(x, min = 0, max = 100, bins = 7)
+ expect_equal(unique(y), 1:7)
+
+ y <- draw_likert(x, min = 0, max = 100, bins = 7, labels = c("strongly disagree", "disagree", "somewhat disagree", "neither agree nor disagree", "somewhat agree", "agree", "strongly agree"))
+
+ expect_true(is.factor(y))
+
+
+ y <- draw_likert(x, breaks = c(-1, 10, 100))
+
+ expect_equal(unique(y), 1:2)
+
+ y <- draw_likert(x, breaks = c(-1, 10, 100), labels = c("low", "high"))
+
+ expect_true(is.factor(y))
+
+})
+
+

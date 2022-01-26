@@ -7,9 +7,7 @@
 #' \code{draw_binomial} creates binomial data (repeated trial binary data),
 #' \code{draw_categorical} creates categorical data, \code{draw_ordered}
 #' transforms latent data into observed ordered categories, \code{draw_count}
-#' creates count data (poisson-distributed). \code{draw_likert} is an alias to
-#' \code{draw_ordered} that pre-specifies break labels and offers default breaks
-#' appropriate for a likert survey question.
+#' creates count data (poisson-distributed).
 #'
 #' For variables with intra-cluster correlations, see
 #' \code{\link{draw_binary_icc}} and \code{\link{draw_normal_icc}}
@@ -20,17 +18,15 @@
 #' function, these underlying probabilities will be transformed.
 #' @param trials for \code{draw_binomial}, the number of trials for each observation
 #' @param mean for \code{draw_count}, the mean number of count units for each observation
-#' @param x for \code{draw_ordered} or \code{draw_likert}, the latent data for each
+#' @param x for \code{draw_ordered}, the latent data for each
 #' observation.
 #' @param breaks vector of breaks to cut a latent outcome into ordered
-#' categories with \code{draw_ordered} or \code{draw_likert}
+#' categories with \code{draw_ordered}
 #' @param break_labels vector of labels for the breaks to cut a latent outcome
 #' into ordered categories with \code{draw_ordered}. (Optional)
 #' @param category_labels vector of labels for the categories produced by
 #' \code{draw_categorical}. If provided, must be equal to the number of categories
 #' provided in the \code{prob} argument.
-#' @param type Type of Likert scale data for \code{draw_likert}. Valid options are 4,
-#' 5, and 7. Type corresponds to the number of categories in the Likert scale.
 #' @param N number of units to draw. Defaults to the length of the vector of
 #' probabilities or latent data you provided.
 #' @param link link function between the latent variable and the probability of
@@ -80,10 +76,6 @@
 #'                                            "Somewhat concerned",
 #'                                            "Very concerned")))
 #'
-#' # Likert data: often used for survey data
-#' fabricate(N = 10,
-#'           support_free_college = draw_likert(x = rnorm(N),
-#'                                              type = 5))
 #'
 #' # Count data: useful for rates of occurrences over time.
 #' fabricate(N = 5,
@@ -374,74 +366,57 @@ draw_binary <- function(prob = link(latent), N = length(prob),
   )
 }
 
-#' @rdname draw_discrete
+#' Recode a latent variable into a Likert response variable
+#'
+#' @param x a numeric variable considered to be "latent"
+#'
+#' @param min the minimum value of the latent variable
+#' @param max the maximum value of the latent variable
+#' @param bins the number of Likert scale values. The latent variable will be cut into equally sized bins as in seq(min, max, length.out = bins + 1)
+#' @param breaks A vector of breaks. This option is useful for settings in which equally-sized breaks are inappropriate
+#' @param labels An optional vector of labels. If labels are provided, the resulting output will be a factor.
+#'
 #' @export
+#'
+#' @examples
+#'
+#' x <- 1:100
+#'
+#' draw_likert(x, min = 0, max = 100, bins = 7)
+#' draw_likert(x, breaks = c(-1, 10, 100))
+#'
+#'
 draw_likert <- function(x,
-                        type = 7,
+                        min = NULL,
+                        max = NULL,
+                        bins = NULL,
                         breaks = NULL,
-                        N = length(x),
-                        latent = NULL,
-                        link = "identity",
-                        strict = !is.null(breaks)) {
-  if (is.null(breaks) && is.null(type)) {
-    stop("You must provide either `breaks` or `type` to a `draw_likert()` ",
-         "call.")
+                        labels = NULL) {
+  if (is.null(breaks) &&
+      (is.null(min) & is.null(max) & is.null(bins))) {
+    stop(
+      "You must provide either `breaks` or `min`, `max`, and `bins` to a `draw_likert()` ",
+      "call."
+    )
   }
 
   if (is.null(breaks)) {
-    if (type == 7) {
-      breaks <- c(-Inf, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, Inf)
-    } else if (type == 5) {
-      breaks <- c(-Inf, -1.5, -0.5, 0.5, 1.5, Inf)
-    } else if (type == 4) {
-      breaks <- c(-Inf, -1, 0, 1, Inf)
-    } else {
-      stop("Valid `type` arguments for a `draw_likert()` call are 4, 5, and 7.")
-    }
+    breaks <- seq(min, max, length.out = bins + 1)
   }
 
-  if (length(breaks) == 8) {
-    break_labels <- c(
-      "Strongly Disagree",
-      "Disagree",
-      "Lean Disagree",
-      "Don't Know / Neutral",
-      "Lean Agree",
-      "Agree",
-      "Strong Agree"
-    )
-  } else if (length(breaks) == 6) {
-    break_labels <- c(
-      "Strongly Disagree",
-      "Disagree",
-      "Don't Know / Neutral",
-      "Agree",
-      "Strongly Agree"
-    )
-  } else if (length(breaks) == 5) {
-    break_labels <- c(
-      "Strongly Disagree",
-      "Disagree",
-      "Agree",
-      "Strongly Agree"
-    )
-  } else {
-    stop(
-      "If you provide `draw_likert()` with a `breaks` argument, `breaks` must ",
-      "be either 5, 6, or 8 elements long for 4, 5, or 7 category Likert data."
-    )
+  x_ret <- cut(x, breaks)
+  x_ret <- as.numeric(x_ret)
+
+  if(!is.null(labels)){
+    x_ret <- factor(x_ret, levels = unique(x_ret), labels = labels)
   }
 
-  draw_ordered(
-    x = x,
-    breaks = breaks,
-    N = N,
-    link = link,
-    latent = latent,
-    break_labels = break_labels,
-    strict = strict
-  )
+  x_ret
 }
+
+
+
+
 
 #' @rdname draw_discrete
 #' @importFrom stats runif
