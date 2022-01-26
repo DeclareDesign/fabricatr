@@ -13,18 +13,23 @@
 #' library(MASS)
 #'
 #' # draw from multivariate normal distribution
-#' draw_multivariate(c(Y_1, Y_2) ~ mvrnorm(
-#'   n = 5,
-#'   mu = c(0, 0),
-#'   Sigma = matrix(c(10, 3, 3, 2), 2, 2)
-#' ))
+#' dat <-
+#'   draw_multivariate(c(Y_1, Y_2) ~ mvrnorm(
+#'     n = 500,
+#'     mu = c(0, 0),
+#'     Sigma = matrix(c(1, 0.5, 0.5, 1), 2, 2)
+#'   ))
+#'
+#'
+#' cor(dat)
+#'
 #'
 #' # equivalently, you can provide a prefix for the variable names
 #' # (easier if you have many variables)
 #' draw_multivariate(Y ~ mvrnorm(
 #'   n = 5,
 #'   mu = c(0, 0),
-#'   Sigma = matrix(c(10, 3, 3, 2), 2, 2)
+#'   Sigma = matrix(c(1, 0.5, 0.5, 1), 2, 2)
 #' ))
 #'
 #' # within fabricate
@@ -33,7 +38,7 @@
 #'   draw_multivariate(c(Y_1, Y_2) ~ mvrnorm(
 #'     n = N,
 #'     mu = c(0, 0),
-#'     Sigma = matrix(c(10, 3, 3, 2), 2, 2)
+#'     Sigma = matrix(c(1, 0.5, 0.5, 1), 2, 2)
 #'   ))
 #' )
 #'
@@ -42,7 +47,7 @@
 #' Y = mvrnorm(
 #'   n = N,
 #'   mu = c(0, 0),
-#'   Sigma = matrix(c(10, 3, 3, 2), 2, 2)
+#'   Sigma = matrix(c(1, 0.5, 0.5, 1), 2, 2)
 #' ))
 #'
 #' @importFrom rlang f_lhs f_rhs eval_tidy as_label call_args

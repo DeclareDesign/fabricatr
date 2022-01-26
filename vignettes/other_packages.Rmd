@@ -164,5 +164,6 @@ The `R` ecosystem has many other data simulation tools, and all can be used to c
 * [simPop](https://cran.r-project.org/package=simPop) by Matthias Templ
 * [simstudy](https://cran.r-project.org/package=simstudy) by Keith Goldfeld
 * [synthPop](https://cran.r-project.org/package=synthpop) by Beata Nowok
+* [SimCorrMix](https://cran.r-project.org/web/packages/SimCorrMix/index.html) by Allison Cynthia Fialkowski
 
 If you'd like to see a tutorial on using these packages or any others with **fabricatr**, please [Contact Us](http://discuss.declaredesign.org/) so we can help you

@@ -95,7 +95,7 @@ panel_global_data <- fabricate(
     nest = FALSE
   ),
   country_years = cross_levels(
-    by = join(years, countries),
+    by = join_using(years, countries),
     gdp_measure = base_gdp + year_shock + (ts_year * growth_units) +
       rnorm(N, sd=growth_error)
   )

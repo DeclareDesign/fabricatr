@@ -310,7 +310,7 @@ test_that("Binary ICCs", {
   # No clusters at all.
   expect_error(draw_binary_icc(clusters = NULL))
   # Invalid cluster IDs: dimensional
-  expect_error(draw_binary_icc(clusters = data.frame(X = 1:10, Y = 1:10)))
+  expect_warning(expect_error(draw_binary_icc(clusters = data.frame(X = 1:10, Y = 1:10))))
   # Invalid cluster IDs: mixed list
   expect_error(draw_binary_icc(clusters = list("abc", 7)))
   # X doesn't match cluster IDs

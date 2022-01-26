@@ -96,7 +96,7 @@ test_that("potential_outcomes", {
         nest = FALSE
       ),
       obs = cross_levels(
-        by = join(year, country),
+        by = join_using(year, country),
         GDP_it = country_shock + year_shock,
         potential_outcomes(Y ~ GDP_it)
       )
@@ -133,7 +133,7 @@ test_that("potential_outcomes", {
         country_shock = rep(0.5, N),
         nest = FALSE
       ),
-      obs = cross_levels(by = join(year, country),
+      obs = cross_levels(by = join_using(year, country),
                          GDP_it = country_shock + year_shock)
     ),
     structure(
@@ -165,7 +165,7 @@ test_that("potential_outcomes", {
         potential_outcomes(Y ~ country_shock),
         nest = FALSE
       ),
-      obs = cross_levels(by = join(year, country),
+      obs = cross_levels(by = join_using(year, country),
                          GDP_it = country_shock + year_shock)
     ),
     structure(
