@@ -94,6 +94,10 @@ into ordered categories with \code{draw_ordered}. (Optional)}
 \item{strict}{Logical indicating whether values outside the provided breaks should be coded as NA. Defaults to \code{FALSE}, in which case effectively additional breaks are added between -Inf and the lowest break and between the highest break and Inf.}
 
 \item{mean}{for \code{draw_count}, the mean number of count units for each observation}
+
+\item{type}{The number of buckets to split data into. For a median split,
+enter 2; for terciles, enter 3; for quartiles, enter 4; for quintiles, 5;
+for deciles, 10.}
 }
 \value{
 A vector of data in accordance with the specification; generally

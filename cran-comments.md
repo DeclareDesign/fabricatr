@@ -1,6 +1,6 @@
 ## Submission
 
-We are submitting a small update, `fabricatr 0.14.0`, which contains a small number of new features as well as bug fixes identified since the last release.
+We are submitting a small update, `fabricatr 0.16.0`, which contains a small number of new features as well as bug fixes identified since the last release. It also address new failures due to the new version of rlang, per Prof. Ripley's email.
 
 ## Test environments
 * local macOS install, R version 4.1.2

@@ -20,6 +20,9 @@
 #' @param mean for \code{draw_count}, the mean number of count units for each observation
 #' @param x for \code{draw_ordered}, the latent data for each
 #' observation.
+#' @param type The number of buckets to split data into. For a median split,
+#' enter 2; for terciles, enter 3; for quartiles, enter 4; for quintiles, 5;
+#' for deciles, 10.
 #' @param breaks vector of breaks to cut a latent outcome into ordered
 #' categories with \code{draw_ordered}
 #' @param break_labels vector of labels for the breaks to cut a latent outcome
