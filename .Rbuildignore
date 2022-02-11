@@ -21,3 +21,4 @@ fabricatr_.*\.tar\.gz
 vignettes
 ^pkgdown$
 ^\.github$
+^CRAN-SUBMISSION$
