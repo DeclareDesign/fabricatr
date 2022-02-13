@@ -88,13 +88,13 @@ panels <- fabricate(
   countries = add_level(N = 150, country_fe = runif(N, 1, 10)),
   years = add_level(N = 25, year_shock = runif(N, 1, 10), nest = FALSE),
   obs = cross_levels(
-    by = join(countries, years),
+    by = join_using(countries, years),
     new_variable = country_fe + year_shock + rnorm(N, 0, 2)
   )
 )
 ```
 
-Note that `cross_levels()` takes a single required argument, which is of the form `by = join(...)`. This join command tells **fabricatr** how to assemble your data. In this case, we are telling it to join the countries data frame to the years data frame, resulting in country-year observations.
+Note that `cross_levels()` takes a single required argument, which is of the form `by = join_using(...)`. This join_using command tells **fabricatr** how to assemble your data. In this case, we are telling it to join the countries data frame to the years data frame, resulting in country-year observations.
 
 Just like with regular `add_level()` commands, you can add new variables which have full access to the existing columns.
 
@@ -146,7 +146,7 @@ Our model generates primary schools and secondary schools, each of which have a 
 schools_data <- fabricate(
   primary_schools = add_level(N = 20, ps_quality = runif(N, 1, 10)),
   secondary_schools = add_level(N = 15, ss_quality = runif(N, 1, 10), nest = FALSE),
-  students = link_levels(N = 1500, by = join(primary_schools, secondary_schools))
+  students = link_levels(N = 1500, by = join_using(primary_schools, secondary_schools))
 )
 ```
 
@@ -161,7 +161,7 @@ schools_data <- fabricate(
   primary_schools = add_level(N = 20, ps_quality = runif(N, 1, 10)),
   secondary_schools = add_level(N = 15, ss_quality = runif(N, 1, 10), nest = FALSE),
   students = link_levels(
-    N = 1500, by = join(primary_schools, secondary_schools),
+    N = 1500, by = join_using(primary_schools, secondary_schools),
     SAT_score = 800 + 13 * ps_quality + 26 * ss_quality +
       rnorm(N, 0, 50)
   )
@@ -190,14 +190,14 @@ corr_data <- fabricate(
   primary_schools = add_level(N = 20, ps_quality = runif(N, 1, 10)),
   secondary_schools = add_level(N = 15, ss_quality = runif(N, 1, 10), nest = FALSE),
   students = link_levels(
-    N = 1500, by = join(ps_quality, ss_quality, rho = 0.5),
+    N = 1500, by = join_using(ps_quality, ss_quality, rho = 0.5),
     SAT_score = 800 + 13 * ps_quality + 26 * ss_quality +
       rnorm(N, 0, 50)
   )
 )
 ```
 
-Here, we have changed the structure of our  `join()` function call. First, the variables we are joining on are `ps_quality` and `ss_quality`. **fabricatr** locates these variables within the data frames they come from. Second we specify a Spearman's (rank) correlation coefficient, `rho`, which will induce a correlation in the resulting data based on the join function. In this case, we want a correlation between `ps_quality` and `ss_quality` of 0.5. 
+Here, we have changed the structure of our  `join_using()` function call. First, the variables we are joining on are `ps_quality` and `ss_quality`. **fabricatr** locates these variables within the data frames they come from. Second we specify a Spearman's (rank) correlation coefficient, `rho`, which will induce a correlation in the resulting data based on the join_using function. In this case, we want a correlation between `ps_quality` and `ss_quality` of 0.5. 
 
 Technical details of the implementation of this function are contained below, but in the mean time the important thing to note is that `rho` can be any value from -1 to 1, and that the resulting correlation will be approximately equal to `rho`. 
 
@@ -224,7 +224,7 @@ three_data <- fabricate(
   colleges = add_level(N = 50, c_quality = runif(N, 1, 10), nest = FALSE),
   students = link_levels(
     N = 1500,
-    by = join(
+    by = join_using(
       ps_quality, ss_quality, c_quality,
       rho = 0.2
     ),
@@ -255,7 +255,7 @@ adv_data <- fabricate(
   colleges = add_level(N = 50, c_quality = runif(N, 1, 10), nest = FALSE),
   students = link_levels(
     N = 1500,
-    by = join(
+    by = join_using(
       ps_quality, ss_quality, c_quality,
       sigma = sigma
     ),

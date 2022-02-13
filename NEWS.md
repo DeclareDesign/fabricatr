@@ -1,3 +1,9 @@
+# **fabricatr** 0.16.0
+
+- Replacement `draw_likert` function.
+- `join` function renamed to `join_using` to avoid confusion with other R functions and to more clearly indicate its purpose.
+- Bug fixes.
+
 # **fabricatr** 0.14.0
 
 - Bug fixes
