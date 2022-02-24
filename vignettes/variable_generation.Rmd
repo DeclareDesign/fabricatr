@@ -69,9 +69,9 @@ Likert variables are a special case of ordered variables. Users can use `draw_or
 ```{r}
 survey_data <- fabricate(
   N = 100,
-  Q1 = draw_likert(x = rnorm(N)),
-  Q2 = draw_likert(x = rnorm(N)),
-  Q3 = draw_likert(x = rnorm(N))
+  Q1 = draw_likert(x = rnorm(N), min = -5, max = 5, bins = 7),
+  Q2 = draw_likert(x = rnorm(N), min = -5, max = 5, bins = 7),
+  Q3 = draw_likert(x = rnorm(N), min = -5, max = 5, bins = 7)
 )
 ```
 
@@ -86,9 +86,9 @@ Examples of how users might use the function are available below:
 ```{r echo=TRUE, results="hide"}
 survey_data <- fabricate(
   N = 100,
-  Q1 = draw_likert(x = rnorm(N), type = 7),
-  Q2 = draw_likert(x = rnorm(N), type = 5),
-  Q3 = draw_likert(x = rnorm(N), type = 4),
+  Q1 = draw_likert(x = rnorm(N), min = -5, max = 5, bins = 7),
+  Q2 = draw_likert(x = rnorm(N), min = -5, max = 5, bins = 5),
+  Q3 = draw_likert(x = rnorm(N), min = -5, max = 5, bins = 4),
   Q4 = draw_likert(x = rnorm(N), breaks = c(-Inf, -0.8, 0, 1, 2, Inf))
 )
 

@@ -37,8 +37,8 @@ voters <- fabricate(
     )
   ),
   income = exp(rlnorm(n = N, meanlog = 2.4 - (ideology * 0.1), sdlog = 0.12)),
-  Q1_immigration = draw_likert(x = ideology, type = 7),
-  Q2_defence = draw_likert(x = ideology + 0.5, type = 7),
+  Q1_immigration = draw_likert(x = ideology, min = -5, max = 5, bins = 7),
+  Q2_defence = draw_likert(x = ideology + 0.5, min = -5, max = 5, bins = 7),
   treatment = draw_binary(0.5, N = N),
   proposition_vote = draw_binary(latent = ideology + 1.2 * treatment, link = "probit")
 )
