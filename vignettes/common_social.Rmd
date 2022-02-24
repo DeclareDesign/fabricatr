@@ -207,8 +207,7 @@ Many survey responses that focus on labeling agreement, support, or quality eval
 By using `draw_likert`, users only need to specify the `x` latent variable -- assumed to be distributed with breaks spaced 1 unit apart and with the data centered on 0 -- and the `type` of Likert they would like (the number of categories). In this example, we examine the same data above, but with a 4-category Likert scale where the options are "Strongly Agree", "Agree", "Disagree", and "Strongly Disagree", with no neutral category.
 
 ```{r results="hide"}
-mayor_approval <- draw_likert(x = rnorm(n = 100),
-                              type = 4)
+draw_likert(runif(n = 100), min = 0, max = 1, bins = 7)
 
 table(mayor_approval)
 ```
