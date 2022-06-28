@@ -1,13 +1,13 @@
 Package: fabricatr
 Type: Package
 Title: Imagine Your Data Before You Collect It 
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@gmail.com", role = c("aut", "cre")),
-             person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut")),
-             person("Alexander", "Coppock", email = "alex.coppock@yale.edu", role = c("aut")),
-             person("Macartan", "Humphreys", email = "macartan@gmail.com", role = c("aut")),
-             person("Aaron", "Rudkin", email = "rudkin@ucla.edu", role = c("aut")),
-             person("Neal", "Fultz", email = "nfultz@gmail.com", role = c("aut")))
+             person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = "aut"),
+             person("Alexander", "Coppock", email = "alex.coppock@yale.edu", role = "aut"),
+             person("Macartan", "Humphreys", email = "macartan@gmail.com", role = "aut"),
+             person("Aaron", "Rudkin", email = "rudkin@ucla.edu", role = "aut"),
+             person("Neal", "Fultz", email = "nfultz@gmail.com", role = "aut"))
 Description: Helps you imagine your data before you collect it. Hierarchical data structures
    and correlated data can be easily simulated, either from random number generators or
    by resampling from existing data sources. This package is faster with 'data.table' and
