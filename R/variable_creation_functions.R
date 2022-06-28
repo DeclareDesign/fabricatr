@@ -42,8 +42,8 @@
 #' stochastically from the distribution of interest, data will be drawn at
 #' exactly those quantiles.
 #' @return A vector of data in accordance with the specification; generally
-#' numeric but for some functions, including \code{draw_ordered}, may be factor if
-#' break labels are provided.
+#' numeric but for some functions, including \code{draw_ordered} and
+#' \code{draw_categorical}, may be factor if labels are provided.
 #' @name draw_discrete
 #' @examples
 #'
@@ -232,7 +232,7 @@ draw_categorical <- function(prob = link(latent), N = NULL,
   draws <- apply(prob, 1, rcateg)
 
   if(!is.null(category_labels)) {
-    return(category_labels[draws])
+    return(factor(draws, levels = 1:m, labels = category_labels))
   } else {
     return(draws)
   }
@@ -294,8 +294,10 @@ draw_ordered <- function(x = link(latent),
 
   if (!is.null(break_labels)) {
     ret <- factor(
-      break_labels[findInterval(x, breaks) + add_to_value],
-      levels = break_labels
+      findInterval(x, breaks) + add_to_value,
+      levels = 1:length(break_labels),
+      labels = break_labels,
+      ordered = TRUE
     )
   } else {
     ret <- findInterval(x, breaks) + add_to_value

@@ -205,9 +205,12 @@ test_that("Categorical valid tests", {
   second <- draw_categorical(prob = matrix(
       rep(c(0, 1, 0), 3),
       byrow = TRUE, ncol = 3, nrow = 3
-    ),category_labels = c("A", "B", "C"))
+    ), category_labels = c("A", "B", "C"))
 
-  expect_equal(second, c("B","B","B"))
+  expect_equal(
+    second,
+    factor(c("B", "B", "B"), levels = c("A", "B", "C"))
+  )
   # Convert vector of probabilities to matrix of probabilities
   # Sunset as per #121, leaving deprecated test.
   #expect_message(draw_categorical(prob = c(0.3, 0.3, 0.4), N = 3))
@@ -261,6 +264,16 @@ test_that("Ordered data valid tests", {
   )
   expect_equal(length(base_ordered), 200)
   expect_equal(length(table(base_ordered)), 4)
+
+  second <- draw_ordered(
+    x = rep(-0.5, 3),
+    breaks = c(-1, 0, 1),
+    break_labels = c("A", "B", "C", "D")
+  )
+  expect_equal(
+    second,
+    factor(c("B", "B", "B"), levels = c("A", "B", "C", "D"), ordered = TRUE)
+  )
 })
 
 

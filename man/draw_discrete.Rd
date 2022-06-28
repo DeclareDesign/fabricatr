@@ -101,8 +101,8 @@ for deciles, 10.}
 }
 \value{
 A vector of data in accordance with the specification; generally
-numeric but for some functions, including \code{draw_ordered}, may be factor if
-break labels are provided.
+numeric but for some functions, including \code{draw_ordered} and
+\code{draw_categorical}, may be factor if labels are provided.
 }
 \description{
 Drawing discrete data based on probabilities or latent traits is a common
