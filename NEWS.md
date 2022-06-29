@@ -1,4 +1,4 @@
-# **fabricatr** (development version)
+# **fabricatr** 1.0.0
 
 - `draw_categorical()` now returns a factor when `category_labels` is specified.
 - `draw_ordered()` now returns an ordered factor when `break_labels` is specified.
