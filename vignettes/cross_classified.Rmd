@@ -185,7 +185,7 @@ Other variables can be added in the *students* level, or indeed in either of the
 
 A variety of R packages support functionality for joining data in various ways. However, a key feature of **fabricatr** is that it is possible to generate *correlated* cross-classified data. Above, we assumed that the primary school a student attended has no relationship to the secondary school the same student attends. This assumption does not reflect actual patterns in the social world. We might, for example, reasonably assume that students assigned to better primary schools are later assigned to better secondary schools -- whether due to economic geography of the area, selective admissions, or other causes. It is easy to specify a correlation between these outcomes using much the same syntax we used before:
 
-```{r echo=TRUE, results="hide"}
+```{r echo=TRUE, message=FALSE, results="hide"}
 corr_data <- fabricate(
   primary_schools = add_level(N = 20, ps_quality = runif(N, 1, 10)),
   secondary_schools = add_level(N = 15, ss_quality = runif(N, 1, 10), nest = FALSE),
@@ -217,7 +217,7 @@ Correlation is only possible for cross-classified data, not panel data.
 
 All of the functions specified above work when joining more than two levels. We could extend our student example to include, for example, college quality. Nothing changes about the join syntax beyond the addition of the third or subsequent variable names:
 
-```{r echo=TRUE, results="hide"}
+```{r echo=TRUE, message=FALSE, results="hide"}
 three_data <- fabricate(
   primary_schools = add_level(N = 20, ps_quality = runif(N, 1, 10)),
   secondary_schools = add_level(N = 15, ss_quality = runif(N, 1, 10), nest = FALSE),
