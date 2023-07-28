@@ -23,20 +23,11 @@ the data will look, and precommit before looking at the realized data.
 ### Installing fabricatr
 
 To install the latest stable release of **fabricatr**, please ensure
-that you are running version 3.3 or later of R and run the following
+that you are running version 3.5 or later of R and run the following
 code:
 
 ``` r
 install.packages("fabricatr")
-```
-
-To install the latest development release of **fabricatr**, please
-ensure that you are running version 3.3 or later of R and run the
-following code:
-
-``` r
-install.packages("fabricatr", dependencies = TRUE,
-                 repos = c("http://r.declaredesign.org", "https://cloud.r-project.org"))
 ```
 
 ### Getting started
@@ -56,7 +47,6 @@ which generates data modeling the United States House of
 Representatives:
 
 ``` r
-set.seed(1)
 library(fabricatr)
 
 house_members <- fabricate(
@@ -72,13 +62,13 @@ house_members <- fabricate(
 )
 ```
 
-| party\_names | party\_ideology | in\_power | member\_ideology | terms\_served | female |
-|:-------------|----------------:|----------:|-----------------:|--------------:|-------:|
-| Republican   |             0.5 |         1 |             0.43 |             3 |      0 |
-| Republican   |             0.5 |         1 |            -0.19 |             1 |      0 |
-| Republican   |             0.5 |         1 |             0.52 |             4 |      0 |
-| Republican   |             0.5 |         1 |             0.85 |             2 |      0 |
-| Republican   |             0.5 |         1 |             0.59 |             5 |      0 |
+| party_names | party_ideology | in_power | member_ideology | terms_served | female |
+|:------------|---------------:|---------:|----------------:|-------------:|-------:|
+| Republican  |            0.5 |        1 |            0.43 |            3 |      0 |
+| Republican  |            0.5 |        1 |           -0.19 |            1 |      0 |
+| Republican  |            0.5 |        1 |            0.52 |            4 |      0 |
+| Republican  |            0.5 |        1 |            0.85 |            2 |      0 |
+| Republican  |            0.5 |        1 |            0.59 |            5 |      0 |
 
 ### Next Steps
 
