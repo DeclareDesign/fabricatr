@@ -11,6 +11,7 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/fabricatr?color=green)]
 status](https://github.com/DeclareDesign/fabricatr/workflows/R-CMD-check/badge.svg)](https://github.com/DeclareDesign/fabricatr/actions)
 [![Code
 coverage](https://codecov.io/gh/DeclareDesign/fabricatr/branch/master/graph/badge.svg?token=x9MpkuKobc)](https://codecov.io/gh/DeclareDesign/fabricatr)
+[![Replications](https://softwarecite.com/badge/fabricatr)](https://softwarecite.com/package/fabricatr)
 
 Making decisions about research design and analysis strategies is often
 difficult before data is collected, because it is hard to imagine the
@@ -78,6 +79,8 @@ with **fabricatr**. This tutorial will give you a brief overview of
 **fabricatr**’s main functions and direct you towards your next steps.
 You can also read our documentation inside R using the command
 `?fabricate` as your entry point.
+
+------------------------------------------------------------------------
 
 This project is generously supported by a grant from the [Laura and John
 Arnold Foundation](http://www.arnoldfoundation.org) and seed funding

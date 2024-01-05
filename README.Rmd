@@ -16,6 +16,7 @@ set.seed(1)
 [![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/fabricatr?color=green)](https://r-pkg.org/pkg/fabricatr)
 [![Build status](https://github.com/DeclareDesign/fabricatr/workflows/R-CMD-check/badge.svg)](https://github.com/DeclareDesign/fabricatr/actions)
 [![Code coverage](https://codecov.io/gh/DeclareDesign/fabricatr/branch/master/graph/badge.svg?token=x9MpkuKobc)](https://codecov.io/gh/DeclareDesign/fabricatr)
+[![Replications](https://softwarecite.com/badge/fabricatr)](https://softwarecite.com/package/fabricatr)
 
 Making decisions about research design and analysis strategies is often difficult before data is collected, because it is hard to imagine the exact form data will take. Instead, researchers typically modify analysis strategies to fit the data. **fabricatr** helps researchers imagine what data will look like before they collect it. Researchers can evaluate alternative analysis strategies, find the best one given how the data will look, and precommit before looking at the realized data.
 
