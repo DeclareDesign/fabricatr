@@ -5,6 +5,7 @@
 #' random number generators or by resampling from existing data sources.
 #'
 #' @docType package
+#' @aliases fabricatr-package
 #' @importFrom stats median rbinom sd
 #' @import rlang
 #' @name fabricatr
