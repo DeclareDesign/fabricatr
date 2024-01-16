@@ -1,7 +1,7 @@
 Package: fabricatr
 Type: Package
 Title: Imagine Your Data Before You Collect It 
-Version: 1.0.0
+Version: 1.0.2
 Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9164-2102")),
              person("Jasper", "Cooper", email = "jaspercooper@gmail.com", role = "aut", comment = c(ORCID = "0000-0002-8639-3188")),
              person("Alexander", "Coppock", email = "acoppock@gmail.com", role = "aut", comment = c(ORCID = "0000-0002-5733-2386")),
@@ -19,7 +19,7 @@ Depends: R (>= 3.5.0)
 Imports: rlang (>= 1.0.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Suggests:
     testthat,
     data.table,
