@@ -8,6 +8,12 @@ modify_level <- function(..., by=NULL) {
   do_internal(N=NULL, ..., by=by, FUN=modify_level_internal, from="modify_level")
 }
 
+#' @export
+modify_level2 <- function(..., by=NULL) {
+  do_internal(N=NULL, ..., by=by, FUN=modify_level_internal2, from="modify_level")
+}
+
+
 #' @importFrom rlang eval_tidy
 #'
 modify_level_internal <- function(N = NULL, ID_label = NULL,
@@ -106,6 +112,102 @@ modify_level_internal <- function(N = NULL, ID_label = NULL,
 
 }
 
+#' @importFrom rlang eval_tidy
+#'
+modify_level_internal2 <- function(N = NULL, ID_label = NULL,
+                                  workspace = NULL, by = NULL,
+                                  data_arguments=NULL) {
+
+
+  modify_level_internal_checks(ID_label, workspace)
+
+  uu <- ID_label %||% attr(workspace, "active_df")
+
+  df <- workspace[[uu]] %||% active_df(workspace)
+
+
+
+  # There are two possibilities. One is that we are modifying the lowest level
+  # of data. In which case, we simply add variables, like if someone called
+  # add_level with a dataset. To check if that's the world we're in, check if
+  # we have any duplicates in the ID label:
+  if (!is.character(by)) {
+    # There is no subsetting going on, but modify_level was used anyway.
+    N <- nrow(df)
+
+    # Coerce the working data frame into a list
+    working_data_list <- as.list(df)
+
+
+    check_variables_named(data_arguments, "modify_level")
+
+    # Now loop over the variable creation.
+    for (i in names(data_arguments)) {
+      # Explicity mask N
+      dm <- as_data_mask(working_data_list)
+      dm$N <- N
+
+      working_data_list[[i]] <- expand_or_error(eval_tidy(
+        data_arguments[[i]],
+        dm
+      ), N, i, data_arguments[[i]])
+
+
+      # Nuke the current data argument -- if we have the same variable name
+      # created twice, this is OK, because it'll only erase the first one.
+      data_arguments[[i]] <- NULL
+    }
+
+    # Before handing back data, ensure it's actually rectangular
+    working_data_list <- check_rectangular(working_data_list, N)
+
+    # Overwrite the working data frame.
+    workspace[[uu]] <- data.frame(
+      working_data_list,
+      stringsAsFactors = FALSE,
+      row.names = NULL
+    )
+
+    attr_names <- grep("^fabricatr::", names(attributes(df)), value = TRUE)
+    attributes(workspace[[uu]])[attr_names] <- attributes(df)[attr_names]
+
+    activate(workspace, uu)
+    # Return results
+    return(workspace)
+  }
+
+
+  df[["..idx"]] <- seq_len(nrow(df))
+
+  idx <- split(df[["..idx"]], df[by], drop = TRUE)
+
+  out <- list()
+
+  for(i in seq_along(idx)) {
+    wenv <- import_data_list(df[idx[[i]], ,drop=FALSE])
+
+    wenv <- modify_level_internal(N, ID_label, wenv, data_arguments=data_arguments)
+
+    out[[i]] <- active_df(wenv)
+
+    # If new columns were created, preallocate them, ow will be ignored w/ a warning
+    #df[setdiff(names(ret), names(df))] <- NA
+
+    #df[slice, names(ret)] <- ret
+
+  }
+
+  res <- do.call(rbind, out)
+  rownames(res) <- NULL
+  res <- res[order(res[["..idx"]]), ]
+  res[["..idx"]] <- NULL
+
+  workspace[[uu]] <- df
+
+  activate(workspace, uu)
+  workspace
+
+}
 
 
 
