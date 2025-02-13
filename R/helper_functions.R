@@ -261,6 +261,7 @@ is_level_token <- function(x) x %in% c(
   "add_level",
   "nest_level",
   "modify_level",
+  "modify_level2",
   "cross_levels",
   "link_levels",
   "sac_level"
@@ -350,7 +351,7 @@ check_rectangular <- function(working_data_list, N) {
   for (i in seq_along(working_data_list)) {
     wdl_i <- working_data_list[[i]]
     d <- dim(wdl_i)
-    if(length(d)  %in% 0:1) {
+    if (length(d)  <= 1) {
       len <- length(wdl_i)
       if (len == 1) {
         # Variable is a constant -- repeat it N times
@@ -362,8 +363,8 @@ check_rectangular <- function(working_data_list, N) {
              names(working_data_list)[i], "` is length ", len)
       }
     }
-    else if(length(d) == 2){
-      if(d[1] != N) {
+    else if (length(d) == 2) {
+      if (d[1] != N) {
         stop("Nested structures must all have `N.` rows. ",
              "In this call, `N` = ", N, " while the variable `",
              names(working_data_list)[i], "` has ", d[1], " rows.")
@@ -373,7 +374,8 @@ check_rectangular <- function(working_data_list, N) {
 
     }
   }
-  return(working_data_list)
+
+  working_data_list
 }
 
 
