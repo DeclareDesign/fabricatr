@@ -33,7 +33,24 @@
 #' @export
 fabricate <- function(N = NULL, ..., ID_label = "ID", data = NULL) {
   dots <- rlang::enquos(...)
+  fabricate_impl(N = N, dots = dots, data = data)
+}
 
+# Internal: called by DeclareDesignZero's make_fabricate_step with a
+# pre-captured quosures list, avoiding double-quoting from !!!-injection.
+#' @keywords internal
+fabricate_with_dots <- function(data = NULL, dots) {
+  # Extract N if it was captured as a named quosure in dots (flat case)
+  N <- NULL
+  N_idx <- which(names(dots) == "N")
+  if (length(N_idx) > 0L) {
+    N <- rlang::eval_tidy(dots[[N_idx[1L]]])
+    dots <- dots[-N_idx[1L]]
+  }
+  fabricate_impl(N = N, dots = dots, data = data)
+}
+
+fabricate_impl <- function(N = NULL, dots, data = NULL) {
   # df: working data frame (starts with correct row count, 0 columns)
   # N_inject: scalar made available as "N" in every data mask
   if (!is.null(data)) {
@@ -73,13 +90,18 @@ fabricate <- function(N = NULL, ..., ID_label = "ID", data = NULL) {
   }
 
   df
-}
+}  # end fabricate_impl
 
 # Internal dispatcher ----
 
 execute_level <- function(level, current_df, nm, level_registry) {
   switch(level$type,
-    add     = execute_add_level(level, nm),
+    # add_level auto-nests when a hierarchy already exists (nrow > 0),
+    # exactly matching fabricatr's default nest = TRUE behaviour.
+    add     = if (nrow(current_df) > 0L)
+                execute_nest_level(level, current_df, nm)
+              else
+                execute_add_level(level, nm),
     declare = execute_add_level(level, nm),
     nest    = execute_nest_level(level, current_df, nm),
     cross   = execute_cross_level(level, level_registry, nm),

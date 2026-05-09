@@ -190,8 +190,9 @@ execute_add_level <- function(level, nm) {
 }
 
 execute_nest_level <- function(level, current_df, nm) {
-  if (nrow(current_df) == 0) {
-    stop("nest_level() cannot be the top of a hierarchy. Use add_level() first.")
+  if (nrow(current_df) == 0L) {
+    stop("nest_level() requires an existing level to nest within. ",
+         "Use add_level() first to create the top level.")
   }
 
   n_parent <- nrow(current_df)
