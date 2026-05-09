@@ -51,67 +51,76 @@ fabricate_with_dots <- function(data = NULL, dots) {
 }
 
 fabricate_impl <- function(N = NULL, dots, data = NULL) {
-  # df: working data frame (starts with correct row count, 0 columns)
-  # N_inject: scalar made available as "N" in every data mask
+  # Maintain a plain named list throughout — far cheaper than tibble for
+  # intermediate operations. Convert to tibble exactly once at the end.
   if (!is.null(data)) {
-    df       <- tibble::as_tibble(data)
-    N_inject <- nrow(df)
+    lst      <- as.list(tibble::as_tibble(data))
+    N_inject <- length(lst[[1L]])
   } else if (!is.null(N)) {
     N_val    <- as.integer(N)
-    df       <- tibble::tibble(.rows = N_val)
+    lst      <- list()
     N_inject <- N_val
   } else {
-    df       <- tibble::tibble()
+    lst      <- list()
     N_inject <- NULL
   }
 
-  # Registry of named top-level data frames for cross_levels / link_levels
   level_registry <- list()
 
   for (i in seq_along(dots)) {
     nm <- names(dots)[[i]]
 
-    # Build data mask: current columns + N (injected unless user already has it)
-    mask <- as.list(df)
+    mask <- lst
     if (!is.null(N_inject) && !"N" %in% names(mask)) mask[["N"]] <- N_inject
 
     val <- rlang::eval_tidy(dots[[i]], data = mask)
 
     if (inherits(val, "fabricatr_level")) {
-      df <- execute_level(val, df, nm, level_registry)
-      if (nchar(nm) > 0) level_registry[[nm]] <- df
-      N_inject <- nrow(df)
+      lst <- execute_level(val, lst, N_inject, nm, level_registry)
+      if (nchar(nm) > 0) level_registry[[nm]] <- lst
+      N_inject <- if (length(lst) > 0L) length(lst[[1L]]) else N_inject
     } else if (is.data.frame(val)) {
-      # Multi-column output: potential_outcomes, draw_multivariate, etc.
-      df <- dplyr::bind_cols(df, val)
+      # Recycle length-1 columns (e.g. potential_outcomes with constant RHS)
+      n_rows <- if (length(lst) > 0L) length(lst[[1L]]) else N_inject %||% 0L
+      for (j in seq_along(val)) {
+        v <- val[[j]]
+        if (length(v) == 1L && n_rows > 1L) v <- rep(v, n_rows)
+        lst[[names(val)[[j]]]] <- v
+      }
     } else if (nchar(nm) > 0) {
-      df[[nm]] <- val
+      lst[[nm]] <- val
     }
   }
 
-  df
-}  # end fabricate_impl
+  list_to_df(lst)
+}
+
+# Converts a named list of equal-length vectors to a tibble.
+# Using data.frame() is faster than tibble() for construction;
+# as_tibble() then adds the tbl_df class cheaply.
+list_to_df <- function(lst) {
+  if (length(lst) == 0L) return(tibble::tibble())
+  tibble::as_tibble(lst)
+}
 
 # Internal dispatcher ----
 
-execute_level <- function(level, current_df, nm, level_registry) {
+execute_level <- function(level, lst, N_inject, nm, level_registry) {
   switch(level$type,
-    # add_level auto-nests when a hierarchy already exists (nrow > 0),
-    # exactly matching fabricatr's default nest = TRUE behaviour.
-    add     = if (nrow(current_df) > 0L)
-                execute_nest_level(level, current_df, nm)
+    add     = if (length(lst) > 0L)
+                execute_nest_level(level, lst, N_inject, nm)
               else
                 execute_add_level(level, nm),
     declare = execute_add_level(level, nm),
-    nest    = execute_nest_level(level, current_df, nm),
+    nest    = execute_nest_level(level, lst, N_inject, nm),
     cross   = execute_cross_level(level, level_registry, nm),
     link    = execute_link_level(level, level_registry, nm),
-    modify  = execute_modify_level(level, current_df),
+    modify  = execute_modify_level(level, lst, N_inject),
     stop("Unknown fabricatrZero level type: ", level$type)
   )
 }
 
-# Sequential eval helper: builds up a list as a growing data mask ----
+# Sequential eval helper ----
 eval_dots_into_list <- function(dots, base_list, inner_N = NULL) {
   lst <- base_list
   if (!is.null(inner_N) && !"N" %in% names(lst)) lst[["N"]] <- inner_N

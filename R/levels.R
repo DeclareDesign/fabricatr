@@ -179,141 +179,147 @@ modify_level <- function(..., .by = NULL) {
 }
 
 # execute_* functions ---------------------------------------------------------
+# All execute functions operate on and return plain named lists.
+# fabricate_impl converts to tibble once at the very end via list_to_df().
+# Direct list indexing (v[idx]) is far cheaper than tibble row subsetting.
 
 execute_add_level <- function(level, nm) {
   N_val <- as.integer(level$N)
   base <- list()
   if (nchar(nm) > 0) base[[nm]] <- seq_len(N_val)
   lst <- eval_dots_into_list(level$dots, base, inner_N = N_val)
-  lst[["N"]] <- NULL  # N is data-mask only; not a persistent column
-  tibble::as_tibble(lst)
+  lst[["N"]] <- NULL
+  lst
 }
 
-execute_nest_level <- function(level, current_df, nm) {
-  if (nrow(current_df) == 0L) {
+# Signature updated: takes a plain list + N_inject scalar (not a tibble).
+execute_nest_level <- function(level, lst, N_inject, nm) {
+  n_parent <- if (length(lst) > 0L) length(lst[[1L]]) else 0L
+  if (n_parent == 0L) {
     stop("nest_level() requires an existing level to nest within. ",
          "Use add_level() first to create the top level.")
   }
 
-  n_parent <- nrow(current_df)
-  N_val <- rlang::eval_tidy(level$N, data = as.list(current_df))
+  N_val <- rlang::eval_tidy(level$N, data = lst)
 
-  if (length(N_val) == 1) {
-    idx <- rep(seq_len(n_parent), each = N_val)
+  if (length(N_val) == 1L) {
+    idx     <- rep(seq_len(n_parent), each = N_val)
     inner_N <- N_val
   } else {
     if (length(N_val) != n_parent) {
       stop("In nest_level(), N must be a scalar or a vector of length nrow(parent).")
     }
-    idx <- rep(seq_len(n_parent), times = N_val)
+    idx     <- rep(seq_len(n_parent), times = N_val)
     inner_N <- rep(N_val, times = N_val)
   }
 
-  N_total <- length(idx)
-  expanded <- as.list(current_df[idx, , drop = FALSE])
-  # Inject inner N for the data mask (removed from output at the end)
+  N_total  <- length(idx)
+  # Direct vector indexing — no data.frame/tibble overhead
+  expanded <- lapply(lst, function(v) v[idx])
   expanded[["N"]] <- inner_N
-
-  if (nchar(nm) > 0) expanded[[nm]] <- seq_len(N_total)
+  if (nchar(nm) > 0L) expanded[[nm]] <- seq_len(N_total)
 
   for (i in seq_along(level$dots)) {
     col_nm <- names(level$dots)[[i]]
-    val <- rlang::eval_tidy(level$dots[[i]], data = expanded)
+    val    <- rlang::eval_tidy(level$dots[[i]], data = expanded)
 
-    if (nchar(col_nm) > 0) {
-      # Replicate fixed-length inner vectors across all parents
-      if (length(N_val) == 1 && length(val) == N_val && N_val != N_total) {
+    if (nchar(col_nm) > 0L) {
+      if (length(N_val) == 1L && length(val) == N_val && N_val != N_total)
         val <- rep(val, n_parent)
-      } else if (length(val) == 1) {
+      else if (length(val) == 1L)
         val <- rep(val, N_total)
-      }
       expanded[[col_nm]] <- val
     } else if (is.data.frame(val)) {
-      if (nrow(val) == N_val && N_val != N_total) {
+      if (nrow(val) == N_val && N_val != N_total)
         val <- val[rep(seq_len(nrow(val)), n_parent), , drop = FALSE]
-      }
       for (j in seq_along(val)) expanded[[names(val)[[j]]]] <- val[[j]]
     }
   }
 
-  expanded[["N"]] <- NULL  # data-mask only
-  tibble::as_tibble(expanded)
+  expanded[["N"]] <- NULL
+  expanded
+}
+
+# Pure-list Cartesian product (avoids data.frame construction overhead).
+cross_join_lists <- function(a, b) {
+  na <- length(a[[1L]])
+  nb <- length(b[[1L]])
+  a_exp <- lapply(a, rep, times = nb)
+  b_exp <- lapply(b, rep, each  = na)
+  c(a_exp, b_exp)
 }
 
 execute_cross_level <- function(level, level_registry, nm) {
-  dfs <- level_registry[level$by]
   missing <- setdiff(level$by, names(level_registry))
-  if (length(missing) > 0) {
+  if (length(missing) > 0L) {
     stop("cross_levels: levels not found in registry: ",
          paste(missing, collapse = ", "),
          ". Did you use add_level() or declare_level() to create them?")
   }
-  if (length(dfs) < 2) stop("cross_levels: specify at least 2 levels in .by.")
+  if (length(level$by) < 2L) stop("cross_levels: specify at least 2 levels in .by.")
 
-  result <- purrr::reduce(dfs, dplyr::cross_join)
-  N_val <- nrow(result)
-  base <- as.list(result)
-  base[["N"]] <- NULL  # drop any stray N from constituent levels
-  if (nchar(nm) > 0) base[[nm]] <- seq_len(N_val)
+  lsts  <- level_registry[level$by]
+  base  <- Reduce(cross_join_lists, lsts)
+  base[["N"]] <- NULL
+  N_val <- length(base[[1L]])
+  if (nchar(nm) > 0L) base[[nm]] <- seq_len(N_val)
 
   lst <- eval_dots_into_list(level$dots, base, inner_N = N_val)
   lst[["N"]] <- NULL
-  tibble::as_tibble(lst)
+  lst
 }
 
 execute_link_level <- function(level, level_registry, nm) {
   missing <- setdiff(level$by, names(level_registry))
-  if (length(missing) > 0) {
+  if (length(missing) > 0L) {
     stop("link_levels: levels not found in registry: ",
          paste(missing, collapse = ", "))
   }
-  dfs <- level_registry[level$by]
-  N <- as.integer(level$N)
+  lsts <- level_registry[level$by]
+  N    <- as.integer(level$N)
 
   indices <- joint_draw_ecdf(
-    data_list = lapply(dfs, function(d) seq_len(nrow(d))),
-    N = N,
-    sigma = level$sigma,
-    rho = level$rho
+    data_list = lapply(lsts, function(d) seq_len(length(d[[1L]]))),
+    N = N, sigma = level$sigma, rho = level$rho
   )
 
-  result <- dfs[[1]][indices[[1]], , drop = FALSE]
-  for (i in seq_along(dfs)[-1]) {
-    result <- dplyr::bind_cols(result, dfs[[i]][indices[[i]], , drop = FALSE])
+  base <- lapply(lsts[[1L]], function(v) v[indices[[1L]]])
+  for (i in seq_along(lsts)[-1L]) {
+    extra <- lapply(lsts[[i]], function(v) v[indices[[i]]])
+    base  <- c(base, extra)
   }
-  result <- tibble::as_tibble(result)
+  base[["N"]] <- NULL
+  if (nchar(nm) > 0L) base[[nm]] <- seq_len(N)
 
-  base <- as.list(result)
-  base[["N"]] <- NULL  # drop stray N from constituent levels
-  if (nchar(nm) > 0) base[[nm]] <- seq_len(N)
   lst <- eval_dots_into_list(level$dots, base, inner_N = N)
   lst[["N"]] <- NULL
-  tibble::as_tibble(lst)
+  lst
 }
 
-execute_modify_level <- function(level, current_df) {
+execute_modify_level <- function(level, lst, N_inject) {
   if (is.null(level$by)) {
-    lst <- eval_dots_into_list(level$dots, as.list(current_df),
-                               inner_N = nrow(current_df))
-    lst[["N"]] <- NULL
-    tibble::as_tibble(lst)
+    out <- eval_dots_into_list(level$dots, lst, inner_N = N_inject)
+    out[["N"]] <- NULL
+    out
   } else {
     by_col <- level$by
-    groups <- split(seq_len(nrow(current_df)), current_df[[by_col]])
-    results <- purrr::map(groups, function(idx) {
-      slice_df <- current_df[idx, , drop = FALSE]
-      lst <- eval_dots_into_list(level$dots, as.list(slice_df),
-                                 inner_N = nrow(slice_df))
-      lst[["N"]] <- NULL
-      tibble::as_tibble(lst)
+    grp_vec <- lst[[by_col]]
+    groups  <- split(seq_along(grp_vec), grp_vec)
+    orig_order <- order(unlist(groups, use.names = FALSE))
+    slices <- purrr::map(groups, function(idx) {
+      n_sl <- length(idx)
+      sl   <- lapply(lst, function(v) v[idx])
+      out  <- eval_dots_into_list(level$dots, sl, inner_N = n_sl)
+      out[["N"]] <- NULL
+      # Recycle scalars to slice length (mirrors tibble's behaviour)
+      lapply(out, function(v) if (length(v) == 1L && n_sl > 1L) rep(v, n_sl) else v)
     })
-    # Reconstruct in original row order
-    out <- dplyr::bind_rows(results)
-    orig_order <- order(unlist(lapply(
-      seq_along(groups),
-      function(i) groups[[i]]
-    )))
-    out[orig_order, , drop = FALSE]
+    # Bind list-of-lists by column then restore original row order
+    bound <- lapply(names(slices[[1L]]), function(nm) {
+      unlist(lapply(slices, `[[`, nm), use.names = FALSE)
+    })
+    names(bound) <- names(slices[[1L]])
+    lapply(bound, function(v) v[orig_order])
   }
 }
 
