@@ -1,0 +1,26 @@
+Package: fabricatrZero
+Title: Tidyverse-First Data Fabrication
+Version: 0.1.0
+Authors@R: person("Alex", "Coppock", email = "acoppock@gmail.com",
+    role = c("aut", "cre"))
+Author: Alex Coppock [aut, cre]
+Maintainer: Alex Coppock <acoppock@gmail.com>
+Description: A drop-in tidyverse-first replacement for fabricatr. Identical
+    public API built on dplyr, tidyr, tibble, and purrr. Key improvements:
+    explicit nesting via nest_level(), declare_level() for cross-classified
+    data, improved draw_* defaults, and a clean multi-column output protocol.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports:
+    dplyr (>= 1.1.0),
+    tibble,
+    purrr,
+    rlang,
+    stats
+Suggests:
+    MASS,
+    mvnfast,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+RoxygenNote: 7.3.3

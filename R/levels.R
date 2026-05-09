@@ -1,0 +1,355 @@
+# Level constructor helpers ----
+# Each public function returns a fabricatr_level object.
+# fabricate() detects these via inherits() and dispatches to execute_*_level().
+
+new_level <- function(type, ...) {
+  structure(list(type = type, ...), class = "fabricatr_level")
+}
+
+# add_level -------------------------------------------------------------------
+
+#' Add a hierarchical level
+#'
+#' Creates N rows and registers the result as the new current data frame.
+#' Subsequent calls to \code{nest_level} will fan out from these rows.
+#' For independent (non-nested) levels used in \code{cross_levels} or
+#' \code{link_levels}, use \code{declare_level}.
+#'
+#' @param N Number of rows to create.
+#' @param ... Column expressions evaluated sequentially. \code{N} is available
+#'   as a scalar integer.
+#'
+#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#'
+#' @examples
+#' fabricate(
+#'   villages = add_level(N = 20, income = rnorm(N)),
+#'   citizens = nest_level(N = 5, Y = income + rnorm(N))
+#' )
+#'
+#' @export
+add_level <- function(N, ...) {
+  new_level("add", N = N, dots = rlang::enquos(...))
+}
+
+# declare_level ---------------------------------------------------------------
+
+#' Declare an independent level for cross-classification
+#'
+#' Creates N rows as a standalone data frame registered for use by
+#' \code{cross_levels} or \code{link_levels}. Unlike \code{add_level}, a
+#' \code{declare_level} call does not nest into any existing hierarchy — it
+#' starts fresh. Use this when you need two independent populations to cross
+#' (e.g., countries and years for panel data).
+#'
+#' @param N Number of rows to create.
+#' @param ... Column expressions evaluated sequentially. \code{N} is available
+#'   as a scalar integer.
+#'
+#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#'
+#' @examples
+#' fabricate(
+#'   countries = declare_level(N = 20, gdp = runif(N, 1, 10)),
+#'   years     = declare_level(N = 10, shock = runif(N, 1, 5)),
+#'   obs       = cross_levels(
+#'     .by = c("countries", "years"),
+#'     GDP_it = gdp + shock
+#'   )
+#' )
+#'
+#' @export
+declare_level <- function(N, ...) {
+  new_level("declare", N = N, dots = rlang::enquos(...))
+}
+
+# nest_level ------------------------------------------------------------------
+
+#' Nest a level within the current hierarchy
+#'
+#' For each row in the current data frame, creates N child rows. Parent columns
+#' are replicated across children. \code{N} may be a scalar (same count for
+#' every parent) or a vector of length \code{nrow} of the parent (variable
+#' children per parent).
+#'
+#' @param N Rows per parent. Scalar or per-parent vector.
+#' @param ... Column expressions. \code{N} is the inner count (children per
+#'   parent, not total rows).
+#'
+#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#'
+#' @examples
+#' fabricate(
+#'   villages = add_level(N = 20, v_income = rnorm(N)),
+#'   citizens = nest_level(N = 5, income = v_income + rnorm(N))
+#' )
+#'
+#' @export
+nest_level <- function(N, ...) {
+  new_level("nest", N = rlang::enquo(N), dots = rlang::enquos(...))
+}
+
+# cross_levels ----------------------------------------------------------------
+
+#' Create a full Cartesian product of declared levels
+#'
+#' Produces all combinations of the specified levels (equivalent to SQL
+#' CROSS JOIN). Use \code{link_levels} to sample N rows from the product with
+#' an optional correlation structure.
+#'
+#' @param .by Character vector of level names to cross (must have been created
+#'   by \code{add_level} or \code{declare_level} in the same \code{fabricate}
+#'   call).
+#' @param ... Additional column expressions evaluated after crossing.
+#'
+#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#'
+#' @examples
+#' fabricate(
+#'   countries = declare_level(N = 10, gdp = runif(N, 1, 10)),
+#'   years     = declare_level(N = 5, shock = runif(N, 0, 1)),
+#'   obs       = cross_levels(.by = c("countries", "years"), Y = gdp + shock)
+#' )
+#'
+#' @export
+cross_levels <- function(.by, ...) {
+  new_level("cross", by = .by, dots = rlang::enquos(...))
+}
+
+# link_levels -----------------------------------------------------------------
+
+#' Sample N rows from a Cartesian product with optional correlation
+#'
+#' Draws N rows from the cross-product of the specified levels. When \code{rho}
+#' or \code{sigma} is non-zero, row assignments are correlated via a Gaussian
+#' copula so that units with high values on one level's variable tend to be
+#' paired with units with high values on the other level's variable.
+#'
+#' @param N Number of rows to sample from the product.
+#' @param .by Character vector of exactly two level names.
+#' @param rho Scalar Spearman rank correlation between the two levels' row
+#'   assignments (default 0 = independent). Ignored if \code{sigma} is
+#'   provided.
+#' @param sigma Square correlation matrix (dimension = \code{length(.by)}).
+#' @param ... Additional column expressions evaluated after linking.
+#'
+#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#'
+#' @examples
+#' fabricate(
+#'   primary   = declare_level(N = 20, p_quality = runif(N, 1, 10)),
+#'   secondary = declare_level(N = 15, s_quality = runif(N, 1, 10)),
+#'   students  = link_levels(
+#'     N = 200, .by = c("primary", "secondary"), rho = 0.5,
+#'     score = p_quality + s_quality + rnorm(N)
+#'   )
+#' )
+#'
+#' @export
+link_levels <- function(N, .by, rho = 0, sigma = NULL, ...) {
+  new_level("link", N = N, by = .by, rho = rho, sigma = sigma,
+            dots = rlang::enquos(...))
+}
+
+# modify_level ----------------------------------------------------------------
+
+#' Modify columns of the current level, optionally within groups
+#'
+#' Equivalent to \code{dplyr::mutate}, with an optional \code{.by} argument
+#' for split-apply-combine on a grouping column. Replaces fabricatr's
+#' \code{modify_level}.
+#'
+#' @param ... Column expressions to add or overwrite.
+#' @param .by Optional character string: column name to group by before
+#'   evaluating expressions.
+#'
+#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#'
+#' @examples
+#' fabricate(
+#'   N = 50,
+#'   cluster = sample(1:5, N, replace = TRUE),
+#'   Y = rnorm(N),
+#'   cluster_mean = modify_level(cm = mean(Y), .by = "cluster")$cm
+#' )
+#'
+#' @export
+modify_level <- function(..., .by = NULL) {
+  new_level("modify", dots = rlang::enquos(...), by = .by)
+}
+
+# execute_* functions ---------------------------------------------------------
+
+execute_add_level <- function(level, nm) {
+  N_val <- as.integer(level$N)
+  base <- list()
+  if (nchar(nm) > 0) base[[nm]] <- seq_len(N_val)
+  lst <- eval_dots_into_list(level$dots, base, inner_N = N_val)
+  lst[["N"]] <- NULL  # N is data-mask only; not a persistent column
+  tibble::as_tibble(lst)
+}
+
+execute_nest_level <- function(level, current_df, nm) {
+  if (nrow(current_df) == 0) {
+    stop("nest_level() cannot be the top of a hierarchy. Use add_level() first.")
+  }
+
+  n_parent <- nrow(current_df)
+  N_val <- rlang::eval_tidy(level$N, data = as.list(current_df))
+
+  if (length(N_val) == 1) {
+    idx <- rep(seq_len(n_parent), each = N_val)
+    inner_N <- N_val
+  } else {
+    if (length(N_val) != n_parent) {
+      stop("In nest_level(), N must be a scalar or a vector of length nrow(parent).")
+    }
+    idx <- rep(seq_len(n_parent), times = N_val)
+    inner_N <- rep(N_val, times = N_val)
+  }
+
+  N_total <- length(idx)
+  expanded <- as.list(current_df[idx, , drop = FALSE])
+  # Inject inner N for the data mask (removed from output at the end)
+  expanded[["N"]] <- inner_N
+
+  if (nchar(nm) > 0) expanded[[nm]] <- seq_len(N_total)
+
+  for (i in seq_along(level$dots)) {
+    col_nm <- names(level$dots)[[i]]
+    val <- rlang::eval_tidy(level$dots[[i]], data = expanded)
+
+    if (nchar(col_nm) > 0) {
+      # Replicate fixed-length inner vectors across all parents
+      if (length(N_val) == 1 && length(val) == N_val && N_val != N_total) {
+        val <- rep(val, n_parent)
+      } else if (length(val) == 1) {
+        val <- rep(val, N_total)
+      }
+      expanded[[col_nm]] <- val
+    } else if (is.data.frame(val)) {
+      if (nrow(val) == N_val && N_val != N_total) {
+        val <- val[rep(seq_len(nrow(val)), n_parent), , drop = FALSE]
+      }
+      for (j in seq_along(val)) expanded[[names(val)[[j]]]] <- val[[j]]
+    }
+  }
+
+  expanded[["N"]] <- NULL  # data-mask only
+  tibble::as_tibble(expanded)
+}
+
+execute_cross_level <- function(level, level_registry, nm) {
+  dfs <- level_registry[level$by]
+  missing <- setdiff(level$by, names(level_registry))
+  if (length(missing) > 0) {
+    stop("cross_levels: levels not found in registry: ",
+         paste(missing, collapse = ", "),
+         ". Did you use add_level() or declare_level() to create them?")
+  }
+  if (length(dfs) < 2) stop("cross_levels: specify at least 2 levels in .by.")
+
+  result <- purrr::reduce(dfs, dplyr::cross_join)
+  N_val <- nrow(result)
+  base <- as.list(result)
+  base[["N"]] <- NULL  # drop any stray N from constituent levels
+  if (nchar(nm) > 0) base[[nm]] <- seq_len(N_val)
+
+  lst <- eval_dots_into_list(level$dots, base, inner_N = N_val)
+  lst[["N"]] <- NULL
+  tibble::as_tibble(lst)
+}
+
+execute_link_level <- function(level, level_registry, nm) {
+  missing <- setdiff(level$by, names(level_registry))
+  if (length(missing) > 0) {
+    stop("link_levels: levels not found in registry: ",
+         paste(missing, collapse = ", "))
+  }
+  dfs <- level_registry[level$by]
+  N <- as.integer(level$N)
+
+  indices <- joint_draw_ecdf(
+    data_list = lapply(dfs, function(d) seq_len(nrow(d))),
+    N = N,
+    sigma = level$sigma,
+    rho = level$rho
+  )
+
+  result <- dfs[[1]][indices[[1]], , drop = FALSE]
+  for (i in seq_along(dfs)[-1]) {
+    result <- dplyr::bind_cols(result, dfs[[i]][indices[[i]], , drop = FALSE])
+  }
+  result <- tibble::as_tibble(result)
+
+  base <- as.list(result)
+  base[["N"]] <- NULL  # drop stray N from constituent levels
+  if (nchar(nm) > 0) base[[nm]] <- seq_len(N)
+  lst <- eval_dots_into_list(level$dots, base, inner_N = N)
+  lst[["N"]] <- NULL
+  tibble::as_tibble(lst)
+}
+
+execute_modify_level <- function(level, current_df) {
+  if (is.null(level$by)) {
+    lst <- eval_dots_into_list(level$dots, as.list(current_df),
+                               inner_N = nrow(current_df))
+    lst[["N"]] <- NULL
+    tibble::as_tibble(lst)
+  } else {
+    by_col <- level$by
+    groups <- split(seq_len(nrow(current_df)), current_df[[by_col]])
+    results <- purrr::map(groups, function(idx) {
+      slice_df <- current_df[idx, , drop = FALSE]
+      lst <- eval_dots_into_list(level$dots, as.list(slice_df),
+                                 inner_N = nrow(slice_df))
+      lst[["N"]] <- NULL
+      tibble::as_tibble(lst)
+    })
+    # Reconstruct in original row order
+    out <- dplyr::bind_rows(results)
+    orig_order <- order(unlist(lapply(
+      seq_along(groups),
+      function(i) groups[[i]]
+    )))
+    out[orig_order, , drop = FALSE]
+  }
+}
+
+# Gaussian copula for link_levels ---------------------------------------------
+
+joint_draw_ecdf <- function(data_list, N, sigma = NULL, rho = 0) {
+  ndim <- length(data_list)
+
+  if (is.null(sigma)) {
+    if (rho == 0) {
+      return(lapply(data_list, function(v) sample.int(length(v), N, replace = TRUE)))
+    }
+    sigma <- matrix(rho, nrow = ndim, ncol = ndim)
+    diag(sigma) <- 1
+  }
+
+  if (!isSymmetric(sigma) || nrow(sigma) != ndim || any(diag(sigma) != 1)) {
+    stop("sigma must be a symmetric correlation matrix with 1s on the diagonal ",
+         "and dimension equal to length(.by).")
+  }
+
+  use_mvnfast <- requireNamespace("mvnfast", quietly = TRUE)
+  mu <- rep(0, ndim)
+
+  if (use_mvnfast) {
+    corr_sn <- mvnfast::rmvn(N, mu, sigma)
+  } else {
+    R <- chol(sigma, pivot = TRUE)
+    R <- R[, order(attr(R, "pivot"))]
+    corr_sn <- matrix(stats::rnorm(N * ndim), nrow = N) %*% R
+  }
+
+  quantiles <- stats::pnorm(corr_sn)
+
+  lapply(seq_len(ndim), function(j) {
+    v <- data_list[[j]]
+    ordered_idx <- pmax(1L, round(quantiles[, j] * length(v)))
+    order(v)[ordered_idx]
+  })
+}
