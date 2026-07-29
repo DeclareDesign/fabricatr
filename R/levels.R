@@ -34,23 +34,20 @@ check_legacy_args <- function(dots) {
   invisible(NULL)
 }
 
-# A column expression inside a nested level must return one value per row of
-# the level, or a single value to recycle. The length worth naming separately
-# is the per-parent group size: an expression written against the old
-# per-group `N` returns exactly that, and repeating it to fill the level would
-# give every parent the same values.
-check_level_length <- function(val, n_total, col_nm, group_size, n_parent) {
-  if (length(val) == n_total) return(invisible(NULL))
-  if (length(group_size) == 1L && length(val) == group_size) {
-    stop("In a nested level, `", col_nm, "` returned ", length(val),
-         " values, one per parent group, but the level has ", n_total,
-         " rows. `N` is the total number of rows at this level (", n_total,
-         "), not the number per parent (", group_size, "). Write the ",
-         "expression against the whole level, or repeat it explicitly with ",
-         "rep(x, ", n_parent, ").", call. = FALSE)
-  }
-  stop("In a nested level, `", col_nm, "` returned ", length(val),
-       " values but the level has ", n_total, " rows.", call. = FALSE)
+# A column expression inside a nested level has to fill the level. Any vector
+# whose length divides the level evenly is recycled, as in fabricatr, which is
+# what makes `task = 1:3` number the tasks within every parent. Recycling is
+# safe here only because `N` is the level's total row count: an expression
+# written against `N` already returns one value per row, so the short vectors
+# that reach this point are the ones the author wrote out deliberately.
+recycle_to_level <- function(val, n_total, col_nm) {
+  n <- length(val)
+  if (n == n_total) return(val)
+  if (n > 0L && n_total %% n == 0L) return(rep(val, length.out = n_total))
+  stop("In a nested level, `", col_nm, "` returned ", n, " values, which ",
+       "does not fill the level's ", n_total, " rows. Return one value per ",
+       "row, or a vector whose length divides ", n_total, " evenly.",
+       call. = FALSE)
 }
 
 # add_level -------------------------------------------------------------------
@@ -291,15 +288,11 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
     val    <- rlang::eval_tidy(level$dots[[i]], data = expanded)
 
     if (nchar(col_nm) > 0L) {
-      if (length(val) == 1L) val <- rep(val, N_total)
-      check_level_length(val, N_total, col_nm, N_val, n_parent)
-      expanded[[col_nm]] <- val
+      expanded[[col_nm]] <- recycle_to_level(val, N_total, col_nm)
     } else if (is.data.frame(val)) {
       for (j in seq_along(val)) {
-        v <- val[[j]]
-        if (length(v) == 1L) v <- rep(v, N_total)
-        check_level_length(v, N_total, names(val)[[j]], N_val, n_parent)
-        expanded[[names(val)[[j]]]] <- v
+        expanded[[names(val)[[j]]]] <-
+          recycle_to_level(val[[j]], N_total, names(val)[[j]])
       }
     }
   }

@@ -41,13 +41,24 @@ test_that("nested draws are independent across parent groups", {
   expect_lt(abs(mean(cor(m)[lower.tri(cor(m))])), 0.2)
 })
 
-test_that("a nested column of the wrong length is an error, not a recycle", {
+test_that("a short vector written out deliberately still recycles", {
+  # The book numbers tasks within each subject this way, and fabricatr
+  # recycles it. Safe because N is the level total, so rnorm(N) and friends
+  # already return one value per row and never reach the recycling path.
+  df <- fabricate(
+    subject = add_level(N = 4),
+    task    = nest_level(N = 3, task = 1:3)
+  )
+  expect_equal(df$task, rep(1:3, 4))
+})
+
+test_that("a nested column that cannot fill the level is an error", {
   expect_error(
     fabricate(
       villages = add_level(N = 3, u = rnorm(N)),
-      citizens = nest_level(N = 4, e = rnorm(4))
+      citizens = nest_level(N = 4, e = rnorm(5))
     ),
-    "total number of rows at this level"
+    "does not fill the level"
   )
 })
 
