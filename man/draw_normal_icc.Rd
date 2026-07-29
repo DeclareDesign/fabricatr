@@ -17,30 +17,26 @@ draw_normal_icc(
 \arguments{
 \item{clusters}{Vector of cluster IDs (factor, integer, or character).}
 
-\item{ICC}{Target intra-cluster correlation (0, 1). Required unless both
-\code{sd} and \code{sd_between} are provided.}
+\item{ICC}{Target intra-cluster correlation, in \eqn{[0, 1]}. The endpoints
+are the degenerate cases rather than errors: at 0 the cluster variable
+does no work, and at 1 every unit in a cluster takes the same value.}
 
-\item{mean}{Grand mean or per-cluster mean vector. Default 0.}
+\item{mean}{Grand mean or per-cluster mean vector. Default 0. May be given
+per cluster or already expanded to one value per unit.}
 
-\item{sd}{Within-cluster standard deviation. Default 1 when only ICC is
-supplied.}
+\item{sd}{Within-cluster standard deviation.}
 
-\item{sd_between}{Between-cluster standard deviation. Inferred from ICC and
-\code{sd} when not provided.}
+\item{sd_between}{Between-cluster standard deviation.}
 
-\item{total_sd}{If supplied alongside \code{ICC}, rescale the output to have
-this overall standard deviation. Cannot be combined with \code{sd} or
-\code{sd_between}. Note that this is a rescaling of the drawn vector, not
-a parameter of the distribution it was drawn from, so the realised
-\code{sd()} is exactly \code{total_sd} every time, with none of the
-sampling variability a draw of this size would ordinarily show. Across
-300 draws of 200 observations the standard deviation of the realised
-\code{sd()} is 0, against roughly 0.14 for the same design specified
-through \code{sd}. If you are simulating many datasets and want that
-variability, set \code{sd} or \code{sd_between} instead: for a target
-total \eqn{s} and a given ICC, \eqn{\sigma_{between} = s\sqrt{ICC}} and
-\eqn{\sigma_{within} = s\sqrt{1 - ICC}}. The rescaling is affine, so it
-leaves the ICC itself untouched.}
+\item{total_sd}{Overall standard deviation, \eqn{\sqrt{\sigma_b^2 +
+\sigma_w^2}}. This is a parameter of the distribution, not a rescaling of
+the draw, so the realised \code{sd()} varies from draw to draw as any
+other sample statistic does. With \code{ICC}, it gives
+\eqn{\sigma_{between} = s\sqrt{ICC}} and
+\eqn{\sigma_{within} = s\sqrt{1 - ICC}}. fabricatr instead rescales the
+finished vector so that its sample standard deviation is exactly
+\code{total_sd} every time; see the package vignette for why this
+diverges.}
 
 \item{N}{Optional; must equal \code{length(clusters)} when provided.}
 }
@@ -54,8 +50,10 @@ a cluster-level draw (between-cluster variance) and an individual-level draw
 \eqn{\sigma_b^2 / (\sigma_b^2 + \sigma_w^2)}.
 }
 \details{
-Supply exactly two of \code{ICC}, \code{sd} (within-cluster), and
-\code{sd_between} (between-cluster). The third is implied.
+Supply any two of \code{ICC}, \code{sd} (within-cluster),
+\code{sd_between} (between-cluster), and \code{total_sd}. The other two
+follow from \eqn{\sigma_{total}^2 = \sigma_b^2 + \sigma_w^2}. Supplying
+\code{ICC} alone is shorthand for \code{sd = 1}.
 }
 \examples{
 clusters <- rep(1:10, each = 20)

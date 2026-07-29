@@ -5,30 +5,28 @@
 #' (within-cluster variance). The ICC equals
 #' \eqn{\sigma_b^2 / (\sigma_b^2 + \sigma_w^2)}.
 #'
-#' Supply exactly two of \code{ICC}, \code{sd} (within-cluster), and
-#' \code{sd_between} (between-cluster). The third is implied.
+#' Supply any two of \code{ICC}, \code{sd} (within-cluster),
+#' \code{sd_between} (between-cluster), and \code{total_sd}. The other two
+#' follow from \eqn{\sigma_{total}^2 = \sigma_b^2 + \sigma_w^2}. Supplying
+#' \code{ICC} alone is shorthand for \code{sd = 1}.
 #'
 #' @param clusters Vector of cluster IDs (factor, integer, or character).
-#' @param ICC Target intra-cluster correlation (0, 1). Required unless both
-#'   \code{sd} and \code{sd_between} are provided.
-#' @param mean Grand mean or per-cluster mean vector. Default 0.
-#' @param sd Within-cluster standard deviation. Default 1 when only ICC is
-#'   supplied.
-#' @param sd_between Between-cluster standard deviation. Inferred from ICC and
-#'   \code{sd} when not provided.
-#' @param total_sd If supplied alongside \code{ICC}, rescale the output to have
-#'   this overall standard deviation. Cannot be combined with \code{sd} or
-#'   \code{sd_between}. Note that this is a rescaling of the drawn vector, not
-#'   a parameter of the distribution it was drawn from, so the realised
-#'   \code{sd()} is exactly \code{total_sd} every time, with none of the
-#'   sampling variability a draw of this size would ordinarily show. Across
-#'   300 draws of 200 observations the standard deviation of the realised
-#'   \code{sd()} is 0, against roughly 0.14 for the same design specified
-#'   through \code{sd}. If you are simulating many datasets and want that
-#'   variability, set \code{sd} or \code{sd_between} instead: for a target
-#'   total \eqn{s} and a given ICC, \eqn{\sigma_{between} = s\sqrt{ICC}} and
-#'   \eqn{\sigma_{within} = s\sqrt{1 - ICC}}. The rescaling is affine, so it
-#'   leaves the ICC itself untouched.
+#' @param ICC Target intra-cluster correlation, in \eqn{[0, 1]}. The endpoints
+#'   are the degenerate cases rather than errors: at 0 the cluster variable
+#'   does no work, and at 1 every unit in a cluster takes the same value.
+#' @param mean Grand mean or per-cluster mean vector. Default 0. May be given
+#'   per cluster or already expanded to one value per unit.
+#' @param sd Within-cluster standard deviation.
+#' @param sd_between Between-cluster standard deviation.
+#' @param total_sd Overall standard deviation, \eqn{\sqrt{\sigma_b^2 +
+#'   \sigma_w^2}}. This is a parameter of the distribution, not a rescaling of
+#'   the draw, so the realised \code{sd()} varies from draw to draw as any
+#'   other sample statistic does. With \code{ICC}, it gives
+#'   \eqn{\sigma_{between} = s\sqrt{ICC}} and
+#'   \eqn{\sigma_{within} = s\sqrt{1 - ICC}}. fabricatr instead rescales the
+#'   finished vector so that its sample standard deviation is exactly
+#'   \code{total_sd} every time; see the package vignette for why this
+#'   diverges.
 #' @param N Optional; must equal \code{length(clusters)} when provided.
 #'
 #' @return Numeric vector of the same length as \code{clusters}.
@@ -57,46 +55,9 @@ draw_normal_icc <- function(clusters,
     stop("`N` must equal length(clusters).")
   }
 
-  # Resolve sd / sd_between from ICC
-  if (!is.null(ICC)) {
-    if (!is.numeric(ICC) || length(ICC) != 1L || is.na(ICC) ||
-        ICC < 0 || ICC > 1) {
-      stop("`ICC` must be a single number between 0 and 1.", call. = FALSE)
-    }
-    if (!is.null(total_sd) && (!is.null(sd) || !is.null(sd_between))) {
-      stop("When `total_sd` is provided, leave `sd` and `sd_between` blank.")
-    }
-    if (!is.null(sd) && !is.null(sd_between)) {
-      warning("Both `sd` and `sd_between` supplied; ignoring `ICC`.")
-    } else if (is.null(sd) && is.null(sd_between)) {
-      sd <- 1
-    }
-    # The endpoints are the degenerate cases, not errors. At ICC = 0 there is
-    # no between-cluster variance, so the cluster variable does no work; at
-    # ICC = 1 there is no within-cluster variance and every unit in a cluster
-    # takes the cluster's value. Solving for the missing standard deviation
-    # divides by zero at each end, so name them rather than compute them.
-    # `total_sd` still rescales afterwards at the endpoints, exactly as it does
-    # at every other ICC.
-    if (ICC == 0) {
-      if (is.null(sd)) {
-        stop("An `ICC` of 0 means no between-cluster variance, so ",
-             "`sd_between` cannot also be positive. Supply `sd` instead.",
-             call. = FALSE)
-      }
-      sd_between <- 0
-    } else if (ICC == 1) {
-      if (is.null(sd_between)) sd_between <- sd
-      sd <- 0
-    } else {
-      if (is.null(sd)) sd <- sqrt((1 - ICC) * sd_between^2 / ICC)
-      if (is.null(sd_between)) sd_between <- sqrt(ICC * sd^2 / (1 - ICC))
-    }
-  } else {
-    if (is.null(sd) || is.null(sd_between)) {
-      stop("Provide `ICC`, or provide both `sd` and `sd_between`.")
-    }
-  }
+  scales <- resolve_icc_scales(ICC, sd, sd_between, total_sd)
+  sd         <- scales$within
+  sd_between <- scales$between
 
   # Cluster means
   ind_mean <- resolve_cluster_values(mean, clusters, k, "mean")[clusters]
@@ -106,7 +67,94 @@ draw_normal_icc <- function(clusters,
   epsilon <- rnorm(length(clusters), 0, sd)
   result <- ind_mean + alpha + epsilon
 
-  if (!is.null(total_sd)) rescale_sd(result, total_sd) else result
+  result
+}
+
+# The two-component model has four descriptions of the same pair of variances:
+# ICC, within, between, and total, related by total^2 = between^2 + within^2
+# and ICC = between^2 / total^2. Any two of them pin the other two, so solve
+# rather than draw and then rescale. Rescaling would force the realised sd to
+# the target exactly, leaving a simulation with no sampling variability in the
+# quantity it is varying.
+resolve_icc_scales <- function(ICC, sd, sd_between, total_sd) {
+  if (!is.null(ICC) &&
+      (!is.numeric(ICC) || length(ICC) != 1L || is.na(ICC) || ICC < 0 || ICC > 1)) {
+    stop("`ICC` must be a single number between 0 and 1.", call. = FALSE)
+  }
+  for (nm in c("sd", "sd_between", "total_sd")) {
+    v <- get(nm)
+    if (!is.null(v) && (!is.numeric(v) || length(v) != 1L || is.na(v) || v < 0)) {
+      stop("`", nm, "` must be a single non-negative number.", call. = FALSE)
+    }
+  }
+
+  # Both scale parameters given: the draw is fully determined.
+  if (!is.null(sd) && !is.null(sd_between)) {
+    if (!is.null(ICC) || !is.null(total_sd)) {
+      warning("`sd` and `sd_between` already determine the draw; ignoring ",
+              "`ICC` and `total_sd`.", call. = FALSE)
+    }
+    return(list(within = sd, between = sd_between))
+  }
+
+  if (!is.null(ICC)) {
+    supplied <- sum(!is.null(sd), !is.null(sd_between), !is.null(total_sd))
+    if (supplied > 1L) {
+      stop("With `ICC`, supply only one of `sd`, `sd_between`, and ",
+           "`total_sd`.", call. = FALSE)
+    }
+    # ICC alone is shorthand for a unit within-cluster sd, which is what
+    # fabricatr does. At ICC = 1 there is no within-cluster variance for that
+    # shorthand to describe, so the unit scale goes on the between term.
+    if (supplied == 0L) {
+      if (ICC == 1) return(list(within = 0, between = 1))
+      sd <- 1
+    }
+
+    if (!is.null(total_sd)) {
+      return(list(within = total_sd * sqrt(1 - ICC),
+                  between = total_sd * sqrt(ICC)))
+    }
+    if (!is.null(sd)) {
+      if (ICC == 1) {
+        if (sd > 0) {
+          stop("An `ICC` of 1 means no within-cluster variance, so `sd` must ",
+               "be 0. Supply `total_sd` or `sd_between` to set the scale.",
+               call. = FALSE)
+        }
+        stop("`ICC` of 1 with `sd` of 0 does not pin the scale. Supply ",
+             "`total_sd` or `sd_between` as well.", call. = FALSE)
+      }
+      return(list(within = sd, between = sd * sqrt(ICC / (1 - ICC))))
+    }
+    if (ICC == 0) {
+      if (sd_between > 0) {
+        stop("An `ICC` of 0 means no between-cluster variance, so ",
+             "`sd_between` must be 0. Supply `total_sd` or `sd` to set the ",
+             "scale.", call. = FALSE)
+      }
+      stop("`ICC` of 0 with `sd_between` of 0 does not pin the scale. Supply ",
+           "`total_sd` or `sd` as well.", call. = FALSE)
+    }
+    return(list(within = sd_between * sqrt((1 - ICC) / ICC),
+                between = sd_between))
+  }
+
+  if (!is.null(total_sd) && !is.null(sd)) {
+    if (sd > total_sd) {
+      stop("`sd` cannot exceed `total_sd`.", call. = FALSE)
+    }
+    return(list(within = sd, between = sqrt(total_sd^2 - sd^2)))
+  }
+  if (!is.null(total_sd) && !is.null(sd_between)) {
+    if (sd_between > total_sd) {
+      stop("`sd_between` cannot exceed `total_sd`.", call. = FALSE)
+    }
+    return(list(within = sqrt(total_sd^2 - sd_between^2), between = sd_between))
+  }
+
+  stop("Supply any two of `ICC`, `sd`, `sd_between`, and `total_sd`.",
+       call. = FALSE)
 }
 
 #' Draw binary data with a target intra-cluster correlation
@@ -175,9 +223,3 @@ resolve_cluster_values <- function(values, cidx, k, arg) {
        call. = FALSE)
 }
 
-# Internal helper
-rescale_sd <- function(x, new_sd) {
-  m <- mean(x)
-  s <- sd(x)
-  (x - m) * new_sd / s + m
-}

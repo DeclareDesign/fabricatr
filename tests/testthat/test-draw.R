@@ -175,42 +175,76 @@ test_that("cluster-level parameters may arrive already expanded to one per unit"
   )
 })
 
-test_that("total_sd rescales at the ICC endpoints just as it does in between", {
+test_that("total_sd parameterises the draw at the ICC endpoints too", {
   set.seed(3)
   cl <- rep(1:20, each = 10)
 
-  # ICC = 0: the cluster variable does no work, and total_sd still applies
+  # ICC = 0: the cluster variable does no work; total_sd sets the scale
   y0 <- draw_normal_icc(clusters = cl, ICC = 0, total_sd = 2)
-  expect_equal(sd(y0), 2)
   expect_true(all(tapply(y0, cl, function(v) length(unique(v))) == 10L))
+  expect_equal(sd(y0), 2, tolerance = 0.25)
 
-  # ICC = 1: every unit takes its cluster's value, and total_sd still applies
+  # ICC = 1: every unit takes its cluster's value; total_sd sets the scale
   y1 <- draw_normal_icc(clusters = cl, ICC = 1, total_sd = 2)
-  expect_equal(sd(y1), 2)
   expect_true(all(tapply(y1, cl, function(v) length(unique(v))) == 1L))
+  expect_equal(sd(y1), 2, tolerance = 0.6)
 
-  # The rescaling is affine, so it leaves the sample mean and the ICC alone.
-  # Supplying sd = 1 reproduces the same internal parameters and the same RNG
-  # draws as the total_sd path, so the two differ only by the rescaling.
-  set.seed(77); scaled <- draw_normal_icc(clusters = cl, ICC = 0.4, mean = 5,
-                                          total_sd = 2)
-  set.seed(77); raw    <- draw_normal_icc(clusters = cl, ICC = 0.4, mean = 5,
-                                          sd = 1)
-  expect_equal(mean(scaled), mean(raw))
-  expect_equal(summary(lm(scaled ~ factor(cl)))$r.squared,
-               summary(lm(raw ~ factor(cl)))$r.squared)
-  expect_equal(sd(scaled), 2)
+  # ICC alone still works at both ends
+  expect_length(draw_normal_icc(clusters = cl, ICC = 0), 200L)
+  expect_true(all(tapply(draw_normal_icc(clusters = cl, ICC = 1), cl,
+                         function(v) length(unique(v))) == 1L))
 })
 
-test_that("total_sd fixes the realised sd exactly, with no sampling variability", {
-  # Documented behaviour, pinned so a change to it has to be deliberate.
-  # This is what fabricatr#133 is about.
+test_that("any two of ICC, sd, sd_between and total_sd pin the same draw", {
+  set.seed(5)
+  cl <- rep(1:40, each = 10)
+  target_total <- 3; target_icc <- 0.5
+  w <- target_total * sqrt(1 - target_icc)
+  b <- target_total * sqrt(target_icc)
+
+  combos <- list(
+    draw_normal_icc(clusters = cl, ICC = target_icc, total_sd = target_total),
+    draw_normal_icc(clusters = cl, ICC = target_icc, sd = w),
+    draw_normal_icc(clusters = cl, ICC = target_icc, sd_between = b),
+    draw_normal_icc(clusters = cl, sd = w, sd_between = b),
+    draw_normal_icc(clusters = cl, total_sd = target_total, sd = w),
+    draw_normal_icc(clusters = cl, total_sd = target_total, sd_between = b)
+  )
+  # R-squared on a 40-level factor is upward biased (E[R2] is about 0.55 here,
+  # not 0.50), so assert a band around what the DGP actually produces rather
+  # than the nominal target.
+  for (y in combos) {
+    expect_gt(sd(y), 2.4); expect_lt(sd(y), 3.6)
+    r2 <- summary(lm(y ~ factor(cl)))$r.squared
+    expect_gt(r2, 0.45); expect_lt(r2, 0.70)
+  }
+})
+
+test_that("over- and under-determined scale specifications are refused", {
+  cl <- rep(1:10, each = 10)
+  expect_error(draw_normal_icc(clusters = cl, ICC = 0.5, sd = 1, total_sd = 2),
+               "only one of")
+  expect_error(draw_normal_icc(clusters = cl, total_sd = 1, sd = 2),
+               "cannot exceed")
+  expect_error(draw_normal_icc(clusters = cl, total_sd = 1, sd_between = 2),
+               "cannot exceed")
+  expect_error(draw_normal_icc(clusters = cl, sd = 1), "any two of")
+  expect_error(draw_normal_icc(clusters = cl, ICC = 1, sd = 1),
+               "`sd` must be 0")
+  expect_error(draw_normal_icc(clusters = cl, ICC = 0, sd_between = 1),
+               "`sd_between` must be 0")
+  expect_warning(draw_normal_icc(clusters = cl, ICC = 0.5, sd = 1,
+                                 sd_between = 1), "ignoring")
+})
+
+test_that("total_sd leaves the realised sd free to vary, unlike fabricatr", {
+  # fabricatr#133. fabricatr rescales the finished vector so sd() is exactly
+  # total_sd every draw; here total_sd is a parameter, so the realised sd
+  # varies as any sample statistic does.
   set.seed(3)
   cl <- rep(1:10, each = 10)
-  reps <- replicate(30, sd(draw_normal_icc(clusters = cl, ICC = 0.4, total_sd = 2)))
-  expect_equal(sd(reps), 0, tolerance = 1e-12)
-
-  free <- replicate(30, sd(draw_normal_icc(clusters = cl, ICC = 0.4,
-                                           sd = 2 * sqrt(0.6))))
-  expect_gt(sd(free), 0.01)
+  reps <- replicate(60, sd(draw_normal_icc(clusters = cl, ICC = 0.4,
+                                           total_sd = 2)))
+  expect_gt(sd(reps), 0.01)
+  expect_equal(mean(reps), 2, tolerance = 0.2)
 })

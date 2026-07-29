@@ -159,7 +159,7 @@ cor(score, offers, method = "spearman")
 
 ## What changes, and why
 
-There are five, all of them syntax, and every one raises an error that names its replacement. A script that needs updating tells you so rather than quietly producing something else. No output shape changes, so a script that runs clean is producing what it produced before.
+There are six. Five are syntax, and every one of those raises an error that names its replacement, so a script that needs updating tells you rather than quietly producing something else. The sixth changes results, and it is the only place in the package where the same call gives you different numbers than fabricatr. It has its own section below.
 
 | fabricatr | fabricatrZero | Why |
 |---|---|---|
@@ -168,6 +168,7 @@ There are five, all of them syntax, and every one raises an error that names its
 | `link_levels(N, by = join_using(A, B))` | `link_levels(N, .by = c("A", "B"))` | Same, and `rho` becomes a plain argument |
 | `modify_level(..., by = "g")` | `modify_level(..., .by = "g")` | Leading dot marks a control argument, not a column |
 | `fabricate(N, ...)` positionally | `fabricate(N = ..., ...)` | `N` must be named, as in fabricatr |
+| `total_sd` rescales the finished draw | `total_sd` is a parameter of the draw | **Different numbers.** See below |
 
 ### `nest = FALSE` becomes `declare_level()`
 
@@ -258,6 +259,42 @@ fabricate(N = 3, Y = rnorm(N), ID_label = "respondent")
 fabricate(N = 3, Y = rnorm(N), ID_label = NA)
 ```
 
+### `total_sd` is a parameter, not a rescaling
+
+This is the one change that gives different numbers from the same call, so it gets the argument on both sides rather than an assertion.
+
+`draw_normal_icc()` builds each value from a cluster-level draw and an individual-level draw, so there are four ways to describe the same pair of variances: the ICC, the within-cluster standard deviation, the between-cluster standard deviation, and the total. They are related by $\sigma_{total}^2 = \sigma_b^2 + \sigma_w^2$ and $ICC = \sigma_b^2 / \sigma_{total}^2$, so any two of them pin the other two.
+
+fabricatr treats `total_sd` differently from the other three. It draws using the ICC, then rescales the finished vector so its sample standard deviation equals `total_sd`. fabricatrZero solves for the two standard deviations instead and draws once: $\sigma_{between} = s\sqrt{ICC}$ and $\sigma_{within} = s\sqrt{1 - ICC}$.
+
+The consequence, over 200 draws of 100 observations with `ICC = 0.4` and `total_sd = 2`:
+
+| | mean realised `sd()` | standard deviation of the realised `sd()` |
+|---|---:|---:|
+| fabricatr | 2.0000 | 0.0000 |
+| fabricatrZero | 1.9648 | 0.2225 |
+
+**The case for changing it.** Rescaling makes the realised standard deviation exactly `total_sd` in every draw. A simulation that fabricates 10,000 datasets gets 10,000 datasets whose outcome variance is identical to the fourth decimal place, which no real sampling process would produce. Any diagnosand that depends on the spread of the outcome, and any standard error with an estimated variance in it, is then computed against a DGP with one of its sources of variation switched off. For a package whose entire purpose is repeated sampling, that is the wrong default. The fix also costs nothing in expressiveness, since the closed form is exact and defined at every ICC including 0 and 1.
+
+**The case against.** It is a divergence, and this vignette otherwise promises that identical code gives identical results. Anyone who has calibrated a design against fabricatr's `total_sd` will see their numbers move. There is also a legitimate reading of `total_sd` under which the old behavior is correct rather than buggy: if you want a dataset whose outcome has exactly the standard deviation you named, perhaps because you are matching a published descriptive statistic, rescaling gives you that and parameterising does not. Under that reading fabricatrZero has taken away a feature.
+
+**Why the change anyway.** The two readings are not equally served by the two implementations. If you want the parameter, you cannot recover it from the rescaled version. If you want the exact sample standard deviation, you can still have it in one line:
+
+```{r}
+y <- draw_normal_icc(clusters = rep(1:10, each = 10), ICC = 0.4)
+y <- (y - mean(y)) * 2 / sd(y) + mean(y)
+sd(y)
+```
+
+One correction to the [upstream discussion](https://github.com/DeclareDesign/fabricatr/issues/133), which is worth stating because it changes what is actually at stake. The thread worries that rescaling "will possibly distort the between group differences." It does not. Rescaling is an affine transformation and the ICC is scale-invariant, so the realised ICC is untouched; the mean R² is the same either way. The only thing rescaling changes is the sampling variability of the variance. That is a narrower objection than the thread supposes, and still a sufficient one.
+
+A side benefit of solving rather than rescaling is that combinations fabricatr rejects now work, because any two of the four determine the draw:
+
+```{r}
+cl <- rep(1:20, each = 10)
+sd(draw_normal_icc(clusters = cl, total_sd = 3, sd_between = 2))
+```
+
 ### `N` is never a column
 
 `N` is injected into the evaluation mask for every column expression, so `rnorm(N)` works everywhere it did before, but it is not written into the output. Ask for it explicitly if you want it:
@@ -338,7 +375,7 @@ Then run the script. Each of the four raises an error naming its replacement, so
 
 ## Open fabricatr issues this closes
 
-Of the eleven issues open on fabricatr, seven no longer reproduce here. Each was checked by running the reporter's own code under both packages.
+Of the eleven issues open on fabricatr, eight no longer reproduce here. Each was checked by running the reporter's own code under both packages.
 
 | Issue | What it reports | Status here |
 |---|---|---|
@@ -349,10 +386,11 @@ Of the eleven issues open on fabricatr, seven no longer reproduce here. Each was
 | [#149](https://github.com/DeclareDesign/fabricatr/issues/149) | `draw_normal_icc()` refuses ICC values at or near 0 and 1 | Full `[0, 1]` range |
 | [#158](https://github.com/DeclareDesign/fabricatr/issues/158) | `draw_likert()` returns a factor, ignores arbitrary `breaks`, and the `draw_*` functions share one man page | Integer by default, `breaks` honoured, ten separate man pages |
 | [#160](https://github.com/DeclareDesign/fabricatr/issues/160) | `join()` collides with dplyr | No such function; `.by` takes a character vector |
+| [#133](https://github.com/DeclareDesign/fabricatr/issues/133) | `total_sd` rescales after the fact instead of being solved for jointly | Solved for; see the section above |
 
 Two are documentation issues against fabricatr's own vignettes ([#191](https://github.com/DeclareDesign/fabricatr/issues/191), [#193](https://github.com/DeclareDesign/fabricatr/issues/193)) and do not arise here, since these pages are new. `draw_likert()` has `bins` and `breaks` and never had a `type` argument to document wrongly.
 
-Two remain open and unaddressed. [#133](https://github.com/DeclareDesign/fabricatr/issues/133) is a live design question about whether `total_sd` should rescale after the fact or be solved for jointly with the other three parameters; fabricatrZero rescales, which is the behavior the issue is unhappy with. [#165](https://github.com/DeclareDesign/fabricatr/issues/165) wants data frames importable as levels, so that two existing datasets can be brought in as separate levels and crossed. `declare_level()` gets closer to the shape that needs, but nothing here imports a data frame as a level.
+One remains open and unaddressed. [#165](https://github.com/DeclareDesign/fabricatr/issues/165) wants data frames importable as levels, so that two existing datasets can be brought in as separate levels and crossed. `declare_level()` gets closer to the shape that needs, but nothing here imports a data frame as a level.
 
 ## Known gaps
 
