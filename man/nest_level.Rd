@@ -9,8 +9,12 @@ nest_level(N, ...)
 \arguments{
 \item{N}{Rows per parent. Scalar or per-parent vector.}
 
-\item{...}{Column expressions. \code{N} is the inner count (children per
-parent, not total rows).}
+\item{...}{Column expressions. Note that the \code{N} visible inside these
+expressions is the total number of rows the level creates, not the
+per-parent count in the \code{N} argument: nesting 5 citizens in each of
+20 villages makes \code{N} equal to 100 here. The behaviour matches
+fabricatr, and it is what makes \code{rnorm(N)} draw independently for
+every village rather than drawing five values and reusing them.}
 }
 \value{
 A \code{fabricatr_level} object (used inside \code{fabricate}).

@@ -25,7 +25,7 @@ fabricate(
   N = 50,
   cluster = sample(1:5, N, replace = TRUE),
   Y = rnorm(N),
-  cluster_mean = modify_level(cm = mean(Y), .by = "cluster")$cm
+  modify_level(cluster_mean = mean(Y), .by = "cluster")
 )
 
 }

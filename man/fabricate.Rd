@@ -4,19 +4,22 @@
 \alias{fabricate}
 \title{Fabricate a data frame}
 \usage{
-fabricate(N = NULL, ..., ID_label = "ID", data = NULL)
+fabricate(..., N = NULL, ID_label = "ID", data = NULL)
 }
 \arguments{
+\item{...}{Column definitions or level calls (\code{add_level},
+\code{nest_level}, \code{declare_level}, \code{cross_levels},
+\code{link_levels}, \code{modify_level}, \code{potential_outcomes},
+\code{draw_multivariate}). \code{N} must be supplied by name.}
+
 \item{N}{Number of rows. Made available as a scalar integer \code{N} inside
 all column expressions; it does not appear as a column in the output
 unless you write it explicitly (e.g. \code{n_obs = N}).}
 
-\item{...}{Column definitions or level calls (\code{add_level},
-\code{nest_level}, \code{declare_level}, \code{cross_levels},
-\code{link_levels}, \code{modify_level}, \code{potential_outcomes},
-\code{draw_multivariate}).}
-
-\item{ID_label}{Name prefix for auto-generated level ID columns.}
+\item{ID_label}{Name of the unit ID column created alongside \code{N}.
+Defaults to \code{"ID"}; set to \code{NA} to suppress it. Ignored when
+\code{data} is supplied or when the data frame is built from levels
+(each level's ID column is named after the level).}
 
 \item{data}{Optional existing data frame to start from.}
 }
@@ -28,6 +31,20 @@ The main entry point for fabricatrZero. Builds a data frame column by column,
 supporting hierarchical levels, multi-column outputs, and starting from
 existing data.
 }
+\section{ID column type}{
+
+ID columns are zero-padded character strings, as in fabricatr, so that an
+ID is a label rather than a quantity. The padding keeps character sort
+order matching numeric order, and the character type keeps a cluster ID
+from being read as a linear term by a model formula.
+
+Building those strings is the most expensive part of fabricating a deep
+hierarchy. Set \code{options(fabricatrZero.id_type = "integer")} for
+integer IDs, which is roughly four times faster on a large three-level
+design and uses a sixteenth of the memory. The setting applies to every ID
+column the package creates, at every level.
+}
+
 \examples{
 # Flat fabrication
 fabricate(N = 100, Y = rnorm(N), X = rbinom(N, 1, 0.5))

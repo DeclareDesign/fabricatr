@@ -6,6 +6,39 @@ new_level <- function(type, ...) {
   structure(list(type = type, ...), class = "fabricatr_level")
 }
 
+# Every ID column in the package is built here. Zero-padded character by
+# default, matching fabricatr: an ID is a label, not a quantity, and a
+# character ID cannot be swept into a regression as a linear term.
+# options(fabricatrZero.id_type = "integer") trades that guarantee for the
+# speed reported in the vignette.
+make_ids <- function(n) {
+  if (identical(getOption("fabricatrZero.id_type", "character"), "integer")) {
+    seq_len(n)
+  } else {
+    formatC(seq_len(n), width = nchar(n), flag = "0")
+  }
+}
+
+# fabricatr's `nest =` and `by =` arguments would otherwise be captured as
+# ordinary column expressions here, silently producing a junk column and, in
+# the `by =` case, an ungrouped answer. Catch them and say what to write.
+check_legacy_args <- function(dots) {
+  nms <- names(dots)
+  if (is.null(nms)) return(invisible(NULL))
+  if ("nest" %in% nms) {
+    stop("fabricatrZero has no `nest` argument. Nesting is automatic: a ",
+         "second add_level() nests inside the first. For an independent ",
+         "level to cross or link, use declare_level().", call. = FALSE)
+  }
+  if ("by" %in% nms) {
+    stop("fabricatrZero uses `.by` instead of `by`, and takes a character ",
+         'vector of level names: .by = "clusters" in modify_level(), ',
+         '.by = c("countries", "years") in cross_levels() and link_levels().',
+         call. = FALSE)
+  }
+  invisible(NULL)
+}
+
 # A column expression inside a nested level must return one value per row of
 # the level, or a single value to recycle. The length worth naming separately
 # is the per-parent group size: an expression written against the old
@@ -48,7 +81,9 @@ check_level_length <- function(val, n_total, col_nm, group_size, n_parent) {
 #'
 #' @export
 add_level <- function(N, ...) {
-  new_level("add", N = N, dots = rlang::enquos(...))
+  dots <- rlang::enquos(...)
+  check_legacy_args(dots)
+  new_level("add", N = N, dots = dots)
 }
 
 # declare_level ---------------------------------------------------------------
@@ -79,7 +114,9 @@ add_level <- function(N, ...) {
 #'
 #' @export
 declare_level <- function(N, ...) {
-  new_level("declare", N = N, dots = rlang::enquos(...))
+  dots <- rlang::enquos(...)
+  check_legacy_args(dots)
+  new_level("declare", N = N, dots = dots)
 }
 
 # nest_level ------------------------------------------------------------------
@@ -109,7 +146,9 @@ declare_level <- function(N, ...) {
 #'
 #' @export
 nest_level <- function(N, ...) {
-  new_level("nest", N = rlang::enquo(N), dots = rlang::enquos(...))
+  dots <- rlang::enquos(...)
+  check_legacy_args(dots)
+  new_level("nest", N = rlang::enquo(N), dots = dots)
 }
 
 # cross_levels ----------------------------------------------------------------
@@ -136,7 +175,9 @@ nest_level <- function(N, ...) {
 #'
 #' @export
 cross_levels <- function(.by, ...) {
-  new_level("cross", by = .by, dots = rlang::enquos(...))
+  dots <- rlang::enquos(...)
+  check_legacy_args(dots)
+  new_level("cross", by = .by, dots = dots)
 }
 
 # link_levels -----------------------------------------------------------------
@@ -170,8 +211,9 @@ cross_levels <- function(.by, ...) {
 #'
 #' @export
 link_levels <- function(N, .by, rho = 0, sigma = NULL, ...) {
-  new_level("link", N = N, by = .by, rho = rho, sigma = sigma,
-            dots = rlang::enquos(...))
+  dots <- rlang::enquos(...)
+  check_legacy_args(dots)
+  new_level("link", N = N, by = .by, rho = rho, sigma = sigma, dots = dots)
 }
 
 # modify_level ----------------------------------------------------------------
@@ -193,12 +235,14 @@ link_levels <- function(N, .by, rho = 0, sigma = NULL, ...) {
 #'   N = 50,
 #'   cluster = sample(1:5, N, replace = TRUE),
 #'   Y = rnorm(N),
-#'   cluster_mean = modify_level(cm = mean(Y), .by = "cluster")$cm
+#'   modify_level(cluster_mean = mean(Y), .by = "cluster")
 #' )
 #'
 #' @export
 modify_level <- function(..., .by = NULL) {
-  new_level("modify", dots = rlang::enquos(...), by = .by)
+  dots <- rlang::enquos(...)
+  check_legacy_args(dots)
+  new_level("modify", dots = dots, by = .by)
 }
 
 # execute_* functions ---------------------------------------------------------
@@ -209,7 +253,7 @@ modify_level <- function(..., .by = NULL) {
 execute_add_level <- function(level, nm) {
   N_val <- as.integer(level$N)
   base <- list()
-  if (nchar(nm) > 0) base[[nm]] <- seq_len(N_val)
+  if (nchar(nm) > 0) base[[nm]] <- make_ids(N_val)
   lst <- eval_dots_into_list(level$dots, base, inner_N = N_val)
   lst[["N"]] <- NULL
   lst
@@ -245,7 +289,7 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
   # to fill the level would be to repeat them, handing every parent the
   # identical draw.
   expanded[["N"]] <- N_total
-  if (nchar(nm) > 0L) expanded[[nm]] <- seq_len(N_total)
+  if (nchar(nm) > 0L) expanded[[nm]] <- make_ids(N_total)
 
   for (i in seq_along(level$dots)) {
     col_nm <- names(level$dots)[[i]]
@@ -291,7 +335,7 @@ execute_cross_level <- function(level, level_registry, nm) {
   base  <- Reduce(cross_join_lists, lsts)
   base[["N"]] <- NULL
   N_val <- length(base[[1L]])
-  if (nchar(nm) > 0L) base[[nm]] <- seq_len(N_val)
+  if (nchar(nm) > 0L) base[[nm]] <- make_ids(N_val)
 
   lst <- eval_dots_into_list(level$dots, base, inner_N = N_val)
   lst[["N"]] <- NULL
@@ -318,7 +362,7 @@ execute_link_level <- function(level, level_registry, nm) {
     base  <- c(base, extra)
   }
   base[["N"]] <- NULL
-  if (nchar(nm) > 0L) base[[nm]] <- seq_len(N)
+  if (nchar(nm) > 0L) base[[nm]] <- make_ids(N)
 
   lst <- eval_dots_into_list(level$dots, base, inner_N = N)
   lst[["N"]] <- NULL
