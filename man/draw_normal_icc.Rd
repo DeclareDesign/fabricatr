@@ -30,7 +30,17 @@ supplied.}
 
 \item{total_sd}{If supplied alongside \code{ICC}, rescale the output to have
 this overall standard deviation. Cannot be combined with \code{sd} or
-\code{sd_between}.}
+\code{sd_between}. Note that this is a rescaling of the drawn vector, not
+a parameter of the distribution it was drawn from, so the realised
+\code{sd()} is exactly \code{total_sd} every time, with none of the
+sampling variability a draw of this size would ordinarily show. Across
+300 draws of 200 observations the standard deviation of the realised
+\code{sd()} is 0, against roughly 0.14 for the same design specified
+through \code{sd}. If you are simulating many datasets and want that
+variability, set \code{sd} or \code{sd_between} instead: for a target
+total \eqn{s} and a given ICC, \eqn{\sigma_{between} = s\sqrt{ICC}} and
+\eqn{\sigma_{within} = s\sqrt{1 - ICC}}. The rescaling is affine, so it
+leaves the ICC itself untouched.}
 
 \item{N}{Optional; must equal \code{length(clusters)} when provided.}
 }

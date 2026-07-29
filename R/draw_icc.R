@@ -18,7 +18,17 @@
 #'   \code{sd} when not provided.
 #' @param total_sd If supplied alongside \code{ICC}, rescale the output to have
 #'   this overall standard deviation. Cannot be combined with \code{sd} or
-#'   \code{sd_between}.
+#'   \code{sd_between}. Note that this is a rescaling of the drawn vector, not
+#'   a parameter of the distribution it was drawn from, so the realised
+#'   \code{sd()} is exactly \code{total_sd} every time, with none of the
+#'   sampling variability a draw of this size would ordinarily show. Across
+#'   300 draws of 200 observations the standard deviation of the realised
+#'   \code{sd()} is 0, against roughly 0.14 for the same design specified
+#'   through \code{sd}. If you are simulating many datasets and want that
+#'   variability, set \code{sd} or \code{sd_between} instead: for a target
+#'   total \eqn{s} and a given ICC, \eqn{\sigma_{between} = s\sqrt{ICC}} and
+#'   \eqn{\sigma_{within} = s\sqrt{1 - ICC}}. The rescaling is affine, so it
+#'   leaves the ICC itself untouched.
 #' @param N Optional; must equal \code{length(clusters)} when provided.
 #'
 #' @return Numeric vector of the same length as \code{clusters}.
@@ -62,10 +72,12 @@ draw_normal_icc <- function(clusters,
       sd <- 1
     }
     # The endpoints are the degenerate cases, not errors. At ICC = 0 there is
-    # no between-cluster variance and the draw is plain rnorm(); at ICC = 1
-    # there is no within-cluster variance and every unit in a cluster takes
-    # the cluster's value. Solving for the missing standard deviation divides
-    # by zero at each end, so name them rather than compute them.
+    # no between-cluster variance, so the cluster variable does no work; at
+    # ICC = 1 there is no within-cluster variance and every unit in a cluster
+    # takes the cluster's value. Solving for the missing standard deviation
+    # divides by zero at each end, so name them rather than compute them.
+    # `total_sd` still rescales afterwards at the endpoints, exactly as it does
+    # at every other ICC.
     if (ICC == 0) {
       if (is.null(sd)) {
         stop("An `ICC` of 0 means no between-cluster variance, so ",

@@ -174,3 +174,43 @@ test_that("cluster-level parameters may arrive already expanded to one per unit"
     "must have length 1"
   )
 })
+
+test_that("total_sd rescales at the ICC endpoints just as it does in between", {
+  set.seed(3)
+  cl <- rep(1:20, each = 10)
+
+  # ICC = 0: the cluster variable does no work, and total_sd still applies
+  y0 <- draw_normal_icc(clusters = cl, ICC = 0, total_sd = 2)
+  expect_equal(sd(y0), 2)
+  expect_true(all(tapply(y0, cl, function(v) length(unique(v))) == 10L))
+
+  # ICC = 1: every unit takes its cluster's value, and total_sd still applies
+  y1 <- draw_normal_icc(clusters = cl, ICC = 1, total_sd = 2)
+  expect_equal(sd(y1), 2)
+  expect_true(all(tapply(y1, cl, function(v) length(unique(v))) == 1L))
+
+  # The rescaling is affine, so it leaves the sample mean and the ICC alone.
+  # Supplying sd = 1 reproduces the same internal parameters and the same RNG
+  # draws as the total_sd path, so the two differ only by the rescaling.
+  set.seed(77); scaled <- draw_normal_icc(clusters = cl, ICC = 0.4, mean = 5,
+                                          total_sd = 2)
+  set.seed(77); raw    <- draw_normal_icc(clusters = cl, ICC = 0.4, mean = 5,
+                                          sd = 1)
+  expect_equal(mean(scaled), mean(raw))
+  expect_equal(summary(lm(scaled ~ factor(cl)))$r.squared,
+               summary(lm(raw ~ factor(cl)))$r.squared)
+  expect_equal(sd(scaled), 2)
+})
+
+test_that("total_sd fixes the realised sd exactly, with no sampling variability", {
+  # Documented behaviour, pinned so a change to it has to be deliberate.
+  # This is what fabricatr#133 is about.
+  set.seed(3)
+  cl <- rep(1:10, each = 10)
+  reps <- replicate(30, sd(draw_normal_icc(clusters = cl, ICC = 0.4, total_sd = 2)))
+  expect_equal(sd(reps), 0, tolerance = 1e-12)
+
+  free <- replicate(30, sd(draw_normal_icc(clusters = cl, ICC = 0.4,
+                                           sd = 2 * sqrt(0.6))))
+  expect_gt(sd(free), 0.01)
+})
