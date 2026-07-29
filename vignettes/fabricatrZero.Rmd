@@ -81,7 +81,9 @@ fabricate(
 )
 ```
 
-The total is the only thing `rnorm(N)` can usefully draw. Were `N` the per-parent count, the expression would return two values, the level would have to repeat them to fill six rows, and every village would receive the identical pair of residuals. fabricatrZero shipped that behavior until it was caught by a regression test, and a clustered design built on it had within-cluster noise correlated at 1.00 across clusters. A column that comes back the wrong length is now an error rather than something quietly recycled.
+The total is the only thing `rnorm(N)` can usefully draw. Were `N` the per-parent count, the expression would return two values, the level would have to repeat them to fill six rows, and every village would receive the identical pair of residuals. fabricatrZero shipped that behavior until it was caught by a regression test, and a clustered design built on it had within-cluster noise correlated at 1.00 across clusters.
+
+A vector shorter than the level is still recycled, as in fabricatr, which is what lets `task = 1:3` number the tasks within every parent. Recycling is safe only because `N` is the total: an expression written against `N` already returns one value per row, so the short vectors that reach that point are the ones you wrote out deliberately. A length that does not divide the level evenly is an error.
 
 Variable numbers of children per parent, by passing a vector:
 
