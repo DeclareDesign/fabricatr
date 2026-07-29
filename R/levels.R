@@ -6,6 +6,25 @@ new_level <- function(type, ...) {
   structure(list(type = type, ...), class = "fabricatr_level")
 }
 
+# A column expression inside a nested level must return one value per row of
+# the level, or a single value to recycle. The length worth naming separately
+# is the per-parent group size: an expression written against the old
+# per-group `N` returns exactly that, and repeating it to fill the level would
+# give every parent the same values.
+check_level_length <- function(val, n_total, col_nm, group_size, n_parent) {
+  if (length(val) == n_total) return(invisible(NULL))
+  if (length(group_size) == 1L && length(val) == group_size) {
+    stop("In a nested level, `", col_nm, "` returned ", length(val),
+         " values, one per parent group, but the level has ", n_total,
+         " rows. `N` is the total number of rows at this level (", n_total,
+         "), not the number per parent (", group_size, "). Write the ",
+         "expression against the whole level, or repeat it explicitly with ",
+         "rep(x, ", n_parent, ").", call. = FALSE)
+  }
+  stop("In a nested level, `", col_nm, "` returned ", length(val),
+       " values but the level has ", n_total, " rows.", call. = FALSE)
+}
+
 # add_level -------------------------------------------------------------------
 
 #' Add a hierarchical level
@@ -73,8 +92,12 @@ declare_level <- function(N, ...) {
 #' children per parent).
 #'
 #' @param N Rows per parent. Scalar or per-parent vector.
-#' @param ... Column expressions. \code{N} is the inner count (children per
-#'   parent, not total rows).
+#' @param ... Column expressions. Note that the \code{N} visible inside these
+#'   expressions is the total number of rows the level creates, not the
+#'   per-parent count in the \code{N} argument: nesting 5 citizens in each of
+#'   20 villages makes \code{N} equal to 100 here. The behaviour matches
+#'   fabricatr, and it is what makes \code{rnorm(N)} draw independently for
+#'   every village rather than drawing five values and reusing them.
 #'
 #' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
 #'
@@ -216,7 +239,12 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
   N_total  <- length(idx)
   # Direct vector indexing — no data.frame/tibble overhead
   expanded <- lapply(lst, function(v) v[idx])
-  expanded[["N"]] <- inner_N
+  # `N` at a nested level is the total number of rows the level creates, as in
+  # fabricatr. Setting it to the per-parent group size instead would make a
+  # stochastic expression return one group's worth of values, and the only way
+  # to fill the level would be to repeat them, handing every parent the
+  # identical draw.
+  expanded[["N"]] <- N_total
   if (nchar(nm) > 0L) expanded[[nm]] <- seq_len(N_total)
 
   for (i in seq_along(level$dots)) {
@@ -224,15 +252,16 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
     val    <- rlang::eval_tidy(level$dots[[i]], data = expanded)
 
     if (nchar(col_nm) > 0L) {
-      if (length(N_val) == 1L && length(val) == N_val && N_val != N_total)
-        val <- rep(val, n_parent)
-      else if (length(val) == 1L)
-        val <- rep(val, N_total)
+      if (length(val) == 1L) val <- rep(val, N_total)
+      check_level_length(val, N_total, col_nm, N_val, n_parent)
       expanded[[col_nm]] <- val
     } else if (is.data.frame(val)) {
-      if (nrow(val) == N_val && N_val != N_total)
-        val <- val[rep(seq_len(nrow(val)), n_parent), , drop = FALSE]
-      for (j in seq_along(val)) expanded[[names(val)[[j]]]] <- val[[j]]
+      for (j in seq_along(val)) {
+        v <- val[[j]]
+        if (length(v) == 1L) v <- rep(v, N_total)
+        check_level_length(v, N_total, names(val)[[j]], N_val, n_parent)
+        expanded[[names(val)[[j]]]] <- v
+      }
     }
   }
 

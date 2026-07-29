@@ -15,14 +15,40 @@ test_that("nest_level fans out rows correctly (scalar N)", {
   expect_true(all(c("villages", "citizens", "v_inc", "c_inc") %in% names(df)))
 })
 
-test_that("nest_level uses inner N, not outer N, in expressions", {
+test_that("N inside a nested level is the level's total row count", {
   df <- fabricate(
     blocks = add_level(N = 3),
     units  = nest_level(N = 4, Z = rep(0:1, N / 2))
   )
-  # rep(0:1, 2) = c(0,1,0,1) per block -> 12 total rows
+  # N = 12, so rep(0:1, 6) fills the level and each block still gets 0,1,0,1
   expect_equal(nrow(df), 12L)
   expect_setequal(df$Z, c(0L, 1L))
+  expect_equal(as.vector(tapply(df$Z, df$blocks, sum)), rep(2L, 3))
+})
+
+test_that("nested draws are independent across parent groups", {
+  # Regression test. Evaluating the expression once and repeating it across
+  # parents gave every village the identical residuals, so any clustered
+  # design built this way had perfectly correlated within-cluster noise.
+  set.seed(1)
+  df <- fabricate(
+    villages = add_level(N = 40, u = rnorm(N)),
+    citizens = nest_level(N = 8, e = rnorm(N))
+  )
+  by_village <- split(df$e, df$villages)
+  expect_equal(length(unique(lapply(by_village, identity))), 40L)
+  m <- do.call(cbind, by_village)
+  expect_lt(abs(mean(cor(m)[lower.tri(cor(m))])), 0.2)
+})
+
+test_that("a nested column of the wrong length is an error, not a recycle", {
+  expect_error(
+    fabricate(
+      villages = add_level(N = 3, u = rnorm(N)),
+      citizens = nest_level(N = 4, e = rnorm(4))
+    ),
+    "total number of rows at this level"
+  )
 })
 
 test_that("nest_level supports variable per-parent N", {
@@ -31,6 +57,7 @@ test_that("nest_level supports variable per-parent N", {
     cities    = nest_level(N = n_cities, gdp = rnorm(N))
   )
   expect_equal(nrow(df), 9L)  # 2+3+4
+  expect_equal(length(unique(df$gdp)), 9L)
 })
 
 test_that("declare_level and cross_levels produce Cartesian product", {
