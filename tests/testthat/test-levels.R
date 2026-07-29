@@ -140,3 +140,51 @@ test_that("modify_level with .by does grouped operation", {
     rep(mean(df$Y[df$g == 1]), 5)
   )
 })
+
+test_that("link_levels accepts a correlation matrix beyond two levels", {
+  # Values verified identical to fabricatr 1.0.2 from the same seed.
+  set.seed(31)
+  df <- fabricate(
+    a = declare_level(N = 8, xa = runif(N)),
+    b = declare_level(N = 9, xb = runif(N)),
+    c = declare_level(N = 7, xc = runif(N)),
+    obs = link_levels(N = 3000, .by = c("a", "b", "c"),
+                      sigma = matrix(c(1, .5, .3, .5, 1, .4, .3, .4, 1), 3, 3))
+  )
+  expect_equal(nrow(df), 3000L)
+  ids <- sapply(df[c("a", "b", "c")], as.numeric)
+  observed <- cor(ids, method = "spearman")
+  expect_equal(round(observed[1, 2], 4), 0.4602)
+  expect_equal(round(observed[1, 3], 4), 0.2697)
+  expect_equal(round(observed[2, 3], 4), 0.3703)
+})
+
+test_that("link_levels rejects correlation matrices it cannot draw from", {
+  three <- function(sigma, ...) {
+    fabricate(
+      a = declare_level(N = 5, xa = runif(N)),
+      b = declare_level(N = 5, xb = runif(N)),
+      c = declare_level(N = 5, xc = runif(N)),
+      obs = link_levels(N = 50, .by = c("a", "b", "c"), sigma = sigma, ...)
+    )
+  }
+  psd_fail <- matrix(c(1, -.9, -.9, -.9, 1, -.9, -.9, -.9, 1), 3, 3)
+  expect_error(three(psd_fail), "positive semi-definite")
+  expect_error(three(matrix(c(1, 1.5, .3, 1.5, 1, .4, .3, .4, 1), 3, 3)),
+               "between -1 and 1")
+  expect_error(three(matrix(c(1, .5, .5, 1), 2, 2)), "one row and one column")
+  expect_error(three(matrix(c(1, .5, .3, .2, 1, .4, .3, .4, 1), 3, 3)),
+               "symmetric")
+})
+
+test_that("a single negative rho is refused for three or more levels", {
+  expect_error(
+    fabricate(
+      a = declare_level(N = 5, xa = runif(N)),
+      b = declare_level(N = 5, xb = runif(N)),
+      c = declare_level(N = 5, xc = runif(N)),
+      obs = link_levels(N = 50, .by = c("a", "b", "c"), rho = -0.5)
+    ),
+    "positive semi-definite"
+  )
+})

@@ -73,6 +73,15 @@ resample_data <- function(data, N, ID_labels = NULL, unique_labels = FALSE) {
 
   out <- resample_recursive(data, N, ID_labels,
                             unique_labels = unique_labels, prefix = "")
+
+  # The recursion attaches each level's unique-label column on the way back up,
+  # so they come out innermost first. fabricatr orders them outermost first,
+  # after the original columns.
+  if (unique_labels) {
+    uniq <- paste0(ID_labels, "_unique")
+    out  <- out[, c(setdiff(names(out), uniq), uniq), drop = FALSE]
+  }
+
   rownames(out) <- NULL
   tibble::as_tibble(out)
 }
@@ -121,8 +130,15 @@ resample_recursive <- function(data, N, ID_labels, unique_labels, prefix) {
   dplyr::bind_rows(chunks)
 }
 
+# A label is <outer prefix>_<level id>_<nth time this id was drawn>, with the
+# prefix omitted at the outermost level. Pasting an empty prefix in as a
+# component instead would leave a leading underscore, and a prefix that already
+# ends in one would double it.
 make_unique_labels <- function(labels, prefix) {
   counts <- ave(labels, labels, FUN = seq_along)
-  paste(if (nchar(prefix) > 0) paste0(prefix, "_") else "", labels, counts,
-        sep = "_")
+  if (nchar(prefix) > 0) {
+    paste(prefix, labels, counts, sep = "_")
+  } else {
+    paste(labels, counts, sep = "_")
+  }
 }

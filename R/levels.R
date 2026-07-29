@@ -386,21 +386,59 @@ execute_modify_level <- function(level, lst, N_inject) {
 
 # Gaussian copula for link_levels ---------------------------------------------
 
+# chol(pivot = TRUE) accepts a matrix that is not positive semi-definite,
+# warns, and returns a decomposition that produces draws with none of the
+# requested correlation structure. Reject those inputs here instead, matching
+# the checks fabricatr makes.
+check_sigma <- function(sigma, ndim) {
+  if (!is.matrix(sigma) || !is.numeric(sigma) ||
+      nrow(sigma) != ndim || ncol(sigma) != ndim) {
+    stop("`sigma` must be a numeric matrix with one row and one column per ",
+         "level in `.by` (", ndim, "x", ndim, ").", call. = FALSE)
+  }
+  if (any(diag(sigma) != 1)) {
+    stop("The diagonal of `sigma` must be all 1s.", call. = FALSE)
+  }
+  if (!isSymmetric(sigma)) {
+    stop("`sigma` must be symmetric.", call. = FALSE)
+  }
+  if (any(sigma < -1 | sigma > 1)) {
+    stop("Every entry of `sigma` must lie between -1 and 1.", call. = FALSE)
+  }
+  eigenvalues <- eigen(sigma, symmetric = TRUE, only.values = TRUE)$values
+  if (any(eigenvalues < -1e-8)) {
+    stop("`sigma` must be positive semi-definite. Not every set of pairwise ",
+         "correlations is jointly attainable: strong negative correlations ",
+         "among three or more levels are a common way to ask for an ",
+         "impossible one.", call. = FALSE)
+  }
+  invisible(NULL)
+}
+
 joint_draw_ecdf <- function(data_list, N, sigma = NULL, rho = 0) {
   ndim <- length(data_list)
 
+  if (!is.numeric(N) || length(N) != 1L || is.na(N) || N <= 0) {
+    stop("`N` in link_levels() must be a single positive number.", call. = FALSE)
+  }
+
   if (is.null(sigma)) {
+    if (!is.numeric(rho) || length(rho) != 1L) {
+      stop("`rho` in link_levels() must be a single number.", call. = FALSE)
+    }
     if (rho == 0) {
       return(lapply(data_list, function(v) sample.int(length(v), N, replace = TRUE)))
+    }
+    if (ndim > 2L && rho < 0) {
+      stop("With three or more levels, a single negative `rho` cannot describe ",
+           "a positive semi-definite correlation matrix. Supply `sigma` ",
+           "directly if you need negative correlations.", call. = FALSE)
     }
     sigma <- matrix(rho, nrow = ndim, ncol = ndim)
     diag(sigma) <- 1
   }
 
-  if (!isSymmetric(sigma) || nrow(sigma) != ndim || any(diag(sigma) != 1)) {
-    stop("sigma must be a symmetric correlation matrix with 1s on the diagonal ",
-         "and dimension equal to length(.by).")
-  }
+  check_sigma(sigma, ndim)
 
   use_mvnfast <- requireNamespace("mvnfast", quietly = TRUE)
   mu <- rep(0, ndim)

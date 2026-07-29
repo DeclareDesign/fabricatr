@@ -177,8 +177,12 @@ split_quantile <- function(x, type) {
     stop("`type` must be a single integer >= 2.")
   }
   probs <- seq(0, 1, length.out = type + 1L)
+  # Unordered, as in fabricatr. An ordered factor would change the contrasts
+  # R picks for it: lm(Y ~ q) would fit polynomial terms (q.L, q.Q, q.C)
+  # rather than the treatment contrasts (q2, q3, q4) the same script gets
+  # under fabricatr, and report different coefficients without saying why.
   cut(x, breaks = quantile(x, probs = probs),
-      labels = seq_len(type), include.lowest = TRUE, ordered_result = TRUE)
+      labels = seq_len(type), include.lowest = TRUE)
 }
 
 #' Draw quantile bucket assignments

@@ -336,10 +336,12 @@ Then run the script. Each of the four raises an error naming its replacement, so
 
 ## Known gaps
 
-Three pieces of fabricatr are not yet at parity, and none of them appears in a typical design:
+None outstanding. Three items were carried as gaps until they were checked against fabricatr directly, and checking them turned up two real defects rather than the missing features they were filed as:
 
-- `resample_data(unique_labels = TRUE)` is implemented but lightly tested.
-- `draw_quantile()` covers the basic case only, not fabricatr's full type-2 behavior.
-- `sigma` in `link_levels()` is tested for the two-level case; higher-dimensional correlation matrices work in principle but have not been validated against fabricatr's output.
+- `resample_data(unique_labels = TRUE)` produced malformed labels, `"_2_1"` where fabricatr gives `"2_1"`, and doubled the separator when nesting, `"_2_1__06_1"` against `"2_1_06_1"`. The unique-label columns also came out innermost first. Both fixed, and the output now matches fabricatr column for column.
+- `draw_quantile()` was at parity on values but returned an *ordered* factor where fabricatr returns an unordered one. Ordering is not cosmetic here: `lm(Y ~ q)` on an ordered factor fits polynomial contrasts (`q.L`, `q.Q`, `q.C`) instead of treatment contrasts (`q2`, `q3`, `q4`), so the same script would have reported different coefficients under the two packages without saying why. Now unordered.
+- `sigma` in `link_levels()` beyond two levels was in fact correct: a three-level draw is identical to fabricatr's, seed for seed, down to every ID triple. What was missing was validation. A matrix that is not positive semi-definite used to reach `chol(pivot = TRUE)`, which warns and returns a decomposition carrying none of the requested structure. Non-PSD matrices, entries outside `[-1, 1]`, wrong dimensions, asymmetry, and a single negative `rho` across three or more levels are now all errors.
+
+One deliberate extension is worth knowing about. `draw_ordered()`, `draw_likert()`, and `draw_categorical()` accept a `labels` argument that fabricatr does not have, and return an ordered factor when you use it. Nothing in fabricatr is contradicted, since the call cannot be written there at all, but an ordered factor does change which contrasts a model formula picks. Leave `labels` off if you want the integer codes.
 
 Reports of any behavior that differs from fabricatr and is not listed in this vignette are the most useful thing you can send back.
