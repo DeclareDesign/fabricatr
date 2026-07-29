@@ -1,0 +1,360 @@
+---
+title: "fabricatrZero: the same syntax, several times faster"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{fabricatrZero: the same syntax, several times faster}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+set.seed(42)
+```
+
+```{r setup}
+library(fabricatrZero)
+```
+
+## What this package is
+
+fabricatrZero is a ground-up rewrite of fabricatr with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is about 600 lines of R across eight files, against roughly 3,200 lines in fabricatr. It depends on dplyr, tibble, purrr, and rlang, and it does not carry fabricatr's custom workspace and evaluation machinery.
+
+Two things motivated it. The first is speed: fabricate() sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr reaches deep into rlang internals to manage its evaluation environment, and that surface has broken more than once when rlang changed underneath it. fabricatrZero evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
+
+The headline for a collaborator porting an existing script: almost nothing changes. The rest of this vignette shows what stays the same, what moves, and why.
+
+## The speedups
+
+Median time per call, measured with microbenchmark on an Apple M4 Pro under R 4.6.0, fabricatr 1.0.2, dplyr 1.2.1. The last two columns are explained just below.
+
+| What is being built | fabricatr | fabricatrZero | Speedup | With integer IDs | Speedup |
+|---|---:|---:|---:|---:|---:|
+| Flat, `N = 100`, three columns | 0.19 ms | 0.09 ms | 2.0x | 0.07 ms | 2.6x |
+| Flat, `N = 5,000`, three columns | 0.78 ms | 0.50 ms | 1.5x | 0.21 ms | 3.7x |
+| Flat, `N = 200,000`, three columns | 25.96 ms | 24.29 ms | 1.1x | 5.42 ms | 4.8x |
+| Ten chained columns, `N = 500` | 0.49 ms | 0.23 ms | 2.1x | 0.20 ms | 2.5x |
+| Two levels, 50 villages x 20 citizens | 0.60 ms | 0.21 ms | 2.9x | 0.13 ms | 4.5x |
+| Three levels, 20 x 10 x 5 | 0.89 ms | 0.27 ms | 3.3x | 0.17 ms | 5.2x |
+| Three levels, 50 x 20 x 20 (20,000 rows) | 6.30 ms | 1.67 ms | 3.8x | 0.34 ms | 18.7x |
+| Clustered draw with target ICC, 100 x 20 | 0.91 ms | 0.37 ms | 2.5x | 0.19 ms | 4.8x |
+| Potential outcomes plus reveal, `N = 1,000` | 1.04 ms | 0.65 ms | 1.6x | 0.57 ms | 1.8x |
+
+The default gain comes from one change: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. A three-level design of 20,000 rows takes 63 seconds to build 10,000 times under fabricatr and 17 seconds here.
+
+The remaining gain is available, and it is large, but it costs you something. ID columns are zero-padded character strings, matching fabricatr, and building those strings is the single most expensive operation in the whole package: `formatC()` on 20,000 elements takes 1.11 ms, against 0.34 ms for everything else the three-level build does. Setting `options(fabricatrZero.id_type = "integer")` produces `seq_len()` IDs instead and gives you the last column of the table, along with a sixteenth of the memory (80 KB against 1.28 MB at 20,000 rows).
+
+The flat `N = 200,000` row is the one to look at before deciding. With padded IDs the two packages are at parity there, because both spend nearly all their time in `formatC()`. Large flat designs are exactly where the option earns its keep; small hierarchical designs run 3x to 4x faster either way.
+
+The tradeoff is discussed under [ID columns](#id-columns-are-zero-padded-character-as-in-fabricatr) below. The short version: a character ID cannot be swallowed by a model formula as a linear term, which is worth paying for by default.
+
+## What does not change
+
+Everything in this section is byte-identical code between the two packages.
+
+Flat fabrication, with each column able to see the ones defined before it:
+
+```{r}
+fabricate(N = 6, U = rnorm(N), X = rbinom(N, 1, 0.5), Y = U + 0.5 * X)
+```
+
+Hierarchy. A second `add_level()` nests inside the first, exactly as in fabricatr:
+
+```{r}
+fabricate(
+  villages = add_level(N = 3, v_income = rnorm(N)),
+  citizens = add_level(N = 2, income = v_income + rnorm(N))
+)
+```
+
+`nest_level()` is available when you would rather say so explicitly, and it does the same thing:
+
+```{r}
+fabricate(
+  villages = add_level(N = 3, v_income = rnorm(N)),
+  citizens = nest_level(N = 2, income = v_income + rnorm(N))
+)
+```
+
+One inherited detail is worth naming, because it looks like a contradiction until you see why it holds. The `N` argument of a nested level is the number of children per parent, but the `N` visible inside that level's column expressions is the total number of rows the level creates. Nesting 2 citizens in each of 3 villages makes `N` equal to 6 inside `income = v_income + rnorm(N)`:
+
+```{r}
+fabricate(
+  villages = add_level(N = 3),
+  citizens = nest_level(N = 2, rows_at_this_level = N)
+)
+```
+
+The total is the only thing `rnorm(N)` can usefully draw. Were `N` the per-parent count, the expression would return two values, the level would have to repeat them to fill six rows, and every village would receive the identical pair of residuals. fabricatrZero shipped that behavior until it was caught by a regression test, and a clustered design built on it had within-cluster noise correlated at 1.00 across clusters. A column that comes back the wrong length is now an error rather than something quietly recycled.
+
+Variable numbers of children per parent, by passing a vector:
+
+```{r}
+fabricate(
+  villages = add_level(N = 3, v = rnorm(N)),
+  citizens = add_level(N = c(1, 2, 3), y = v + rnorm(N))
+)
+```
+
+Starting from data you already have:
+
+```{r}
+fabricate(data = data.frame(x = 1:5), y = x ^ 2)
+```
+
+The `draw_*` family, including the link-function interface:
+
+```{r}
+fabricate(
+  N = 5,
+  x = rnorm(N),
+  binary = draw_binary(latent = x, link = "logit"),
+  counts = draw_count(mean = 3, N = N),
+  likert = draw_likert(x, min = -3, max = 3, bins = 5),
+  cat    = draw_categorical(prob = c(0.2, 0.5, 0.3), N = N)
+)
+```
+
+Clustered draws with a target intra-cluster correlation:
+
+```{r}
+fabricate(
+  clusters = add_level(N = 4),
+  units    = add_level(N = 3, y = draw_normal_icc(clusters = clusters, ICC = 0.4))
+)
+```
+
+Potential outcomes and the switching equation:
+
+```{r}
+po <- fabricate(N = 6, U = rnorm(N), potential_outcomes(Y ~ 0.5 * Z + U))
+fabricate(data = po, Z = rbinom(N, 1, 0.5), Y = reveal_outcomes(Y ~ Z))
+```
+
+Multi-arm and factorial conditions:
+
+```{r}
+fabricate(
+  N = 4, U = rnorm(N),
+  potential_outcomes(Y ~ 0.3 * Z1 + 0.5 * Z2 + U,
+                     conditions = list(Z1 = 0:1, Z2 = 0:1))
+)
+```
+
+Cluster resampling, including the `ALL` constant:
+
+```{r}
+dat <- fabricate(
+  clusters = add_level(N = 4, g = rnorm(N)),
+  units    = add_level(N = 3, y = rnorm(N))
+)
+resample_data(dat, N = c(clusters = 2, units = 2))
+```
+
+Correlated draws through the Gaussian copula:
+
+```{r}
+score  <- rnorm(200, mean = 75, sd = 10)
+offers <- correlate(draw_count, mean = 3, given = score, rho = 0.6)
+cor(score, offers, method = "spearman")
+```
+
+## What changes, and why
+
+There are five, all of them syntax, and every one raises an error that names its replacement. A script that needs updating tells you so rather than quietly producing something else. No output shape changes, so a script that runs clean is producing what it produced before.
+
+| fabricatr | fabricatrZero | Why |
+|---|---|---|
+| `add_level(N, ..., nest = FALSE)` | `declare_level(N, ...)` | Names the intent instead of negating a flag |
+| `cross_levels(by = join_using(A, B))` | `cross_levels(.by = c("A", "B"))` | Uses real `dplyr::cross_join()` semantics |
+| `link_levels(N, by = join_using(A, B))` | `link_levels(N, .by = c("A", "B"))` | Same, and `rho` becomes a plain argument |
+| `modify_level(..., by = "g")` | `modify_level(..., .by = "g")` | Leading dot marks a control argument, not a column |
+| `fabricate(N, ...)` positionally | `fabricate(N = ..., ...)` | `N` must be named, as in fabricatr |
+
+### `nest = FALSE` becomes `declare_level()`
+
+In fabricatr, an independent level that will later be crossed or linked is written as `add_level(..., nest = FALSE)`. The flag is doing real semantic work, and the name of the function actively fights it: you are not adding a level to the hierarchy, you are declaring a separate population.
+
+```{r, error = TRUE}
+fabricate(
+  countries = add_level(N = 3, gdp = runif(N), nest = FALSE)
+)
+```
+
+Write it as `declare_level()` instead. Nesting is never a flag in fabricatrZero: a second `add_level()` nests, `nest_level()` nests, and `declare_level()` stands alone.
+
+### `join_using()` becomes `.by`
+
+fabricatr's `join_using()` is a quoting helper that exists to pass level names into `cross_levels()` and `link_levels()`. fabricatrZero takes a character vector instead, and performs the crossing with the same semantics as `dplyr::cross_join()`.
+
+```{r}
+fabricate(
+  countries = declare_level(N = 3, gdp = runif(N, 1, 10)),
+  years     = declare_level(N = 2, shock = runif(N, 0, 1)),
+  obs       = cross_levels(.by = c("countries", "years"), Y = gdp + shock)
+)
+```
+
+`link_levels()` samples `N` rows from that product rather than taking all of it, and `rho` is now an ordinary argument rather than something smuggled inside `join_using()`:
+
+```{r}
+students <- fabricate(
+  primary   = declare_level(N = 20, p_quality = runif(N, 1, 10)),
+  secondary = declare_level(N = 15, s_quality = runif(N, 1, 10)),
+  students  = link_levels(N = 2000, .by = c("primary", "secondary"), rho = 0.8,
+                          score = p_quality + s_quality + rnorm(N))
+)
+cor(as.numeric(students$primary), as.numeric(students$secondary),
+    method = "spearman")
+```
+
+One inherited quirk is worth stating plainly, because it surprises people. `rho` is the rank correlation between the two levels' **ID assignments**, not between the variables defined on those levels. Students at high-numbered primary schools are matched to high-numbered secondary schools; whether that also correlates `p_quality` with `s_quality` depends entirely on whether quality happens to rise with ID, and for a `runif()` draw it does not. fabricatrZero reproduces fabricatr's behavior here exactly, down to the same draws from the same seed. If you want quality-to-quality sorting, define the level variables as monotone in the level ID.
+
+For more than two levels, pass a full correlation matrix as `sigma` instead of the scalar `rho`.
+
+### `by` becomes `.by` in `modify_level()`
+
+The leading dot is the tidyverse convention for an argument that controls the verb rather than naming a column, and it removes the ambiguity that arises when a dataset happens to contain a column called `by`. `modify_level()` is otherwise `dplyr::mutate()`, with `.by` giving split-apply-combine over a grouping column:
+
+```{r}
+fabricate(
+  N = 12,
+  cluster = rep(1:3, each = 4),
+  Y = rnorm(N),
+  modify_level(cluster_mean = mean(Y), .by = "cluster")
+)
+```
+
+The old spelling errors rather than computing an ungrouped answer:
+
+```{r, error = TRUE}
+fabricate(
+  N = 12, cluster = rep(1:3, each = 4), Y = rnorm(N),
+  modify_level(cluster_mean = mean(Y), by = "cluster")
+)
+```
+
+### `N` must be named
+
+fabricatr's signature is `fabricate(..., data, N, ID_label)`, so `N` was always a named argument there too. fabricatrZero matches it, which means an unnamed call like `fabricate(100, Y = rnorm(N))` is an error rather than being silently read as `N = 100`. Write `fabricate(N = 100, Y = rnorm(N))`.
+
+### ID columns are zero-padded character, as in fabricatr
+
+IDs are zero-padded character strings, so a design with twelve clusters gets `"01"` through `"12"` and the padding keeps character sort order matching numeric order:
+
+```{r}
+fabricate(
+  clusters = add_level(N = 12),
+  units    = add_level(N = 2)
+)
+```
+
+The type is the point. An ID is a label, not a quantity, and an integer ID is a number that R will happily use as one. `lm(Y ~ clusters)` on integer cluster IDs silently fits a linear trend in cluster number where you meant fixed effects, and `mean(clusters)` returns a value rather than an error. Character IDs make both mistakes impossible, which is worth more to this audience than the milliseconds it costs.
+
+When it is not worth it, one option buys the milliseconds back:
+
+```{r}
+options(fabricatrZero.id_type = "integer")
+fabricate(clusters = add_level(N = 12), units = add_level(N = 2))
+```
+
+```{r, include = FALSE}
+options(fabricatrZero.id_type = "character")
+```
+
+The setting governs every ID column the package creates, at every level, and it is worth roughly 4x on a large three-level design and 4x on a large flat one. Reach for it in a simulation study where nothing downstream touches an ID, and leave it alone otherwise.
+
+Levels name their own ID columns after the level, exactly as in fabricatr. Flat fabrication gets a column called `ID`, which `ID_label` renames and `ID_label = NA` suppresses:
+
+```{r}
+fabricate(N = 3, Y = rnorm(N), ID_label = "respondent")
+fabricate(N = 3, Y = rnorm(N), ID_label = NA)
+```
+
+### `N` is never a column
+
+`N` is injected into the evaluation mask for every column expression, so `rnorm(N)` works everywhere it did before, but it is not written into the output. Ask for it explicitly if you want it:
+
+```{r}
+fabricate(N = 3, n_obs = N, Y = rnorm(N))
+```
+
+Beyond tidiness, keeping `N` out of the frame is what allows `cross_levels()` to work without a name collision between the two levels being crossed.
+
+## Three places where fabricatrZero is simply better
+
+Level calls and ordinary columns can be mixed in a single `fabricate()` call. fabricatr requires that the arguments be either all level calls or none of them, so the following raises "Arguments passed to `...` must either all be calls to create or modify levels, or else none of them must be":
+
+```{r}
+fabricate(
+  N = 12,
+  cluster = rep(1:3, each = 4),
+  Y = rnorm(N),
+  modify_level(cluster_sd = sd(Y), .by = "cluster")
+)
+```
+
+`draw_likert()` accepts a manual `breaks` vector. The same call returns all `NA` under fabricatr 1.0.2:
+
+```{r}
+fabricate(N = 5, x = rnorm(N), l = draw_likert(x, breaks = c(-1, 0, 1)))
+```
+
+And `correlate()` works with base R random number generators, not only with the `draw_*` family, by mapping each `r*` function to its `q*` counterpart:
+
+```{r}
+x <- rnorm(200)
+y <- correlate(rnorm, mean = 0, sd = 1, given = x, rho = -0.5)
+cor(x, y, method = "spearman")
+```
+
+## Getting the package
+
+The repository is private, so there are two routes depending on whether you have access to it.
+
+If you are a member of the DeclareDesign organisation on GitHub, install from source and ask for the vignette to be built:
+
+```{r, eval = FALSE}
+# install.packages("remotes")
+remotes::install_github("DeclareDesign/fabricatrZero", build_vignettes = TRUE)
+```
+
+The install needs a GitHub personal access token to see a private repository. If you do not already have one configured, `usethis::create_github_token()` opens the page to make one and `gitcreds::gitcreds_set()` stores it.
+
+If you do not have repository access, install the source tarball you were sent, which carries the vignette already built:
+
+```{r, eval = FALSE}
+install.packages("fabricatrZero_0.1.0.tar.gz", repos = NULL, type = "source")
+```
+
+Either way:
+
+```{r, eval = FALSE}
+library(fabricatrZero)              # in place of library(fabricatr)
+vignette("fabricatrZero")           # this document
+```
+
+Both packages export the same function names, so attach only one of them at a time. If you have fabricatr loaded in the same session, restart R before switching.
+
+## Porting an existing script
+
+Four greps will find everything that needs to change:
+
+```{r, eval = FALSE}
+# nest = FALSE          -> declare_level()
+# join_using(           -> .by = c("level1", "level2")
+# modify_level(... by = -> .by =
+# fabricate(<number>,   -> fabricate(N = <number>,
+```
+
+Then run the script. Each of the four raises an error naming its replacement, so anything that survives a clean run is doing what it did before. Nothing else needs checking: ID columns, column types, and column order all match fabricatr.
+
+## Known gaps
+
+Three pieces of fabricatr are not yet at parity, and none of them appears in a typical design:
+
+- `resample_data(unique_labels = TRUE)` is implemented but lightly tested.
+- `draw_quantile()` covers the basic case only, not fabricatr's full type-2 behavior.
+- `sigma` in `link_levels()` is tested for the two-level case; higher-dimensional correlation matrices work in principle but have not been validated against fabricatr's output.
+
+Reports of any behavior that differs from fabricatr and is not listed in this vignette are the most useful thing you can send back.

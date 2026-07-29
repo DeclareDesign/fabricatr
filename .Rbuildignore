@@ -1,0 +1,5 @@
+^notes$
+^\.\.Rcheck$
+^.*\.Rcheck$
+^\.DS_Store$
+^\.claude$
