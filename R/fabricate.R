@@ -113,7 +113,7 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
         lst[[names(val)[[j]]]] <- v
       }
     } else if (nchar(nm) > 0) {
-      lst[[nm]] <- val
+      lst[[nm]] <- recycle_to_n(val, N_inject)
     }
   }
 
@@ -122,6 +122,16 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
   }
 
   list_to_df(lst)
+}
+
+# A length-1 column is recycled to N as soon as it is stored, not at output
+# time, because the list is also the data mask for every later expression in
+# the level. Deferring it lets a constant column reach a later expression as a
+# scalar, so `coordination = "high"` followed by
+# `if_else(coordination == "high", tau_1, tau_2)` fails on a size mismatch
+# where fabricatr, which recycles eagerly, succeeds.
+recycle_to_n <- function(val, n) {
+  if (!is.null(n) && length(val) == 1L && n > 1L) rep(val, n) else val
 }
 
 # Converts a named list of equal-length vectors to a tibble.
@@ -159,9 +169,10 @@ eval_dots_into_list <- function(dots, base_list, inner_N = NULL) {
     val <- rlang::eval_tidy(dots[[i]], data = lst)
 
     if (nchar(nm) > 0) {
-      lst[[nm]] <- val
+      lst[[nm]] <- recycle_to_n(val, inner_N)
     } else if (is.data.frame(val)) {
-      for (j in seq_along(val)) lst[[names(val)[[j]]]] <- val[[j]]
+      for (j in seq_along(val))
+        lst[[names(val)[[j]]]] <- recycle_to_n(val[[j]], inner_N)
     }
   }
   lst
