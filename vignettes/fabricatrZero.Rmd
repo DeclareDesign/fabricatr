@@ -1,8 +1,8 @@
 ---
-title: "fabricatrZero: the same syntax, several times faster"
+title: "fabricatrZero: what changes, what does not, and why"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{fabricatrZero: the same syntax, several times faster}
+  %\VignetteIndexEntry{fabricatrZero: what changes, what does not, and why}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ set.seed(42)
 library(fabricatrZero)
 ```
 
-## What this package is
+## The short version
 
 fabricatrZero is a ground-up rewrite of fabricatr with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is about 600 lines of R across eight files, against roughly 3,200 lines in fabricatr. It depends on dplyr, tibble, purrr, and rlang, and it does not carry fabricatr's custom workspace and evaluation machinery.
 
@@ -24,25 +24,33 @@ Two things motivated it. The first is speed: fabricate() sits in the innermost l
 
 The headline for a collaborator porting an existing script: almost nothing changes. The rest of this vignette shows what stays the same, what moves, and why.
 
-## The speedups
+## Getting it
 
-Median time per call, measured with microbenchmark on an Apple M4 Pro under R 4.6.0, fabricatr 1.0.2, dplyr 1.2.1.
+The repository is private, so there are two routes depending on whether you have access to it.
 
-| What is being built | fabricatr | fabricatrZero | Speedup |
-|---|---:|---:|---:|
-| Flat, `N = 100`, three columns | 0.19 ms | 0.09 ms | 2.0x |
-| Flat, `N = 5,000`, three columns | 0.78 ms | 0.50 ms | 1.5x |
-| Flat, `N = 200,000`, three columns | 25.96 ms | 24.29 ms | 1.1x |
-| Ten chained columns, `N = 500` | 0.49 ms | 0.23 ms | 2.1x |
-| Two levels, 50 villages x 20 citizens | 0.60 ms | 0.21 ms | 2.9x |
-| Three levels, 20 x 10 x 5 | 0.89 ms | 0.27 ms | 3.3x |
-| Three levels, 50 x 20 x 20 (20,000 rows) | 6.30 ms | 1.67 ms | 3.8x |
-| Clustered draw with target ICC, 100 x 20 | 0.91 ms | 0.37 ms | 2.5x |
-| Potential outcomes plus reveal, `N = 1,000` | 1.04 ms | 0.65 ms | 1.6x |
+If you are a member of the DeclareDesign organisation on GitHub, install from source and ask for the vignette to be built:
 
-One change accounts for nearly all of it: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. A three-level design of 20,000 rows takes 63 seconds to build 10,000 times under fabricatr and 17 seconds here.
+```{r, eval = FALSE}
+# install.packages("remotes")
+remotes::install_github("DeclareDesign/fabricatrZero", build_vignettes = TRUE)
+```
 
-The gains concentrate where design diagnosis actually spends its time, which is hierarchical data. The one row that does not move is flat `N = 200,000`, where the two packages are at parity: at that size both spend nearly all their time building the zero-padded ID strings, and fabricatrZero pads exactly as fabricatr does.
+The install needs a GitHub personal access token to see a private repository. If you do not already have one configured, `usethis::create_github_token()` opens the page to make one and `gitcreds::gitcreds_set()` stores it.
+
+If you do not have repository access, install the source tarball you were sent, which carries the vignette already built:
+
+```{r, eval = FALSE}
+install.packages("fabricatrZero_0.1.0.tar.gz", repos = NULL, type = "source")
+```
+
+Either way:
+
+```{r, eval = FALSE}
+library(fabricatrZero)              # in place of library(fabricatr)
+vignette("fabricatrZero")           # this document
+```
+
+Both packages export the same function names, so attach only one of them at a time. If you have fabricatr loaded in the same session, restart R before switching.
 
 ## What does not change
 
@@ -305,7 +313,20 @@ fabricate(N = 3, n_obs = N, Y = rnorm(N))
 
 Beyond tidiness, keeping `N` out of the frame is what allows `cross_levels()` to work without a name collision between the two levels being crossed.
 
-## Three places where fabricatrZero is simply better
+## Porting an existing script
+
+Four greps will find everything that needs to change:
+
+```{r, eval = FALSE}
+# nest = FALSE          -> declare_level()
+# join_using(           -> .by = c("level1", "level2")
+# modify_level(... by = -> .by =
+# fabricate(<number>,   -> fabricate(N = <number>,
+```
+
+Then run the script. Each of the four raises an error naming its replacement, so anything that survives a clean run is doing what it did before. Nothing else needs checking: ID columns, column types, and column order all match fabricatr.
+
+## What is new
 
 Level calls and ordinary columns can be mixed in a single `fabricate()` call. fabricatr requires that the arguments be either all level calls or none of them, so the following raises "Arguments passed to `...` must either all be calls to create or modify levels, or else none of them must be":
 
@@ -332,48 +353,39 @@ y <- correlate(rnorm, mean = 0, sd = 1, given = x, rho = -0.5)
 cor(x, y, method = "spearman")
 ```
 
-## Getting the package
+## Speed
 
-The repository is private, so there are two routes depending on whether you have access to it.
+Median time per call, measured with microbenchmark on an Apple M4 Pro under R 4.6.0, fabricatr 1.0.2, dplyr 1.2.1.
 
-If you are a member of the DeclareDesign organisation on GitHub, install from source and ask for the vignette to be built:
+| What is being built | fabricatr | fabricatrZero | Speedup |
+|---|---:|---:|---:|
+| Flat, `N = 100`, three columns | 0.19 ms | 0.09 ms | 2.0x |
+| Flat, `N = 5,000`, three columns | 0.78 ms | 0.50 ms | 1.5x |
+| Flat, `N = 200,000`, three columns | 25.96 ms | 24.29 ms | 1.1x |
+| Ten chained columns, `N = 500` | 0.49 ms | 0.23 ms | 2.1x |
+| Two levels, 50 villages x 20 citizens | 0.60 ms | 0.21 ms | 2.9x |
+| Three levels, 20 x 10 x 5 | 0.89 ms | 0.27 ms | 3.3x |
+| Three levels, 50 x 20 x 20 (20,000 rows) | 6.30 ms | 1.67 ms | 3.8x |
+| Clustered draw with target ICC, 100 x 20 | 0.91 ms | 0.37 ms | 2.5x |
+| Potential outcomes plus reveal, `N = 1,000` | 1.04 ms | 0.65 ms | 1.6x |
 
-```{r, eval = FALSE}
-# install.packages("remotes")
-remotes::install_github("DeclareDesign/fabricatrZero", build_vignettes = TRUE)
-```
+One change accounts for nearly all of it: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. A three-level design of 20,000 rows takes 63 seconds to build 10,000 times under fabricatr and 17 seconds here.
 
-The install needs a GitHub personal access token to see a private repository. If you do not already have one configured, `usethis::create_github_token()` opens the page to make one and `gitcreds::gitcreds_set()` stores it.
+The gains concentrate where design diagnosis actually spends its time, which is hierarchical data. The one row that does not move is flat `N = 200,000`, where the two packages are at parity: at that size both spend nearly all their time building the zero-padded ID strings, and fabricatrZero pads exactly as fabricatr does.
 
-If you do not have repository access, install the source tarball you were sent, which carries the vignette already built:
+## Why rewrite at all
 
-```{r, eval = FALSE}
-install.packages("fabricatrZero_0.1.0.tar.gz", repos = NULL, type = "source")
-```
+The original fabricatr spends most of its complexity on one question: how does a column defined early in a `fabricate()` call become visible to a column defined later? Its answer is a workspace, meaning a UUID-keyed environment of data frames, a pointer to the "current active df", column expressions injected with `rlang::call_modify`, and `dynGet("N")` walking the dynamic scope to find the row count.
 
-Either way:
+The tidyverse answer is a named list used as a data mask, and a loop over `rlang::eval_tidy`. The list being built *is* the mask for the next expression, so nothing has to be looked up anywhere else. No workspace, no active pointer, no dynamic scoping.
 
-```{r, eval = FALSE}
-library(fabricatrZero)              # in place of library(fabricatr)
-vignette("fabricatrZero")           # this document
-```
+The level functions return S3 objects that `fabricate()` dispatches on, replacing a string-matching mode dispatcher. Hierarchy is built with plain integer indexing into lists rather than repeated data frame construction, which is where most of the speed comes from.
 
-Both packages export the same function names, so attach only one of them at a time. If you have fabricatr loaded in the same session, restart R before switching.
+What survives untouched is the statistical content: `draw_normal_icc()`, `draw_binary_icc()`, `correlate()`, and `draw_multivariate()` carry real algebra with no tidyverse one-liner equivalent, and they were ported rather than rewritten. The result is roughly 600 lines against about 3,200.
 
-## Porting an existing script
+## Current status
 
-Four greps will find everything that needs to change:
-
-```{r, eval = FALSE}
-# nest = FALSE          -> declare_level()
-# join_using(           -> .by = c("level1", "level2")
-# modify_level(... by = -> .by =
-# fabricate(<number>,   -> fabricate(N = <number>,
-```
-
-Then run the script. Each of the four raises an error naming its replacement, so anything that survives a clean run is doing what it did before. Nothing else needs checking: ID columns, column types, and column order all match fabricatr.
-
-## Open fabricatr issues this closes
+### Open fabricatr issues this closes
 
 Of the eleven issues open on fabricatr, eight no longer reproduce here. Each was checked by running the reporter's own code under both packages.
 
@@ -392,7 +404,7 @@ Two are documentation issues against fabricatr's own vignettes ([#191](https://g
 
 One remains open and unaddressed. [#165](https://github.com/DeclareDesign/fabricatr/issues/165) wants data frames importable as levels, so that two existing datasets can be brought in as separate levels and crossed. `declare_level()` gets closer to the shape that needs, but nothing here imports a data frame as a level.
 
-## Known gaps
+### Known gaps
 
 None outstanding. Three items were carried as gaps until they were checked against fabricatr directly, and checking them turned up two real defects rather than the missing features they were filed as:
 

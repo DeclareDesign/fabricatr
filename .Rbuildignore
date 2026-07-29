@@ -3,3 +3,4 @@
 ^.*\.Rcheck$
 ^\.DS_Store$
 ^\.claude$
+^LICENSE\.md$
