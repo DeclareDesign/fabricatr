@@ -71,16 +71,6 @@ test_that("fabricatr legacy arguments error informatively", {
                "uses `\\.by`")
 })
 
-test_that("id_type option switches every ID column to integer", {
-  old <- options(fabricatrZero.id_type = "integer")
-  on.exit(options(old))
-  expect_type(fabricate(N = 5, Y = rnorm(N))$ID, "integer")
-  df <- fabricate(clusters = add_level(N = 12), units = add_level(N = 2))
-  expect_type(df$clusters, "integer")
-  expect_type(df$units, "integer")
-  expect_equal(df$units, 1:24)
-})
-
 test_that("padded ID width follows the number of units at that level", {
   df <- fabricate(clusters = add_level(N = 12), units = add_level(N = 2))
   expect_equal(df$clusters[1], "01")

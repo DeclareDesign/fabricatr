@@ -6,17 +6,12 @@ new_level <- function(type, ...) {
   structure(list(type = type, ...), class = "fabricatr_level")
 }
 
-# Every ID column in the package is built here. Zero-padded character by
-# default, matching fabricatr: an ID is a label, not a quantity, and a
-# character ID cannot be swept into a regression as a linear term.
-# options(fabricatrZero.id_type = "integer") trades that guarantee for the
-# speed reported in the vignette.
+# Every ID column in the package is built here. Zero-padded character, as in
+# fabricatr: an ID is a label, not a quantity, and a character ID cannot be
+# swept into a regression as a linear term. The padding width is set by the
+# number of units at the level, so character sort order matches numeric order.
 make_ids <- function(n) {
-  if (identical(getOption("fabricatrZero.id_type", "character"), "integer")) {
-    seq_len(n)
-  } else {
-    formatC(seq_len(n), width = nchar(n), flag = "0")
-  }
+  formatC(seq_len(n), width = nchar(n), flag = "0")
 }
 
 # fabricatr's `nest =` and `by =` arguments would otherwise be captured as

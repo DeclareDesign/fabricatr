@@ -21,13 +21,10 @@
 #' ID columns are zero-padded character strings, as in fabricatr, so that an
 #' ID is a label rather than a quantity. The padding keeps character sort
 #' order matching numeric order, and the character type keeps a cluster ID
-#' from being read as a linear term by a model formula.
-#'
-#' Building those strings is the most expensive part of fabricating a deep
-#' hierarchy. Set \code{options(fabricatrZero.id_type = "integer")} for
-#' integer IDs, which is roughly four times faster on a large three-level
-#' design and uses a sixteenth of the memory. The setting applies to every ID
-#' column the package creates, at every level.
+#' from being read as a linear term by a model formula. The padding width is
+#' set by the number of units at that level, so a frame can hold
+#' \code{clusters} running \code{"1"} to \code{"4"} alongside \code{units}
+#' running \code{"01"} to \code{"12"}.
 #'
 #' @return A tibble.
 #'
