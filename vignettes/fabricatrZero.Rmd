@@ -336,6 +336,24 @@ Four greps will find everything that needs to change:
 
 Then run the script. Each of the four raises an error naming its replacement, so anything that survives a clean run is doing what it did before. Nothing else needs checking: ID columns, column types, and column order all match fabricatr.
 
+## Open fabricatr issues this closes
+
+Of the eleven issues open on fabricatr, seven no longer reproduce here. Each was checked by running the reporter's own code under both packages.
+
+| Issue | What it reports | Status here |
+|---|---|---|
+| [#182](https://github.com/DeclareDesign/fabricatr/issues/182) | Variable-length hierarchy plus `potential_outcomes()` warns, and errors outright on R 4.2 and later | Works |
+| [#167](https://github.com/DeclareDesign/fabricatr/issues/167) | `modify_level()` before a crossed level fails with "the variable name is ambiguous" | Works |
+| [#188](https://github.com/DeclareDesign/fabricatr/issues/188) | A matrix column cannot be referenced as `X.1` by a later expression | Works |
+| [#189](https://github.com/DeclareDesign/fabricatr/issues/189) | `draw_binary_icc()` silently pairs the wrong probability with each cluster when `prob` has one value per unit | Fixed, and a genuinely inconsistent `prob` now errors |
+| [#149](https://github.com/DeclareDesign/fabricatr/issues/149) | `draw_normal_icc()` refuses ICC values at or near 0 and 1 | Full `[0, 1]` range |
+| [#158](https://github.com/DeclareDesign/fabricatr/issues/158) | `draw_likert()` returns a factor, ignores arbitrary `breaks`, and the `draw_*` functions share one man page | Integer by default, `breaks` honoured, ten separate man pages |
+| [#160](https://github.com/DeclareDesign/fabricatr/issues/160) | `join()` collides with dplyr | No such function; `.by` takes a character vector |
+
+Two are documentation issues against fabricatr's own vignettes ([#191](https://github.com/DeclareDesign/fabricatr/issues/191), [#193](https://github.com/DeclareDesign/fabricatr/issues/193)) and do not arise here, since these pages are new. `draw_likert()` has `bins` and `breaks` and never had a `type` argument to document wrongly.
+
+Two remain open and unaddressed. [#133](https://github.com/DeclareDesign/fabricatr/issues/133) is a live design question about whether `total_sd` should rescale after the fact or be solved for jointly with the other three parameters; fabricatrZero rescales, which is the behavior the issue is unhappy with. [#165](https://github.com/DeclareDesign/fabricatr/issues/165) wants data frames importable as levels, so that two existing datasets can be brought in as separate levels and crossed. `declare_level()` gets closer to the shape that needs, but nothing here imports a data frame as a level.
+
 ## Known gaps
 
 None outstanding. Three items were carried as gaps until they were checked against fabricatr directly, and checking them turned up two real defects rather than the missing features they were filed as:

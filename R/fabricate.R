@@ -113,7 +113,8 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
         lst[[names(val)[[j]]]] <- v
       }
     } else if (nchar(nm) > 0) {
-      lst[[nm]] <- recycle_to_n(val, N_inject)
+      lst <- store_column(lst, nm, val,
+                          function(v, cn) recycle_to_n(v, N_inject))
     }
   }
 
@@ -132,6 +133,28 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
 # where fabricatr, which recycles eagerly, succeeds.
 recycle_to_n <- function(val, n) {
   if (!is.null(n) && length(val) == 1L && n > 1L) rep(val, n) else val
+}
+
+# A multi-column matrix becomes one column per matrix column, named X.1, X.2,
+# ... as data.frame() would name them, and the split happens as the column is
+# stored rather than on the way out. Keeping the matrix whole until output
+# leaves `X = matrix(...)` followed by `Y = X.1` unable to see X.1, which is
+# fabricatr#188.
+split_matrix_column <- function(nm, val) {
+  if (!is.matrix(val)) return(stats::setNames(list(val), nm))
+  if (ncol(val) == 1L) return(stats::setNames(list(val[, 1L]), nm))
+  suffix <- colnames(val)
+  if (is.null(suffix)) suffix <- seq_len(ncol(val))
+  stats::setNames(lapply(seq_len(ncol(val)), function(j) val[, j]),
+                  paste(nm, suffix, sep = "."))
+}
+
+# `fix` is applied to each resulting column, so a length rule is enforced per
+# column rather than against the whole matrix.
+store_column <- function(lst, nm, val, fix = function(v, nm) v) {
+  cols <- split_matrix_column(nm, val)
+  for (cn in names(cols)) lst[[cn]] <- fix(cols[[cn]], cn)
+  lst
 }
 
 # Converts a named list of equal-length vectors to a tibble.
@@ -169,7 +192,8 @@ eval_dots_into_list <- function(dots, base_list, inner_N = NULL) {
     val <- rlang::eval_tidy(dots[[i]], data = lst)
 
     if (nchar(nm) > 0) {
-      lst[[nm]] <- recycle_to_n(val, inner_N)
+      lst <- store_column(lst, nm, val,
+                          function(v, cn) recycle_to_n(v, inner_N))
     } else if (is.data.frame(val)) {
       for (j in seq_along(val))
         lst[[names(val)[[j]]]] <- recycle_to_n(val[[j]], inner_N)

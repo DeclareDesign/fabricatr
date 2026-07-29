@@ -131,3 +131,46 @@ test_that("draw_quantile fills buckets evenly and validates its arguments", {
   expect_error(draw_quantile(type = 1, N = 20), "between 2 and N-1")
   expect_error(draw_quantile(type = 20, N = 20), "between 2 and N-1")
 })
+
+test_that("draw_normal_icc accepts the endpoints of the ICC range", {
+  # fabricatr#149: an ICC of 0 or 1 is degenerate, not an error.
+  set.seed(4)
+  cl <- rep(1:20, each = 10)
+
+  y0 <- draw_normal_icc(clusters = cl, ICC = 0)
+  expect_length(y0, 200L)
+  expect_true(is.finite(sd(y0)))
+
+  y1 <- draw_normal_icc(clusters = cl, ICC = 1)
+  expect_length(y1, 200L)
+  expect_true(is.finite(sd(y1)))
+  # every unit in a cluster takes that cluster's value
+  expect_equal(length(unique(y1)), 20L)
+  expect_true(all(tapply(y1, cl, function(v) length(unique(v))) == 1L))
+
+  expect_error(draw_normal_icc(clusters = cl, ICC = 1.5), "between 0 and 1")
+  expect_error(draw_normal_icc(clusters = cl, ICC = -0.1), "between 0 and 1")
+})
+
+test_that("cluster-level parameters may arrive already expanded to one per unit", {
+  # fabricatr#189: prob defined at the cluster level is length N by the time a
+  # nested level evaluates. Indexing it by cluster number read the first k
+  # entries and paired the wrong probability with each cluster.
+  set.seed(9)
+  dat <- fabricate(
+    clusters = add_level(N = 30, prob = runif(N, 0, 0.9),
+                         prob = ifelse(prob < 0.4, 0, prob)),
+    people   = add_level(N = 10)
+  )
+  y <- draw_binary_icc(prob = dat$prob, clusters = dat$clusters, ICC = 0.1)
+  expect_true(all(y[dat$prob == 0] == 0))
+
+  expect_error(
+    draw_binary_icc(prob = runif(300), clusters = dat$clusters, ICC = 0.1),
+    "constant inside each cluster"
+  )
+  expect_error(
+    draw_binary_icc(prob = runif(7), clusters = dat$clusters, ICC = 0.1),
+    "must have length 1"
+  )
+})

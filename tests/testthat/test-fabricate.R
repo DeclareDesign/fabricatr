@@ -77,3 +77,24 @@ test_that("padded ID width follows the number of units at that level", {
   expect_equal(df$units[24], "24")
   expect_equal(fabricate(N = 5, Y = rnorm(N))$ID, as.character(1:5))
 })
+
+test_that("a matrix column is split so later expressions can use its columns", {
+  # fabricatr#188
+  set.seed(1)
+  df <- fabricate(N = 4, X = matrix(rnorm(12), 4), Y = X.1)
+  expect_equal(names(df), c("ID", "X.1", "X.2", "X.3", "Y"))
+  expect_equal(df$Y, df$X.1)
+
+  named <- fabricate(N = 3,
+                     X = matrix(rnorm(6), 3, dimnames = list(NULL, c("a", "b"))))
+  expect_equal(names(named), c("ID", "X.a", "X.b"))
+
+  # a single-column matrix stays one plain column
+  expect_equal(names(fabricate(N = 3, X = matrix(rnorm(3), 3))), c("ID", "X"))
+
+  # and it works inside a level, where each split column must fill the level
+  lev <- fabricate(g = add_level(N = 2),
+                   u = nest_level(N = 2, X = matrix(rnorm(8), 4), Z = X.2))
+  expect_equal(names(lev), c("g", "u", "X.1", "X.2", "Z"))
+  expect_equal(lev$Z, lev$X.2)
+})

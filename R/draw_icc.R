@@ -49,7 +49,10 @@ draw_normal_icc <- function(clusters,
 
   # Resolve sd / sd_between from ICC
   if (!is.null(ICC)) {
-    if (ICC <= 0 || ICC >= 1) stop("`ICC` must be strictly between 0 and 1.")
+    if (!is.numeric(ICC) || length(ICC) != 1L || is.na(ICC) ||
+        ICC < 0 || ICC > 1) {
+      stop("`ICC` must be a single number between 0 and 1.", call. = FALSE)
+    }
     if (!is.null(total_sd) && (!is.null(sd) || !is.null(sd_between))) {
       stop("When `total_sd` is provided, leave `sd` and `sd_between` blank.")
     }
@@ -58,8 +61,25 @@ draw_normal_icc <- function(clusters,
     } else if (is.null(sd) && is.null(sd_between)) {
       sd <- 1
     }
-    if (is.null(sd)) sd <- sqrt((1 - ICC) * sd_between^2 / ICC)
-    if (is.null(sd_between)) sd_between <- sqrt(ICC * sd^2 / (1 - ICC))
+    # The endpoints are the degenerate cases, not errors. At ICC = 0 there is
+    # no between-cluster variance and the draw is plain rnorm(); at ICC = 1
+    # there is no within-cluster variance and every unit in a cluster takes
+    # the cluster's value. Solving for the missing standard deviation divides
+    # by zero at each end, so name them rather than compute them.
+    if (ICC == 0) {
+      if (is.null(sd)) {
+        stop("An `ICC` of 0 means no between-cluster variance, so ",
+             "`sd_between` cannot also be positive. Supply `sd` instead.",
+             call. = FALSE)
+      }
+      sd_between <- 0
+    } else if (ICC == 1) {
+      if (is.null(sd_between)) sd_between <- sd
+      sd <- 0
+    } else {
+      if (is.null(sd)) sd <- sqrt((1 - ICC) * sd_between^2 / ICC)
+      if (is.null(sd_between)) sd_between <- sqrt(ICC * sd^2 / (1 - ICC))
+    }
   } else {
     if (is.null(sd) || is.null(sd_between)) {
       stop("Provide `ICC`, or provide both `sd` and `sd_between`.")
@@ -67,8 +87,7 @@ draw_normal_icc <- function(clusters,
   }
 
   # Cluster means
-  if (length(mean) == 1) mean <- rep(mean, k)
-  ind_mean <- mean[clusters]
+  ind_mean <- resolve_cluster_values(mean, clusters, k, "mean")[clusters]
 
   # Two-component draw
   alpha <- rnorm(k, 0, sd_between)[clusters]
@@ -110,7 +129,7 @@ draw_binary_icc <- function(clusters, prob = 0.5, ICC = 0, N = NULL) {
     stop("`ICC` must be a single number in [0, 1].")
   }
 
-  cluster_prob <- if (length(prob) == 1) rep(prob, k) else prob
+  cluster_prob <- resolve_cluster_values(prob, cidx, k, "prob")
   ind_prob <- cluster_prob[cidx]
 
   z_i <- rbinom(k, 1, cluster_prob)[cidx]   # cluster outcome
@@ -118,6 +137,30 @@ draw_binary_icc <- function(clusters, prob = 0.5, ICC = 0, N = NULL) {
   u_i <- rbinom(n, 1, sqrt(ICC))            # which to use
 
   ifelse(u_i, z_i, y_i)
+}
+
+# A cluster-level parameter may arrive already expanded to one value per unit,
+# which is what a nested fabricate() hands you: `prob` defined at the cluster
+# level is length N by the time the inner level evaluates. Indexing that by
+# cluster number would silently read the first k entries and pair the wrong
+# probability with each cluster, which is fabricatr#189. Collapse it instead,
+# and refuse it if it is not actually constant within cluster.
+resolve_cluster_values <- function(values, cidx, k, arg) {
+  n <- length(cidx)
+  if (length(values) == 1L) return(rep(values, k))
+  if (length(values) == k) return(values)
+  if (length(values) == n) {
+    by_cluster <- split(values, cidx)
+    if (any(vapply(by_cluster, function(v) length(unique(v)) > 1L, logical(1)))) {
+      stop("`", arg, "` has one value per unit and those values differ within ",
+           "a cluster. A cluster-level parameter must be constant inside each ",
+           "cluster.", call. = FALSE)
+    }
+    return(vapply(by_cluster, `[`, numeric(1), 1L, USE.NAMES = FALSE))
+  }
+  stop("`", arg, "` must have length 1, one value per cluster (", k,
+       "), or one value per unit (", n, "). It has ", length(values), ".",
+       call. = FALSE)
 }
 
 # Internal helper

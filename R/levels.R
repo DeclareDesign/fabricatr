@@ -288,7 +288,8 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
     val    <- rlang::eval_tidy(level$dots[[i]], data = expanded)
 
     if (nchar(col_nm) > 0L) {
-      expanded[[col_nm]] <- recycle_to_level(val, N_total, col_nm)
+      expanded <- store_column(expanded, col_nm, val,
+                               function(v, cn) recycle_to_level(v, N_total, cn))
     } else if (is.data.frame(val)) {
       for (j in seq_along(val)) {
         expanded[[names(val)[[j]]]] <-
