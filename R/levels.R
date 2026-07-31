@@ -14,25 +14,9 @@ make_ids <- function(n) {
   formatC(seq_len(n), width = nchar(n), flag = "0")
 }
 
-# fabricatr's `nest =` and `by =` arguments would otherwise be captured as
-# ordinary column expressions here, silently producing a junk column and, in
-# the `by =` case, an ungrouped answer. Catch them and say what to write.
-check_legacy_args <- function(dots) {
-  nms <- names(dots)
-  if (is.null(nms)) return(invisible(NULL))
-  if ("nest" %in% nms) {
-    stop("fabricatrZero has no `nest` argument. Nesting is automatic: a ",
-         "second add_level() nests inside the first. For an independent ",
-         "level to cross or link, use declare_level().", call. = FALSE)
-  }
-  if ("by" %in% nms) {
-    stop("fabricatrZero uses `.by` instead of `by`, and takes a character ",
-         'vector of level names: .by = "clusters" in modify_level(), ',
-         '.by = c("countries", "years") in cross_levels() and link_levels().',
-         call. = FALSE)
-  }
-  invisible(NULL)
-}
+# fabricatr's `nest =` and `by =` arrive inside `...` and would otherwise be
+# captured as ordinary column expressions. They are accepted and deprecated in
+# R/deprecated.R, which warns with the call the author should have written.
 
 # A column expression inside a nested level has to fill the level. Any vector
 # whose length divides the level evenly is recycled, as in fabricatr, which is
@@ -73,9 +57,8 @@ recycle_to_level <- function(val, n_total, col_nm) {
 #'
 #' @export
 add_level <- function(N, ...) {
-  dots <- rlang::enquos(...)
-  check_legacy_args(dots)
-  new_level("add", N = N, dots = dots)
+  legacy <- absorb_legacy_nest(rlang::enquos(...), sys.call(), "add")
+  new_level(legacy$type, N = N, dots = legacy$dots)
 }
 
 # declare_level ---------------------------------------------------------------
@@ -106,9 +89,8 @@ add_level <- function(N, ...) {
 #'
 #' @export
 declare_level <- function(N, ...) {
-  dots <- rlang::enquos(...)
-  check_legacy_args(dots)
-  new_level("declare", N = N, dots = dots)
+  legacy <- absorb_legacy_nest(rlang::enquos(...), sys.call(), "declare")
+  new_level(legacy$type, N = N, dots = legacy$dots)
 }
 
 # nest_level ------------------------------------------------------------------
@@ -139,7 +121,6 @@ declare_level <- function(N, ...) {
 #' @export
 nest_level <- function(N, ...) {
   dots <- rlang::enquos(...)
-  check_legacy_args(dots)
   new_level("nest", N = rlang::enquo(N), dots = dots)
 }
 
@@ -167,9 +148,9 @@ nest_level <- function(N, ...) {
 #'
 #' @export
 cross_levels <- function(.by, ...) {
-  dots <- rlang::enquos(...)
-  check_legacy_args(dots)
-  new_level("cross", by = .by, dots = dots)
+  legacy <- absorb_legacy_by(rlang::enquos(...), sys.call())
+  by <- if (is.null(legacy$by)) .by else legacy$by
+  new_level("cross", by = by, dots = legacy$dots)
 }
 
 # link_levels -----------------------------------------------------------------
@@ -203,9 +184,10 @@ cross_levels <- function(.by, ...) {
 #'
 #' @export
 link_levels <- function(N, .by, rho = 0, sigma = NULL, ...) {
-  dots <- rlang::enquos(...)
-  check_legacy_args(dots)
-  new_level("link", N = N, by = .by, rho = rho, sigma = sigma, dots = dots)
+  legacy <- absorb_legacy_by(rlang::enquos(...), sys.call())
+  by <- if (is.null(legacy$by)) .by else legacy$by
+  new_level("link", N = N, by = by, rho = rho, sigma = sigma,
+            dots = legacy$dots)
 }
 
 # modify_level ----------------------------------------------------------------
@@ -232,9 +214,8 @@ link_levels <- function(N, .by, rho = 0, sigma = NULL, ...) {
 #'
 #' @export
 modify_level <- function(..., .by = NULL) {
-  dots <- rlang::enquos(...)
-  check_legacy_args(dots)
-  new_level("modify", dots = dots, by = .by)
+  legacy <- absorb_legacy_by(rlang::enquos(...), sys.call())
+  new_level("modify", dots = legacy$dots, by = legacy$by %||% .by)
 }
 
 # execute_* functions ---------------------------------------------------------

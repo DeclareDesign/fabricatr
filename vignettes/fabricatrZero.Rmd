@@ -167,7 +167,9 @@ cor(score, offers, method = "spearman")
 
 ## What changes, and why
 
-There are six. Five are syntax, and every one of those raises an error that names its replacement, so a script that needs updating tells you rather than quietly producing something else. The sixth changes results, and it is the only place in the package where the same call gives you different numbers than fabricatr. It has its own section below.
+There are six. Five are syntax, and **a script written for fabricatr still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. The sixth changes results, and it is the only place in the package where the same call gives you different numbers than fabricatr. It has its own section below.
+
+One caveat on the warnings. A level constructor runs inside every simulation, so the warning fires once per call site per session rather than once per call. Under a parallel `future` plan the first call happens in a worker, and a warning raised there may never reach your console. So treat the table below as the authority and the warnings as a convenience, not the other way round.
 
 | fabricatr | fabricatrZero | Why |
 |---|---|---|
@@ -182,17 +184,19 @@ There are six. Five are syntax, and every one of those raises an error that name
 
 In fabricatr, an independent level that will later be crossed or linked is written as `add_level(..., nest = FALSE)`. The flag is doing real semantic work, and the name of the function actively fights it: you are not adding a level to the hierarchy, you are declaring a separate population.
 
-```{r, error = TRUE}
+It still works, and tells you what to write:
+
+```{r}
 fabricate(
   countries = add_level(N = 3, gdp = runif(N), nest = FALSE)
 )
 ```
 
-Write it as `declare_level()` instead. Nesting is never a flag in fabricatrZero: a second `add_level()` nests, `nest_level()` nests, and `declare_level()` stands alone.
+Nesting is never a flag in fabricatrZero: a second `add_level()` nests, `nest_level()` nests, and `declare_level()` stands alone.
 
 ### `join_using()` becomes `.by`
 
-fabricatr's `join_using()` is a quoting helper that exists to pass level names into `cross_levels()` and `link_levels()`. fabricatrZero takes a character vector instead, and performs the crossing with the same semantics as `dplyr::cross_join()`.
+fabricatr's `join_using()` is a quoting helper that exists to pass level names into `cross_levels()` and `link_levels()`. fabricatrZero takes a character vector instead, and performs the crossing with the same semantics as `dplyr::cross_join()`. `join_using()` is kept, and `by =` is accepted alongside `.by =`, so the fabricatr spelling runs and warns.
 
 ```{r}
 fabricate(
@@ -232,9 +236,9 @@ fabricate(
 )
 ```
 
-The old spelling errors rather than computing an ungrouped answer:
+The old spelling groups correctly rather than quietly computing an ungrouped answer, and says what to write:
 
-```{r, error = TRUE}
+```{r}
 fabricate(
   N = 12, cluster = rep(1:3, each = 4), Y = rnorm(N),
   modify_level(cluster_mean = mean(Y), by = "cluster")
@@ -324,7 +328,7 @@ Four greps will find everything that needs to change:
 # fabricate(<number>,   -> fabricate(N = <number>,
 ```
 
-Then run the script. Each of the four raises an error naming its replacement, so anything that survives a clean run is doing what it did before. Nothing else needs checking: ID columns, column types, and column order all match fabricatr.
+Then run the script. You do not have to do any of it at once: all four old spellings still work, and each warns once with the corrected call, so you can port as you go and use a clean run as the signal that you are finished. Nothing else needs checking: ID columns, column types, and column order all match fabricatr.
 
 ## What is new
 

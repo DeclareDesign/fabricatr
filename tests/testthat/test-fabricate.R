@@ -63,12 +63,23 @@ test_that("unnamed level and multi-column calls are not swallowed as N", {
   expect_equal(d2$gm[d2$g == 1][1], mean(d2$Y[d2$g == 1]))
 })
 
-test_that("fabricatr legacy arguments error informatively", {
-  expect_error(fabricate(a = add_level(N = 2, x = rnorm(N), nest = FALSE)),
-               "no `nest` argument")
-  expect_error(fabricate(N = 4, g = rep(1:2, 2), Y = rnorm(N),
-                         modify_level(m = mean(Y), by = "g")),
-               "uses `\\.by`")
+test_that("fabricatr legacy arguments are accepted and deprecated", {
+  # These used to be hard errors. They now work, and warn with the rewrite:
+  # see tests/testthat/test-deprecated.R.
+  rlang::local_options(rlib_warning_verbosity = "verbose")
+  expect_warning(
+    d1 <- fabricate(a = add_level(N = 2, x = rnorm(N), nest = FALSE)),
+    "`nest = FALSE` is deprecated"
+  )
+  expect_equal(nrow(d1), 2L)
+  expect_false("nest" %in% names(d1))
+
+  expect_warning(
+    d2 <- fabricate(N = 4, g = rep(1:2, 2), Y = rnorm(N),
+                    modify_level(m = mean(Y), by = "g")),
+    "`by =` is deprecated"
+  )
+  expect_equal(d2$m[d2$g == 1][1], mean(d2$Y[d2$g == 1]))
 })
 
 test_that("padded ID width follows the number of units at that level", {
