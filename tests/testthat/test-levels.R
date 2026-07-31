@@ -188,3 +188,26 @@ test_that("a single negative rho is refused for three or more levels", {
     "positive semi-definite"
   )
 })
+
+test_that("the correlated draw does not depend on optional packages", {
+  # Regression test. fabricatr, and fabricatrZero until now, switched to
+  # mvnfast::rmvn() whenever that package happened to be installed. The two
+  # paths consume the RNG differently, so the same seed gave different data on
+  # different machines, and three tests above silently changed answer the day
+  # mvnfast was installed. There is now one path.
+  draw <- function() {
+    set.seed(31)
+    fabricate(
+      a = declare_level(N = 8, xa = runif(N)),
+      b = declare_level(N = 9, xb = runif(N)),
+      obs = link_levels(N = 500, .by = c("a", "b"), rho = 0.5)
+    )
+  }
+  expect_equal(draw(), draw())
+  expect_false("mvnfast" %in% names(packageDescription("fabricatrZero")))
+  expect_equal(
+    length(grep("mvnfast", readLines(system.file("DESCRIPTION",
+                                                 package = "fabricatrZero")))),
+    0L
+  )
+})

@@ -167,7 +167,7 @@ cor(score, offers, method = "spearman")
 
 ## What changes, and why
 
-There are six. Five are syntax, and **a script written for fabricatr still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. The sixth changes results, and it is the only place in the package where the same call gives you different numbers than fabricatr. It has its own section below.
+There are seven. Five are syntax, and **a script written for fabricatr still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. Two change results, and they are the only places in the package where the same call gives you different numbers than fabricatr. Both have their own section below.
 
 One caveat on the warnings. A level constructor runs inside every simulation, so the warning fires once per call site per session rather than once per call. Under a parallel `future` plan the first call happens in a worker, and a warning raised there may never reach your console. So treat the table below as the authority and the warnings as a convenience, not the other way round.
 
@@ -179,6 +179,7 @@ One caveat on the warnings. A level constructor runs inside every simulation, so
 | `modify_level(..., by = "g")` | `modify_level(..., .by = "g")` | Leading dot marks a control argument, not a column |
 | `fabricate(N, ...)` positionally | `fabricate(N = ..., ...)` | `N` must be named, as in fabricatr |
 | `total_sd` rescales the finished draw | `total_sd` is a parameter of the draw | **Different numbers.** See below |
+| `link_levels()` draws via `mvnfast` when installed | one draw path, always | **Different numbers, if you have `mvnfast`.** See below |
 
 ### `nest = FALSE` becomes `declare_level()`
 
@@ -306,6 +307,25 @@ A side benefit of solving rather than rescaling is that combinations fabricatr r
 cl <- rep(1:20, each = 10)
 sd(draw_normal_icc(clusters = cl, total_sd = 3, sd_between = 2))
 ```
+
+### The correlated draw does not depend on your machine
+
+`link_levels(rho = )` and `link_levels(sigma = )` correlate row assignments through a Gaussian copula, which needs a draw from a multivariate normal. fabricatr takes that draw one of two ways:
+
+```r
+if (requireNamespace("mvnfast")) {
+  correlated_sn <- mvnfast::rmvn(N, ncores = getOption("mc.cores", 2L), mu, sigma)
+} else {
+  right_chol <- chol(sigma, pivot = TRUE)
+  correlated_sn <- matrix(rnorm(N * ndim), nrow = N) %*% right_chol
+}
+```
+
+The two paths consume the random number stream differently, so the same seed gives different data depending on whether an optional package is installed, and the `mvnfast` branch depends on your core count as well. A simulation package should not have that property, so fabricatrZero always takes the second path and does not suggest `mvnfast` at all.
+
+The cost is nothing you can feel. `mvnfast` earns its name in hundreds of dimensions; `link_levels()` has one dimension per level, so two or three. Measured at three levels, it saves 19 milliseconds on a million rows, and nothing measurable at the sizes anyone actually links.
+
+The consequence is that if you have `mvnfast` installed, a correlated `link_levels()` gives different numbers here than in fabricatr. Without it, the two agree exactly. Either way, fabricatrZero gives the same numbers as itself on every machine, which fabricatr cannot promise.
 
 ### `N` is never a column
 

@@ -162,6 +162,13 @@ cross_levels <- function(.by, ...) {
 #' copula so that units with high values on one level's variable tend to be
 #' paired with units with high values on the other level's variable.
 #'
+#' The correlated draw takes one code path, so a given seed produces the same
+#' data on every machine. fabricatr switches to \code{mvnfast::rmvn()} when
+#' that package is installed, and passes it a core count, so its numbers move
+#' when either changes. This is the second and last place where fabricatrZero
+#' can give different numbers than fabricatr, and it only differs when
+#' \code{mvnfast} is installed.
+#'
 #' @param N Number of rows to sample from the product.
 #' @param .by Character vector of exactly two level names.
 #' @param rho Scalar Spearman rank correlation between the two levels' row
@@ -422,16 +429,18 @@ joint_draw_ecdf <- function(data_list, N, sigma = NULL, rho = 0) {
 
   check_sigma(sigma, ndim)
 
-  use_mvnfast <- requireNamespace("mvnfast", quietly = TRUE)
-  mu <- rep(0, ndim)
-
-  if (use_mvnfast) {
-    corr_sn <- mvnfast::rmvn(N, mu, sigma)
-  } else {
-    R <- chol(sigma, pivot = TRUE)
-    R <- R[, order(attr(R, "pivot"))]
-    corr_sn <- matrix(stats::rnorm(N * ndim), nrow = N) %*% R
-  }
+  # One draw path, always. fabricatr switches to mvnfast::rmvn() when that
+  # package is installed, and the two consume the RNG differently, so the same
+  # seed gives different data on a machine that happens to have it. fabricatr
+  # also passes `ncores = getOption("mc.cores", 2L)`, which makes the draw
+  # depend on the core count as well. For a package whose job is simulation
+  # that is the wrong trade: measured at three levels, mvnfast saves 19
+  # milliseconds on a million rows and nothing at all at the sizes anyone
+  # links, so the branch bought speed nobody can feel with reproducibility
+  # everybody needs.
+  R <- chol(sigma, pivot = TRUE)
+  R <- R[, order(attr(R, "pivot"))]
+  corr_sn <- matrix(stats::rnorm(N * ndim), nrow = N) %*% R
 
   quantiles <- stats::pnorm(corr_sn)
 

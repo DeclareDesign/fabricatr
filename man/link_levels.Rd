@@ -28,6 +28,14 @@ or \code{sigma} is non-zero, row assignments are correlated via a Gaussian
 copula so that units with high values on one level's variable tend to be
 paired with units with high values on the other level's variable.
 }
+\details{
+The correlated draw takes one code path, so a given seed produces the same
+data on every machine. fabricatr switches to \code{mvnfast::rmvn()} when
+that package is installed, and passes it a core count, so its numbers move
+when either changes. This is the second and last place where fabricatrZero
+can give different numbers than fabricatr, and it only differs when
+\code{mvnfast} is installed.
+}
 \examples{
 fabricate(
   primary   = declare_level(N = 20, p_quality = runif(N, 1, 10)),
