@@ -1,8 +1,8 @@
 ---
-title: "fabricatrZero: what changes, what does not, and why"
+title: "fabricatr 2.0: what changes, what does not, and why"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{fabricatrZero: what changes, what does not, and why}
+  %\VignetteIndexEntry{fabricatr 2.0: what changes, what does not, and why}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -47,7 +47,7 @@ Either way:
 
 ```{r, eval = FALSE}
 library(fabricatrZero)              # in place of library(fabricatr)
-vignette("fabricatrZero")           # this document
+vignette("fabricatr2.0")           # this document
 ```
 
 Both packages export the same function names, so attach only one of them at a time. If you have fabricatr loaded in the same session, restart R before switching.

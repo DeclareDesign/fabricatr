@@ -6,7 +6,7 @@ The package on this branch is still named `fabricatrZero`, so installing it leav
 
 ```r
 remotes::install_github("DeclareDesign/fabricatr@rewrite", build_vignettes = TRUE)
-vignette("fabricatrZero")
+vignette("fabricatr2.0")
 ```
 
 The vignette is the document to read first. It covers what does not change, what changes and why, how to port an existing script, and the speed measurements.
