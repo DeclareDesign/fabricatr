@@ -19,6 +19,6 @@ The vignette is the document to read first. It covers what does not change, what
 
 As of 2026-07-30: 212 tests passing, `R CMD check` 0 errors / 0 warnings / 0 notes.
 
-The intent is that this becomes fabricatr 2.0.0, at which point the package is renamed and the vignette becomes a migration guide. That has not happened yet, and nothing on this branch asserts it: the DESCRIPTION still reads `fabricatrZero 0.1.0`.
+**This branch is versioned 2.0.0**, against fabricatr 1.0.2 on CRAN. It is still *named* `fabricatrZero`, and that is the deliberate part: the version says where it is going, the name is what keeps it installable alongside the released package while the two are still being compared. The rename is the last step before release, and it is the one that cannot be undone cheaply, because two packages of one name cannot be loaded together.
 
 Sibling branches: `DeclareDesign/estimatr@rewrite` and `DeclareDesign/DeclareDesign@rewrite`.

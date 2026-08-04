@@ -40,7 +40,7 @@ The install needs a GitHub personal access token to see a private repository. If
 If you do not have repository access, install the source tarball you were sent, which carries the vignette already built:
 
 ```{r, eval = FALSE}
-install.packages("fabricatrZero_0.1.0.tar.gz", repos = NULL, type = "source")
+install.packages("fabricatrZero_2.0.0.tar.gz", repos = NULL, type = "source")
 ```
 
 Either way:
