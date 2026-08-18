@@ -1,4 +1,5 @@
 ^notes$
+^\.github$
 ^\.\.Rcheck$
 ^.*\.Rcheck$
 ^\.DS_Store$
