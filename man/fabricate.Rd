@@ -42,9 +42,25 @@ set by the number of units at that level, so a frame can hold
 running \code{"01"} to \code{"12"}.
 }
 
+\section{Counting the rows a level is building}{
+
+\code{N} names the number of rows the current level is building, so
+\code{rnorm(N)} draws one value per row. \code{n()} answers the same
+question as a function call and is available in every declaration. Two
+things make it worth reaching for. It cannot be confused with a parameter
+of the design: \code{N} is a name, so a design that also has an \code{N}
+in the workspace can leave a reader unsure which one an expression reads,
+and \code{redesign()} rebinds names, where \code{n()} always means the
+rows in hand. And a data set carrying a column called \code{n} keeps it:
+\code{sum(n)} reads the column and \code{n()} reads the count.
+}
+
 \examples{
 # Flat fabrication
 fabricate(N = 100, Y = rnorm(N), X = rbinom(N, 1, 0.5))
+
+# n() is the number of rows the level is building
+fabricate(N = 10, Y = rnorm(n()))
 
 # Hierarchical: 20 villages, 5 citizens each
 fabricate(

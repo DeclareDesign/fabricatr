@@ -109,3 +109,50 @@ test_that("a matrix column is split so later expressions can use its columns", {
   expect_equal(names(lev), c("g", "u", "X.1", "X.2", "Z"))
   expect_equal(lev$Z, lev$X.2)
 })
+
+test_that("n() counts the rows the level is building", {
+  expect_equal(nrow(fabricate(N = 7, Y = rnorm(n()))), 7L)
+  expect_equal(unique(fabricate(N = 7, k = n())$k), 7L)
+
+  # each level counts its own rows
+  df <- fabricate(
+    villages = add_level(N = 4, v = n()),
+    citizens = nest_level(N = 3, c = n())
+  )
+  expect_equal(unique(df$v), 4L)
+  expect_equal(unique(df$c), 12L)
+  expect_equal(unique(df$c), nrow(df))
+
+  # and a modified level counts the group it is in
+  grouped <- fabricate(N = 6, g = rep(1:2, each = 3),
+                       k = modify_level(.by = "g", k = n()))
+  expect_equal(unique(grouped$k), 3L)
+})
+
+test_that("a column called n does not stop n() from working", {
+  df <- fabricate(N = 5, n = 10:14, total = sum(n), size = n())
+  expect_equal(df$n, 10:14)
+  expect_equal(unique(df$total), 60L)
+  expect_equal(unique(df$size), 5L)
+})
+
+test_that("n() beats a same-named function on the search path", {
+  skip_if_not_installed("dplyr")
+  # dplyr::n() errors outside a dplyr verb, so a declaration writing n() would
+  # fail if the search path won the lookup.
+  local({
+    library(dplyr)
+    expect_equal(unique(fabricate(N = 3, k = n())$k), 3L)
+  })
+})
+
+test_that("a variable already called n keeps its meaning", {
+  # From ResearchDesigns, where several designs use `n` as a sample size.
+  # Binding n() below the data but above the design's own scope would shadow
+  # them, and `n < 0` on a function is not a useful error.
+  local({
+    n <- 5
+    expect_equal(nrow(fabricate(N = n, Y = rnorm(n))), 5L)
+    expect_equal(unique(fabricate(N = 4, k = n)$k), 5L)
+  })
+})

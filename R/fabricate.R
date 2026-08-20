@@ -26,11 +26,25 @@
 #' \code{clusters} running \code{"1"} to \code{"4"} alongside \code{units}
 #' running \code{"01"} to \code{"12"}.
 #'
+#' @section Counting the rows a level is building:
+#' \code{N} names the number of rows the current level is building, so
+#' \code{rnorm(N)} draws one value per row. \code{n()} answers the same
+#' question as a function call and is available in every declaration. Two
+#' things make it worth reaching for. It cannot be confused with a parameter
+#' of the design: \code{N} is a name, so a design that also has an \code{N}
+#' in the workspace can leave a reader unsure which one an expression reads,
+#' and \code{redesign()} rebinds names, where \code{n()} always means the
+#' rows in hand. And a data set carrying a column called \code{n} keeps it:
+#' \code{sum(n)} reads the column and \code{n()} reads the count.
+#'
 #' @return A tibble.
 #'
 #' @examples
 #' # Flat fabrication
 #' fabricate(N = 100, Y = rnorm(N), X = rbinom(N, 1, 0.5))
+#'
+#' # n() is the number of rows the level is building
+#' fabricate(N = 10, Y = rnorm(n()))
 #'
 #' # Hierarchical: 20 villages, 5 citizens each
 #' fabricate(
@@ -60,6 +74,64 @@ fabricate_with_dots <- function(data = NULL, dots, ID_label = "ID") {
     dots <- dots[-N_idx[1L]]
   }
   fabricate_impl(N = N, dots = dots, data = data, ID_label = ID_label)
+}
+
+#' A data mask that also answers `n()`
+#'
+#' `N` is a column of the mask, so a declaration that reads it gets whatever
+#' the level is building. `n()` answers the same question as a function call,
+#' which is worth having for two reasons: it cannot be mistaken for a
+#' parameter of the design and rebound by `redesign()`, and a data set that
+#' happens to carry a column called `n` still reads as that column, because R
+#' skips non-function bindings when it looks up a call.
+#'
+#' The size is bound between the data and the code's own environment, so the
+#' columns win over it and it wins over a `n()` from an attached package.
+#' A declaration written where `n` is already an ordinary variable is left
+#' alone: that variable keeps its meaning, and `n()` there is whatever it was
+#' before. Shadowing it would silently change designs that use `n` as a name.
+#'
+#' @keywords internal
+#' @noRd
+level_mask <- function(data, size = NULL, env = NULL) {
+  helpers <- rlang::new_environment()
+  if (!name_holds_a_value(env, "n")) {
+    rlang::env_bind(helpers, n = function() {
+      if (is.null(size)) {
+        stop("n() has no level to count here: nothing is being built.",
+             call. = FALSE)
+      }
+      size
+    })
+  }
+  nms <- names(data) %||% character(0)
+  if (length(data) && (anyDuplicated(nms) || !all(nzchar(nms)))) {
+    rlang::abort("`data` must be uniquely named but has duplicate columns")
+  }
+  data_env <- rlang::as_environment(data, parent = helpers)
+  mask <- rlang::new_data_mask(data_env, top = helpers)
+  mask$.data <- rlang::as_data_pronoun(data_env)
+  mask
+}
+
+#' Whether a name already means something other than a function where the
+#' declaration was written
+#'
+#' @keywords internal
+#' @noRd
+name_holds_a_value <- function(env, name) {
+  if (!rlang::is_environment(env)) return(FALSE)
+  found <- tryCatch(rlang::env_get(env, name, default = NULL, inherit = TRUE),
+                    error = function(e) NULL)
+  !is.null(found) && !is.function(found)
+}
+
+#' Evaluate one declaration against a level's data
+#'
+#' @keywords internal
+#' @noRd
+eval_in_level <- function(quo, data, size = NULL) {
+  rlang::eval_tidy(quo, data = level_mask(data, size, rlang::quo_get_env(quo)))
 }
 
 fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
@@ -97,7 +169,7 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
       mask[[ID_label]] <- id_vec
     }
 
-    val <- rlang::eval_tidy(dots[[i]], data = mask)
+    val <- eval_in_level(dots[[i]], mask, N_inject)
 
     if (inherits(val, "fabricatr_level")) {
       saw_level <- TRUE
@@ -189,7 +261,7 @@ eval_dots_into_list <- function(dots, base_list, inner_N = NULL) {
 
   for (i in seq_along(dots)) {
     nm  <- names(dots)[[i]]
-    val <- rlang::eval_tidy(dots[[i]], data = lst)
+    val <- eval_in_level(dots[[i]], lst, inner_N)
 
     if (nchar(nm) > 0) {
       lst <- store_column(lst, nm, val,

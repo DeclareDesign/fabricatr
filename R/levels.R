@@ -273,7 +273,7 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
 
   for (i in seq_along(level$dots)) {
     col_nm <- names(level$dots)[[i]]
-    val    <- rlang::eval_tidy(level$dots[[i]], data = expanded)
+    val    <- eval_in_level(level$dots[[i]], expanded, N_total)
 
     if (nchar(col_nm) > 0L) {
       expanded <- store_column(expanded, col_nm, val,
