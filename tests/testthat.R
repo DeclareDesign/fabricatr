@@ -1,4 +1,4 @@
 library(testthat)
-library(fabricatrZero)
+library(fabricatr)
 
-test_check("fabricatrZero")
+test_check("fabricatr")

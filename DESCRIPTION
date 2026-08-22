@@ -1,4 +1,4 @@
-Package: fabricatrZero
+Package: fabricatr
 Title: Tidyverse-First Data Fabrication
 Version: 2.0.0
 Authors@R: person("Alex", "Coppock", email = "acoppock@gmail.com",

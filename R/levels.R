@@ -165,7 +165,7 @@ cross_levels <- function(.by, ...) {
 #' The correlated draw takes one code path, so a given seed produces the same
 #' data on every machine. fabricatr switches to \code{mvnfast::rmvn()} when
 #' that package is installed, and passes it a core count, so its numbers move
-#' when either changes. This is the second and last place where fabricatrZero
+#' when either changes. This is the second and last place where fabricatr
 #' can give different numbers than fabricatr, and it only differs when
 #' \code{mvnfast} is installed.
 #'

@@ -2,7 +2,7 @@
 
 **This branch is not the CRAN package and it is not `main`.** It holds a ground-up rewrite of fabricatr on tidyverse foundations. The released fabricatr is unaffected by anything here.
 
-The package on this branch is still named `fabricatrZero`, so installing it leaves your CRAN fabricatr in place and both can be loaded in the same session.
+The package on this branch is named `fabricatr`, the same as the released one, so installing it **replaces** your CRAN fabricatr. Two packages of one name cannot be loaded together. To keep the released version available for comparison, install it into a separate library and pass `lib.loc` when you need it.
 
 ```r
 remotes::install_github("DeclareDesign/fabricatr@rewrite", build_vignettes = TRUE)
@@ -19,6 +19,6 @@ The vignette is the document to read first. It covers what does not change, what
 
 As of 2026-07-30: 212 tests passing, `R CMD check` 0 errors / 0 warnings / 0 notes.
 
-**This branch is versioned 2.0.0**, against fabricatr 1.0.2 on CRAN. It is still *named* `fabricatrZero`, and that is the deliberate part: the version says where it is going, the name is what keeps it installable alongside the released package while the two are still being compared. The rename is the last step before release, and it is the one that cannot be undone cheaply, because two packages of one name cannot be loaded together.
+**This branch is versioned 2.0.0**, against fabricatr 1.0.2 on CRAN. It carries the released package's name, so it is a drop-in replacement rather than something that sits beside it.
 
 Sibling branches: `DeclareDesign/estimatr@rewrite` and `DeclareDesign/DeclareDesign@rewrite`.

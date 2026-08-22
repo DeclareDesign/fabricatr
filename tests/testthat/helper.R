@@ -1,1 +1,1 @@
-library(fabricatrZero)
+library(fabricatr)

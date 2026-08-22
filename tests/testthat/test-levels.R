@@ -190,7 +190,7 @@ test_that("a single negative rho is refused for three or more levels", {
 })
 
 test_that("the correlated draw does not depend on optional packages", {
-  # Regression test. fabricatr, and fabricatrZero until now, switched to
+  # Regression test. fabricatr, and fabricatr until now, switched to
   # mvnfast::rmvn() whenever that package happened to be installed. The two
   # paths consume the RNG differently, so the same seed gave different data on
   # different machines, and three tests above silently changed answer the day
@@ -204,10 +204,10 @@ test_that("the correlated draw does not depend on optional packages", {
     )
   }
   expect_equal(draw(), draw())
-  expect_false("mvnfast" %in% names(packageDescription("fabricatrZero")))
+  expect_false("mvnfast" %in% names(packageDescription("fabricatr")))
   expect_equal(
     length(grep("mvnfast", readLines(system.file("DESCRIPTION",
-                                                 package = "fabricatrZero")))),
+                                                 package = "fabricatr")))),
     0L
   )
 })

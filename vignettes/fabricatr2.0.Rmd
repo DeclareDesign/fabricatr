@@ -13,14 +13,14 @@ set.seed(42)
 ```
 
 ```{r setup}
-library(fabricatrZero)
+library(fabricatr)
 ```
 
 ## The short version
 
-fabricatrZero is a ground-up rewrite of fabricatr with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is about 600 lines of R across eight files, against roughly 3,200 lines in fabricatr. It depends on dplyr, tibble, purrr, and rlang, and it does not carry fabricatr's custom workspace and evaluation machinery.
+fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is about 600 lines of R across eight files, against roughly 3,200 lines in fabricatr. It depends on dplyr, tibble, purrr, and rlang, and it does not carry fabricatr's custom workspace and evaluation machinery.
 
-Two things motivated it. The first is speed: fabricate() sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr reaches deep into rlang internals to manage its evaluation environment, and that surface has broken more than once when rlang changed underneath it. fabricatrZero evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
+Two things motivated it. The first is speed: fabricate() sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr reaches deep into rlang internals to manage its evaluation environment, and that surface has broken more than once when rlang changed underneath it. fabricatr evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
 
 The headline for a collaborator porting an existing script: almost nothing changes. The rest of this vignette shows what stays the same, what moves, and why.
 
@@ -32,7 +32,7 @@ If you are a member of the DeclareDesign organisation on GitHub, install from so
 
 ```{r, eval = FALSE}
 # install.packages("remotes")
-remotes::install_github("DeclareDesign/fabricatrZero", build_vignettes = TRUE)
+remotes::install_github("DeclareDesign/fabricatr@rewrite", build_vignettes = TRUE)
 ```
 
 The install needs a GitHub personal access token to see a private repository. If you do not already have one configured, `usethis::create_github_token()` opens the page to make one and `gitcreds::gitcreds_set()` stores it.
@@ -40,13 +40,13 @@ The install needs a GitHub personal access token to see a private repository. If
 If you do not have repository access, install the source tarball you were sent, which carries the vignette already built:
 
 ```{r, eval = FALSE}
-install.packages("fabricatrZero_2.0.0.tar.gz", repos = NULL, type = "source")
+install.packages("fabricatr_2.0.0.tar.gz", repos = NULL, type = "source")
 ```
 
 Either way:
 
 ```{r, eval = FALSE}
-library(fabricatrZero)              # in place of library(fabricatr)
+library(fabricatr)              # in place of library(fabricatr)
 vignette("fabricatr2.0")           # this document
 ```
 
@@ -89,7 +89,7 @@ fabricate(
 )
 ```
 
-The total is the only thing `rnorm(N)` can usefully draw. Were `N` the per-parent count, the expression would return two values, the level would have to repeat them to fill six rows, and every village would receive the identical pair of residuals. fabricatrZero shipped that behavior until it was caught by a regression test, and a clustered design built on it had within-cluster noise correlated at 1.00 across clusters.
+The total is the only thing `rnorm(N)` can usefully draw. Were `N` the per-parent count, the expression would return two values, the level would have to repeat them to fill six rows, and every village would receive the identical pair of residuals. fabricatr shipped that behavior until it was caught by a regression test, and a clustered design built on it had within-cluster noise correlated at 1.00 across clusters.
 
 A vector shorter than the level is still recycled, as in fabricatr, which is what lets `task = 1:3` number the tasks within every parent. Recycling is safe only because `N` is the total: an expression written against `N` already returns one value per row, so the short vectors that reach that point are the ones you wrote out deliberately. A length that does not divide the level evenly is an error.
 
@@ -171,7 +171,7 @@ There are seven. Five are syntax, and **a script written for fabricatr still run
 
 One caveat on the warnings. A level constructor runs inside every simulation, so the warning fires once per call site per session rather than once per call. Under a parallel `future` plan the first call happens in a worker, and a warning raised there may never reach your console. So treat the table below as the authority and the warnings as a convenience, not the other way round.
 
-| fabricatr | fabricatrZero | Why |
+| fabricatr | fabricatr | Why |
 |---|---|---|
 | `add_level(N, ..., nest = FALSE)` | `declare_level(N, ...)` | Names the intent instead of negating a flag |
 | `cross_levels(by = join_using(A, B))` | `cross_levels(.by = c("A", "B"))` | Uses real `dplyr::cross_join()` semantics |
@@ -193,11 +193,11 @@ fabricate(
 )
 ```
 
-Nesting is never a flag in fabricatrZero: a second `add_level()` nests, `nest_level()` nests, and `declare_level()` stands alone.
+Nesting is never a flag in fabricatr: a second `add_level()` nests, `nest_level()` nests, and `declare_level()` stands alone.
 
 ### `join_using()` becomes `.by`
 
-fabricatr's `join_using()` is a quoting helper that exists to pass level names into `cross_levels()` and `link_levels()`. fabricatrZero takes a character vector instead, and performs the crossing with the same semantics as `dplyr::cross_join()`. `join_using()` is kept, and `by =` is accepted alongside `.by =`, so the fabricatr spelling runs and warns.
+fabricatr's `join_using()` is a quoting helper that exists to pass level names into `cross_levels()` and `link_levels()`. fabricatr takes a character vector instead, and performs the crossing with the same semantics as `dplyr::cross_join()`. `join_using()` is kept, and `by =` is accepted alongside `.by =`, so the fabricatr spelling runs and warns.
 
 ```{r}
 fabricate(
@@ -220,7 +220,7 @@ cor(as.numeric(students$primary), as.numeric(students$secondary),
     method = "spearman")
 ```
 
-One inherited quirk is worth stating plainly, because it surprises people. `rho` is the rank correlation between the two levels' **ID assignments**, not between the variables defined on those levels. Students at high-numbered primary schools are matched to high-numbered secondary schools; whether that also correlates `p_quality` with `s_quality` depends entirely on whether quality happens to rise with ID, and for a `runif()` draw it does not. fabricatrZero reproduces fabricatr's behavior here exactly, down to the same draws from the same seed. If you want quality-to-quality sorting, define the level variables as monotone in the level ID.
+One inherited quirk is worth stating plainly, because it surprises people. `rho` is the rank correlation between the two levels' **ID assignments**, not between the variables defined on those levels. Students at high-numbered primary schools are matched to high-numbered secondary schools; whether that also correlates `p_quality` with `s_quality` depends entirely on whether quality happens to rise with ID, and for a `runif()` draw it does not. fabricatr reproduces fabricatr's behavior here exactly, down to the same draws from the same seed. If you want quality-to-quality sorting, define the level variables as monotone in the level ID.
 
 For more than two levels, pass a full correlation matrix as `sigma` instead of the scalar `rho`.
 
@@ -248,7 +248,7 @@ fabricate(
 
 ### `N` must be named
 
-fabricatr's signature is `fabricate(..., data, N, ID_label)`, so `N` was always a named argument there too. fabricatrZero matches it, which means an unnamed call like `fabricate(100, Y = rnorm(N))` is an error rather than being silently read as `N = 100`. Write `fabricate(N = 100, Y = rnorm(N))`.
+fabricatr's signature is `fabricate(..., data, N, ID_label)`, so `N` was always a named argument there too. fabricatr matches it, which means an unnamed call like `fabricate(100, Y = rnorm(N))` is an error rather than being silently read as `N = 100`. Write `fabricate(N = 100, Y = rnorm(N))`.
 
 ### ID columns are zero-padded character, as in fabricatr
 
@@ -278,18 +278,18 @@ This is the one change that gives different numbers from the same call, so it ge
 
 `draw_normal_icc()` builds each value from a cluster-level draw and an individual-level draw, so there are four ways to describe the same pair of variances: the ICC, the within-cluster standard deviation, the between-cluster standard deviation, and the total. They are related by $\sigma_{total}^2 = \sigma_b^2 + \sigma_w^2$ and $ICC = \sigma_b^2 / \sigma_{total}^2$, so any two of them pin the other two.
 
-fabricatr treats `total_sd` differently from the other three. It draws using the ICC, then rescales the finished vector so its sample standard deviation equals `total_sd`. fabricatrZero solves for the two standard deviations instead and draws once: $\sigma_{between} = s\sqrt{ICC}$ and $\sigma_{within} = s\sqrt{1 - ICC}$.
+fabricatr treats `total_sd` differently from the other three. It draws using the ICC, then rescales the finished vector so its sample standard deviation equals `total_sd`. fabricatr solves for the two standard deviations instead and draws once: $\sigma_{between} = s\sqrt{ICC}$ and $\sigma_{within} = s\sqrt{1 - ICC}$.
 
 The consequence, over 200 draws of 100 observations with `ICC = 0.4` and `total_sd = 2`:
 
 | | mean realised `sd()` | standard deviation of the realised `sd()` |
 |---|---:|---:|
 | fabricatr | 2.0000 | 0.0000 |
-| fabricatrZero | 1.9648 | 0.2225 |
+| fabricatr | 1.9648 | 0.2225 |
 
 **The case for changing it.** Rescaling makes the realised standard deviation exactly `total_sd` in every draw. A simulation that fabricates 10,000 datasets gets 10,000 datasets whose outcome variance is identical to the fourth decimal place, which no real sampling process would produce. Any diagnosand that depends on the spread of the outcome, and any standard error with an estimated variance in it, is then computed against a DGP with one of its sources of variation switched off. For a package whose entire purpose is repeated sampling, that is the wrong default. The fix also costs nothing in expressiveness, since the closed form is exact and defined at every ICC including 0 and 1.
 
-**The case against.** It is a divergence, and this vignette otherwise promises that identical code gives identical results. Anyone who has calibrated a design against fabricatr's `total_sd` will see their numbers move. There is also a legitimate reading of `total_sd` under which the old behavior is correct rather than buggy: if you want a dataset whose outcome has exactly the standard deviation you named, perhaps because you are matching a published descriptive statistic, rescaling gives you that and parameterising does not. Under that reading fabricatrZero has taken away a feature.
+**The case against.** It is a divergence, and this vignette otherwise promises that identical code gives identical results. Anyone who has calibrated a design against fabricatr's `total_sd` will see their numbers move. There is also a legitimate reading of `total_sd` under which the old behavior is correct rather than buggy: if you want a dataset whose outcome has exactly the standard deviation you named, perhaps because you are matching a published descriptive statistic, rescaling gives you that and parameterising does not. Under that reading fabricatr has taken away a feature.
 
 **Why the change anyway.** The two readings are not equally served by the two implementations. If you want the parameter, you cannot recover it from the rescaled version. If you want the exact sample standard deviation, you can still have it in one line:
 
@@ -321,11 +321,11 @@ if (requireNamespace("mvnfast")) {
 }
 ```
 
-The two paths consume the random number stream differently, so the same seed gives different data depending on whether an optional package is installed, and the `mvnfast` branch depends on your core count as well. A simulation package should not have that property, so fabricatrZero always takes the second path and does not suggest `mvnfast` at all.
+The two paths consume the random number stream differently, so the same seed gives different data depending on whether an optional package is installed, and the `mvnfast` branch depends on your core count as well. A simulation package should not have that property, so fabricatr always takes the second path and does not suggest `mvnfast` at all.
 
 The cost is nothing you can feel. `mvnfast` earns its name in hundreds of dimensions; `link_levels()` has one dimension per level, so two or three. Measured at three levels, it saves 19 milliseconds on a million rows, and nothing measurable at the sizes anyone actually links.
 
-The consequence is that if you have `mvnfast` installed, a correlated `link_levels()` gives different numbers here than in fabricatr. Without it, the two agree exactly. Either way, fabricatrZero gives the same numbers as itself on every machine, which fabricatr cannot promise.
+The consequence is that if you have `mvnfast` installed, a correlated `link_levels()` gives different numbers here than in fabricatr. Without it, the two agree exactly. Either way, fabricatr gives the same numbers as itself on every machine, which fabricatr cannot promise.
 
 ### `N` is never a column
 
@@ -381,7 +381,7 @@ cor(x, y, method = "spearman")
 
 Median time per call, measured with microbenchmark on an Apple M4 Pro under R 4.6.0, fabricatr 1.0.2, dplyr 1.2.1.
 
-| What is being built | fabricatr | fabricatrZero | Speedup |
+| What is being built | fabricatr | fabricatr | Speedup |
 |---|---:|---:|---:|
 | Flat, `N = 100`, three columns | 0.19 ms | 0.09 ms | 2.0x |
 | Flat, `N = 5,000`, three columns | 0.78 ms | 0.50 ms | 1.5x |
@@ -395,7 +395,7 @@ Median time per call, measured with microbenchmark on an Apple M4 Pro under R 4.
 
 One change accounts for nearly all of it: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. A three-level design of 20,000 rows takes 63 seconds to build 10,000 times under fabricatr and 17 seconds here.
 
-The gains concentrate where design diagnosis actually spends its time, which is hierarchical data. The one row that does not move is flat `N = 200,000`, where the two packages are at parity: at that size both spend nearly all their time building the zero-padded ID strings, and fabricatrZero pads exactly as fabricatr does.
+The gains concentrate where design diagnosis actually spends its time, which is hierarchical data. The one row that does not move is flat `N = 200,000`, where the two packages are at parity: at that size both spend nearly all their time building the zero-padded ID strings, and fabricatr pads exactly as fabricatr does.
 
 ## Why rewrite at all
 

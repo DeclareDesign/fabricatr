@@ -13,7 +13,7 @@ join_using(...)
 A character vector of level names.
 }
 \description{
-fabricatr's helper for `by = join_using(countries, years)`. In fabricatrZero
+fabricatr's helper for `by = join_using(countries, years)`. In fabricatr
 the levels are named directly, `.by = c("countries", "years")`, and this is
 kept so designs written for fabricatr run unchanged. It returns exactly that
 character vector, so it is also harmless in front of `.by`.

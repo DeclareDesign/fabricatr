@@ -1,6 +1,6 @@
 #' Fabricate a data frame
 #'
-#' The main entry point for fabricatrZero. Builds a data frame column by column,
+#' The main entry point for fabricatr. Builds a data frame column by column,
 #' supporting hierarchical levels, multi-column outputs, and starting from
 #' existing data.
 #'
@@ -62,7 +62,7 @@ fabricate <- function(..., N = NULL, ID_label = "ID", data = NULL) {
   fabricate_impl(N = N, dots = dots, data = data, ID_label = ID_label)
 }
 
-# Internal: called by DeclareDesignZero's make_fabricate_step with a
+# Internal: called by DeclareDesign's make_fabricate_step with a
 # pre-captured quosures list, avoiding double-quoting from !!!-injection.
 #' @keywords internal
 fabricate_with_dots <- function(data = NULL, dots, ID_label = "ID") {
@@ -261,7 +261,7 @@ execute_level <- function(level, lst, N_inject, nm, level_registry) {
     cross   = execute_cross_level(level, level_registry, nm),
     link    = execute_link_level(level, level_registry, nm),
     modify  = execute_modify_level(level, lst, N_inject),
-    stop("Unknown fabricatrZero level type: ", level$type)
+    stop("Unknown fabricatr level type: ", level$type)
   )
 }
 

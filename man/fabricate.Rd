@@ -27,7 +27,7 @@ Defaults to \code{"ID"}; set to \code{NA} to suppress it. Ignored when
 A tibble.
 }
 \description{
-The main entry point for fabricatrZero. Builds a data frame column by column,
+The main entry point for fabricatr. Builds a data frame column by column,
 supporting hierarchical levels, multi-column outputs, and starting from
 existing data.
 }

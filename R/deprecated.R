@@ -9,7 +9,7 @@
 # The ambiguity that motivated the error is narrower than it looks. Because
 # both names are formals in fabricatr, no design written against fabricatr can
 # have columns called `nest` or `by`, so the only author these shims can
-# confuse is one writing new fabricatrZero code who wants a column with one of
+# confuse is one writing new fabricatr code who wants a column with one of
 # those names, and the warning tells that author exactly what happened.
 
 #' Rewrite a call for a deprecation message
@@ -57,12 +57,12 @@ rewrite_call <- function(cl, fn = NULL, drop = character(), rename = NULL,
 warn_deprecated_spelling <- function(what, wrote, instead) {
   rlang::warn(
     paste0(
-      what, " is deprecated in fabricatrZero.\n",
+      what, " is deprecated in fabricatr.\n",
       "Write:  ", instead, "\n",
       "Not:    ", wrote
     ),
     .frequency = "once",
-    .frequency_id = paste0("fabricatrZero_legacy_", wrote)
+    .frequency_id = paste0("fabricatr_legacy_", wrote)
   )
 }
 
@@ -87,7 +87,7 @@ resolve_legacy_by <- function(quo) {
 
 #' Accept fabricatr's `nest =` in a level constructor
 #'
-#' `add_level(..., nest = FALSE)` is fabricatrZero's `declare_level()`, and
+#' `add_level(..., nest = FALSE)` is fabricatr's `declare_level()`, and
 #' `nest = TRUE` is `add_level()` with nothing else to say. Returns the level
 #' type to build and the dots with `nest` removed.
 #'
@@ -127,7 +127,7 @@ absorb_legacy_by <- function(dots, cl) {
 
 #' Name the levels to cross or link
 #'
-#' fabricatr's helper for `by = join_using(countries, years)`. In fabricatrZero
+#' fabricatr's helper for `by = join_using(countries, years)`. In fabricatr
 #' the levels are named directly, `.by = c("countries", "years")`, and this is
 #' kept so designs written for fabricatr run unchanged. It returns exactly that
 #' character vector, so it is also harmless in front of `.by`.
@@ -143,13 +143,13 @@ join_using <- function(...) {
 
 #' Recycle a vector to the length of the level being built
 #'
-#' fabricatr's helper for filling a level with a short vector. fabricatrZero
+#' fabricatr's helper for filling a level with a short vector. fabricatr
 #' recycles automatically whenever the vector's length divides the level
 #' evenly, so this is only ever a no-op made explicit, and is kept so designs
 #' written for fabricatr run unchanged.
 #'
 #' Left off, `.N` is the `N` of the level being built. fabricatr found it by
-#' walking the call stack; a fabricatrZero column expression is evaluated
+#' walking the call stack; a fabricatr column expression is evaluated
 #' against a data mask instead, so `N` is read out of the calling frame, which
 #' is that mask.
 #'
