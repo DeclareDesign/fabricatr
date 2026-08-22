@@ -211,3 +211,27 @@ test_that("the correlated draw does not depend on optional packages", {
     0L
   )
 })
+
+test_that("N must be a whole positive number of rows", {
+  # fabricatr 1.0.2 rejects all of these; `as.integer()` used to truncate them
+  # silently, so `fabricate(N = 2.5)` built two rows and said nothing.
+  expect_error(fabricate(N = 2.5), "must be positive integers")
+  expect_error(fabricate(N = pi), "must be positive integers")
+  expect_error(fabricate(N = -3), "must be positive integers")
+  expect_error(fabricate(N = NA), "must be positive integers")
+  expect_error(fabricate(N = "10"), "must be positive integers")
+  expect_error(fabricate(N = 0), "N == 0")
+  expect_error(fabricate(N = c(2, 3)), "length\\(N\\) > 1")
+  # the message names the call and the value, so the fix is visible
+  expect_error(fabricate(a = add_level(N = 2.5)), "add_level\\(\\) was given 2.5")
+})
+
+test_that("a valid N is unchanged by the check", {
+  expect_equal(nrow(fabricate(N = 10)), 10L)
+  expect_equal(nrow(fabricate(N = 10L)), 10L)
+  expect_equal(nrow(fabricate(a = add_level(N = 3))), 3L)
+  # a per-parent vector is still allowed at a nested level
+  expect_equal(nrow(fabricate(a = add_level(N = 2), b = nest_level(N = c(1, 3)))), 4L)
+  expect_error(fabricate(a = add_level(N = 2), b = nest_level(N = 2.5)),
+               "nest_level\\(\\) was given 2.5")
+})

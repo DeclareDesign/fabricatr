@@ -231,7 +231,7 @@ modify_level <- function(..., .by = NULL) {
 # Direct list indexing (v[idx]) is far cheaper than tibble row subsetting.
 
 execute_add_level <- function(level, nm) {
-  N_val <- as.integer(level$N)
+  N_val <- validate_n(level$N, "add_level()")
   base <- list()
   if (nchar(nm) > 0) base[[nm]] <- make_ids(N_val)
   lst <- eval_dots_into_list(level$dots, base, inner_N = N_val)
@@ -247,7 +247,8 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
          "Use add_level() first to create the top level.")
   }
 
-  N_val <- rlang::eval_tidy(level$N, data = lst)
+  N_val <- validate_n(rlang::eval_tidy(level$N, data = lst),
+                      "nest_level()", scalar = FALSE)
 
   if (length(N_val) == 1L) {
     idx     <- rep(seq_len(n_parent), each = N_val)
@@ -326,7 +327,7 @@ execute_link_level <- function(level, level_registry, nm) {
          paste(missing, collapse = ", "))
   }
   lsts <- level_registry[level$by]
-  N    <- as.integer(level$N)
+  N    <- validate_n(level$N, "link_levels()")
 
   indices <- joint_draw_ecdf(
     data_list = lapply(lsts, function(d) seq_len(length(d[[1L]]))),
@@ -449,4 +450,55 @@ joint_draw_ecdf <- function(data_list, N, sigma = NULL, rho = 0) {
     ordered_idx <- pmax(1L, round(quantiles[, j] * length(v)))
     order(v)[ordered_idx]
   })
+}
+
+#' Check that `N` is a count of rows
+#'
+#' `N` names the number of rows a level is building, so it has to be a whole
+#' positive number. Without this, `as.integer()` silently truncated: fabricate's
+#' `N = 2.5` built two rows, and `declare_model(N = 2.5)` written as a way of
+#' making a *column* called `N` did nothing at all and said nothing. fabricatr
+#' 1.0.2 rejects both, and this restores that.
+#'
+#' The message is 1.0.2's, so a user who has hit it before recognizes it, with
+#' the offending value added.
+#'
+#' @param N The evaluated value.
+#' @param where The call to name in the message.
+#' @param scalar Whether a single value is required, as it is for a new level.
+#' @return `N` as an integer vector, invisibly on failure never returning.
+#' @keywords internal
+#' @noRd
+validate_n <- function(N, where = "fabricate()", scalar = TRUE) {
+  if (!is.numeric(N) || !length(N) || anyNA(N) || any(N < 0) ||
+      any(N != trunc(N))) {
+    stop("Provided `N` must be positive integers.\n",
+         "  ", where, " was given ", format_n_value(N), ".", call. = FALSE)
+  }
+  if (scalar) {
+    if (length(N) != 1L) {
+      stop("New level has length(N) > 1.\n",
+           "  ", where, " was given ", length(N), " values; a level builds one ",
+           "number of rows.", call. = FALSE)
+    }
+    if (N == 0) {
+      stop("New level has N == 0.\n",
+           "  ", where, " cannot build a level with no rows.", call. = FALSE)
+    }
+  }
+  as.integer(N)
+}
+
+#' One-line rendering of a rejected `N`, for the message
+#'
+#' @keywords internal
+#' @noRd
+format_n_value <- function(N) {
+  if (is.null(N)) return("NULL")
+  if (!is.atomic(N)) return(paste0("an object of class ", class(N)[1]))
+  if (length(N) > 5L) {
+    return(paste0(length(N), " values starting ",
+                  paste(utils::head(N, 3), collapse = ", ")))
+  }
+  paste(deparse(N), collapse = " ")
 }

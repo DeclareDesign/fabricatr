@@ -156,3 +156,15 @@ test_that("a variable already called n keeps its meaning", {
     expect_equal(unique(fabricate(N = 4, k = n)$k), 5L)
   })
 })
+
+test_that("N alongside existing data is refused, as in 1.0.2", {
+  # `declare_model(N = m, U = rnorm(N)) + declare_model(N = 2.5)` ran clean and
+  # did nothing: the row count is fixed by the data, so the second `N` could
+  # only have meant a column called `N`, and it was dropped in silence.
+  base <- fabricate(N = 3, x = 1:3)
+  expect_error(fabricate(data = base, N = 2.5), "cannot be given alongside")
+  expect_error(fabricate(data = base, N = 5), "cannot be given alongside")
+  # data plus new variables, and N alone, both still work
+  expect_equal(nrow(fabricate(data = base, y = x * 2)), 3L)
+  expect_equal(nrow(fabricate(N = 5)), 5L)
+})

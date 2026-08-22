@@ -137,11 +137,22 @@ eval_in_level <- function(quo, data, size = NULL) {
 fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
   # Maintain a plain named list throughout — far cheaper than tibble for
   # intermediate operations. Convert to tibble exactly once at the end.
+  if (!is.null(data) && !is.null(N)) {
+    # fabricatr 1.0.2 refuses this outright, and it is worth refusing: the row
+    # count is already fixed by the data, so `N` can only be read as an attempt
+    # to make a column called `N`, which is a name the data mask owns. Silently
+    # dropping it is how `declare_model(N = m, ...) + declare_model(N = 2.5)`
+    # ran clean and did nothing.
+    stop("`N` cannot be given alongside existing data.\n",
+         "  The data already fix the number of rows. Do exactly one of:\n",
+         "  a level call, with or without data; existing data plus new ",
+         "variables; or `N` alone.", call. = FALSE)
+  }
   if (!is.null(data)) {
     lst      <- as.list(tibble::as_tibble(data))
     N_inject <- length(lst[[1L]])
   } else if (!is.null(N)) {
-    N_val    <- as.integer(N)
+    N_val    <- validate_n(N)
     lst      <- list()
     N_inject <- N_val
   } else {
