@@ -56,6 +56,7 @@
 #' df <- data.frame(x = 1:10)
 #' fabricate(data = df, y = x ^ 2)
 #'
+#' @importFrom rlang %||%
 #' @export
 fabricate <- function(..., N = NULL, ID_label = "ID", data = NULL) {
   dots <- rlang::enquos(...)
