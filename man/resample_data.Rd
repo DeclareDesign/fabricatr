@@ -12,6 +12,8 @@ resample_data(data, N, ID_labels = NULL, unique_labels = FALSE)
 \item{N}{Resample size. May be:
 \itemize{
   \item Missing: resample \code{nrow(data)} units (standard bootstrap).
+  \item A single unnamed number, with no \code{ID_labels}: resample that
+    many rows with replacement.
   \item A named integer vector: names are cluster ID column names (from
     outermost to innermost), values are the number of units to resample
     at each level. Use the constant \code{ALL} to pass through all units

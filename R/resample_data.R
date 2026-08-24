@@ -18,6 +18,8 @@ ALL <- -20171101L
 #' @param N Resample size. May be:
 #'   \itemize{
 #'     \item Missing: resample \code{nrow(data)} units (standard bootstrap).
+#'     \item A single unnamed number, with no \code{ID_labels}: resample that
+#'       many rows with replacement.
 #'     \item A named integer vector: names are cluster ID column names (from
 #'       outermost to innermost), values are the number of units to resample
 #'       at each level. Use the constant \code{ALL} to pass through all units
@@ -56,6 +58,17 @@ resample_data <- function(data, N, ID_labels = NULL, unique_labels = FALSE) {
     out <- data[sample.int(nrow(data), nrow(data), replace = TRUE), , drop = FALSE]
     rownames(out) <- NULL
     return(out)
+  }
+
+  # A bare, unnamed N with no ID_labels is a row-level bootstrap of size N,
+  # which is what fabricatr 1.x returned for resample_data(data, N = 40).
+  if (is.null(ID_labels) && is.null(names(N))) {
+    if (length(N) != 1) {
+      stop("An unnamed `N` of length > 1 needs `ID_labels` naming one level per element.")
+    }
+    out <- data[sample.int(nrow(data), N, replace = TRUE), , drop = FALSE]
+    rownames(out) <- NULL
+    return(tibble::as_tibble(out))
   }
 
   # Reconcile names vs ID_labels

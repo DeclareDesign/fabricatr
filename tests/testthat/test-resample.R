@@ -61,3 +61,21 @@ test_that("resample_data rejects unknown or mismatched level specifications", {
   expect_error(resample_data(dat, N = c(clusters = 2), ID_labels = "clusters"),
                "not both")
 })
+
+test_that("a bare scalar N resamples that many rows, as fabricatr 1.x did", {
+  dat <- data.frame(id = 1:10, y = 1:10)
+  expect_equal(nrow(resample_data(dat, N = 40)), 40L)
+  expect_equal(nrow(resample_data(dat, N = 5)), 5L)
+  expect_equal(nrow(resample_data(dat, N = 10)), 10L)
+  expect_equal(names(resample_data(dat, N = 40)), names(dat))
+  expect_true(all(resample_data(dat, N = 40)$id %in% dat$id))
+})
+
+test_that("a bare scalar N draws with replacement", {
+  dat <- data.frame(id = 1:3)
+  expect_true(any(duplicated(resample_data(dat, N = 100)$id)))
+})
+
+test_that("an unnamed N longer than one still needs ID_labels", {
+  expect_error(resample_data(make_clustered(), N = c(2, 2)), "ID_labels")
+})
