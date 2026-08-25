@@ -1,8 +1,8 @@
 ---
-title: "fabricatr 2.0: what changes, what does not, and why"
+title: "fabricatr: what changes, what does not, and why"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{fabricatr 2.0: what changes, what does not, and why}
+  %\VignetteIndexEntry{fabricatr: what changes, what does not, and why}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,39 +18,28 @@ library(fabricatr)
 
 ## The short version
 
-fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is about 600 lines of R across eight files, against roughly 3,200 lines in fabricatr. It depends on dplyr, tibble, purrr, and rlang, and it does not carry fabricatr's custom workspace and evaluation machinery.
+fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is 2,096 lines of R across nine files, against 3,193 lines in fabricatr 1.0.2. It depends on dplyr, tibble, purrr, and rlang, and it does not carry 1.x's custom workspace and evaluation machinery.
 
-Two things motivated it. The first is speed: fabricate() sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr reaches deep into rlang internals to manage its evaluation environment, and that surface has broken more than once when rlang changed underneath it. fabricatr evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
+Two things motivated it. The first is speed: fabricate() sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr 1.x reaches deep into rlang internals to manage its evaluation environment, and that surface has broken more than once when rlang changed underneath it. 2.0 evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
 
 The headline for a collaborator porting an existing script: almost nothing changes. The rest of this vignette shows what stays the same, what moves, and why.
 
 ## Getting it
 
-The repository is private, so there are two routes depending on whether you have access to it.
-
-If you are a member of the DeclareDesign organisation on GitHub, install from source and ask for the vignette to be built:
+Until 2.0 reaches CRAN, install it from the `rewrite` branch on GitHub and ask for the vignettes to be built:
 
 ```{r, eval = FALSE}
 # install.packages("remotes")
 remotes::install_github("DeclareDesign/fabricatr@rewrite", build_vignettes = TRUE)
 ```
 
-The install needs a GitHub personal access token to see a private repository. If you do not already have one configured, `usethis::create_github_token()` opens the page to make one and `gitcreds::gitcreds_set()` stores it.
-
-If you do not have repository access, install the source tarball you were sent, which carries the vignette already built:
+The branch installs under the released name, so it **replaces** the CRAN fabricatr in your library. To keep 1.0.2 around for comparison, install it into a separate library first and load it from there with `lib.loc`. Two packages of one name cannot be attached together, so restart R before switching between them.
 
 ```{r, eval = FALSE}
-install.packages("fabricatr_2.0.0.tar.gz", repos = NULL, type = "source")
+library(fabricatr)
+vignette("getting-started")   # a first tour, for someone new to the package
+vignette("fabricatr2.0")      # this document
 ```
-
-Either way:
-
-```{r, eval = FALSE}
-library(fabricatr)              # in place of library(fabricatr)
-vignette("fabricatr2.0")           # this document
-```
-
-Both packages export the same function names, so attach only one of them at a time. If you have fabricatr loaded in the same session, restart R before switching.
 
 ## What does not change
 
@@ -62,7 +51,7 @@ Flat fabrication, with each column able to see the ones defined before it:
 fabricate(N = 6, U = rnorm(N), X = rbinom(N, 1, 0.5), Y = U + 0.5 * X)
 ```
 
-Hierarchy. A second `add_level()` nests inside the first, exactly as in fabricatr:
+Hierarchy. A second `add_level()` nests inside the first, exactly as in 1.x:
 
 ```{r}
 fabricate(
@@ -89,9 +78,9 @@ fabricate(
 )
 ```
 
-The total is the only thing `rnorm(N)` can usefully draw. Were `N` the per-parent count, the expression would return two values, the level would have to repeat them to fill six rows, and every village would receive the identical pair of residuals. fabricatr shipped that behavior until it was caught by a regression test, and a clustered design built on it had within-cluster noise correlated at 1.00 across clusters.
+The total is the only thing `rnorm(N)` can usefully draw. Were `N` the per-parent count, the expression would return two values, the level would have to repeat them to fill six rows, and every village would receive the identical pair of residuals. An early build of 2.0 shipped that behavior until it was caught by a regression test, and a clustered design built on it had within-cluster noise correlated at 1.00 across clusters.
 
-A vector shorter than the level is still recycled, as in fabricatr, which is what lets `task = 1:3` number the tasks within every parent. Recycling is safe only because `N` is the total: an expression written against `N` already returns one value per row, so the short vectors that reach that point are the ones you wrote out deliberately. A length that does not divide the level evenly is an error.
+A vector shorter than the level is still recycled, as in 1.x, which is what lets `task = 1:3` number the tasks within every parent. Recycling is safe only because `N` is the total: an expression written against `N` already returns one value per row, so the short vectors that reach that point are the ones you wrote out deliberately. A length that does not divide the level evenly is an error.
 
 Variable numbers of children per parent, by passing a vector:
 
@@ -167,23 +156,25 @@ cor(score, offers, method = "spearman")
 
 ## What changes, and why
 
-There are seven. Five are syntax, and **a script written for fabricatr still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. Two change results, and they are the only places in the package where the same call gives you different numbers than fabricatr. Both have their own section below.
+There are nine. Five are spellings, and **a script written for 1.x still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. One is a hard error, a positional `N`. One changes the shape of the output, `modify_level()` named after a level above the current one. Two change results, and they are the only places in the package where the same call gives you different numbers than 1.x. Each has its own section below.
 
 One caveat on the warnings. A level constructor runs inside every simulation, so the warning fires once per call site per session rather than once per call. Under a parallel `future` plan the first call happens in a worker, and a warning raised there may never reach your console. So treat the table below as the authority and the warnings as a convenience, not the other way round.
 
-| fabricatr | fabricatr | Why |
+| fabricatr 1.0.2 | fabricatr 2.0 | Why |
 |---|---|---|
 | `add_level(N, ..., nest = FALSE)` | `declare_level(N, ...)` | Names the intent instead of negating a flag |
 | `cross_levels(by = join_using(A, B))` | `cross_levels(.by = c("A", "B"))` | Uses real `dplyr::cross_join()` semantics |
-| `link_levels(N, by = join_using(A, B))` | `link_levels(N, .by = c("A", "B"))` | Same, and `rho` becomes a plain argument |
+| `link_levels(N, by = join_using(A, B, rho = r))` | `link_levels(N, .by = c("A", "B"), rho = r)` | Same, and `rho` becomes a plain argument, behind the dots |
 | `modify_level(..., by = "g")` | `modify_level(..., .by = "g")` | Leading dot marks a control argument, not a column |
-| `fabricate(N, ...)` positionally | `fabricate(N = ..., ...)` | `N` must be named, as in fabricatr |
+| `draw_ordered(break_labels = )`, `draw_categorical(category_labels = )` | `labels = ` | One name for the same argument across the `draw_*` family |
+| `fabricate(100, ...)` | `fabricate(N = 100, ...)` | **An error, not a warning.** `N` is supplied by name |
+| `regions = modify_level()` after nesting drops the nested rows | keeps them | **Different shape.** See below |
 | `total_sd` rescales the finished draw | `total_sd` is a parameter of the draw | **Different numbers.** See below |
 | `link_levels()` draws via `mvnfast` when installed | one draw path, always | **Different numbers, if you have `mvnfast`.** See below |
 
 ### `nest = FALSE` becomes `declare_level()`
 
-In fabricatr, an independent level that will later be crossed or linked is written as `add_level(..., nest = FALSE)`. The flag is doing real semantic work, and the name of the function actively fights it: you are not adding a level to the hierarchy, you are declaring a separate population.
+In 1.x, an independent level that will later be crossed or linked is written as `add_level(..., nest = FALSE)`. The flag is doing real semantic work, and the name of the function actively fights it: you are not adding a level to the hierarchy, you are declaring a separate population.
 
 It still works, and tells you what to write:
 
@@ -193,11 +184,11 @@ fabricate(
 )
 ```
 
-Nesting is never a flag in fabricatr: a second `add_level()` nests, `nest_level()` nests, and `declare_level()` stands alone.
+Nesting is never a flag in 2.0: a second `add_level()` nests, `nest_level()` nests, and `declare_level()` stands alone.
 
 ### `join_using()` becomes `.by`
 
-fabricatr's `join_using()` is a quoting helper that exists to pass level names into `cross_levels()` and `link_levels()`. fabricatr takes a character vector instead, and performs the crossing with the same semantics as `dplyr::cross_join()`. `join_using()` is kept, and `by =` is accepted alongside `.by =`, so the fabricatr spelling runs and warns.
+1.x's `join_using()` is a quoting helper that exists to pass level names into `cross_levels()` and `link_levels()`. 2.0 takes a character vector instead, and performs the crossing with the same semantics as `dplyr::cross_join()`. `join_using()` is kept, and `by =` is accepted alongside `.by =`, so the 1.x spelling runs and warns.
 
 ```{r}
 fabricate(
@@ -207,7 +198,7 @@ fabricate(
 )
 ```
 
-`link_levels()` samples `N` rows from that product rather than taking all of it, and `rho` is now an ordinary argument rather than something smuggled inside `join_using()`:
+`link_levels()` samples `N` rows from that product rather than taking all of it, and `rho` is now an ordinary argument rather than something smuggled inside `join_using()`. The 1.x spelling, `link_levels(N = 2000, by = join_using(primary, secondary, rho = 0.8))`, still runs, carries its `rho` through, and warns with the call below:
 
 ```{r}
 students <- fabricate(
@@ -220,7 +211,9 @@ cor(as.numeric(students$primary), as.numeric(students$secondary),
     method = "spearman")
 ```
 
-One inherited quirk is worth stating plainly, because it surprises people. `rho` is the rank correlation between the two levels' **ID assignments**, not between the variables defined on those levels. Students at high-numbered primary schools are matched to high-numbered secondary schools; whether that also correlates `p_quality` with `s_quality` depends entirely on whether quality happens to rise with ID, and for a `runif()` draw it does not. fabricatr reproduces fabricatr's behavior here exactly, down to the same draws from the same seed. If you want quality-to-quality sorting, define the level variables as monotone in the level ID.
+`rho` and `sigma` sit behind the dots in the signature, `link_levels(N, .by, ..., rho = 0, sigma = NULL)`, so a column called `r`, `s` or `si` is a column and not a partial match for the correlation. The cost is that they have to be named: `link_levels(N, .by, 0.5)` no longer sets `rho`, and `rho = 0.5` does.
+
+One inherited quirk surprises people. `rho` is the rank correlation between the two levels' **ID assignments**, not between the variables defined on those levels. Students at high-numbered primary schools are matched to high-numbered secondary schools; whether that also correlates `p_quality` with `s_quality` depends entirely on whether quality happens to rise with ID, and for a `runif()` draw it does not. 2.0 reproduces 1.x's behavior here exactly, down to the same draws from the same seed when `mvnfast` is not installed. If you want quality-to-quality sorting, define the level variables as monotone in the level ID.
 
 For more than two levels, pass a full correlation matrix as `sigma` instead of the scalar `rho`.
 
@@ -248,9 +241,32 @@ fabricate(
 
 ### `N` must be named
 
-fabricatr's signature is `fabricate(..., data, N, ID_label)`, so `N` was always a named argument there too. fabricatr matches it, which means an unnamed call like `fabricate(100, Y = rnorm(N))` is an error rather than being silently read as `N = 100`. Write `fabricate(N = 100, Y = rnorm(N))`.
+1.x's signature is `fabricate(..., data, N, ID_label)`, and a bare number in the dots, `fabricate(100, Y = rnorm(N))`, was read as `N = 100`. 2.0 does not read it that way: every expression in the dots is a column and needs a name, so the same call stops with
 
-### ID columns are zero-padded character, as in fabricatr
+```
+Every column needs a name. Expression 1 in fabricate(), `100`, has none.
+  If this is the number of rows, write `N = 100`: N is supplied by name.
+```
+
+Write `fabricate(N = 100, Y = rnorm(N))`. The same rule catches an unnamed column anywhere, `fabricate(N = 5, rnorm(N))`, which 1.x failed on with an indexing error from deep inside and which an early build of 2.0 dropped without a word.
+
+### `modify_level()` at a named level works at that level
+
+Named after a level above the current one, `modify_level()` evaluates its expressions once per unit of that level: `N` is the number of regions, the columns in view are the ones built at the regions level or above, and each result is written back to every city in its region.
+
+```{r}
+fabricate(
+  regions = add_level(N = 3, a = 1:3),
+  cities  = add_level(N = 2, b = rnorm(N)),
+  regions = modify_level(z = rnorm(N), a2 = a * 2)
+)
+```
+
+1.x evaluates the same call the same way, three draws of `z` and `a2` from the region's own `a`, but then returns the regions frame alone: three rows, with the cities and their `b` gone. 2.0 keeps the six rows. An early build of 2.0 ignored the level name instead and drew one `z` per city, which is the silent kind of wrong, and is why this section exists.
+
+A column built at a level nested inside is out of view at the outer level, as it is in 1.x, where the same call could see nothing below the level it named. `regions = modify_level(bb = mean(b))` stops and says so, because `b` varies within a region. To summarise it per region, leave the level name off and group: `modify_level(bb = mean(b), .by = "regions")`.
+
+### ID columns are zero-padded character, as in 1.x
 
 IDs are zero-padded character strings, so a design with twelve clusters gets `"01"` through `"12"` and the padding keeps character sort order matching numeric order:
 
@@ -263,9 +279,9 @@ fabricate(
 
 The type is the point. An ID is a label, not a quantity, and an integer ID is a number that R will happily use as one. `lm(Y ~ clusters)` on integer cluster IDs silently fits a linear trend in cluster number where you meant fixed effects, and `mean(clusters)` returns a value rather than an error. Character IDs make both mistakes impossible.
 
-Note that the padding width is set per level, by the number of units at that level rather than by anything global. A frame of 4 clusters holding 3 units each carries `clusters` running `"1"` to `"4"` alongside `units` running `"01"` to `"12"`, as in the ICC example above. fabricatr does the same.
+Note that the padding width is set per level, by the number of units at that level rather than by anything global. A frame of 4 clusters holding 3 units each carries `clusters` running `"1"` to `"4"` alongside `units` running `"01"` to `"12"`, as in the ICC example above. 1.x does the same.
 
-Levels name their own ID columns after the level, exactly as in fabricatr. Flat fabrication gets a column called `ID`, which `ID_label` renames and `ID_label = NA` suppresses:
+Levels name their own ID columns after the level, exactly as in 1.x. Flat fabrication gets a column called `ID`, which `ID_label` renames and `ID_label = NA` suppresses:
 
 ```{r}
 fabricate(N = 3, Y = rnorm(N), ID_label = "respondent")
@@ -278,18 +294,18 @@ This is the one change that gives different numbers from the same call, so it ge
 
 `draw_normal_icc()` builds each value from a cluster-level draw and an individual-level draw, so there are four ways to describe the same pair of variances: the ICC, the within-cluster standard deviation, the between-cluster standard deviation, and the total. They are related by $\sigma_{total}^2 = \sigma_b^2 + \sigma_w^2$ and $ICC = \sigma_b^2 / \sigma_{total}^2$, so any two of them pin the other two.
 
-fabricatr treats `total_sd` differently from the other three. It draws using the ICC, then rescales the finished vector so its sample standard deviation equals `total_sd`. fabricatr solves for the two standard deviations instead and draws once: $\sigma_{between} = s\sqrt{ICC}$ and $\sigma_{within} = s\sqrt{1 - ICC}$.
+1.x treats `total_sd` differently from the other three. It draws using the ICC, then rescales the finished vector so its sample standard deviation equals `total_sd`. 2.0 solves for the two standard deviations instead and draws once: $\sigma_{between} = s\sqrt{ICC}$ and $\sigma_{within} = s\sqrt{1 - ICC}$.
 
 The consequence, over 200 draws of 100 observations with `ICC = 0.4` and `total_sd = 2`:
 
 | | mean realised `sd()` | standard deviation of the realised `sd()` |
 |---|---:|---:|
-| fabricatr | 2.0000 | 0.0000 |
-| fabricatr | 1.9648 | 0.2225 |
+| fabricatr 1.0.2 | 2.0000 | 0.0000 |
+| fabricatr 2.0 | 1.9648 | 0.2225 |
 
 **The case for changing it.** Rescaling makes the realised standard deviation exactly `total_sd` in every draw. A simulation that fabricates 10,000 datasets gets 10,000 datasets whose outcome variance is identical to the fourth decimal place, which no real sampling process would produce. Any diagnosand that depends on the spread of the outcome, and any standard error with an estimated variance in it, is then computed against a DGP with one of its sources of variation switched off. For a package whose entire purpose is repeated sampling, that is the wrong default. The fix also costs nothing in expressiveness, since the closed form is exact and defined at every ICC including 0 and 1.
 
-**The case against.** It is a divergence, and this vignette otherwise promises that identical code gives identical results. Anyone who has calibrated a design against fabricatr's `total_sd` will see their numbers move. There is also a legitimate reading of `total_sd` under which the old behavior is correct rather than buggy: if you want a dataset whose outcome has exactly the standard deviation you named, perhaps because you are matching a published descriptive statistic, rescaling gives you that and parameterising does not. Under that reading fabricatr has taken away a feature.
+**The case against.** It is a divergence, and this vignette otherwise promises that identical code gives identical results. Anyone who has calibrated a design against 1.x's `total_sd` will see their numbers move. There is also a legitimate reading of `total_sd` under which the old behavior is correct rather than buggy: if you want a dataset whose outcome has exactly the standard deviation you named, perhaps because you are matching a published descriptive statistic, rescaling gives you that and parameterising does not. Under that reading 2.0 has taken away a feature.
 
 **Why the change anyway.** The two readings are not equally served by the two implementations. If you want the parameter, you cannot recover it from the rescaled version. If you want the exact sample standard deviation, you can still have it in one line:
 
@@ -299,9 +315,9 @@ y <- (y - mean(y)) * 2 / sd(y) + mean(y)
 sd(y)
 ```
 
-One correction to the [upstream discussion](https://github.com/DeclareDesign/fabricatr/issues/133), which is worth stating because it changes what is actually at stake. The thread worries that rescaling "will possibly distort the between group differences." It does not. Rescaling is an affine transformation and the ICC is scale-invariant, so the realised ICC is untouched; the mean R² is the same either way. The only thing rescaling changes is the sampling variability of the variance. That is a narrower objection than the thread supposes, and still a sufficient one.
+One correction to the [upstream discussion](https://github.com/DeclareDesign/fabricatr/issues/133), because it changes what is actually at stake. The thread worries that rescaling "will possibly distort the between group differences." It does not. Rescaling is an affine transformation and the ICC is scale-invariant, so the realised ICC is untouched; the mean R² is the same either way. The only thing rescaling changes is the sampling variability of the variance. That is a narrower objection than the thread supposes, and still a sufficient one.
 
-A side benefit of solving rather than rescaling is that combinations fabricatr rejects now work, because any two of the four determine the draw:
+A side benefit of solving rather than rescaling is that combinations 1.x rejects now work, because any two of the four determine the draw:
 
 ```{r}
 cl <- rep(1:20, each = 10)
@@ -310,7 +326,7 @@ sd(draw_normal_icc(clusters = cl, total_sd = 3, sd_between = 2))
 
 ### The correlated draw does not depend on your machine
 
-`link_levels(rho = )` and `link_levels(sigma = )` correlate row assignments through a Gaussian copula, which needs a draw from a multivariate normal. fabricatr takes that draw one of two ways:
+`link_levels(rho = )` and `link_levels(sigma = )` correlate row assignments through a Gaussian copula, which needs a draw from a multivariate normal. 1.x takes that draw one of two ways:
 
 ```r
 if (requireNamespace("mvnfast")) {
@@ -321,11 +337,11 @@ if (requireNamespace("mvnfast")) {
 }
 ```
 
-The two paths consume the random number stream differently, so the same seed gives different data depending on whether an optional package is installed, and the `mvnfast` branch depends on your core count as well. A simulation package should not have that property, so fabricatr always takes the second path and does not suggest `mvnfast` at all.
+The two paths consume the random number stream differently, so the same seed gives different data depending on whether an optional package is installed, and the `mvnfast` branch depends on your core count as well. A simulation package should not have that property, so 2.0 always takes the second path and does not suggest `mvnfast` at all.
 
 The cost is nothing you can feel. `mvnfast` earns its name in hundreds of dimensions; `link_levels()` has one dimension per level, so two or three. Measured at three levels, it saves 19 milliseconds on a million rows, and nothing measurable at the sizes anyone actually links.
 
-The consequence is that if you have `mvnfast` installed, a correlated `link_levels()` gives different numbers here than in fabricatr. Without it, the two agree exactly. Either way, fabricatr gives the same numbers as itself on every machine, which fabricatr cannot promise.
+The consequence is that if you have `mvnfast` installed, a correlated `link_levels()` gives different numbers here than in 1.x. Without it, the two agree exactly. Either way, 2.0 gives the same numbers as itself on every machine, which 1.x cannot promise.
 
 ### `N` is never a column
 
@@ -339,20 +355,21 @@ Beyond tidiness, keeping `N` out of the frame is what allows `cross_levels()` to
 
 ## Porting an existing script
 
-Four greps will find everything that needs to change:
+Five greps will find everything that needs to change:
 
 ```{r, eval = FALSE}
 # nest = FALSE          -> declare_level()
-# join_using(           -> .by = c("level1", "level2")
+# join_using(           -> .by = c("level1", "level2"), with rho = beside it
 # modify_level(... by = -> .by =
+# break_labels|category_labels -> labels =
 # fabricate(<number>,   -> fabricate(N = <number>,
 ```
 
-Then run the script. You do not have to do any of it at once: all four old spellings still work, and each warns once with the corrected call, so you can port as you go and use a clean run as the signal that you are finished. Nothing else needs checking: ID columns, column types, and column order all match fabricatr.
+Then run the script. You do not have to do any of it at once: the first four old spellings still work, and each warns once with the corrected call, so you can port as you go and use a clean run as the signal that you are finished. The positional `N` is the one that stops, and its error says what to write. Nothing else needs checking: ID columns, column types, and column order all match 1.x.
 
 ## What is new
 
-Level calls and ordinary columns can be mixed in a single `fabricate()` call. fabricatr requires that the arguments be either all level calls or none of them, so the following raises "Arguments passed to `...` must either all be calls to create or modify levels, or else none of them must be":
+Level calls and ordinary columns can be mixed in a single `fabricate()` call. 1.x requires that the arguments be either all level calls or none of them, so the following raises "Arguments passed to `...` must either all be calls to create or modify levels, or else none of them must be":
 
 ```{r}
 fabricate(
@@ -381,7 +398,7 @@ cor(x, y, method = "spearman")
 
 Median time per call, measured with microbenchmark on an Apple M4 Pro under R 4.6.0, fabricatr 1.0.2, dplyr 1.2.1.
 
-| What is being built | fabricatr | fabricatr | Speedup |
+| What is being built | fabricatr 1.0.2 | fabricatr 2.0 | Speedup |
 |---|---:|---:|---:|
 | Flat, `N = 100`, three columns | 0.19 ms | 0.09 ms | 2.0x |
 | Flat, `N = 5,000`, three columns | 0.78 ms | 0.50 ms | 1.5x |
@@ -393,38 +410,40 @@ Median time per call, measured with microbenchmark on an Apple M4 Pro under R 4.
 | Clustered draw with target ICC, 100 x 20 | 0.91 ms | 0.37 ms | 2.5x |
 | Potential outcomes plus reveal, `N = 1,000` | 1.04 ms | 0.65 ms | 1.6x |
 
-One change accounts for nearly all of it: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. A three-level design of 20,000 rows takes 63 seconds to build 10,000 times under fabricatr and 17 seconds here.
+One change accounts for nearly all of it: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. A three-level design of 20,000 rows takes 63 seconds to build 10,000 times under 1.0.2 and 17 seconds here.
 
-The gains concentrate where design diagnosis actually spends its time, which is hierarchical data. The one row that does not move is flat `N = 200,000`, where the two packages are at parity: at that size both spend nearly all their time building the zero-padded ID strings, and fabricatr pads exactly as fabricatr does.
+The gains concentrate where design diagnosis actually spends its time, which is hierarchical data. The one row that does not move is flat `N = 200,000`, where the two packages are at parity: at that size both spend nearly all their time building the zero-padded ID strings, and 2.0 pads exactly as 1.x does.
 
 ## Why rewrite at all
 
-The original fabricatr spends most of its complexity on one question: how does a column defined early in a `fabricate()` call become visible to a column defined later? Its answer is a workspace, meaning a UUID-keyed environment of data frames, a pointer to the "current active df", column expressions injected with `rlang::call_modify`, and `dynGet("N")` walking the dynamic scope to find the row count.
+fabricatr 1.x spends most of its complexity on one question: how does a column defined early in a `fabricate()` call become visible to a column defined later? Its answer is a workspace, meaning a UUID-keyed environment of data frames, a pointer to the "current active df", column expressions injected with `rlang::call_modify`, and `dynGet("N")` walking the dynamic scope to find the row count.
 
 The tidyverse answer is a named list used as a data mask, and a loop over `rlang::eval_tidy`. The list being built *is* the mask for the next expression, so nothing has to be looked up anywhere else. No workspace, no active pointer, no dynamic scoping.
 
 The level functions return S3 objects that `fabricate()` dispatches on, replacing a string-matching mode dispatcher. Hierarchy is built with plain integer indexing into lists rather than repeated data frame construction, which is where most of the speed comes from.
 
-What survives untouched is the statistical content: `draw_normal_icc()`, `draw_binary_icc()`, `correlate()`, and `draw_multivariate()` carry real algebra with no tidyverse one-liner equivalent, and they were ported rather than rewritten. The result is roughly 600 lines against about 3,200.
+What survives untouched is the statistical content: `draw_normal_icc()`, `draw_binary_icc()`, `correlate()`, and `draw_multivariate()` carry real algebra with no tidyverse one-liner equivalent, and they were ported rather than rewritten. The result is 2,096 lines against 3,193.
 
 ## Current status
 
+On the current `rewrite` head, `R CMD check --as-cran --no-manual` on the built tarball reports 0 errors, 0 warnings, and 1 note, the CRAN incoming check's remark that the maintainer has changed from 1.0.2's. The test suite passes 283 expectations across seven files.
+
 ### Upstream issues
 
-All eleven issues open on fabricatr were checked by running the reporter's own code under both packages. Eight no longer reproduce here, two are documentation bugs in fabricatr's own vignettes, and one is genuinely still open.
+All eleven issues open on fabricatr 1.x were checked by running the reporter's own code under both packages. Eight no longer reproduce here, two are documentation bugs in fabricatr's own vignettes, and one is genuinely still open.
 
 The distinction in the last column is worth reading. Some of these never went wrong here, because the rewrite happened not to repeat the mistake. Others were wrong here too, and were only found because someone had already written the issue up.
 
 | Issue | What it reports | State here |
 |---|---|---|
-| [#133](https://github.com/DeclareDesign/fabricatr/issues/133) | `total_sd` rescales the finished draw rather than being solved for jointly | **Fixed**, and it was wrong here too. The one place a call gives different numbers than fabricatr; see [above](#total_sd-is-a-parameter-not-a-rescaling) |
+| [#133](https://github.com/DeclareDesign/fabricatr/issues/133) | `total_sd` rescales the finished draw rather than being solved for jointly | **Fixed**, and it was wrong here too. The one place a call gives different numbers than 1.x on every machine; see [above](#total_sd-is-a-parameter-not-a-rescaling) |
 | [#149](https://github.com/DeclareDesign/fabricatr/issues/149) | `draw_normal_icc()` refuses ICC values at or near 0 and 1 | **Fixed**, and it was wrong here too. Full `[0, 1]` range, with both endpoints treated as the degenerate cases they are |
 | [#158](https://github.com/DeclareDesign/fabricatr/issues/158) | `draw_likert()` returns a factor, ignores arbitrary `breaks`, and the `draw_*` functions share one man page | Never reproduced. Integer by default, `breaks` honoured, ten separate man pages |
 | [#160](https://github.com/DeclareDesign/fabricatr/issues/160) | `join()` collides with dplyr | Never reproduced. No such function; `.by` takes a character vector |
 | [#165](https://github.com/DeclareDesign/fabricatr/issues/165) | Data frames should be importable as levels, so two existing datasets can be crossed | **Still open.** See below |
 | [#167](https://github.com/DeclareDesign/fabricatr/issues/167) | `modify_level()` before a crossed level fails with "the variable name is ambiguous" | Never reproduced |
 | [#182](https://github.com/DeclareDesign/fabricatr/issues/182) | Variable-length hierarchy plus `potential_outcomes()` warns, and errors outright on R 4.2 and later | Never reproduced |
-| [#188](https://github.com/DeclareDesign/fabricatr/issues/188) | A matrix column cannot be referenced as `X.1` by a later expression | **Fixed**, and it was wrong here too, in a different way: the matrix was kept whole, so the output had one column where fabricatr had three |
+| [#188](https://github.com/DeclareDesign/fabricatr/issues/188) | A matrix column cannot be referenced as `X.1` by a later expression | **Fixed**, and it was wrong here too, in a different way: the matrix was kept whole, so the output had one column where 1.x had three |
 | [#189](https://github.com/DeclareDesign/fabricatr/issues/189) | `draw_binary_icc()` silently pairs the wrong probability with each cluster when `prob` has one value per unit | **Fixed**, and it was wrong here too. A `prob` that is genuinely inconsistent within a cluster now errors instead of being quietly misread |
 | [#191](https://github.com/DeclareDesign/fabricatr/issues/191) | Asks for a worked `copula` example in the documentation | Not applicable. `draw_multivariate()` takes the same `rMvdc()` formula, so the example in the issue transfers unchanged |
 | [#193](https://github.com/DeclareDesign/fabricatr/issues/193) | The vignettes document a `type` argument to `draw_likert()` that does not exist | Not applicable. `draw_likert()` has `bins` and `breaks`, and these pages are new |
@@ -435,12 +454,12 @@ Four of the eight were live defects here, found by reading someone else's bug re
 
 ### Known gaps
 
-None outstanding. Three items were carried as gaps until they were checked against fabricatr directly, and checking them turned up two real defects rather than the missing features they were filed as:
+None outstanding. Three items were carried as gaps until they were checked against 1.x directly, and checking them turned up two real defects rather than the missing features they were filed as:
 
-- `resample_data(unique_labels = TRUE)` produced malformed labels, `"_2_1"` where fabricatr gives `"2_1"`, and doubled the separator when nesting, `"_2_1__06_1"` against `"2_1_06_1"`. The unique-label columns also came out innermost first. Both fixed, and the output now matches fabricatr column for column.
-- `draw_quantile()` was at parity on values but returned an *ordered* factor where fabricatr returns an unordered one. Ordering is not cosmetic here: `lm(Y ~ q)` on an ordered factor fits polynomial contrasts (`q.L`, `q.Q`, `q.C`) instead of treatment contrasts (`q2`, `q3`, `q4`), so the same script would have reported different coefficients under the two packages without saying why. Now unordered.
-- `sigma` in `link_levels()` beyond two levels was in fact correct: a three-level draw is identical to fabricatr's, seed for seed, down to every ID triple. What was missing was validation. A matrix that is not positive semi-definite used to reach `chol(pivot = TRUE)`, which warns and returns a decomposition carrying none of the requested structure. Non-PSD matrices, entries outside `[-1, 1]`, wrong dimensions, asymmetry, and a single negative `rho` across three or more levels are now all errors.
+- `resample_data(unique_labels = TRUE)` produced malformed labels, `"_2_1"` where 1.x gives `"2_1"`, and doubled the separator when nesting, `"_2_1__06_1"` against `"2_1_06_1"`. The unique-label columns also came out innermost first. Both fixed, and the output now matches 1.x column for column.
+- `draw_quantile()` was at parity on values but returned an *ordered* factor where 1.x returns an unordered one. Ordering is not cosmetic here: `lm(Y ~ q)` on an ordered factor fits polynomial contrasts (`q.L`, `q.Q`, `q.C`) instead of treatment contrasts (`q2`, `q3`, `q4`), so the same script would have reported different coefficients under the two packages without saying why. Now unordered.
+- `sigma` in `link_levels()` beyond two levels was in fact correct: a three-level draw is identical to 1.x's, seed for seed, down to every ID triple. What was missing was validation. A matrix that is not positive semi-definite used to reach `chol(pivot = TRUE)`, which warns and returns a decomposition carrying none of the requested structure. Non-PSD matrices, entries outside `[-1, 1]`, wrong dimensions, asymmetry, and a single negative `rho` across three or more levels are now all errors.
 
-One deliberate extension is worth knowing about. `draw_ordered()`, `draw_likert()`, and `draw_categorical()` accept a `labels` argument that fabricatr does not have, and return an ordered factor when you use it. Nothing in fabricatr is contradicted, since the call cannot be written there at all, but an ordered factor does change which contrasts a model formula picks. Leave `labels` off if you want the integer codes.
+One naming change is easy to miss. `draw_ordered()`, `draw_likert()`, and `draw_categorical()` all take their category names as `labels`. In 1.x the first is `break_labels` and the last is `category_labels`; both old names are accepted and warn once with the corrected call. The return types are 1.x's: `draw_ordered()` and `draw_likert()` give an ordered factor, and `draw_categorical()` an unordered one, because its categories are nominal and an ordered factor would change which contrasts a model formula picks. Leave `labels` off if you want the integer codes.
 
-Reports of any behavior that differs from fabricatr and is not listed in this vignette are the most useful thing you can send back.
+Reports of any behavior that differs from 1.x and is not listed in this vignette are the most useful thing you can send back.
