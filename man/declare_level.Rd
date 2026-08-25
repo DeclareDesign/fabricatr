@@ -18,7 +18,7 @@ A \code{fabricatr_level} object (used inside \code{fabricate}).
 \description{
 Creates N rows as a standalone data frame registered for use by
 \code{cross_levels} or \code{link_levels}. Unlike \code{add_level}, a
-\code{declare_level} call does not nest into any existing hierarchy — it
+\code{declare_level} call does not nest into any existing hierarchy: it
 starts fresh. Use this when you need two independent populations to cross
 (e.g., countries and years for panel data).
 }

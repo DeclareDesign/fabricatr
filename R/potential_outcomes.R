@@ -116,9 +116,3 @@ reveal_outcomes <- function(x) {
   col_idx <- match(po_cols, colnames(po_df))
   as.data.frame(po_df)[cbind(row_idx, col_idx)]
 }
-
-# str2lang backport for R < 3.6 (not needed for R >= 4.1 per DESCRIPTION,
-# kept for clarity)
-if (!exists("str2lang")) {
-  str2lang <- function(s) parse(text = s, keep.source = FALSE)[[1L]]
-}

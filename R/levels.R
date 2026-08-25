@@ -67,7 +67,7 @@ add_level <- function(N, ...) {
 #'
 #' Creates N rows as a standalone data frame registered for use by
 #' \code{cross_levels} or \code{link_levels}. Unlike \code{add_level}, a
-#' \code{declare_level} call does not nest into any existing hierarchy — it
+#' \code{declare_level} call does not nest into any existing hierarchy: it
 #' starts fresh. Use this when you need two independent populations to cross
 #' (e.g., countries and years for panel data).
 #'
@@ -166,7 +166,7 @@ cross_levels <- function(.by, ...) {
 #' data on every machine. fabricatr switches to \code{mvnfast::rmvn()} when
 #' that package is installed, and passes it a core count, so its numbers move
 #' when either changes. This is the second and last place where fabricatr
-#' can give different numbers than fabricatr, and it only differs when
+#' can give different numbers than fabricatr 1.x, and it only differs when
 #' \code{mvnfast} is installed.
 #'
 #' @param N Number of rows to sample from the product.
@@ -251,18 +251,16 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
                       "nest_level()", scalar = FALSE)
 
   if (length(N_val) == 1L) {
-    idx     <- rep(seq_len(n_parent), each = N_val)
-    inner_N <- N_val
+    idx <- rep(seq_len(n_parent), each = N_val)
   } else {
     if (length(N_val) != n_parent) {
       stop("In nest_level(), N must be a scalar or a vector of length nrow(parent).")
     }
-    idx     <- rep(seq_len(n_parent), times = N_val)
-    inner_N <- rep(N_val, times = N_val)
+    idx <- rep(seq_len(n_parent), times = N_val)
   }
 
   N_total  <- length(idx)
-  # Direct vector indexing — no data.frame/tibble overhead
+  # Direct vector indexing, with no data.frame/tibble overhead
   expanded <- lapply(lst, function(v) v[idx])
   # `N` at a nested level is the total number of rows the level creates, as in
   # fabricatr. Setting it to the per-parent group size instead would make a

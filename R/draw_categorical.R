@@ -10,7 +10,7 @@
 #'       observations; \code{N} must be supplied), or
 #'     \item A matrix with \code{N} rows and one column per category.
 #'   }
-#'   Rows need not sum to 1 — they are normalised internally.
+#'   Rows need not sum to 1; they are normalised internally.
 #' @param N Number of observations. Required when \code{prob} is a vector.
 #' @param labels Optional character vector of category labels (length must
 #'   equal the number of categories). When supplied, returns an ordered

@@ -136,8 +136,8 @@ eval_in_level <- function(quo, data, size = NULL) {
 }
 
 fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
-  # Maintain a plain named list throughout — far cheaper than tibble for
-  # intermediate operations. Convert to tibble exactly once at the end.
+  # Maintain a plain named list throughout, which is far cheaper than a tibble
+  # for intermediate operations. Convert to tibble exactly once at the end.
   if (!is.null(data) && !is.null(N)) {
     # fabricatr 1.0.2 refuses this outright, and it is worth refusing: the row
     # count is already fixed by the data, so `N` can only be read as an attempt
@@ -242,8 +242,6 @@ store_column <- function(lst, nm, val, fix = function(v, nm) v) {
 }
 
 # Converts a named list of equal-length vectors to a tibble.
-# Using data.frame() is faster than tibble() for construction;
-# as_tibble() then adds the tbl_df class cheaply.
 list_to_df <- function(lst) {
   if (length(lst) == 0L) return(tibble::tibble())
   tibble::as_tibble(lst)
