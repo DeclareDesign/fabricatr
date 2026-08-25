@@ -107,7 +107,7 @@ declare_level <- function(N, ...) {
 #'   expressions is the total number of rows the level creates, not the
 #'   per-parent count in the \code{N} argument: nesting 5 citizens in each of
 #'   20 villages makes \code{N} equal to 100 here. The behaviour matches
-#'   fabricatr, and it is what makes \code{rnorm(N)} draw independently for
+#'   fabricatr 1.x, and it is what makes \code{rnorm(N)} draw independently for
 #'   every village rather than drawing five values and reusing them.
 #'
 #' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
@@ -163,10 +163,10 @@ cross_levels <- function(.by, ...) {
 #' paired with units with high values on the other level's variable.
 #'
 #' The correlated draw takes one code path, so a given seed produces the same
-#' data on every machine. fabricatr switches to \code{mvnfast::rmvn()} when
+#' data on every machine. fabricatr 1.x switches to \code{mvnfast::rmvn()} when
 #' that package is installed, and passes it a core count, so its numbers move
-#' when either changes. This is the second and last place where fabricatr
-#' can give different numbers than fabricatr 1.x, and it only differs when
+#' when either changes. This is the second and last place where 2.0
+#' can give different numbers than 1.x, and it only differs when
 #' \code{mvnfast} is installed.
 #'
 #' @param N Number of rows to sample from the product.

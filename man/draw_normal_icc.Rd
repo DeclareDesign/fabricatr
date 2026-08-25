@@ -33,7 +33,7 @@ per cluster or already expanded to one value per unit.}
 the draw, so the realised \code{sd()} varies from draw to draw as any
 other sample statistic does. With \code{ICC}, it gives
 \eqn{\sigma_{between} = s\sqrt{ICC}} and
-\eqn{\sigma_{within} = s\sqrt{1 - ICC}}. fabricatr instead rescales the
+\eqn{\sigma_{within} = s\sqrt{1 - ICC}}. fabricatr 1.x instead rescales the
 finished vector so that its sample standard deviation is exactly
 \code{total_sd} every time; see the package vignette for why this
 diverges.}

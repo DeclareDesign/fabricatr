@@ -13,7 +13,7 @@ nest_level(N, ...)
 expressions is the total number of rows the level creates, not the
 per-parent count in the \code{N} argument: nesting 5 citizens in each of
 20 villages makes \code{N} equal to 100 here. The behaviour matches
-fabricatr, and it is what makes \code{rnorm(N)} draw independently for
+fabricatr 1.x, and it is what makes \code{rnorm(N)} draw independently for
 every village rather than drawing five values and reusing them.}
 }
 \value{

@@ -59,7 +59,7 @@ rewrite_call <- function(cl, fn = NULL, drop = character(), rename = NULL,
 warn_deprecated_spelling <- function(what, wrote, instead) {
   rlang::warn(
     paste0(
-      what, " is deprecated in fabricatr.\n",
+      what, " is deprecated in fabricatr 2.0.\n",
       "Write:  ", instead, "\n",
       "Not:    ", wrote
     ),
@@ -68,7 +68,7 @@ warn_deprecated_spelling <- function(what, wrote, instead) {
   )
 }
 
-#' Resolve fabricatr's `by =` to level names, and a `rho` if it carried one
+#' Resolve fabricatr 1.x's `by =` to level names, and a `rho` if it carried one
 #'
 #' Accepts everything fabricatr 1.x's `by` accepted: a bare name
 #' (`by = clusters`), a `join_using()` call (`by = join_using(a, b)`), and a
@@ -98,9 +98,9 @@ resolve_legacy_by <- function(quo) {
   list(by = as.character(rlang::eval_tidy(quo)), rho = NULL)
 }
 
-#' Accept fabricatr's `nest =` in a level constructor
+#' Accept fabricatr 1.x's `nest =` in a level constructor
 #'
-#' `add_level(..., nest = FALSE)` is fabricatr's `declare_level()`, and
+#' `add_level(..., nest = FALSE)` is 1.x's spelling of `declare_level()`, and
 #' `nest = TRUE` is `add_level()` with nothing else to say. Returns the level
 #' type to build and the dots with `nest` removed.
 #'
@@ -119,7 +119,7 @@ absorb_legacy_nest <- function(dots, cl, type) {
   list(type = new_type, dots = dots[names(dots) != "nest"])
 }
 
-#' Accept fabricatr's `by =` in a level constructor
+#' Accept fabricatr 1.x's `by =` in a level constructor
 #'
 #' Returns the resolved level names and the dots with `by` removed, or `NULL`
 #' for `by` when the author used `.by` as they should.
@@ -159,9 +159,9 @@ absorb_legacy_labels <- function(labels, legacy, old, cl) {
 
 #' Name the levels to cross or link
 #'
-#' fabricatr's helper for `by = join_using(countries, years)`. In fabricatr
+#' fabricatr 1.x's helper for `by = join_using(countries, years)`. In 2.0
 #' the levels are named directly, `.by = c("countries", "years")`, and this is
-#' kept so designs written for fabricatr run unchanged. It returns exactly that
+#' kept so designs written for 1.x run unchanged. It returns exactly that
 #' character vector, so it is also harmless in front of `.by`.
 #'
 #' @param ... Bare level names, or strings.
@@ -175,13 +175,13 @@ join_using <- function(...) {
 
 #' Recycle a vector to the length of the level being built
 #'
-#' fabricatr's helper for filling a level with a short vector. fabricatr
+#' fabricatr 1.x's helper for filling a level with a short vector. 2.0
 #' recycles automatically whenever the vector's length divides the level
 #' evenly, so this is only ever a no-op made explicit, and is kept so designs
-#' written for fabricatr run unchanged.
+#' written for 1.x run unchanged.
 #'
-#' Left off, `.N` is the `N` of the level being built. fabricatr found it by
-#' walking the call stack; a fabricatr column expression is evaluated
+#' Left off, `.N` is the `N` of the level being built. 1.x found it by
+#' walking the call stack; a 2.0 column expression is evaluated
 #' against a data mask instead, so `N` is read out of the calling frame, which
 #' is that mask.
 #'

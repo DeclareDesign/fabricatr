@@ -15,14 +15,14 @@ recycle(x, .N = NULL)
 `x`, recycled to length `.N`.
 }
 \description{
-fabricatr's helper for filling a level with a short vector. fabricatr
+fabricatr 1.x's helper for filling a level with a short vector. 2.0
 recycles automatically whenever the vector's length divides the level
 evenly, so this is only ever a no-op made explicit, and is kept so designs
-written for fabricatr run unchanged.
+written for 1.x run unchanged.
 }
 \details{
-Left off, `.N` is the `N` of the level being built. fabricatr found it by
-walking the call stack; a fabricatr column expression is evaluated
+Left off, `.N` is the `N` of the level being built. 1.x found it by
+walking the call stack; a 2.0 column expression is evaluated
 against a data mask instead, so `N` is read out of the calling frame, which
 is that mask.
 }

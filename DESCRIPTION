@@ -5,10 +5,12 @@ Authors@R: person("Alex", "Coppock", email = "acoppock@gmail.com",
     role = c("aut", "cre"))
 Author: Alex Coppock [aut, cre]
 Maintainer: Alex Coppock <acoppock@gmail.com>
-Description: A drop-in tidyverse-first replacement for fabricatr. Identical
-    public API built on dplyr, tidyr, tibble, and purrr. Key improvements:
-    explicit nesting via nest_level(), declare_level() for cross-classified
-    data, improved draw_* defaults, and a clean multi-column output protocol.
+Description: Helps you imagine your data before you collect it. Builds a data
+    frame one column at a time, with hierarchical levels, cross-classified
+    levels, potential outcomes, and draws with a target intra-cluster
+    correlation, so that a research design can be simulated and diagnosed
+    before any data exist. Version 2.0 is a rewrite of the same public API on
+    dplyr, tibble, purrr, and rlang.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
