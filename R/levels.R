@@ -199,19 +199,38 @@ link_levels <- function(N, .by, rho = 0, sigma = NULL, ...) {
 
 # modify_level ----------------------------------------------------------------
 
-#' Modify columns of the current level, optionally within groups
+#' Modify columns of an existing level, or of the rows in hand
 #'
-#' Equivalent to \code{dplyr::mutate}, with an optional \code{.by} argument
-#' for split-apply-combine on a grouping column. Replaces fabricatr's
-#' \code{modify_level}.
+#' Adds or overwrites columns, as \code{dplyr::mutate} does. Named after a
+#' level that already exists, it works at that level: the expressions are
+#' evaluated once per unit of the level, \code{N} is the number of units, and
+#' the result is written back to every row of each unit. Left unnamed, it
+#' works on the rows in hand, with an optional \code{.by} for
+#' split-apply-combine on a grouping column.
 #'
 #' @param ... Column expressions to add or overwrite.
 #' @param .by Optional character string: column name to group by before
 #'   evaluating expressions.
 #'
+#' @section Which columns a level can see:
+#' Inside \code{regions = modify_level(...)}, the columns in view are the ones
+#' that take a single value per region: those built at the regions level or
+#' above it. A column built at a level nested inside regions varies within a
+#' region, so it is out of view, as it is in fabricatr 1.x. To summarise such a
+#' column per region, leave the level name off and group instead:
+#' \code{modify_level(mean_b = mean(b), .by = "regions")}.
+#'
 #' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
 #'
 #' @examples
+#' # At a named level: one draw per region, written to every city in it
+#' fabricate(
+#'   regions = add_level(N = 3, a = 1:3),
+#'   cities  = add_level(N = 2, b = rnorm(N)),
+#'   regions = modify_level(z = rnorm(N), a2 = a * 2)
+#' )
+#'
+#' # On the rows in hand, grouped
 #' fabricate(
 #'   N = 50,
 #'   cluster = sample(1:5, N, replace = TRUE),
@@ -345,6 +364,54 @@ execute_link_level <- function(level, level_registry, nm) {
   lst <- eval_dots_into_list(level$dots, base, inner_N = N)
   lst[["N"]] <- NULL
   lst
+}
+
+# `regions = modify_level()` after a `cities` level has been nested inside it
+# evaluates once per region, not once per city. The units are the distinct
+# values of the level's ID column, `N` is their number, and the columns in
+# view are the ones that take a single value per unit: those built at that
+# level or above it. A column that varies within a unit is out of view, as in
+# fabricatr 1.x, where the same call could see nothing below the level it
+# named. Each new column is evaluated per unit and written back to every row
+# of the unit. Returns the frame and the level's own rows, which is what a
+# later `cross_levels()` or `link_levels()` on this level should see.
+modify_existing_level <- function(level, lst, nm) {
+  id <- lst[[nm]]
+  units <- unique(id)
+  unit_of_row <- match(id, units)
+  first_row <- match(units, id)
+  n_units <- length(units)
+
+  per_unit <- lapply(lst, function(v) v[first_row])
+  in_view <- vapply(names(lst), function(cn) {
+    identical(per_unit[[cn]][unit_of_row], lst[[cn]])
+  }, logical(1))
+
+  out <- tryCatch(
+    eval_dots_into_list(level$dots, per_unit[in_view], inner_N = n_units),
+    error = function(e) {
+      missing <- regmatches(conditionMessage(e),
+                            regexec("^object '([^']+)' not found$",
+                                    conditionMessage(e)))[[1L]][2L]
+      if (is.na(missing) || !missing %in% names(lst)[!in_view]) stop(e)
+      stop("`", missing, "` is out of view inside `", nm, " = modify_level()`: ",
+           "it varies within ", nm, ", so it belongs to a level nested inside ",
+           nm, ". To summarise it per ", nm, ", leave the level name off and ",
+           "write `modify_level(..., .by = \"", nm, "\")`.", call. = FALSE)
+    }
+  )
+  out[["N"]] <- NULL
+
+  for (cn in names(out)) {
+    v <- out[[cn]]
+    if (length(v) != n_units) {
+      stop("In `", nm, " = modify_level()`, `", cn, "` returned ", length(v),
+           " values for ", n_units, " ", nm, ". Return one value per unit of ",
+           "the level.", call. = FALSE)
+    }
+    lst[[cn]] <- v[unit_of_row]
+  }
+  list(data = lst, level = out)
 }
 
 execute_modify_level <- function(level, lst, N_inject) {

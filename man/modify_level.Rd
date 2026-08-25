@@ -2,7 +2,7 @@
 % Please edit documentation in R/levels.R
 \name{modify_level}
 \alias{modify_level}
-\title{Modify columns of the current level, optionally within groups}
+\title{Modify columns of an existing level, or of the rows in hand}
 \usage{
 modify_level(..., .by = NULL)
 }
@@ -16,11 +16,32 @@ evaluating expressions.}
 A \code{fabricatr_level} object (used inside \code{fabricate}).
 }
 \description{
-Equivalent to \code{dplyr::mutate}, with an optional \code{.by} argument
-for split-apply-combine on a grouping column. Replaces fabricatr's
-\code{modify_level}.
+Adds or overwrites columns, as \code{dplyr::mutate} does. Named after a
+level that already exists, it works at that level: the expressions are
+evaluated once per unit of the level, \code{N} is the number of units, and
+the result is written back to every row of each unit. Left unnamed, it
+works on the rows in hand, with an optional \code{.by} for
+split-apply-combine on a grouping column.
 }
+\section{Which columns a level can see}{
+
+Inside \code{regions = modify_level(...)}, the columns in view are the ones
+that take a single value per region: those built at the regions level or
+above it. A column built at a level nested inside regions varies within a
+region, so it is out of view, as it is in fabricatr 1.x. To summarise such a
+column per region, leave the level name off and group instead:
+\code{modify_level(mean_b = mean(b), .by = "regions")}.
+}
+
 \examples{
+# At a named level: one draw per region, written to every city in it
+fabricate(
+  regions = add_level(N = 3, a = 1:3),
+  cities  = add_level(N = 2, b = rnorm(N)),
+  regions = modify_level(z = rnorm(N), a2 = a * 2)
+)
+
+# On the rows in hand, grouped
 fabricate(
   N = 50,
   cluster = sample(1:5, N, replace = TRUE),

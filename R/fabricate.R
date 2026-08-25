@@ -129,10 +129,37 @@ name_holds_a_value <- function(env, name) {
 
 #' Evaluate one declaration against a level's data
 #'
+#' A level call such as `regions = modify_level(z = rnorm(N))` is itself
+#' evaluated in the mask of the frame in hand, so the quosures it captures for
+#' its own expressions are homed in that mask rather than where the author
+#' wrote them. Left there, a name that misses the level's own mask falls
+#' through to a column of the outer frame: `mean(b)` at the regions level
+#' would quietly average every city's `b`. The level's quosures are moved back
+#' to the author's environment, so a name that is out of view at the level is
+#' out of view. Quosures homed anywhere else, such as inside a function the
+#' author wrote to build the level, are left where they are.
+#'
 #' @keywords internal
 #' @noRd
 eval_in_level <- function(quo, data, size = NULL) {
-  rlang::eval_tidy(quo, data = level_mask(data, size, rlang::quo_get_env(quo)))
+  env <- rlang::quo_get_env(quo)
+  mask <- level_mask(data, size, env)
+  val <- rlang::eval_tidy(quo, data = mask)
+  if (inherits(val, "fabricatr_level")) val <- rehome_level(val, mask, env)
+  val
+}
+
+rehome_level <- function(level, mask, env) {
+  rehome <- function(q) {
+    if (rlang::is_quosure(q) && identical(rlang::quo_get_env(q), mask)) {
+      rlang::quo_set_env(q, env)
+    } else {
+      q
+    }
+  }
+  level$dots <- lapply(level$dots, rehome)
+  level$N <- rehome(level$N)
+  level
 }
 
 fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
@@ -185,8 +212,15 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
 
     if (inherits(val, "fabricatr_level")) {
       saw_level <- TRUE
-      lst <- execute_level(val, lst, N_inject, nm, level_registry)
-      if (nchar(nm) > 0) level_registry[[nm]] <- lst
+      if (val$type == "modify" && is.null(val$by) &&
+          nm %in% names(level_registry) && nm %in% names(lst)) {
+        modified <- modify_existing_level(val, lst, nm)
+        lst <- modified$data
+        level_registry[[nm]] <- modified$level
+      } else {
+        lst <- execute_level(val, lst, N_inject, nm, level_registry)
+        if (nchar(nm) > 0) level_registry[[nm]] <- lst
+      }
       N_inject <- if (length(lst) > 0L) length(lst[[1L]]) else N_inject
     } else if (is.data.frame(val)) {
       # Recycle length-1 columns (e.g. potential_outcomes with constant RHS)

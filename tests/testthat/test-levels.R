@@ -235,3 +235,94 @@ test_that("a valid N is unchanged by the check", {
   expect_error(fabricate(a = add_level(N = 2), b = nest_level(N = 2.5)),
                "nest_level\\(\\) was given 2.5")
 })
+
+test_that("modify_level named after a level evaluates once per unit of it", {
+  # Matches fabricatr 1.0.2: 3 regions give 3 draws of z and N of 3, and a2
+  # is built from the region's own a. Unlike 1.0.2, the cities stay in the
+  # frame, with each region's values written to every city in it.
+  set.seed(1)
+  df <- fabricate(
+    regions = add_level(N = 3, a = 1:3),
+    cities  = add_level(N = 2, b = rnorm(N)),
+    regions = modify_level(z = rnorm(N), a2 = a * 2, n_regions = N, k = n())
+  )
+  expect_equal(nrow(df), 6L)
+  expect_equal(names(df), c("regions", "a", "cities", "b", "z", "a2",
+                            "n_regions", "k"))
+  expect_length(unique(df$z), 3L)
+  expect_equal(df$z[1:2], rep(df$z[1], 2))
+  expect_equal(df$a2, df$a * 2)
+  expect_equal(unique(df$n_regions), 3L)
+  expect_equal(unique(df$k), 3L)
+})
+
+test_that("a column from a level nested inside is out of view, as in 1.0.2", {
+  expect_error(
+    fabricate(
+      regions = add_level(N = 3, a = 1:3),
+      cities  = add_level(N = 2, b = rnorm(N)),
+      regions = modify_level(bb = mean(b))
+    ),
+    "`b` is out of view inside `regions = modify_level()`",
+    fixed = TRUE
+  )
+  # The grouped spelling is the way to summarise it
+  df <- fabricate(
+    regions = add_level(N = 3, a = 1:3),
+    cities  = add_level(N = 2, b = rnorm(N)),
+    modify_level(bb = mean(b), .by = "regions")
+  )
+  expect_equal(df$bb[1], mean(df$b[1:2]))
+})
+
+test_that("modify_level at the lowest level sees every column and every row", {
+  df <- fabricate(
+    regions = add_level(N = 3, a = 1:3),
+    cities  = add_level(N = 2, b = 1:N),
+    cities  = modify_level(c = b + a, n_cities = N)
+  )
+  expect_equal(df$c, df$b + df$a)
+  expect_equal(unique(df$n_cities), 6L)
+})
+
+test_that("modify_level in the middle of three levels works at that level", {
+  set.seed(2)
+  df <- fabricate(
+    a = add_level(N = 2, x = rnorm(N)),
+    b = add_level(N = 2, y = rnorm(N)),
+    c = add_level(N = 2, w = rnorm(N)),
+    b = modify_level(z = rnorm(N), nb = N, x2 = x * 2)
+  )
+  expect_equal(nrow(df), 8L)
+  expect_length(unique(df$z), 4L)
+  expect_equal(unique(df$nb), 4L)
+  expect_equal(df$x2, df$x * 2)
+  expect_equal(df$z[c(1, 3, 5, 7)], df$z[c(2, 4, 6, 8)])
+})
+
+test_that("a level modified at its own level carries the column into a cross", {
+  df <- fabricate(
+    countries = declare_level(N = 2, g = 1:2),
+    countries = modify_level(g10 = g * 10),
+    years     = declare_level(N = 2, t = 1:2),
+    obs       = cross_levels(.by = c("countries", "years"), Y = g10 + t)
+  )
+  expect_equal(df$Y, c(11, 21, 12, 22))
+})
+
+test_that("a level's expressions see the author's environment, not the frame", {
+  # Level calls are evaluated inside the mask of the frame in hand, so their
+  # quosures are re-homed to where the author wrote them. A local of a
+  # function that builds the level stays reachable, and so does a variable
+  # next to the fabricate() call.
+  build <- function(k) add_level(N = 3, x = k * seq_len(N))
+  expect_equal(fabricate(a = build(10))$x, c(10, 20, 30))
+  mult <- 5
+  df <- fabricate(
+    regions = add_level(N = 2),
+    cities  = nest_level(N = 2, y = mult * seq_len(N)),
+    regions = modify_level(z = mult * seq_len(N))
+  )
+  expect_equal(df$y, c(5, 10, 15, 20))
+  expect_equal(df$z, c(5, 5, 10, 10))
+})
