@@ -4,20 +4,21 @@
 \alias{link_levels}
 \title{Sample N rows from a Cartesian product with optional correlation}
 \usage{
-link_levels(N, .by, rho = 0, sigma = NULL, ...)
+link_levels(N, .by, ..., rho = 0, sigma = NULL)
 }
 \arguments{
 \item{N}{Number of rows to sample from the product.}
 
-\item{.by}{Character vector of exactly two level names.}
-
-\item{rho}{Scalar Spearman rank correlation between the two levels' row
-assignments (default 0 = independent). Ignored if \code{sigma} is
-provided.}
-
-\item{sigma}{Square correlation matrix (dimension = \code{length(.by)}).}
+\item{.by}{Character vector of level names, usually two.}
 
 \item{...}{Additional column expressions evaluated after linking.}
+
+\item{rho}{Scalar Spearman rank correlation between the levels' row
+assignments (default 0 = independent). Ignored if \code{sigma} is
+provided. Comes after \code{...}, so a column called \code{r} or
+\code{s} is a column and not a partial match.}
+
+\item{sigma}{Square correlation matrix (dimension = \code{length(.by)}).}
 }
 \value{
 A \code{fabricatr_level} object (used inside \code{fabricate}).
@@ -33,7 +34,7 @@ The correlated draw takes one code path, so a given seed produces the same
 data on every machine. fabricatr switches to \code{mvnfast::rmvn()} when
 that package is installed, and passes it a core count, so its numbers move
 when either changes. This is the second and last place where fabricatr
-can give different numbers than fabricatr, and it only differs when
+can give different numbers than fabricatr 1.x, and it only differs when
 \code{mvnfast} is installed.
 }
 \examples{

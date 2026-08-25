@@ -92,3 +92,22 @@ test_that("a column really named nest or by is still reachable", {
   expect_equal(out$nest, c(1, 2, 3))
   expect_equal(out$by, c(4, 5, 6))
 })
+
+test_that("rho inside join_using() reaches link_levels, and the rewrite shows it", {
+  rlang::local_options(rlib_warning_verbosity = "verbose")
+  msg <- tryCatch(link_levels(N = 500, by = join_using(a, b, rho = 0.5)),
+                  warning = conditionMessage)
+  expect_match(msg, 'Write:  link_levels(N = 500, .by = c("a", "b"), rho = 0.5)',
+               fixed = TRUE)
+  step <- suppressWarnings(link_levels(N = 500, by = join_using(a, b, rho = 0.5)))
+  expect_equal(step$by, c("a", "b"))
+  expect_equal(step$rho, 0.5)
+
+  set.seed(4)
+  df <- suppressWarnings(fabricate(
+    a   = declare_level(N = 50),
+    b   = declare_level(N = 50),
+    obs = link_levels(N = 500, by = join_using(a, b, rho = 0.8))
+  ))
+  expect_gt(cor(as.numeric(df$a), as.numeric(df$b), method = "spearman"), 0.6)
+})

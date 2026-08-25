@@ -170,12 +170,13 @@ cross_levels <- function(.by, ...) {
 #' \code{mvnfast} is installed.
 #'
 #' @param N Number of rows to sample from the product.
-#' @param .by Character vector of exactly two level names.
-#' @param rho Scalar Spearman rank correlation between the two levels' row
-#'   assignments (default 0 = independent). Ignored if \code{sigma} is
-#'   provided.
-#' @param sigma Square correlation matrix (dimension = \code{length(.by)}).
+#' @param .by Character vector of level names, usually two.
 #' @param ... Additional column expressions evaluated after linking.
+#' @param rho Scalar Spearman rank correlation between the levels' row
+#'   assignments (default 0 = independent). Ignored if \code{sigma} is
+#'   provided. Comes after \code{...}, so a column called \code{r} or
+#'   \code{s} is a column and not a partial match.
+#' @param sigma Square correlation matrix (dimension = \code{length(.by)}).
 #'
 #' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
 #'
@@ -190,10 +191,10 @@ cross_levels <- function(.by, ...) {
 #' )
 #'
 #' @export
-link_levels <- function(N, .by, rho = 0, sigma = NULL, ...) {
+link_levels <- function(N, .by, ..., rho = 0, sigma = NULL) {
   legacy <- absorb_legacy_by(rlang::enquos(...), sys.call())
   by <- if (is.null(legacy$by)) .by else legacy$by
-  new_level("link", N = N, by = by, rho = rho, sigma = sigma,
+  new_level("link", N = N, by = by, rho = legacy$rho %||% rho, sigma = sigma,
             dots = legacy$dots)
 }
 

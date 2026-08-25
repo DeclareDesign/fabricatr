@@ -326,3 +326,16 @@ test_that("a level's expressions see the author's environment, not the frame", {
   expect_equal(df$y, c(5, 10, 15, 20))
   expect_equal(df$z, c(5, 5, 10, 10))
 })
+
+test_that("link_levels keeps rho and sigma behind the dots", {
+  # With `rho` ahead of `...`, a column called `r`, `s` or `si` was partially
+  # matched into `rho` or `sigma` and vanished.
+  df <- fabricate(
+    a   = declare_level(N = 5, x = rnorm(N)),
+    b   = declare_level(N = 4, y = rnorm(N)),
+    obs = link_levels(N = 20, .by = c("a", "b"), s = x + y, r = 1, si = 2)
+  )
+  expect_equal(names(df), c("a", "x", "b", "y", "obs", "s", "r", "si"))
+  expect_equal(df$s, df$x + df$y)
+  expect_equal(names(formals(link_levels)), c("N", ".by", "...", "rho", "sigma"))
+})

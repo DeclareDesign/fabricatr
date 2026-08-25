@@ -23,11 +23,12 @@
 #' @param drop Names of arguments to remove.
 #' @param rename Named character vector, `c(old = "new")`.
 #' @param values Named list of replacement argument values.
+#' @param add Named list of arguments to append.
 #' @return A one-line deparsed call.
 #' @keywords internal
 #' @noRd
 rewrite_call <- function(cl, fn = NULL, drop = character(), rename = NULL,
-                         values = NULL) {
+                         values = NULL, add = NULL) {
   if (!is.null(fn)) cl[[1L]] <- as.name(fn)
   for (nm in drop) cl[[nm]] <- NULL
   nms <- names(cl)
@@ -38,6 +39,7 @@ rewrite_call <- function(cl, fn = NULL, drop = character(), rename = NULL,
       names(cl)[i] <- rename[[old]]
     }
   }
+  for (nm in names(add)) cl[[nm]] <- add[[nm]]
   paste(trimws(deparse(cl, width.cutoff = 500L)), collapse = " ")
 }
 
@@ -66,23 +68,34 @@ warn_deprecated_spelling <- function(what, wrote, instead) {
   )
 }
 
-#' Resolve fabricatr's `by =` to a character vector of level names
+#' Resolve fabricatr's `by =` to level names, and a `rho` if it carried one
 #'
-#' Accepts everything fabricatr's `by` accepted: a bare name
+#' Accepts everything fabricatr 1.x's `by` accepted: a bare name
 #' (`by = clusters`), a `join_using()` call (`by = join_using(a, b)`), and a
-#' character vector.
+#' character vector. In 1.x, `link_levels()` took its correlation inside the
+#' call too, `join_using(a, b, rho = 0.5)`, so a named `rho` there is returned
+#' beside the level names rather than mistaken for a level called `rho`.
 #'
+#' @return A list with `by`, a character vector, and `rho`, a number or `NULL`.
 #' @keywords internal
 #' @noRd
 resolve_legacy_by <- function(quo) {
   expr <- rlang::quo_get_expr(quo)
-  if (rlang::is_symbol(expr)) return(rlang::as_string(expr))
-  if (rlang::is_call(expr, "join_using")) {
-    return(vapply(as.list(expr)[-1L], function(a) {
-      if (is.character(a)) a else rlang::as_string(a)
-    }, character(1)))
+  if (rlang::is_symbol(expr)) {
+    return(list(by = rlang::as_string(expr), rho = NULL))
   }
-  as.character(rlang::eval_tidy(quo))
+  if (rlang::is_call(expr, "join_using")) {
+    args <- as.list(expr)[-1L]
+    is_rho <- (names(args) %||% rep("", length(args))) %in% "rho"
+    rho <- if (any(is_rho)) {
+      rlang::eval_tidy(args[[which(is_rho)[1L]]], env = rlang::quo_get_env(quo))
+    }
+    by <- vapply(args[!is_rho], function(a) {
+      if (is.character(a)) a else rlang::as_string(a)
+    }, character(1))
+    return(list(by = unname(by), rho = rho))
+  }
+  list(by = as.character(rlang::eval_tidy(quo)), rho = NULL)
 }
 
 #' Accept fabricatr's `nest =` in a level constructor
@@ -114,15 +127,16 @@ absorb_legacy_nest <- function(dots, cl, type) {
 #' @keywords internal
 #' @noRd
 absorb_legacy_by <- function(dots, cl) {
-  if (!"by" %in% names(dots)) return(list(by = NULL, dots = dots))
+  if (!"by" %in% names(dots)) return(list(by = NULL, rho = NULL, dots = dots))
   resolved <- resolve_legacy_by(dots[["by"]])
   warn_deprecated_spelling(
     "`by =`",
     wrote = paste(trimws(deparse(cl, width.cutoff = 500L)), collapse = " "),
     instead = rewrite_call(cl, rename = c(by = ".by"),
-                           values = list(by = resolved))
+                           values = list(by = resolved$by),
+                           add = if (!is.null(resolved$rho)) list(rho = resolved$rho))
   )
-  list(by = resolved, dots = dots[names(dots) != "by"])
+  list(by = resolved$by, rho = resolved$rho, dots = dots[names(dots) != "by"])
 }
 
 #' Name the levels to cross or link
