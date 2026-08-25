@@ -69,6 +69,6 @@ test_that("resample_data cluster bootstrap resamples correct clusters", {
   boot <- resample_data(df, N = c(clusters = 6))
   # 6 draws (with replacement) * 5 units = 30 rows
   expect_equal(nrow(boot), 30L)
-  # Unique clusters may be < 6 due to replacement — just bound from above
+  # Unique clusters may be < 6 due to replacement, so bound from above
   expect_lte(length(unique(boot$clusters)), 6L)
 })
