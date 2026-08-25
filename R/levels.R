@@ -282,6 +282,8 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
         expanded[[names(val)[[j]]]] <-
           recycle_to_level(val[[j]], N_total, names(val)[[j]])
       }
+    } else {
+      stop_unnamed_expression(i, level$dots[[i]], val, "nest_level()")
     }
   }
 

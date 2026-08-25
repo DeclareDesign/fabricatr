@@ -199,6 +199,9 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
     } else if (nchar(nm) > 0) {
       lst <- store_column(lst, nm, val,
                           function(v, cn) recycle_to_n(v, N_inject))
+    } else {
+      stop_unnamed_expression(i, dots[[i]], val, "fabricate()",
+                              positional_n = is.null(N) && is.null(data))
     }
   }
 
@@ -279,7 +282,26 @@ eval_dots_into_list <- function(dots, base_list, inner_N = NULL) {
     } else if (is.data.frame(val)) {
       for (j in seq_along(val))
         lst[[names(val)[[j]]]] <- recycle_to_n(val[[j]], inner_N)
+    } else {
+      stop_unnamed_expression(i, dots[[i]], val, "this level")
     }
   }
   lst
+}
+
+# An expression with no name has nowhere to go. fabricatr 1.x failed on it
+# with an indexing error from deep inside; dropping it silently, which is
+# what happened here for a while, is worse, because `fabricate(100, ...)`
+# then reads as a design with no rows. The unnamed things that do have a
+# meaning, a level call and a multi-column result such as
+# `potential_outcomes()`, are handled before this is reached.
+stop_unnamed_expression <- function(i, quo, val, where, positional_n = FALSE) {
+  looks_like_n <- positional_n && is.numeric(val) && length(val) == 1L
+  stop("Every column needs a name. Expression ", i, " in ", where, ", `",
+       rlang::as_label(quo), "`, has none.",
+       if (looks_like_n) {
+         paste0("\n  If this is the number of rows, write `N = ",
+                format(val), "`: N is supplied by name.")
+       },
+       call. = FALSE)
 }

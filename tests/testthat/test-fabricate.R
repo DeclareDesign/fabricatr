@@ -168,3 +168,22 @@ test_that("N alongside existing data is refused, as in 1.0.2", {
   expect_equal(nrow(fabricate(data = base, y = x * 2)), 3L)
   expect_equal(nrow(fabricate(N = 5)), 5L)
 })
+
+test_that("an expression without a name is an error, not a silent drop", {
+  expect_error(fabricate(N = 5, rnorm(N)),
+               "Every column needs a name. Expression 1 in fabricate(), `rnorm(N)`, has none.",
+               fixed = TRUE)
+  expect_error(fabricate(N = 5, x = rnorm(N), rnorm(N)),
+               "Expression 2 in fabricate()", fixed = TRUE)
+  expect_error(fabricate(a = add_level(N = 3, rnorm(N))),
+               "Expression 1 in this level", fixed = TRUE)
+  expect_error(fabricate(a = add_level(N = 3), b = nest_level(N = 2, rnorm(N))),
+               "Expression 1 in nest_level()", fixed = TRUE)
+})
+
+test_that("a positional N says to name it", {
+  # fabricatr 1.0.2 read fabricate(100, ...) as N = 100. Here N is named, and
+  # the error says so rather than building a frame with no rows.
+  expect_error(fabricate(100, Y = rnorm(N)),
+               "If this is the number of rows, write `N = 100`", fixed = TRUE)
+})
