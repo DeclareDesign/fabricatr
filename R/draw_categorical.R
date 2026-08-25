@@ -13,11 +13,13 @@
 #'   Rows need not sum to 1; they are normalised internally.
 #' @param N Number of observations. Required when \code{prob} is a vector.
 #' @param labels Optional character vector of category labels (length must
-#'   equal the number of categories). When supplied, returns an ordered
-#'   factor.
+#'   equal the number of categories). When supplied, returns a factor. The
+#'   categories are nominal, so the factor is unordered, as it is in
+#'   fabricatr 1.x.
+#' @param category_labels fabricatr 1.x's name for \code{labels}. Accepted
+#'   with a warning.
 #'
-#' @return Integer vector (1, 2, ...) or ordered factor if \code{labels} is
-#'   supplied.
+#' @return Integer vector (1, 2, ...) or factor if \code{labels} is supplied.
 #'
 #' @examples
 #' # Shared probabilities across all units
@@ -27,13 +29,16 @@
 #' fabricate(N = 4, p1 = runif(N), p2 = runif(N), p3 = runif(N),
 #'           cat = draw_categorical(prob = cbind(p1, p2, p3)))
 #'
-#' # With labels -> ordered factor
+#' # With labels -> factor
 #' fabricate(N = 100,
 #'           edu = draw_categorical(prob = c(0.3, 0.5, 0.2), N = N,
 #'                                  labels = c("low", "medium", "high")))
 #'
 #' @export
-draw_categorical <- function(prob, N = NULL, labels = NULL) {
+draw_categorical <- function(prob, N = NULL, labels = NULL,
+                             category_labels = NULL) {
+  labels <- absorb_legacy_labels(labels, category_labels, "category_labels",
+                                 sys.call())
   # Coerce vector to matrix (same probs for all units)
   if (is.null(dim(prob))) {
     if (!is.numeric(prob) || length(prob) < 2) {
@@ -62,7 +67,7 @@ draw_categorical <- function(prob, N = NULL, labels = NULL) {
   draws <- apply(prob, 1, function(p) sample.int(k, 1L, prob = p))
 
   if (!is.null(labels)) {
-    factor(draws, levels = seq_len(k), labels = labels, ordered = TRUE)
+    factor(draws, levels = seq_len(k), labels = labels)
   } else {
     draws
   }
@@ -86,6 +91,8 @@ draw_categorical <- function(prob, N = NULL, labels = NULL) {
 #'   \code{NA} instead of being placed in the outermost category.
 #' @param latent Alias for \code{x} (kept for compatibility).
 #' @param link Ignored (identity only); present for API consistency.
+#' @param break_labels fabricatr 1.x's name for \code{labels}. Accepted with
+#'   a warning.
 #'
 #' @return Integer vector or ordered factor.
 #'
@@ -102,7 +109,10 @@ draw_ordered <- function(x = latent,
                          N = length(x),
                          strict = FALSE,
                          latent = NULL,
-                         link = "identity") {
+                         link = "identity",
+                         break_labels = NULL) {
+  labels <- absorb_legacy_labels(labels, break_labels, "break_labels",
+                                 sys.call())
   if (missing(breaks) || is.null(breaks) || any(is.na(breaks))) {
     stop("Supply numeric `breaks` to draw_ordered().")
   }

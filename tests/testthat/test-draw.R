@@ -33,11 +33,14 @@ test_that("draw_categorical returns integers in correct range", {
   expect_true(all(x %in% 1:3))
 })
 
-test_that("draw_categorical with labels returns ordered factor", {
+test_that("draw_categorical with labels returns an unordered factor", {
+  # Nominal categories, so unordered, as in fabricatr 1.0.2. An ordered factor
+  # would make lm() fit polynomial contrasts for it.
   x <- draw_categorical(prob = c(0.3, 0.4, 0.3), N = 50,
                         labels = c("low", "mid", "high"))
   expect_s3_class(x, "factor")
-  expect_true(is.ordered(x))
+  expect_false(is.ordered(x))
+  expect_equal(levels(x), c("low", "mid", "high"))
 })
 
 test_that("draw_categorical normalises rows", {

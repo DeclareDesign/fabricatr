@@ -111,3 +111,35 @@ test_that("rho inside join_using() reaches link_levels, and the rewrite shows it
   ))
   expect_gt(cor(as.numeric(df$a), as.numeric(df$b), method = "spearman"), 0.6)
 })
+
+test_that("break_labels and category_labels are accepted as labels", {
+  rlang::local_options(rlib_warning_verbosity = "verbose")
+  set.seed(3)
+  x <- rnorm(5)
+  msg <- tryCatch(draw_ordered(x, breaks = c(-1, 0, 1),
+                               break_labels = c("a", "b", "c", "d")),
+                  warning = conditionMessage)
+  expect_match(msg, "`break_labels =` is deprecated", fixed = TRUE)
+  expect_match(msg, 'Write:  draw_ordered(x, breaks = c(-1, 0, 1), labels = c("a", "b", "c", "d"))',
+               fixed = TRUE)
+  old <- suppressWarnings(draw_ordered(x, breaks = c(-1, 0, 1),
+                                       break_labels = c("a", "b", "c", "d")))
+  expect_equal(old, draw_ordered(x, breaks = c(-1, 0, 1),
+                                 labels = c("a", "b", "c", "d")))
+  expect_true(is.ordered(old))
+
+  msg <- tryCatch(draw_categorical(N = 5, prob = c(0.2, 0.5, 0.3),
+                                   category_labels = c("lo", "mid", "hi")),
+                  warning = conditionMessage)
+  expect_match(msg, "`category_labels =` is deprecated", fixed = TRUE)
+  expect_match(msg, 'Write:  draw_categorical(N = 5, prob = c(0.2, 0.5, 0.3), labels = c("lo", "mid", "hi"))',
+               fixed = TRUE)
+  set.seed(3)
+  old <- suppressWarnings(draw_categorical(N = 5, prob = c(0.2, 0.5, 0.3),
+                                           category_labels = c("lo", "mid", "hi")))
+  set.seed(3)
+  expect_equal(old, draw_categorical(N = 5, prob = c(0.2, 0.5, 0.3),
+                                     labels = c("lo", "mid", "hi")))
+  expect_s3_class(old, "factor")
+  expect_false(is.ordered(old))
+})

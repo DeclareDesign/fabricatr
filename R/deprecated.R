@@ -139,6 +139,24 @@ absorb_legacy_by <- function(dots, cl) {
   list(by = resolved$by, rho = resolved$rho, dots = dots[names(dots) != "by"])
 }
 
+#' Accept a fabricatr 1.x name for `labels` in a `draw_*` function
+#'
+#' `draw_ordered(break_labels = )` and `draw_categorical(category_labels = )`
+#' are 1.x's names for what is `labels` in both. Returns the labels to use,
+#' warning once per call site when the old name was used.
+#'
+#' @keywords internal
+#' @noRd
+absorb_legacy_labels <- function(labels, legacy, old, cl) {
+  if (is.null(legacy)) return(labels)
+  warn_deprecated_spelling(
+    paste0("`", old, " =`"),
+    wrote = paste(trimws(deparse(cl, width.cutoff = 500L)), collapse = " "),
+    instead = rewrite_call(cl, rename = stats::setNames("labels", old))
+  )
+  labels %||% legacy
+}
+
 #' Name the levels to cross or link
 #'
 #' fabricatr's helper for `by = join_using(countries, years)`. In fabricatr

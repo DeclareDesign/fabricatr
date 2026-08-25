@@ -4,7 +4,7 @@
 \alias{draw_categorical}
 \title{Draw categorical outcomes}
 \usage{
-draw_categorical(prob, N = NULL, labels = NULL)
+draw_categorical(prob, N = NULL, labels = NULL, category_labels = NULL)
 }
 \arguments{
 \item{prob}{Probability specification. Either:
@@ -13,17 +13,20 @@ draw_categorical(prob, N = NULL, labels = NULL)
     observations; \code{N} must be supplied), or
   \item A matrix with \code{N} rows and one column per category.
 }
-Rows need not sum to 1 — they are normalised internally.}
+Rows need not sum to 1; they are normalised internally.}
 
 \item{N}{Number of observations. Required when \code{prob} is a vector.}
 
 \item{labels}{Optional character vector of category labels (length must
-equal the number of categories). When supplied, returns an ordered
-factor.}
+equal the number of categories). When supplied, returns a factor. The
+categories are nominal, so the factor is unordered, as it is in
+fabricatr 1.x.}
+
+\item{category_labels}{fabricatr 1.x's name for \code{labels}. Accepted
+with a warning.}
 }
 \value{
-Integer vector (1, 2, ...) or ordered factor if \code{labels} is
-  supplied.
+Integer vector (1, 2, ...) or factor if \code{labels} is supplied.
 }
 \description{
 Draws from a multinomial distribution. Supply a probability matrix (one row
@@ -38,7 +41,7 @@ fabricate(N = 100, cat = draw_categorical(prob = c(0.2, 0.5, 0.3), N = N))
 fabricate(N = 4, p1 = runif(N), p2 = runif(N), p3 = runif(N),
           cat = draw_categorical(prob = cbind(p1, p2, p3)))
 
-# With labels -> ordered factor
+# With labels -> factor
 fabricate(N = 100,
           edu = draw_categorical(prob = c(0.3, 0.5, 0.2), N = N,
                                  labels = c("low", "medium", "high")))

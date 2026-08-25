@@ -11,7 +11,8 @@ draw_ordered(
   N = length(x),
   strict = FALSE,
   latent = NULL,
-  link = "identity"
+  link = "identity",
+  break_labels = NULL
 )
 }
 \arguments{
@@ -33,6 +34,9 @@ set explicitly.}
 \item{latent}{Alias for \code{x} (kept for compatibility).}
 
 \item{link}{Ignored (identity only); present for API consistency.}
+
+\item{break_labels}{fabricatr 1.x's name for \code{labels}. Accepted with
+a warning.}
 }
 \value{
 Integer vector or ordered factor.
