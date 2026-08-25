@@ -1,0 +1,109 @@
+---
+title: "Getting started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+set.seed(343)
+```
+
+```{r setup}
+library(fabricatr)
+```
+
+fabricatr makes data you do not have yet. You describe the variables and how they relate, and `fabricate()` builds a data frame that looks like what you expect to collect, so a design can be run and diagnosed before there is anything to analyze.
+
+## One level
+
+`fabricate()` builds a data frame one column at a time. `N` is the number of rows, and every column can use the columns before it:
+
+```{r}
+survey <- fabricate(
+  N = 100,
+  age = round(runif(N, 18, 80)),
+  income = 20 + 0.5 * age + rnorm(N, sd = 10)
+)
+head(survey)
+```
+
+An `ID` column comes for free. `N` is available inside every expression, which is why `rnorm(N)` draws one value per row.
+
+## Two levels
+
+Real data have structure: citizens in villages, students in schools, years within countries. `add_level()` builds the top level and `nest_level()` puts children inside each parent. A column at the village level is copied down to every citizen in the village, so a citizen's income can depend on where they live:
+
+```{r}
+nested <- fabricate(
+  villages = add_level(N = 5, village_wealth = rnorm(N)),
+  citizens = nest_level(N = 4, income = village_wealth + rnorm(N))
+)
+head(nested)
+```
+
+Inside `citizens`, `N` is 20, the number of citizens being built, not 4. Each level names its own ID column after itself.
+
+## Potential outcomes
+
+An experiment has an outcome under treatment and an outcome under control, and observes only one of them. `potential_outcomes()` writes both down from a formula, one column per condition:
+
+```{r}
+experiment <- fabricate(
+  N = 100,
+  U = rnorm(N),
+  potential_outcomes(Y ~ 0.5 * Z + U)
+)
+head(experiment)
+```
+
+Once units are assigned, `reveal_outcomes()` picks out the outcome each unit shows:
+
+```{r}
+observed <- fabricate(
+  data = experiment,
+  Z = rbinom(N, 1, 0.5),
+  Y = reveal_outcomes(Y ~ Z)
+)
+head(observed)
+```
+
+## Draws that look like real variables
+
+The `draw_*` family turns a latent variable into the kind of measurement a survey produces. `draw_binary()` gives a 0/1 outcome, here through a logit link:
+
+```{r}
+fabricate(
+  N = 6,
+  x = rnorm(N),
+  voted = draw_binary(latent = x, link = "logit")
+)
+```
+
+`draw_normal_icc()` draws a clustered variable with a target intra-cluster correlation, so that citizens in the same village resemble each other by the amount you choose:
+
+```{r}
+clustered <- fabricate(
+  villages = add_level(N = 20),
+  citizens = nest_level(N = 10, trust = draw_normal_icc(clusters = villages, ICC = 0.3))
+)
+summary(lm(trust ~ villages, data = clustered))$r.squared
+```
+
+## Resampling
+
+`resample_data()` bootstraps a data frame, and respects its levels: sample villages, then citizens within the villages drawn.
+
+```{r}
+boot <- resample_data(nested, N = c(villages = 3, citizens = 2))
+boot
+```
+
+`ALL` in place of a number keeps every unit at that level.
+
+## Where to read next
+
+The book at <https://book.declaredesign.org> puts fabricated data to work in complete research designs, and `vignette("fabricatr2.0")` lists what changed from fabricatr 1.x for anyone with an older script.
