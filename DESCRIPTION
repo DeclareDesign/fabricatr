@@ -25,4 +25,6 @@ Suggests:
     data.table,
     mvnfast,
     MASS,
-    extraDistr
+    extraDistr,
+    diagram,
+    dplyr
