@@ -14,12 +14,11 @@ created by \code{potential_outcomes}).}
 }
 \value{
 A vector with one element per row, holding each unit's outcome
-  under the assignment it actually received. Its type is that of the
-  potential outcome columns it reads, with one exception worth knowing:
-  factor potential outcomes reveal as \code{character}, in 2.0 as in
-  fabricatr 1.x, so a revealed Likert or ordered response has lost its
-  levels and their order and must be made a factor again before it is
-  modelled.
+  under the assignment it actually received, and carrying the type of the
+  potential outcome columns it reads. A factor reveals as a factor, keeping
+  its levels and their order, and a \code{Date} as a \code{Date}. Where the
+  conditions do not agree on one set of factor levels there are none to
+  keep, so the result is \code{character} and a warning says so.
 }
 \description{
 Implements the switching equation: for each unit, selects the potential

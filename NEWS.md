@@ -20,6 +20,8 @@ fabricatr 2.0.0 is a rewrite of the package on dplyr, tibble, purrr, and rlang, 
 
 * `modify_level()` named after a level above the current one, `regions = modify_level(z = rnorm(N))` after a `cities` level, evaluates once per region as 1.x does, and then keeps the cities. 1.x returned the regions frame alone, dropping the nested rows.
 
+* `reveal_outcomes()` keeps the type of the potential outcomes it reads. A factor reveals as a factor with its levels and their order intact, and a `Date` as a `Date`. 1.x selected the revealed value by matrix-indexing, which rendered both as character: an outcome declared `lo < mid < hi` came back as character, so re-factoring it ordered the levels alphabetically as `hi < lo < mid` and a model fitted on it used the wrong baseline in silence. Where the conditions do not agree on one set of factor levels there are none to keep, so the result is character and a warning says so. This is a deliberate break with 1.0.2.
+
 ## Reproducing an old seed
 
 fabricatr does not promise that a given seed produces the same fabricated data in 2.0 as it did in 1.x, and two things here land at a different point in the random number stream. The distribution each one draws from is unchanged; only the position moves. This is deliberate: fabricatr invents data to stand in for data you do not have, so which particular draw you got is not a finding. Contrast randomizr, where the draw assigns real units to real treatments and is therefore part of the result, and whose stream does not move across versions. What 2.0 does promise is that it gives the same numbers as itself on every machine, which 1.x could not.

@@ -18,7 +18,7 @@ library(fabricatr)
 
 ## The short version
 
-fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is nine files of R against 1.0.2's sixteen, and it is the code rather than the documentation that shrank: stripping blanks and comment lines, 1,013 lines against 1,609, while the roxygen above them grew from 751 lines to 882. Neither package has any compiled code. `data-raw/count_lines.R` re-measures all six figures and fails if this paragraph has gone stale. It depends on dplyr, tibble, purrr, and rlang, and it does not carry 1.x's custom workspace and evaluation machinery.
+fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is nine files of R against 1.0.2's sixteen, and it is the code rather than the documentation that shrank: stripping blanks and comment lines, 1,033 lines against 1,609, while the roxygen above them grew from 751 lines to 881. Neither package has any compiled code. `data-raw/count_lines.R` re-measures all six figures and fails if this paragraph has gone stale. It depends on dplyr, tibble, purrr, and rlang, and it does not carry 1.x's custom workspace and evaluation machinery.
 
 Two things motivated it. The first is speed: fabricate() sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr 1.x reaches deep into rlang internals to manage its evaluation environment, and that surface has broken more than once when rlang changed underneath it. 2.0 evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
 
@@ -119,7 +119,8 @@ fabricate(
 )
 ```
 
-Potential outcomes and the switching equation:
+Potential outcomes and the switching equation. The numeric case here is
+unchanged; a factor or `Date` outcome is [revealed better than it was](#reveal_outcomes-keeps-the-type-of-the-outcome):
 
 ```{r}
 po <- fabricate(N = 6, U = rnorm(N), potential_outcomes(Y ~ 0.5 * Z + U))
@@ -156,7 +157,7 @@ cor(score, offers, method = "spearman")
 
 ## What changes, and why
 
-There are ten. Five are spellings, and **a script written for 1.x still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. One is a hard error, a positional `N`. One changes the shape of the output, `modify_level()` named after a level above the current one. One changes what is drawn: `total_sd` is now a parameter of the distribution rather than a rescaling of the finished vector. The last two change only *where in the random number stream a draw lands*, which is a different kind of thing and is not a promise this package makes; see [On reproducing an old seed](#on-reproducing-an-old-seed). Each has its own section below.
+There are eleven. Five are spellings, and **a script written for 1.x still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. One is a hard error, a positional `N`. One changes the shape of the output, `modify_level()` named after a level above the current one. One is a deliberate fix that 1.x will not match, `reveal_outcomes()` keeping the type of the outcome. One changes what is drawn: `total_sd` is now a parameter of the distribution rather than a rescaling of the finished vector. The last two change only *where in the random number stream a draw lands*, which is a different kind of thing and is not a promise this package makes; see [On reproducing an old seed](#on-reproducing-an-old-seed). Each has its own section below.
 
 One caveat on the warnings. A level constructor runs inside every simulation, so the warning fires once per call site per session rather than once per call. Under a parallel `future` plan the first call happens in a worker, and a warning raised there may never reach your console. So treat the table below as the authority and the warnings as a convenience, not the other way round.
 
@@ -169,6 +170,7 @@ One caveat on the warnings. A level constructor runs inside every simulation, so
 | `draw_ordered(break_labels = )`, `draw_categorical(category_labels = )` | `labels = ` | One name for the same argument across the `draw_*` family |
 | `fabricate(100, ...)` | `fabricate(N = 100, ...)` | **An error, not a warning.** `N` is supplied by name |
 | `regions = modify_level()` after nesting drops the nested rows | keeps them | **Different shape.** See below |
+| `reveal_outcomes()` renders a factor or `Date` outcome as character | keeps the type | **A fix.** 1.x lost an ordered outcome's levels, silently. See below |
 | `total_sd` rescales the finished draw | `total_sd` is a parameter of the draw | **A different distribution.** See below |
 | `link_levels()` draws via `mvnfast` when installed | one draw path, always | Same distribution, different point in the stream, and only if you have `mvnfast` |
 | `fabricate(data = df, ...)` burns two draws before your first column | burns none | Same distribution, different point in the stream |
@@ -266,6 +268,48 @@ fabricate(
 1.x evaluates the same call the same way, three draws of `z` and `a2` from the region's own `a`, but then returns the regions frame alone: three rows, with the cities and their `b` gone. 2.0 keeps the six rows. An early build of 2.0 ignored the level name instead and drew one `z` per city, which is the silent kind of wrong, and is why this section exists.
 
 A column built at a level nested inside is out of view at the outer level, as it is in 1.x, where the same call could see nothing below the level it named. `regions = modify_level(bb = mean(b))` stops and says so, because `b` varies within a region. To summarise it per region, leave the level name off and group: `modify_level(bb = mean(b), .by = "regions")`.
+
+### `reveal_outcomes()` keeps the type of the outcome
+
+The one place where 2.0 deliberately declines to reproduce 1.x, because what 1.x did was wrong
+rather than merely different.
+
+The switching equation picks, for each unit, the potential outcome column matching that unit's
+assignment. 1.x did the picking by matrix-indexing the data frame of potential outcome columns,
+which goes through `as.matrix()`, and a matrix holds one type. So a factor outcome came back as
+character and a `Date` came back as a string. For an unordered factor that is an annoyance. For an
+ordered one it is a wrong answer that does not announce itself:
+
+```{r}
+set.seed(1)
+likert <- fabricate(
+  N = 200, U = rnorm(N),
+  potential_outcomes(Y ~ draw_ordered(0.6 * Z + U, breaks = c(-1, 1),
+                                      labels = c("lo", "mid", "hi")))
+)
+revealed <- fabricate(data = likert, Z = rbinom(200, 1, 0.5),
+                      Yobs = reveal_outcomes(Y ~ Z))
+levels(revealed$Yobs)
+```
+
+Those are the levels the outcome was declared with. Under 1.x, `Yobs` was a character vector, and
+the levels were gone: the natural next step, making it a factor to model it, put them back in
+alphabetical order as `hi < lo < mid`. A regression on that has the wrong baseline and, if it is
+treated as ordered, fits polynomial contrasts against an ordering nobody chose. Nothing warns,
+because nothing is malformed; the numbers are simply answers to a different question.
+
+2.0 selects column by column instead, so the revealed vector keeps whatever the potential outcomes
+carried: a factor stays a factor with its levels and their order, a `Date` stays a `Date`, and
+numeric, integer, logical, and character are as they always were.
+
+One case has no right answer. If the conditions disagree about their levels, there is no set to
+keep, and inventing an order across level sets that were never meant to be compared is worse than
+declining. Those reveal as character, with a warning naming the outcome and saying to give every
+condition the same `levels`.
+
+This matters beyond fabricatr, because `reveal_outcomes()` is re-exported by DeclareDesign and
+`declare_measurement(Y = reveal_outcomes(Y ~ Z))` is the idiom the book runs on. Any design with a
+Likert or other ordered outcome was measuring it through this.
 
 ### ID columns are zero-padded character, as in 1.x
 

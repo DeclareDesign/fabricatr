@@ -78,12 +78,11 @@ potential_outcomes <- function(x, conditions = list(Z = c(0, 1)), sep = "_") {
 #'   created by \code{potential_outcomes}).
 #'
 #' @return A vector with one element per row, holding each unit's outcome
-#'   under the assignment it actually received. Its type is that of the
-#'   potential outcome columns it reads, with one exception worth knowing:
-#'   factor potential outcomes reveal as \code{character}, in 2.0 as in
-#'   fabricatr 1.x, so a revealed Likert or ordered response has lost its
-#'   levels and their order and must be made a factor again before it is
-#'   modelled.
+#'   under the assignment it actually received, and carrying the type of the
+#'   potential outcome columns it reads. A factor reveals as a factor, keeping
+#'   its levels and their order, and a \code{Date} as a \code{Date}. Where the
+#'   conditions do not agree on one set of factor levels there are none to
+#'   keep, so the result is \code{character} and a warning says so.
 #'
 #' @examples
 #' dat <- fabricate(
@@ -122,7 +121,47 @@ reveal_outcomes <- function(x) {
   )
   po_df <- rlang::eval_tidy(po_expr, env = environment(x))
 
-  row_idx <- seq_len(nrow(po_df))
   col_idx <- match(po_cols, colnames(po_df))
-  as.data.frame(po_df)[cbind(row_idx, col_idx)]
+  reveal_one_per_row(po_df, col_idx, outcome)
+}
+
+# Take one value per row across the potential outcome columns, keeping the type
+# those columns carry.
+#
+# Matrix-indexing the data frame is shorter, and is what 1.0.2 and every 2.0
+# build before this one did, but it goes through `as.matrix()`, which renders a
+# factor as character and a Date as a string. An ordered outcome came back with
+# its levels gone, so re-factoring it put them in alphabetical order: a Likert
+# outcome declared `lo < mid < hi` revealed as `hi < lo < mid`, and any model
+# fitted on it used the wrong baseline and the wrong ordering without saying so.
+reveal_one_per_row <- function(po_df, col_idx, outcome) {
+  if (any(vapply(po_df, is.factor, logical(1L)))) {
+    po_df <- reconcile_factor_levels(po_df, outcome)
+  }
+
+  # `po_df` is built from these very column names, so every row matches one of
+  # them and the first column is only ever a carrier of class and levels.
+  out <- po_df[[1L]]
+  for (j in seq_along(po_df)) {
+    take <- which(col_idx == j)
+    if (length(take)) out[take] <- po_df[[j]][take]
+  }
+  out
+}
+
+# The revealed vector can carry only one set of factor levels. Where every
+# condition already agrees on them, they are kept, ordered or not. Where they
+# do not agree, the alternative is to invent an order across level sets that
+# were never meant to be compared, so those fall back to character and say so.
+reconcile_factor_levels <- function(po_df, outcome) {
+  all_factors <- all(vapply(po_df, is.factor, logical(1L)))
+  same_levels <- length(unique(lapply(po_df, levels))) == 1L
+  same_order <- length(unique(vapply(po_df, is.ordered, logical(1L)))) == 1L
+
+  if (all_factors && same_levels && same_order) return(po_df)
+
+  warning("The potential outcomes of `", outcome, "` do not share one set of ",
+          "factor levels, so the revealed outcome is character. Give every ",
+          "condition the same `levels` to keep them.", call. = FALSE)
+  lapply(po_df, as.character)
 }
