@@ -65,4 +65,22 @@ if (any(drift)) {
               ", is ", found[drift], collapse = "\n"),
        call. = FALSE)
 }
-cat("\nAll six figures in the vignette's first paragraph are current.\n")
+# A second copy is how the first one goes stale. The vignette carried
+# "The result is 2,096 lines against 3,193" in its "Why rewrite at all" section
+# for as long as the paragraph above was right, and it was 143 lines out by the
+# time anyone counted. One paragraph owns these numbers; nothing else may quote
+# one.
+docs <- c(list.files("vignettes", pattern = "[.]Rmd$", full.names = TRUE), "README.md")
+owner <- "^fabricatr 2[.]0 is a ground-up rewrite"
+elsewhere <- unlist(lapply(docs, function(f) {
+  lines <- readLines(f)
+  lines <- lines[!grepl(owner, lines)]
+  grep("[0-9],?[0-9]{3} lines|lines against", lines, value = TRUE)
+}))
+if (length(elsewhere)) {
+  stop("a line count is quoted outside the paragraph that owns it:\n",
+       paste0("  ", elsewhere, collapse = "\n"), call. = FALSE)
+}
+
+cat("\nAll six figures in the vignette's first paragraph are current, ",
+    "and nothing else quotes a line count.\n", sep = "")

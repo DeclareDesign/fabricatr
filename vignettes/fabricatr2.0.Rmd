@@ -513,7 +513,7 @@ The tidyverse answer is a named list used as a data mask, and a loop over `rlang
 
 The level functions return S3 objects that `fabricate()` dispatches on, replacing a string-matching mode dispatcher. Hierarchy is built with plain integer indexing into lists rather than repeated data frame construction, which is where most of the speed comes from.
 
-What survives untouched is the statistical content: `draw_normal_icc()`, `draw_binary_icc()`, `correlate()`, and `draw_multivariate()` carry real algebra with no tidyverse one-liner equivalent, and they were ported rather than rewritten. The result is 2,096 lines against 3,193.
+What survives untouched is the statistical content: `draw_normal_icc()`, `draw_binary_icc()`, `correlate()`, and `draw_multivariate()` carry real algebra with no tidyverse one-liner equivalent, and they were ported rather than rewritten.
 
 ## Current status
 
