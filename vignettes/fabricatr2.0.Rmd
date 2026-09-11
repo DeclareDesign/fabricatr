@@ -145,6 +145,7 @@ dat <- fabricate(
   units    = add_level(N = 3, y = rnorm(N))
 )
 resample_data(dat, N = c(clusters = 2, units = 2))
+resample_data(dat, N = c(clusters = ALL, units = 2))
 ```
 
 Correlated draws through the Gaussian copula:
@@ -552,5 +553,7 @@ None outstanding. Three items were carried as gaps until they were checked again
 - `sigma` in `link_levels()` beyond two levels was in fact correct: a three-level draw is identical to 1.x's, seed for seed, down to every ID triple. What was missing was validation. A matrix that is not positive semi-definite used to reach `chol(pivot = TRUE)`, which warns and returns a decomposition carrying none of the requested structure. Non-PSD matrices, entries outside `[-1, 1]`, wrong dimensions, asymmetry, and a single negative `rho` across three or more levels are now all errors.
 
 One naming change is easy to miss. `draw_ordered()`, `draw_likert()`, and `draw_categorical()` all take their category names as `labels`. In 1.x the first is `break_labels` and the last is `category_labels`; both old names are accepted and warn once with the corrected call. The return types are 1.x's: `draw_ordered()` and `draw_likert()` give an ordered factor, and `draw_categorical()` an unordered one, because its categories are nominal and an ordered factor would change which contrasts a model formula picks. Leave `labels` off if you want the integer codes.
+
+One difference is quieter than the rest, because it is a warning rather than a result. 1.x warns when a resampling plan names `ALL` for its last level, on the grounds that leaving the level out does the same thing. 2.0 accepts it silently. The frame is the same either way, and in both packages `resample_data(dat, N = c(clusters = 3))` returns exactly what `resample_data(dat, N = c(clusters = 3, units = ALL))` returns.
 
 Reports of any behavior that differs from 1.x and is not listed in this vignette are the most useful thing you can send back.
