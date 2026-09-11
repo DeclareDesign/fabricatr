@@ -29,7 +29,8 @@ link).}
 \item{quantile_y}{Optional quantile vector for \code{correlate}.}
 }
 \value{
-Integer vector.
+An integer vector of successes out of \code{trials}, of length
+  \code{N}.
 }
 \description{
 Draw binomial counts

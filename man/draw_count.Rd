@@ -24,7 +24,7 @@ draw_count(
 \item{quantile_y}{Optional quantile vector for \code{correlate}.}
 }
 \value{
-Non-negative integer vector.
+An integer vector of non-negative counts, of length \code{N}.
 }
 \description{
 Draw Poisson count data

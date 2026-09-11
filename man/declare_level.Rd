@@ -13,7 +13,12 @@ declare_level(N, ...)
 as a scalar integer.}
 }
 \value{
-A \code{fabricatr_level} object (used inside \code{fabricate}).
+A \code{fabricatr_level} object, meaningful only as a named
+  argument to \code{fabricate}. It builds \code{N} rows and an ID column
+  named after the argument it is assigned to, and holds them aside: the rows
+  reach the fabricated frame only when a later \code{cross_levels} or
+  \code{link_levels} names this level in \code{.by}. Declaring a level that
+  nothing crosses or links contributes nothing to the result.
 }
 \description{
 Creates N rows as a standalone data frame registered for use by

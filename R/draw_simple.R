@@ -12,7 +12,8 @@
 #' @param quantile_y Optional quantile vector for deterministic draws (used by
 #'   \code{correlate}).
 #'
-#' @return Integer vector of 0s and 1s.
+#' @return An integer vector of 0s and 1s, of length \code{N}, which
+#'   defaults to \code{length(prob)}.
 #'
 #' @examples
 #' fabricate(N = 6, p = c(0, 0.2, 0.4, 0.6, 0.8, 1),
@@ -43,7 +44,8 @@ draw_binary <- function(prob = apply_link(latent, link),
 #'   link).
 #' @param quantile_y Optional quantile vector for \code{correlate}.
 #'
-#' @return Integer vector.
+#' @return An integer vector of successes out of \code{trials}, of length
+#'   \code{N}.
 #'
 #' @examples
 #' fabricate(N = 4, p = c(0.1, 0.3, 0.7, 0.9),
@@ -74,7 +76,7 @@ draw_binomial <- function(prob = apply_link(latent, link),
 #' @param latent Latent variable (alternative to \code{mean} with log link).
 #' @param quantile_y Optional quantile vector for \code{correlate}.
 #'
-#' @return Non-negative integer vector.
+#' @return An integer vector of non-negative counts, of length \code{N}.
 #'
 #' @examples
 #' fabricate(N = 5, rate = c(0, 1, 5, 10, 50),

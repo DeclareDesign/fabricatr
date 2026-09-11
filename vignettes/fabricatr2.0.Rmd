@@ -18,7 +18,7 @@ library(fabricatr)
 
 ## The short version
 
-fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is 2,096 lines of R across nine files, against 3,193 lines in fabricatr 1.0.2. It depends on dplyr, tibble, purrr, and rlang, and it does not carry 1.x's custom workspace and evaluation machinery.
+fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is nine files of R against 1.0.2's sixteen, and it is the code rather than the documentation that shrank: stripping blanks and comment lines, 1,013 lines against 1,609, while the roxygen above them grew from 751 lines to 882. Neither package has any compiled code. `data-raw/count_lines.R` re-measures all six figures and fails if this paragraph has gone stale. It depends on dplyr, tibble, purrr, and rlang, and it does not carry 1.x's custom workspace and evaluation machinery.
 
 Two things motivated it. The first is speed: fabricate() sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr 1.x reaches deep into rlang internals to manage its evaluation environment, and that surface has broken more than once when rlang changed underneath it. 2.0 evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
 
@@ -43,7 +43,7 @@ vignette("fabricatr2.0")      # this document
 
 ## What does not change
 
-Everything in this section is byte-identical code between the two packages.
+Everything in this section is byte-identical code between the two packages, and every example below returns the same frame from the same seed, verified row by row against 1.0.2. The one exception is the potential-outcomes example, whose second call starts from `data`: the code is unchanged and so is the frame it builds, but the draws inside it are not 1.x's, for the reason given under [Starting from `data` no longer costs two draws](#starting-from-data-no-longer-costs-two-draws).
 
 Flat fabrication, with each column able to see the ones defined before it:
 
@@ -156,7 +156,7 @@ cor(score, offers, method = "spearman")
 
 ## What changes, and why
 
-There are nine. Five are spellings, and **a script written for 1.x still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. One is a hard error, a positional `N`. One changes the shape of the output, `modify_level()` named after a level above the current one. Two change results, and they are the only places in the package where the same call gives you different numbers than 1.x. Each has its own section below.
+There are ten. Five are spellings, and **a script written for 1.x still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. One is a hard error, a positional `N`. One changes the shape of the output, `modify_level()` named after a level above the current one. Three change results, and they are the only places in the package where the same call gives you different numbers than 1.x. Each has its own section below.
 
 One caveat on the warnings. A level constructor runs inside every simulation, so the warning fires once per call site per session rather than once per call. Under a parallel `future` plan the first call happens in a worker, and a warning raised there may never reach your console. So treat the table below as the authority and the warnings as a convenience, not the other way round.
 
@@ -171,6 +171,7 @@ One caveat on the warnings. A level constructor runs inside every simulation, so
 | `regions = modify_level()` after nesting drops the nested rows | keeps them | **Different shape.** See below |
 | `total_sd` rescales the finished draw | `total_sd` is a parameter of the draw | **Different numbers.** See below |
 | `link_levels()` draws via `mvnfast` when installed | one draw path, always | **Different numbers, if you have `mvnfast`.** See below |
+| `fabricate(data = df, ...)` burns two draws before your first column | burns none | **Different numbers** from the same seed. See below |
 
 ### `nest = FALSE` becomes `declare_level()`
 
@@ -342,6 +343,40 @@ The two paths consume the random number stream differently, so the same seed giv
 The cost is nothing you can feel. `mvnfast` earns its name in hundreds of dimensions; `link_levels()` has one dimension per level, so two or three. Measured at three levels, it saves 19 milliseconds on a million rows, and nothing measurable at the sizes anyone actually links.
 
 The consequence is that if you have `mvnfast` installed, a correlated `link_levels()` gives different numbers here than in 1.x. Without it, the two agree exactly. Either way, 2.0 gives the same numbers as itself on every machine, which 1.x cannot promise.
+
+### Starting from `data` no longer costs two draws
+
+The third and last place where 2.0 gives different numbers than 1.x, and the only one that needs no
+argument about which answer is better. When `data` is supplied, fabricatr 1.x calls an internal
+helper, `makeUU()`, to invent a unique name for the workspace slot it is about to put your data
+frame in. That helper is `sprintf("%X-%X", as.integer(Sys.time()), sample.int(.Machine$integer.max, 1))`,
+and `sample.int()` consumes exactly two uniforms from the random number stream. So every
+`fabricate(data = df, ...)` call in 1.x advances the stream by two before evaluating your first
+column:
+
+```{r}
+set.seed(7)
+reference <- runif(6)
+set.seed(7)
+fabricate(data = data.frame(u = 1:6), Z = runif(6))$Z
+reference
+```
+
+In 2.0 the column starts at the beginning of the stream, as shown above. In 1.0.2 it starts at the
+third draw, so the same script with the same seed gets `reference[3:8]`. The offset is exactly two
+whatever the data frame's size, whether or not it carries an ID column, and however many columns
+you then build.
+
+There is nothing to port. No 1.x result was wrong, and no 2.0 result is more correct; the two
+simply index different points of the same stream, and only the one recorded alongside a given set
+of numbers will reproduce them. It matters in one situation, which is the common one: a saved
+analysis whose data begins with `fabricate(data = ...)` and a stored seed will not reproduce its
+old numbers under 2.0. Re-run it and store the new ones.
+
+2.0 has no temporary to name, because a column expression is evaluated with one `rlang::eval_tidy()`
+against a plain named list rather than assembled in a workspace environment. This is the numerical
+edge of the architectural claim at the top of this vignette, and it was found by running 1.0.2 and
+2.0 side by side on every example in the section above rather than by reading either one.
 
 ### `N` is never a column
 

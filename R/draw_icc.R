@@ -29,7 +29,8 @@
 #'   diverges.
 #' @param N Optional; must equal \code{length(clusters)} when provided.
 #'
-#' @return Numeric vector of the same length as \code{clusters}.
+#' @return A double vector of the same length as \code{clusters}, in the
+#'   order the clusters were given.
 #'
 #' @examples
 #' clusters <- rep(1:10, each = 20)
@@ -169,7 +170,8 @@ resolve_icc_scales <- function(ICC, sd, sd_between, total_sd) {
 #' @param ICC Target ICC. Default 0 (independent draws).
 #' @param N Optional; must equal \code{length(clusters)}.
 #'
-#' @return Integer vector of 0s and 1s.
+#' @return An integer vector of 0s and 1s of the same length as
+#'   \code{clusters}, in the order the clusters were given.
 #'
 #' @examples
 #' clusters <- rep(1:10, each = 20)

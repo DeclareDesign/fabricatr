@@ -12,7 +12,12 @@ split_quantile(x, type)
 \item{type}{Number of buckets (2 = median split, 3 = terciles, etc.).}
 }
 \value{
-Ordered factor with levels 1 through \code{type}.
+A factor with levels \code{1} through \code{type}, one per element
+  of \code{x}. It is deliberately \emph{unordered}, as in fabricatr 1.x:
+  an ordered factor would make \code{lm} fit polynomial contrasts
+  (\code{q.L}, \code{q.Q}, \code{q.C}) where the same script under 1.x
+  gets treatment contrasts (\code{q2}, \code{q3}, \code{q4}), and report
+  different coefficients without saying why.
 }
 \description{
 Split data into quantile buckets

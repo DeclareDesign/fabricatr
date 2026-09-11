@@ -3,6 +3,11 @@
 \name{ALL}
 \alias{ALL}
 \title{Magic constant: pass all units at a resampling level}
+\format{
+A single integer used as a sentinel. Its value carries no meaning
+  and should not be relied on or arithmetic done with it; write \code{ALL}
+  itself wherever a level is to pass through whole.
+}
 \usage{
 ALL
 }
@@ -10,4 +15,13 @@ ALL
 Use \code{ALL} in the \code{N} argument of \code{resample_data} to keep
 every unit at a given hierarchical level while still resampling inner
 levels.
+}
+\examples{
+clustered <- fabricate(
+  clusters = add_level(N = 4, gdp = rnorm(N)),
+  units    = nest_level(N = 2, Y = gdp + rnorm(N))
+)
+# Resample 2 clusters, keeping every unit inside the ones drawn
+resample_data(clustered, N = c(clusters = 2, units = ALL))
+
 }

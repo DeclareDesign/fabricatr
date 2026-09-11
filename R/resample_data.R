@@ -4,6 +4,18 @@
 #' every unit at a given hierarchical level while still resampling inner
 #' levels.
 #'
+#' @format A single integer used as a sentinel. Its value carries no meaning
+#'   and should not be relied on or arithmetic done with it; write \code{ALL}
+#'   itself wherever a level is to pass through whole.
+#'
+#' @examples
+#' clustered <- fabricate(
+#'   clusters = add_level(N = 4, gdp = rnorm(N)),
+#'   units    = nest_level(N = 2, Y = gdp + rnorm(N))
+#' )
+#' # Resample 2 clusters, keeping every unit inside the ones drawn
+#' resample_data(clustered, N = c(clusters = 2, units = ALL))
+#'
 #' @export
 ALL <- -20171101L
 
@@ -34,7 +46,13 @@ ALL <- -20171101L
 #'   (useful for multi-level bootstraps where the same cluster is drawn
 #'   multiple times). Default \code{FALSE}.
 #'
-#' @return A tibble with row names reset to \code{NULL}.
+#' @return A tibble of the resampled rows: \code{nrow(data)} of them for the
+#'   default bootstrap, \code{N} for an unnamed scalar \code{N}, and for a
+#'   hierarchical call the sizes requested at each level multiplied together.
+#'   ID columns are carried over from the rows that were drawn rather than
+#'   regenerated, so a cluster drawn twice appears twice under one ID; pass
+#'   \code{unique_labels = TRUE} to add an \code{<ID>_unique} column that
+#'   tells the copies apart.
 #'
 #' @examples
 #' # Simple bootstrap

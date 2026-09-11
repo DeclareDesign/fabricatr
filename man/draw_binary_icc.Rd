@@ -17,7 +17,8 @@ Default 0.5.}
 \item{N}{Optional; must equal \code{length(clusters)}.}
 }
 \value{
-Integer vector of 0s and 1s.
+An integer vector of 0s and 1s of the same length as
+  \code{clusters}, in the order the clusters were given.
 }
 \description{
 Uses the mixture-of-Bernoullis model: with probability \eqn{\sqrt{ICC}} each

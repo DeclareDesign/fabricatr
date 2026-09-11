@@ -19,7 +19,9 @@
 #' @param category_labels fabricatr 1.x's name for \code{labels}. Accepted
 #'   with a warning.
 #'
-#' @return Integer vector (1, 2, ...) or factor if \code{labels} is supplied.
+#' @return An integer vector of category indices \code{1}, \code{2}, and so
+#'   on, one per row of \code{prob}, or an unordered factor with those
+#'   \code{labels} when they are supplied.
 #'
 #' @examples
 #' # Shared probabilities across all units
@@ -94,7 +96,10 @@ draw_categorical <- function(prob, N = NULL, labels = NULL,
 #' @param break_labels fabricatr 1.x's name for \code{labels}. Accepted with
 #'   a warning.
 #'
-#' @return Integer vector or ordered factor.
+#' @return An integer vector of category indices, one per element of
+#'   \code{x}, or an ordered factor with those \code{labels} when they are
+#'   supplied. With \code{strict = TRUE}, values outside \code{breaks} are
+#'   \code{NA}.
 #'
 #' @examples
 #' fabricate(N = 200, x = rnorm(N),
@@ -149,7 +154,9 @@ draw_ordered <- function(x = latent,
 #'   \code{bins}).
 #' @param labels Optional category labels.
 #'
-#' @return Integer vector or ordered factor.
+#' @return An integer vector of category indices, one per element of
+#'   \code{x}, or an ordered factor with those \code{labels} when they are
+#'   supplied.
 #'
 #' @examples
 #' fabricate(N = 100, x = rnorm(N),
@@ -174,7 +181,12 @@ draw_likert <- function(x, min = NULL, max = NULL, bins = NULL,
 #' @param x Numeric vector.
 #' @param type Number of buckets (2 = median split, 3 = terciles, etc.).
 #'
-#' @return Ordered factor with levels 1 through \code{type}.
+#' @return A factor with levels \code{1} through \code{type}, one per element
+#'   of \code{x}. It is deliberately \emph{unordered}, as in fabricatr 1.x:
+#'   an ordered factor would make \code{lm} fit polynomial contrasts
+#'   (\code{q.L}, \code{q.Q}, \code{q.C}) where the same script under 1.x
+#'   gets treatment contrasts (\code{q2}, \code{q3}, \code{q4}), and report
+#'   different coefficients without saying why.
 #'
 #' @examples
 #' split_quantile(rnorm(100), type = 4)
@@ -203,7 +215,9 @@ split_quantile <- function(x, type) {
 #' @param type Number of buckets.
 #' @param N Number of observations.
 #'
-#' @return Ordered factor.
+#' @return A factor of length \code{N} with levels \code{1} through
+#'   \code{type}, unordered for the reason given under
+#'   \code{\link{split_quantile}}.
 #'
 #' @examples
 #' draw_quantile(type = 4, N = 100)

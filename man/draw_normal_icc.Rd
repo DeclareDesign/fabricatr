@@ -41,7 +41,8 @@ diverges.}
 \item{N}{Optional; must equal \code{length(clusters)} when provided.}
 }
 \value{
-Numeric vector of the same length as \code{clusters}.
+A double vector of the same length as \code{clusters}, in the
+  order the clusters were given.
 }
 \description{
 Uses a two-component variance model: each observation's value is the sum of

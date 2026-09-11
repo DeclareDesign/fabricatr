@@ -26,7 +26,9 @@ draw_likert(
 \item{labels}{Optional category labels.}
 }
 \value{
-Integer vector or ordered factor.
+An integer vector of category indices, one per element of
+  \code{x}, or an ordered factor with those \code{labels} when they are
+  supplied.
 }
 \description{
 A convenience wrapper around \code{draw_ordered} that constructs equally

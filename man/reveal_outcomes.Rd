@@ -13,7 +13,13 @@ assignment variable(s) must match columns already in the data (typically
 created by \code{potential_outcomes}).}
 }
 \value{
-Numeric vector of revealed outcomes.
+A vector with one element per row, holding each unit's outcome
+  under the assignment it actually received. Its type is that of the
+  potential outcome columns it reads, with one exception worth knowing:
+  factor potential outcomes reveal as \code{character}, in 2.0 as in
+  fabricatr 1.x, so a revealed Likert or ordered response has lost its
+  levels and their order and must be made a factor again before it is
+  modelled.
 }
 \description{
 Implements the switching equation: for each unit, selects the potential

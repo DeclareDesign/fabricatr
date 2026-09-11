@@ -20,6 +20,8 @@ fabricatr 2.0.0 is a rewrite of the package on dplyr, tibble, purrr, and rlang, 
 
 * `link_levels()` with `rho` or `sigma` takes one draw path, `chol()` on the correlation matrix, on every machine. 1.x used `mvnfast::rmvn()` when that package was installed, so on such a machine the same seed gives different numbers than 1.x.
 
+* `fabricate(data = df, ...)` no longer advances the random number stream before evaluating your first column. 1.x named the workspace slot it put `df` into with `sample.int(.Machine$integer.max, 1)`, which costs two uniforms, so a script that fabricates from existing data under a fixed seed gets different draws in 2.0 than it did in 1.x. Neither set of numbers is more correct, but a stored seed will not reproduce its old output; re-run and store the new one.
+
 * `modify_level()` named after a level above the current one, `regions = modify_level(z = rnorm(N))` after a `cities` level, evaluates once per region as 1.x does, and then keeps the cities. 1.x returned the regions frame alone, dropping the nested rows.
 
 ## Deprecations

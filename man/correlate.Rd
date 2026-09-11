@@ -7,8 +7,14 @@
 correlate(draw_handler, ..., given, rho)
 }
 \arguments{
-\item{draw_handler}{Unquoted function name: a \code{draw_*} function or a
-base R \code{r*} function.}
+\item{draw_handler}{Unquoted function name. Either one of the three
+\code{draw_*} functions that take a \code{quantile_y} argument
+(\code{draw_binary}, \code{draw_binomial}, \code{draw_count}) or a base R
+\code{r*} generator with a \code{q*} counterpart (\code{rnorm},
+\code{rpois}, \code{rbinom}, and the rest of the \pkg{stats} family).
+\code{draw_ordered}, \code{draw_likert}, \code{draw_categorical},
+\code{draw_quantile}, and the two ICC draws take no quantile argument and
+are refused with a message saying so.}
 
 \item{...}{Arguments forwarded to \code{draw_handler} (e.g. \code{prob},
 \code{mean}).}
@@ -19,7 +25,12 @@ this.}
 \item{rho}{Target Spearman rank correlation in \eqn{[-1, 1]}.}
 }
 \value{
-Numeric vector of length \code{length(given)}.
+A double vector of length \code{length(given)}. Note that the type
+  is double whatever \code{draw_handler} is: \code{draw_binary},
+  \code{draw_binomial}, and \code{draw_count} each return an integer vector
+  when called directly and a double one when routed through here, because
+  the copula reaches them through a quantile function. The values are
+  unaffected.
 }
 \description{
 Uses a Gaussian copula to produce a draw from \code{draw_handler} whose

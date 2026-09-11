@@ -39,7 +39,10 @@ set explicitly.}
 a warning.}
 }
 \value{
-Integer vector or ordered factor.
+An integer vector of category indices, one per element of
+  \code{x}, or an ordered factor with those \code{labels} when they are
+  supplied. With \code{strict = TRUE}, values outside \code{breaks} are
+  \code{NA}.
 }
 \description{
 Cuts a continuous latent variable at the supplied \code{breaks} to produce

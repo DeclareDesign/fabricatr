@@ -17,8 +17,12 @@ possible values. Default \code{list(Z = c(0, 1))}.}
 \item{sep}{Column-name separator. Default \code{"_"}.}
 }
 \value{
-A data frame with one column per condition combination, to be
-  appended by \code{fabricate()}.
+A data frame with one column per combination of the values in
+  \code{conditions}, named \code{<outcome><sep><var><sep><value>} and, with
+  more than one assignment variable, carrying one such pair per variable:
+  \code{Y_Z1_0_Z2_0}, \code{Y_Z1_1_Z2_0}, \code{Y_Z1_0_Z2_1},
+  \code{Y_Z1_1_Z2_1}, the first variable varying fastest. Called inside
+  \code{fabricate()} without a name, these columns are appended to the frame.
 }
 \description{
 For each combination of condition values, evaluates the RHS of \code{x}

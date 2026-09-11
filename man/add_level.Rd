@@ -13,7 +13,10 @@ add_level(N, ...)
 as a scalar integer.}
 }
 \value{
-A \code{fabricatr_level} object (used inside \code{fabricate}).
+A \code{fabricatr_level} object, meaningful only as a named
+  argument to \code{fabricate}. It contributes \code{N} rows, an ID column
+  named after the argument it is assigned to, and one column per expression
+  in \code{...}. Any level nested below it repeats these rows.
 }
 \description{
 Creates N rows and registers the result as the new current data frame.

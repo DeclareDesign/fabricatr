@@ -15,8 +15,12 @@
 #'   possible values. Default \code{list(Z = c(0, 1))}.
 #' @param sep Column-name separator. Default \code{"_"}.
 #'
-#' @return A data frame with one column per condition combination, to be
-#'   appended by \code{fabricate()}.
+#' @return A data frame with one column per combination of the values in
+#'   \code{conditions}, named \code{<outcome><sep><var><sep><value>} and, with
+#'   more than one assignment variable, carrying one such pair per variable:
+#'   \code{Y_Z1_0_Z2_0}, \code{Y_Z1_1_Z2_0}, \code{Y_Z1_0_Z2_1},
+#'   \code{Y_Z1_1_Z2_1}, the first variable varying fastest. Called inside
+#'   \code{fabricate()} without a name, these columns are appended to the frame.
 #'
 #' @examples
 #' fabricate(
@@ -73,7 +77,13 @@ potential_outcomes <- function(x, conditions = list(Z = c(0, 1)), sep = "_") {
 #'   assignment variable(s) must match columns already in the data (typically
 #'   created by \code{potential_outcomes}).
 #'
-#' @return Numeric vector of revealed outcomes.
+#' @return A vector with one element per row, holding each unit's outcome
+#'   under the assignment it actually received. Its type is that of the
+#'   potential outcome columns it reads, with one exception worth knowing:
+#'   factor potential outcomes reveal as \code{character}, in 2.0 as in
+#'   fabricatr 1.x, so a revealed Likert or ordered response has lost its
+#'   levels and their order and must be made a factor again before it is
+#'   modelled.
 #'
 #' @examples
 #' dat <- fabricate(

@@ -14,6 +14,8 @@ Description: Helps you imagine your data before you collect it. Builds a data
     correlation, so that a research design can be simulated and diagnosed
     before any data exist. Version 2.0 is a rewrite of the same public API on
     dplyr, tibble, purrr, and rlang.
+URL: https://declaredesign.org/r/fabricatr/, https://github.com/DeclareDesign/fabricatr
+BugReports: https://github.com/DeclareDesign/fabricatr/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.1.0)

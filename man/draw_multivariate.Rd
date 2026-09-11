@@ -16,7 +16,9 @@ expression returning an N-by-k numeric matrix.}
 Default \code{"_"}.}
 }
 \value{
-A tibble with one column per variable drawn.
+A tibble with one column per name on the left-hand side of the
+  formula, in that order, and one row per row of the matrix the right-hand
+  side returns.
 }
 \description{
 A formula interface for functions that return a matrix of draws (e.g.

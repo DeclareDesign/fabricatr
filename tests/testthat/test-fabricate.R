@@ -187,3 +187,33 @@ test_that("a positional N says to name it", {
   expect_error(fabricate(100, Y = rnorm(N)),
                "If this is the number of rows, write `N = 100`", fixed = TRUE)
 })
+
+test_that("the data= path consumes no random draws before the first column", {
+  # fabricatr 1.0.2 named the workspace slot it put `data` into with
+  # makeUU(), whose sample.int(.Machine$integer.max, 1) costs exactly two
+  # uniforms, so every fabricate(data = df, ...) started two draws into the
+  # stream. 2.0 evaluates against a plain list and has no name to invent.
+  # A change here is a change in what a stored seed reproduces, so it is
+  # pinned rather than left to be rediscovered downstream.
+  set.seed(7)
+  reference <- runif(6)
+
+  set.seed(7)
+  from_data <- fabricate(data = data.frame(u = 1:6), Z = runif(6))$Z
+  expect_identical(from_data, reference)
+
+  # Not a property of the data frame's shape: no ID column, more rows, and
+  # more columns all start at the same place.
+  set.seed(7)
+  wider <- fabricate(data = data.frame(u = 1:6), Z = runif(6), W = runif(6))
+  expect_identical(wider$Z, reference)
+
+  set.seed(7)
+  expect_identical(fabricate(data = data.frame(ID = sprintf("%d", 1:6), u = 1:6),
+                             Z = runif(6))$Z,
+                   reference)
+
+  # And the N= path, which never had the temporary, is unchanged.
+  set.seed(7)
+  expect_identical(fabricate(N = 6, Z = runif(N))$Z, reference)
+})

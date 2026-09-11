@@ -47,7 +47,10 @@ recycle_to_level <- function(val, n_total, col_nm) {
 #' @param ... Column expressions evaluated sequentially. \code{N} is available
 #'   as a scalar integer.
 #'
-#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#' @return A \code{fabricatr_level} object, meaningful only as a named
+#'   argument to \code{fabricate}. It contributes \code{N} rows, an ID column
+#'   named after the argument it is assigned to, and one column per expression
+#'   in \code{...}. Any level nested below it repeats these rows.
 #'
 #' @examples
 #' fabricate(
@@ -75,7 +78,12 @@ add_level <- function(N, ...) {
 #' @param ... Column expressions evaluated sequentially. \code{N} is available
 #'   as a scalar integer.
 #'
-#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#' @return A \code{fabricatr_level} object, meaningful only as a named
+#'   argument to \code{fabricate}. It builds \code{N} rows and an ID column
+#'   named after the argument it is assigned to, and holds them aside: the rows
+#'   reach the fabricated frame only when a later \code{cross_levels} or
+#'   \code{link_levels} names this level in \code{.by}. Declaring a level that
+#'   nothing crosses or links contributes nothing to the result.
 #'
 #' @examples
 #' fabricate(
@@ -110,7 +118,11 @@ declare_level <- function(N, ...) {
 #'   fabricatr 1.x, and it is what makes \code{rnorm(N)} draw independently for
 #'   every village rather than drawing five values and reusing them.
 #'
-#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#' @return A \code{fabricatr_level} object, meaningful only as a named
+#'   argument to \code{fabricate}. It replaces each row of the current frame
+#'   with \code{N} child rows, repeating the parent's columns down them, and
+#'   adds an ID column named after the argument it is assigned to. That ID is
+#'   unique across the whole frame rather than restarting within each parent.
 #'
 #' @examples
 #' fabricate(
@@ -137,7 +149,11 @@ nest_level <- function(N, ...) {
 #'   call).
 #' @param ... Additional column expressions evaluated after crossing.
 #'
-#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#' @return A \code{fabricatr_level} object, meaningful only as a named
+#'   argument to \code{fabricate}. It contributes one row per combination of
+#'   the levels named in \code{.by}, so the frame has as many rows as their
+#'   sizes multiplied together, carrying every column of those levels plus an
+#'   ID column of its own. The first level in \code{.by} varies fastest.
 #'
 #' @examples
 #' fabricate(
@@ -178,7 +194,12 @@ cross_levels <- function(.by, ...) {
 #'   \code{s} is a column and not a partial match.
 #' @param sigma Square correlation matrix (dimension = \code{length(.by)}).
 #'
-#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#' @return A \code{fabricatr_level} object, meaningful only as a named
+#'   argument to \code{fabricate}. It contributes \code{N} rows drawn from the
+#'   same product \code{cross_levels} would build, with replacement, so a
+#'   combination can appear more than once and others not at all, and \code{N}
+#'   may exceed the size of the product. Columns are as for
+#'   \code{cross_levels}.
 #'
 #' @examples
 #' fabricate(
@@ -221,7 +242,10 @@ link_levels <- function(N, .by, ..., rho = 0, sigma = NULL) {
 #' column per region, leave the level name off and group instead:
 #' \code{modify_level(mean_b = mean(b), .by = "regions")}.
 #'
-#' @return A \code{fabricatr_level} object (used inside \code{fabricate}).
+#' @return A \code{fabricatr_level} object, meaningful only as a named or
+#'   unnamed argument to \code{fabricate}. It adds or overwrites columns and
+#'   changes no rows: the frame it returns has the same number of rows as the
+#'   one it received.
 #'
 #' @examples
 #' # At a named level: one draw per region, written to every city in it
@@ -534,7 +558,8 @@ joint_draw_ecdf <- function(data_list, N, sigma = NULL, rho = 0) {
 #' @param N The evaluated value.
 #' @param where The call to name in the message.
 #' @param scalar Whether a single value is required, as it is for a new level.
-#' @return `N` as an integer vector, invisibly on failure never returning.
+#' @return `N` as an integer vector. On a bad value it stops rather than
+#'   returning.
 #' @keywords internal
 #' @noRd
 validate_n <- function(N, where = "fabricate()", scalar = TRUE) {

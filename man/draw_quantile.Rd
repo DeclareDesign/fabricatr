@@ -12,7 +12,9 @@ draw_quantile(type, N)
 \item{N}{Number of observations.}
 }
 \value{
-Ordered factor.
+A factor of length \code{N} with levels \code{1} through
+  \code{type}, unordered for the reason given under
+  \code{\link{split_quantile}}.
 }
 \description{
 Draws N observations and assigns them to \code{type} equally sized

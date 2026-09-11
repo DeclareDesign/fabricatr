@@ -26,7 +26,9 @@ fabricatr 1.x.}
 with a warning.}
 }
 \value{
-Integer vector (1, 2, ...) or factor if \code{labels} is supplied.
+An integer vector of category indices \code{1}, \code{2}, and so
+  on, one per row of \code{prob}, or an unordered factor with those
+  \code{labels} when they are supplied.
 }
 \description{
 Draws from a multinomial distribution. Supply a probability matrix (one row

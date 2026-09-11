@@ -30,7 +30,8 @@ non-identity link).}
 \code{correlate}).}
 }
 \value{
-Integer vector of 0s and 1s.
+An integer vector of 0s and 1s, of length \code{N}, which
+  defaults to \code{length(prob)}.
 }
 \description{
 Draw binary (0/1) outcomes

@@ -1,0 +1,101 @@
+url: https://declaredesign.org/r/fabricatr
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#0054AD"
+    border-radius: 0.5rem
+    btn-border-radius: 0.25rem
+
+development:
+  mode: auto
+
+navbar:
+  left:
+  - text: Getting started
+    href: articles/getting-started.html
+  - text: Reference
+    href: reference/index.html
+  - text: What changed in 2.0
+    href: articles/fabricatr2.0.html
+  right:
+  - text: "Software"
+    menu:
+      - text: DeclareDesign
+        href: https://declaredesign.org/r/declaredesign/
+      - text: randomizr
+        href: https://declaredesign.org/r/randomizr/
+      - text: fabricatr
+        href: https://declaredesign.org/r/fabricatr/
+      - text: estimatr
+        href: https://declaredesign.org/r/estimatr/
+      - text: rdss
+        href: https://declaredesign.org/r/rdss/
+      - text: DesignLibrary
+        href: https://declaredesign.org/r/designlibrary/
+      - text: DesignWizard
+        href: https://eos.wzb.eu/ipi/DDWizard/
+  - text: declaredesign.org
+    href: https://declaredesign.org
+
+reference:
+- title: Fabricating data
+  desc: The entry point. Everything else is called from inside it.
+  contents:
+  - fabricate
+
+- title: Levels
+  desc: >
+    Give the data a shape: units inside clusters, a panel of countries and
+    years, or a second population linked to the first.
+  contents:
+  - add_level
+  - nest_level
+  - declare_level
+  - cross_levels
+  - link_levels
+  - modify_level
+
+- title: Potential outcomes
+  desc: An outcome under each condition, and the one a unit actually shows.
+  contents:
+  - potential_outcomes
+  - reveal_outcomes
+
+- title: Drawing discrete variables
+  desc: Turn a latent variable into the kind of measurement a survey returns.
+  contents:
+  - draw_binary
+  - draw_binomial
+  - draw_count
+  - draw_categorical
+  - draw_ordered
+  - draw_likert
+  - split_quantile
+  - draw_quantile
+
+- title: Drawing clustered variables
+  desc: Draws with a target intra-cluster correlation.
+  contents:
+  - draw_normal_icc
+  - draw_binary_icc
+
+- title: Drawing correlated variables
+  desc: Several variables at once, or one correlated with a variable you have.
+  contents:
+  - draw_multivariate
+  - correlate
+
+- title: Resampling
+  desc: Bootstrap a data frame, respecting the levels it was built with.
+  contents:
+  - resample_data
+  - ALL
+
+- title: fabricatr 1.x spellings
+  desc: >
+    Kept so that scripts written for fabricatr 1.x run unchanged. Each is
+    accepted and warns once with the call to write instead.
+  contents:
+  - join_using
+  - recycle

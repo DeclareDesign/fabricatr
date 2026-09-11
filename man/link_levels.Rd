@@ -21,7 +21,12 @@ provided. Comes after \code{...}, so a column called \code{r} or
 \item{sigma}{Square correlation matrix (dimension = \code{length(.by)}).}
 }
 \value{
-A \code{fabricatr_level} object (used inside \code{fabricate}).
+A \code{fabricatr_level} object, meaningful only as a named
+  argument to \code{fabricate}. It contributes \code{N} rows drawn from the
+  same product \code{cross_levels} would build, with replacement, so a
+  combination can appear more than once and others not at all, and \code{N}
+  may exceed the size of the product. Columns are as for
+  \code{cross_levels}.
 }
 \description{
 Draws N rows from the cross-product of the specified levels. When \code{rho}

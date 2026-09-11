@@ -13,7 +13,10 @@ modify_level(..., .by = NULL)
 evaluating expressions.}
 }
 \value{
-A \code{fabricatr_level} object (used inside \code{fabricate}).
+A \code{fabricatr_level} object, meaningful only as a named or
+  unnamed argument to \code{fabricate}. It adds or overwrites columns and
+  changes no rows: the frame it returns has the same number of rows as the
+  one it received.
 }
 \description{
 Adds or overwrites columns, as \code{dplyr::mutate} does. Named after a

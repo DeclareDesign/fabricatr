@@ -5,3 +5,4 @@ notes/
 *.tar.gz
 .claude/
 fb.Rproj
+docs/

@@ -14,7 +14,11 @@ call).}
 \item{...}{Additional column expressions evaluated after crossing.}
 }
 \value{
-A \code{fabricatr_level} object (used inside \code{fabricate}).
+A \code{fabricatr_level} object, meaningful only as a named
+  argument to \code{fabricate}. It contributes one row per combination of
+  the levels named in \code{.by}, so the frame has as many rows as their
+  sizes multiplied together, carrying every column of those levels plus an
+  ID column of its own. The first level in \code{.by} varies fastest.
 }
 \description{
 Produces all combinations of the specified levels (equivalent to SQL

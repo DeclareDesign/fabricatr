@@ -5,3 +5,11 @@
 ^\.DS_Store$
 ^\.claude$
 ^LICENSE\.md$
+^data-raw$
+^.*\.tar\.gz$
+^\.Rproj\.user$
+^vignettes/.*\.html$
+^.*\.Rproj$
+^docs$
+^_pkgdown\.yml$
+^pkgdown$

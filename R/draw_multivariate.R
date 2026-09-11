@@ -15,7 +15,9 @@
 #' @param sep Separator between prefix and index when LHS is a single name.
 #'   Default \code{"_"}.
 #'
-#' @return A tibble with one column per variable drawn.
+#' @return A tibble with one column per name on the left-hand side of the
+#'   formula, in that order, and one row per row of the matrix the right-hand
+#'   side returns.
 #'
 #' @examples
 #' if (requireNamespace("MASS", quietly = TRUE)) {
@@ -68,15 +70,26 @@ draw_multivariate <- function(formula, sep = "_") {
 #' any \code{draw_*} function that accepts a \code{quantile_y} argument, and
 #' with base R random-number generators (e.g. \code{rnorm}, \code{rpois}).
 #'
-#' @param draw_handler Unquoted function name: a \code{draw_*} function or a
-#'   base R \code{r*} function.
+#' @param draw_handler Unquoted function name. Either one of the three
+#'   \code{draw_*} functions that take a \code{quantile_y} argument
+#'   (\code{draw_binary}, \code{draw_binomial}, \code{draw_count}) or a base R
+#'   \code{r*} generator with a \code{q*} counterpart (\code{rnorm},
+#'   \code{rpois}, \code{rbinom}, and the rest of the \pkg{stats} family).
+#'   \code{draw_ordered}, \code{draw_likert}, \code{draw_categorical},
+#'   \code{draw_quantile}, and the two ICC draws take no quantile argument and
+#'   are refused with a message saying so.
 #' @param ... Arguments forwarded to \code{draw_handler} (e.g. \code{prob},
 #'   \code{mean}).
 #' @param given Reference vector; the new variable will be rank-correlated with
 #'   this.
 #' @param rho Target Spearman rank correlation in \eqn{[-1, 1]}.
 #'
-#' @return Numeric vector of length \code{length(given)}.
+#' @return A double vector of length \code{length(given)}. Note that the type
+#'   is double whatever \code{draw_handler} is: \code{draw_binary},
+#'   \code{draw_binomial}, and \code{draw_count} each return an integer vector
+#'   when called directly and a double one when routed through here, because
+#'   the copula reaches them through a quantile function. The values are
+#'   unaffected.
 #'
 #' @examples
 #' score  <- rnorm(100, mean = 75, sd = 10)

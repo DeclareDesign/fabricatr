@@ -31,7 +31,13 @@ innermost). Required when \code{N} is unnamed.}
 multiple times). Default \code{FALSE}.}
 }
 \value{
-A tibble with row names reset to \code{NULL}.
+A tibble of the resampled rows: \code{nrow(data)} of them for the
+  default bootstrap, \code{N} for an unnamed scalar \code{N}, and for a
+  hierarchical call the sizes requested at each level multiplied together.
+  ID columns are carried over from the rows that were drawn rather than
+  regenerated, so a cluster drawn twice appears twice under one ID; pass
+  \code{unique_labels = TRUE} to add an \code{<ID>_unique} column that
+  tells the copies apart.
 }
 \description{
 For simple bootstrap resampling, call \code{resample_data(data)} with no

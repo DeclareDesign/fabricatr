@@ -17,7 +17,11 @@ fabricatr 1.x, and it is what makes \code{rnorm(N)} draw independently for
 every village rather than drawing five values and reusing them.}
 }
 \value{
-A \code{fabricatr_level} object (used inside \code{fabricate}).
+A \code{fabricatr_level} object, meaningful only as a named
+  argument to \code{fabricate}. It replaces each row of the current frame
+  with \code{N} child rows, repeating the parent's columns down them, and
+  adds an ID column named after the argument it is assigned to. That ID is
+  unique across the whole frame rather than restarting within each parent.
 }
 \description{
 For each row in the current data frame, creates N child rows. Parent columns

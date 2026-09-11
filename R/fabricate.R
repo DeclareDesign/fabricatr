@@ -37,7 +37,14 @@
 #' rows in hand. And a data set carrying a column called \code{n} keeps it:
 #' \code{sum(n)} reads the column and \code{n()} reads the count.
 #'
-#' @return A tibble.
+#' @return A tibble with one row per unit of the lowest level and columns in
+#'   the order they were declared. Each level contributes an ID column named
+#'   after the argument it was assigned to, placed before that level's own
+#'   columns; a flat call contributes one named by \code{ID_label}, and
+#'   \code{ID_label = NA} suppresses it. A call that starts from \code{data}
+#'   adds no ID column at all. A nested level's IDs are unique across the whole
+#'   frame rather than restarting inside each parent, so nesting 2 citizens in
+#'   each of 3 villages numbers the citizens \code{"1"} through \code{"6"}.
 #'
 #' @examples
 #' # Flat fabrication
