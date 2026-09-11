@@ -22,7 +22,11 @@ are refused with a message saying so.}
 \item{given}{Reference vector; the new variable will be rank-correlated with
 this.}
 
-\item{rho}{Target Spearman rank correlation in \eqn{[-1, 1]}.}
+\item{rho}{Correlation of the Gaussian copula, in \eqn{[-1, 1]}. It is not
+the realized Spearman correlation, which is smaller by the copula's own
+relation, \eqn{(6/\pi)\arcsin(\rho/2)}: \code{rho = 0.7} lands at 0.68
+and \code{rho = 0.3} at 0.288. The realized Pearson correlation is
+\code{rho}. fabricatr 1.x behaves identically.}
 }
 \value{
 A double vector of length \code{length(given)}. Note that the type

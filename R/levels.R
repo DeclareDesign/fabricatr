@@ -188,10 +188,13 @@ cross_levels <- function(.by, ...) {
 #' @param N Number of rows to sample from the product.
 #' @param .by Character vector of level names, usually two.
 #' @param ... Additional column expressions evaluated after linking.
-#' @param rho Scalar Spearman rank correlation between the levels' row
-#'   assignments (default 0 = independent). Ignored if \code{sigma} is
-#'   provided. Comes after \code{...}, so a column called \code{r} or
-#'   \code{s} is a column and not a partial match.
+#' @param rho Scalar correlation of the Gaussian copula that links the levels'
+#'   row assignments (default 0 = independent). It is not the realized rank
+#'   correlation, which is smaller by the copula's own relation,
+#'   \eqn{(6/\pi)\arcsin(\rho/2)}: \code{rho = 0.7} lands at 0.68 and
+#'   \code{rho = 0.3} at 0.283. Ignored if \code{sigma} is provided. Comes
+#'   after \code{...}, so a column called \code{r} or \code{s} is a column
+#'   and not a partial match.
 #' @param sigma Square correlation matrix (dimension = \code{length(.by)}).
 #'
 #' @return A \code{fabricatr_level} object, meaningful only as a named

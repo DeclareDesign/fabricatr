@@ -13,10 +13,13 @@ link_levels(N, .by, ..., rho = 0, sigma = NULL)
 
 \item{...}{Additional column expressions evaluated after linking.}
 
-\item{rho}{Scalar Spearman rank correlation between the levels' row
-assignments (default 0 = independent). Ignored if \code{sigma} is
-provided. Comes after \code{...}, so a column called \code{r} or
-\code{s} is a column and not a partial match.}
+\item{rho}{Scalar correlation of the Gaussian copula that links the levels'
+row assignments (default 0 = independent). It is not the realized rank
+correlation, which is smaller by the copula's own relation,
+\eqn{(6/\pi)\arcsin(\rho/2)}: \code{rho = 0.7} lands at 0.68 and
+\code{rho = 0.3} at 0.283. Ignored if \code{sigma} is provided. Comes
+after \code{...}, so a column called \code{r} or \code{s} is a column
+and not a partial match.}
 
 \item{sigma}{Square correlation matrix (dimension = \code{length(.by)}).}
 }
