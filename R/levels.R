@@ -314,17 +314,21 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
   expanded[["N"]] <- N_total
   if (nchar(nm) > 0L) expanded[[nm]] <- make_ids(N_total)
 
+  m <- level_mask(expanded, N_total)
+
   for (i in seq_along(level$dots)) {
     col_nm <- names(level$dots)[[i]]
-    val    <- eval_in_level(level$dots[[i]], expanded, N_total)
+    val    <- mask_eval(m, level$dots[[i]])
 
     if (nchar(col_nm) > 0L) {
       expanded <- store_column(expanded, col_nm, val,
-                               function(v, cn) recycle_to_level(v, N_total, cn))
+                               function(v, cn) recycle_to_level(v, N_total, cn),
+                               m)
     } else if (is.data.frame(val)) {
       for (j in seq_along(val)) {
-        expanded[[names(val)[[j]]]] <-
-          recycle_to_level(val[[j]], N_total, names(val)[[j]])
+        v <- recycle_to_level(val[[j]], N_total, names(val)[[j]])
+        expanded[[names(val)[[j]]]] <- v
+        mask_bind(m, names(val)[[j]], v)
       }
     } else {
       stop_unnamed_expression(i, level$dots[[i]], val, "nest_level()")

@@ -52,8 +52,8 @@ stopifnot(
 
 # The figures quoted in vignettes/fabricatr2.0.Rmd, first paragraph.
 claimed <- c(files_new = 9, files_old = 16,
-             code_new = 1033, code_old = 1609,
-             roxygen_new = 881, roxygen_old = 751)
+             code_new = 1065, code_old = 1609,
+             roxygen_new = 893, roxygen_old = 751)
 found <- c(files_new = n_files_new, files_old = n_files_old,
            code_new = new[["code"]], code_old = old[["code"]],
            roxygen_new = new[["roxygen"]], roxygen_old = old[["roxygen"]])

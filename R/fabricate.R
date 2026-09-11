@@ -99,27 +99,52 @@ fabricate_with_dots <- function(data = NULL, dots, ID_label = "ID") {
 #' alone: that variable keeps its meaning, and `n()` there is whatever it was
 #' before. Shadowing it would silently change designs that use `n` as a name.
 #'
+#' One mask serves a whole level, and `mask_bind()` puts each new column into
+#' it as the column is stored. `eval_tidy()` reads the mask's environment when
+#' it runs, so that is all the next declaration needs to see the column. The
+#' mask used to be rebuilt for every declaration, which cost 16 microseconds
+#' each: more than the arithmetic in a flat `fabricate()` call, and paid seven
+#' times over by a three-level design. It was not visible until
+#' `data-raw/benchmark_vignette.R` existed to measure it.
+#'
 #' @keywords internal
 #' @noRd
-level_mask <- function(data, size = NULL, env = NULL) {
-  helpers <- rlang::new_environment()
-  if (!name_holds_a_value(env, "n")) {
-    rlang::env_bind(helpers, n = function() {
+level_mask <- function(data, size = NULL) {
+  nms <- names(data) %||% character(0)
+  if (length(data) && (anyDuplicated(nms) || !all(nzchar(nms)))) {
+    rlang::abort("`data` must be uniquely named but has duplicate columns")
+  }
+  helpers <- new.env(parent = rlang::empty_env())
+  # `list2env()` rather than `rlang::as_environment()`, which re-checks that
+  # the names are a dictionary on every call and costs eight times as much.
+  # The check above is the same one, and here it runs once per level.
+  data_env <- list2env(data, envir = new.env(parent = helpers))
+  mask <- rlang::new_data_mask(data_env, top = helpers)
+  mask$.data <- rlang::as_data_pronoun(data_env)
+  rlang::new_environment(list(
+    mask = mask, data = data_env, helpers = helpers,
+    # The last declaration's environment, and what it decided about `n`. Every
+    # declaration in a level normally shares one environment, so the decision
+    # is made once and the search-path walk in `name_holds_a_value()` does not
+    # happen again.
+    env = NULL, n_bound = FALSE,
+    n_fn = function() {
       if (is.null(size)) {
         stop("n() has no level to count here: nothing is being built.",
              call. = FALSE)
       }
       size
-    })
-  }
-  nms <- names(data) %||% character(0)
-  if (length(data) && (anyDuplicated(nms) || !all(nzchar(nms)))) {
-    rlang::abort("`data` must be uniquely named but has duplicate columns")
-  }
-  data_env <- rlang::as_environment(data, parent = helpers)
-  mask <- rlang::new_data_mask(data_env, top = helpers)
-  mask$.data <- rlang::as_data_pronoun(data_env)
-  mask
+    }
+  ))
+}
+
+#' Put a column into a mask that is already built
+#'
+#' @keywords internal
+#' @noRd
+mask_bind <- function(m, nm, value) {
+  assign(nm, value, envir = m$data)
+  invisible(m)
 }
 
 #' Whether a name already means something other than a function where the
@@ -129,12 +154,13 @@ level_mask <- function(data, size = NULL, env = NULL) {
 #' @noRd
 name_holds_a_value <- function(env, name) {
   if (!rlang::is_environment(env)) return(FALSE)
-  found <- tryCatch(rlang::env_get(env, name, default = NULL, inherit = TRUE),
-                    error = function(e) NULL)
+  # `get0()` answers this in 0.6 microseconds where `rlang::env_get()` wrapped
+  # in a `tryCatch()` takes 3.6, and the question is asked once per level.
+  found <- get0(name, envir = env, inherits = TRUE, ifnotfound = NULL)
   !is.null(found) && !is.function(found)
 }
 
-#' Evaluate one declaration against a level's data
+#' Evaluate one declaration against a level's mask
 #'
 #' A level call such as `regions = modify_level(z = rnorm(N))` is itself
 #' evaluated in the mask of the frame in hand, so the quosures it captures for
@@ -148,11 +174,22 @@ name_holds_a_value <- function(env, name) {
 #'
 #' @keywords internal
 #' @noRd
-eval_in_level <- function(quo, data, size = NULL) {
+mask_eval <- function(m, quo) {
   env <- rlang::quo_get_env(quo)
-  mask <- level_mask(data, size, env)
-  val <- rlang::eval_tidy(quo, data = mask)
-  if (inherits(val, "fabricatr_level")) val <- rehome_level(val, mask, env)
+  if (!identical(env, m$env)) {
+    m$env <- env
+    bind_n <- !name_holds_a_value(env, "n")
+    if (!identical(bind_n, m$n_bound)) {
+      if (bind_n) {
+        rlang::env_bind(m$helpers, n = m$n_fn)
+      } else {
+        rlang::env_unbind(m$helpers, "n")
+      }
+      m$n_bound <- bind_n
+    }
+  }
+  val <- rlang::eval_tidy(quo, data = m$mask)
+  if (inherits(val, "fabricatr_level")) val <- rehome_level(val, m$mask, env)
   val
 }
 
@@ -206,19 +243,29 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
   level_registry <- list()
   saw_level <- FALSE
 
+  # A level call replaces the whole frame, so the mask is rebuilt after one
+  # runs and left alone otherwise. `N` and the flat ID are in the mask but not
+  # in `lst`: they are readable by a declaration without being columns of the
+  # result, and a declaration that writes either name binds over them.
+  m <- NULL
+
   for (i in seq_along(dots)) {
     nm <- names(dots)[[i]]
 
-    mask <- lst
-    if (!is.null(N_inject) && !"N" %in% names(mask)) mask[["N"]] <- N_inject
-    if (!is.null(id_vec) && !saw_level && !ID_label %in% names(mask)) {
-      mask[[ID_label]] <- id_vec
+    if (is.null(m)) {
+      base <- lst
+      if (!is.null(N_inject) && !"N" %in% names(base)) base[["N"]] <- N_inject
+      if (!is.null(id_vec) && !saw_level && !ID_label %in% names(base)) {
+        base[[ID_label]] <- id_vec
+      }
+      m <- level_mask(base, N_inject)
     }
 
-    val <- eval_in_level(dots[[i]], mask, N_inject)
+    val <- mask_eval(m, dots[[i]])
 
     if (inherits(val, "fabricatr_level")) {
       saw_level <- TRUE
+      m <- NULL
       if (val$type == "modify" && is.null(val$by) &&
           nm %in% names(level_registry) && nm %in% names(lst)) {
         modified <- modify_existing_level(val, lst, nm)
@@ -236,10 +283,11 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
         v <- val[[j]]
         if (length(v) == 1L && n_rows > 1L) v <- rep(v, n_rows)
         lst[[names(val)[[j]]]] <- v
+        mask_bind(m, names(val)[[j]], v)
       }
     } else if (nchar(nm) > 0) {
       lst <- store_column(lst, nm, val,
-                          function(v, cn) recycle_to_n(v, N_inject))
+                          function(v, cn) recycle_to_n(v, N_inject), m)
     } else {
       stop_unnamed_expression(i, dots[[i]], val, "fabricate()",
                               positional_n = is.null(N) && is.null(data))
@@ -279,9 +327,13 @@ split_matrix_column <- function(nm, val) {
 
 # `fix` is applied to each resulting column, so a length rule is enforced per
 # column rather than against the whole matrix.
-store_column <- function(lst, nm, val, fix = function(v, nm) v) {
+store_column <- function(lst, nm, val, fix = function(v, nm) v, mask = NULL) {
   cols <- split_matrix_column(nm, val)
-  for (cn in names(cols)) lst[[cn]] <- fix(cols[[cn]], cn)
+  for (cn in names(cols)) {
+    v <- fix(cols[[cn]], cn)
+    lst[[cn]] <- v
+    if (!is.null(mask)) mask_bind(mask, cn, v)
+  }
   lst
 }
 
@@ -312,17 +364,21 @@ execute_level <- function(level, lst, N_inject, nm, level_registry) {
 eval_dots_into_list <- function(dots, base_list, inner_N = NULL) {
   lst <- base_list
   if (!is.null(inner_N) && !"N" %in% names(lst)) lst[["N"]] <- inner_N
+  m <- level_mask(lst, inner_N)
 
   for (i in seq_along(dots)) {
     nm  <- names(dots)[[i]]
-    val <- eval_in_level(dots[[i]], lst, inner_N)
+    val <- mask_eval(m, dots[[i]])
 
     if (nchar(nm) > 0) {
       lst <- store_column(lst, nm, val,
-                          function(v, cn) recycle_to_n(v, inner_N))
+                          function(v, cn) recycle_to_n(v, inner_N), m)
     } else if (is.data.frame(val)) {
-      for (j in seq_along(val))
-        lst[[names(val)[[j]]]] <- recycle_to_n(val[[j]], inner_N)
+      for (j in seq_along(val)) {
+        v <- recycle_to_n(val[[j]], inner_N)
+        lst[[names(val)[[j]]]] <- v
+        mask_bind(m, names(val)[[j]], v)
+      }
     } else {
       stop_unnamed_expression(i, dots[[i]], val, "this level")
     }
