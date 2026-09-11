@@ -1,14 +1,17 @@
 #' Draw binary (0/1) outcomes
 #'
-#' @param prob Probability of success. Scalar or per-unit vector. Supports
-#'   \code{link} functions: \code{"identity"} (default), \code{"logit"},
-#'   \code{"probit"}.
+#' @param prob Probability of success. Scalar or per-unit vector. Already on
+#'   the probability scale, so a non-identity \code{link} has nothing to do to
+#'   it: supplying both is an error naming \code{latent}.
 #' @param N Number of draws. Defaults to \code{length(prob)}.
-#' @param link Link function name or function. \code{"identity"} expects
-#'   \code{prob} to already be a probability. \code{"logit"} and
-#'   \code{"probit"} transform a latent variable to the probability scale.
-#' @param latent Latent variable (supply instead of \code{prob} when using a
-#'   non-identity link).
+#' @param link One of \code{"identity"} (default), \code{"logit"},
+#'   \code{"logistic"}, \code{"probit"}, or a function, which is applied to
+#'   \code{latent} as it stands. Any other name is an error, as it is in
+#'   fabricatr 1.x; \code{"logistic"} is a 2.0 synonym for \code{"logit"}
+#'   that 1.x does not accept. The link acts on \code{latent} only.
+#' @param latent Latent variable on an unbounded scale, mapped to the
+#'   probability scale by \code{link}. Supply this rather than \code{prob}
+#'   whenever \code{link} is not the identity.
 #' @param quantile_y Optional quantile vector for deterministic draws (used by
 #'   \code{correlate}).
 #'
@@ -29,19 +32,23 @@ draw_binary <- function(prob = apply_link(latent, link),
                         link = "identity",
                         latent = NULL,
                         quantile_y = NULL) {
+  check_link_target(link, !missing(prob), latent, "prob", "draw_binary")
   draw_binomial(prob = prob, trials = 1L, N = N, link = link,
                 latent = latent, quantile_y = quantile_y)
 }
 
 #' Draw binomial counts
 #'
-#' @param prob Probability of success per trial.
+#' @param prob Probability of success per trial, already on the probability
+#'   scale. Supplying it with a non-identity \code{link} is an error naming
+#'   \code{latent}.
 #' @param trials Number of trials per observation (scalar or vector).
 #' @param N Number of observations. Defaults to \code{length(prob)}.
-#' @param link Link function (\code{"identity"}, \code{"logit"},
-#'   \code{"probit"}).
-#' @param latent Latent variable (alternative to \code{prob} with non-identity
-#'   link).
+#' @param link One of \code{"identity"} (default), \code{"logit"},
+#'   \code{"logistic"}, \code{"probit"}, or a function applied to
+#'   \code{latent}. Any other name is an error.
+#' @param latent Latent variable on an unbounded scale, mapped to the
+#'   probability scale by \code{link}.
 #' @param quantile_y Optional quantile vector for \code{correlate}.
 #'
 #' @return An integer vector of successes out of \code{trials}, of length
@@ -59,7 +66,8 @@ draw_binomial <- function(prob = apply_link(latent, link),
                           link = "identity",
                           latent = NULL,
                           quantile_y = NULL) {
-  prob <- resolve_link(prob, link, latent)
+  check_link_target(link, !missing(prob), latent, "prob", "draw_binomial")
+  prob <- resolve_link(prob, link, latent, BINARY_LINKS, "draw_binomial")
   check_prob(prob)
   if (is.null(quantile_y)) {
     rbinom(N, trials, prob)
@@ -70,10 +78,18 @@ draw_binomial <- function(prob = apply_link(latent, link),
 
 #' Draw Poisson count data
 #'
-#' @param mean Mean count (lambda). Scalar or per-unit vector.
+#' @param mean Mean count (lambda). Scalar or per-unit vector, already the
+#'   rate the draw uses. Supplying it with a non-identity \code{link} is an
+#'   error naming \code{latent}, because \code{mean = log(3)} with
+#'   \code{link = "log"} reads as a request to exponentiate and no range check
+#'   can tell it apart from a rate of 1.099.
 #' @param N Number of draws. Defaults to \code{length(mean)}.
-#' @param link Link function (\code{"identity"}, \code{"log"}).
-#' @param latent Latent variable (alternative to \code{mean} with log link).
+#' @param link \code{"identity"} (default) or \code{"log"}, or a function
+#'   applied to \code{latent}. \code{"log"} exponentiates \code{latent} to
+#'   get the rate. Any other name is an error. fabricatr 1.x accepts no link
+#'   here at all, answering "Count data does not accept link functions".
+#' @param latent Latent variable on the log scale, exponentiated by
+#'   \code{link = "log"} to give the rate.
 #' @param quantile_y Optional quantile vector for \code{correlate}.
 #'
 #' @return An integer vector of non-negative counts, of length \code{N}.
@@ -89,8 +105,8 @@ draw_count <- function(mean = apply_link(latent, link),
                        link = "identity",
                        latent = NULL,
                        quantile_y = NULL) {
-  if (!is.null(latent) && identical(link, "log")) mean <- exp(latent)
-  if (!is.null(latent) && identical(link, "identity")) mean <- latent
+  check_link_target(link, !missing(mean), latent, "mean", "draw_count")
+  mean <- resolve_link(mean, link, latent, COUNT_LINKS, "draw_count")
   if (any(mean < 0, na.rm = TRUE)) stop("`mean` must be non-negative for draw_count().")
   if (is.null(quantile_y)) {
     rpois(N, lambda = mean)
@@ -101,19 +117,55 @@ draw_count <- function(mean = apply_link(latent, link),
 
 # Helpers ---------------------------------------------------------------------
 
-apply_link <- function(latent, link) latent  # placeholder; resolved below
+# The default of `prob` and `mean`, so that `N` defaults to the latent's length
+# when the latent is the only thing supplied. The link itself is applied in
+# `resolve_link()`.
+apply_link <- function(latent, link) latent
 
-resolve_link <- function(prob, link, latent) {
-  if (!is.null(latent)) {
-    if (identical(link, "logit") || identical(link, "logistic")) {
-      return(plogis(latent))
-    } else if (identical(link, "probit")) {
-      return(pnorm(latent))
-    } else {
-      return(latent)
-    }
+# 1.x validates the link name and 2.0 did not: anything it did not recognise
+# fell through to the identity, so `link = "logti"` returned the latent
+# untransformed and said nothing. A function is accepted, because 1.x calls it
+# and both helpfiles say so.
+BINARY_LINKS <- c("identity", "logit", "logistic", "probit")
+COUNT_LINKS <- c("identity", "log")
+
+check_link_name <- function(link, allowed, fn) {
+  if (is.function(link)) return(invisible(NULL))
+  ok <- is.character(link) && length(link) == 1L && !is.na(link) &&
+    link %in% allowed
+  if (!ok) {
+    stop(fn, "(): `link` must be a function or one of ",
+         paste0('"', allowed, '"', collapse = ", "), ".", call. = FALSE)
   }
-  prob
+  invisible(NULL)
+}
+
+# A link acts on `latent`, never on the parameter itself, which is already on
+# the scale the draw uses. `draw_binary(prob = 0.3, link = "logit")` drew at
+# 0.3 where the author meant plogis(0.3) = 0.574, and
+# `draw_count(mean = log(3), link = "log")` at 1.099 where they meant 3. The
+# range check catches this only where the value cannot be a probability, so it
+# never caught a count and caught a binary only for a latent that strayed
+# outside [0, 1]. 1.x has the same hole.
+check_link_target <- function(link, gave_value, latent, value_arg, fn) {
+  if (identical(link, "identity") || !gave_value || !is.null(latent)) {
+    return(invisible(NULL))
+  }
+  stop(fn, "(): `link` acts on `latent`, not on `", value_arg,
+       "`, which is already on the scale the draw uses.\n",
+       "  Write `", fn, "(latent = ..., link = ...)`.", call. = FALSE)
+}
+
+resolve_link <- function(prob, link, latent, allowed, fn) {
+  check_link_name(link, allowed, fn)
+  if (is.null(latent)) return(prob)
+  if (is.function(link)) return(link(latent))
+  switch(link,
+    identity = latent,
+    logit    = plogis(latent),
+    logistic = plogis(latent),
+    probit   = pnorm(latent),
+    log      = exp(latent))
 }
 
 check_prob <- function(prob) {

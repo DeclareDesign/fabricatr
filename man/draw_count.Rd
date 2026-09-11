@@ -13,13 +13,21 @@ draw_count(
 )
 }
 \arguments{
-\item{mean}{Mean count (lambda). Scalar or per-unit vector.}
+\item{mean}{Mean count (lambda). Scalar or per-unit vector, already the
+rate the draw uses. Supplying it with a non-identity \code{link} is an
+error naming \code{latent}, because \code{mean = log(3)} with
+\code{link = "log"} reads as a request to exponentiate and no range check
+can tell it apart from a rate of 1.099.}
 
 \item{N}{Number of draws. Defaults to \code{length(mean)}.}
 
-\item{link}{Link function (\code{"identity"}, \code{"log"}).}
+\item{link}{\code{"identity"} (default) or \code{"log"}, or a function
+applied to \code{latent}. \code{"log"} exponentiates \code{latent} to
+get the rate. Any other name is an error. fabricatr 1.x accepts no link
+here at all, answering "Count data does not accept link functions".}
 
-\item{latent}{Latent variable (alternative to \code{mean} with log link).}
+\item{latent}{Latent variable on the log scale, exponentiated by
+\code{link = "log"} to give the rate.}
 
 \item{quantile_y}{Optional quantile vector for \code{correlate}.}
 }

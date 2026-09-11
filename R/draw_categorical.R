@@ -87,12 +87,17 @@ draw_categorical <- function(prob, N = NULL, labels = NULL,
 #'   the outermost categories unless \code{strict = TRUE}.
 #' @param labels Optional character vector of category labels. Length must
 #'   equal \code{length(breaks) + 1}. When supplied, returns an ordered factor.
-#' @param N Length of \code{x}. Inferred automatically; rarely needs to be
-#'   set explicitly.
+#' @param N Must equal \code{length(x)} if it is given at all, and is an
+#'   error otherwise. It cannot change how many values come back, which is
+#'   always \code{length(x)}: unlike \code{draw_binary()} and the rest of the
+#'   family, \code{draw_ordered()} has never recycled to \code{N}, in either
+#'   version. 1.x checks \code{N} against a recycling rule it does not apply.
 #' @param strict If \code{TRUE}, observations outside \code{breaks} are coded
 #'   \code{NA} instead of being placed in the outermost category.
 #' @param latent Alias for \code{x} (kept for compatibility).
-#' @param link Ignored (identity only); present for API consistency.
+#' @param link Must be \code{"identity"}, the only link this function has:
+#'   \code{breaks} cut the latent variable on the scale it arrives. Anything
+#'   else is an error, as it is in fabricatr 1.x.
 #' @param break_labels fabricatr 1.x's name for \code{labels}. Accepted with
 #'   a warning.
 #'
@@ -118,6 +123,21 @@ draw_ordered <- function(x = latent,
                          break_labels = NULL) {
   labels <- absorb_legacy_labels(labels, break_labels, "break_labels",
                                  sys.call())
+  # 1.x refuses any other link here, and refusing is right: `breaks` are
+  # cut-points on the scale `x` arrives on, so a link has nothing to act on.
+  # Accepting one silently, which is what this did, returns the identity
+  # answer to someone who asked for a transformation.
+  if (!identical(link, "identity")) {
+    stop("draw_ordered() only allows the \"identity\" link: `breaks` cut the ",
+         "latent variable on the scale it arrives.", call. = FALSE)
+  }
+  # `N` has never changed the length here, in either version, so it may only
+  # confirm it. 1.x validates it against a recycling rule it never applies,
+  # which is how it came to look like an argument that works.
+  if (!missing(N) && !identical(as.integer(N), length(x))) {
+    stop("draw_ordered(): `N` must equal length(x) (", length(x),
+         "). It does not recycle `x`.", call. = FALSE)
+  }
   if (missing(breaks) || is.null(breaks) || any(is.na(breaks))) {
     stop("Supply numeric `breaks` to draw_ordered().")
   }

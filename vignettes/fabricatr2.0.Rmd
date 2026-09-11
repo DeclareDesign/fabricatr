@@ -18,7 +18,7 @@ library(fabricatr)
 
 ## The short version
 
-fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is nine files of R against 1.0.2's sixteen, and it is the code rather than the documentation that shrank: stripping blanks and comment lines, 1,065 lines against 1,609, while the roxygen above them grew from 751 lines to 900. Neither package has any compiled code. `data-raw/count_lines.R` re-measures all six figures and fails if this paragraph has gone stale. It depends on dplyr, tibble, purrr, and rlang, and it does not carry 1.x's custom workspace and evaluation machinery.
+fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is nine files of R against 1.0.2's sixteen, and it is the code rather than the documentation that shrank: stripping blanks and comment lines, 1,094 lines against 1,609, while the roxygen above them grew from 751 lines to 919. Neither package has any compiled code. `data-raw/count_lines.R` re-measures all six figures and fails if this paragraph has gone stale. It depends on dplyr, tibble, purrr, and rlang, and it does not carry 1.x's custom workspace and evaluation machinery.
 
 Two things motivated it. The first is speed: fabricate() sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr 1.x reaches deep into rlang internals to manage its evaluation environment, and that surface has broken more than once when rlang changed underneath it. 2.0 evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
 
@@ -447,7 +447,7 @@ Beyond tidiness, keeping `N` out of the frame is what allows `cross_levels()` to
 
 ## Porting an existing script
 
-Five greps will find everything that needs to change:
+Six greps will find everything that needs to change:
 
 ```{r, eval = FALSE}
 # nest = FALSE          -> declare_level()
@@ -455,9 +455,12 @@ Five greps will find everything that needs to change:
 # modify_level(... by = -> .by =
 # break_labels|category_labels -> labels =
 # fabricate(<number>,   -> fabricate(N = <number>,
+# draw_*(prob|mean = ..., link = ) -> draw_*(latent = ..., link = )
 ```
 
-Then run the script. You do not have to do any of it at once: the first four old spellings still work, and each warns once with the corrected call, so you can port as you go and use a clean run as the signal that you are finished. The positional `N` is the one that stops, and its error says what to write. Nothing else needs checking: ID columns, column types, and column order all match 1.x.
+Then run the script. You do not have to do any of it at once: the first four old spellings still work, and each warns once with the corrected call, so you can port as you go and use a clean run as the signal that you are finished. The positional `N` is the one that stops, and its error says what to write.
+
+Three other things stop rather than run, and each was answering the wrong question before it did. A `prob` or `mean` handed a non-identity link is refused, because the link was being dropped and the draw taken on the untransformed scale: write `latent =` instead, which is where a link has always acted. An `N` passed to `draw_ordered()` that is not `length(x)` is refused, because it never recycled `x` in either version. And a link name that is not one of the handful each draw accepts is refused, as it is in 1.x, rather than falling through to the identity. Nothing else needs checking: ID columns, column types, and column order all match 1.x.
 
 ## What is new
 
@@ -486,6 +489,12 @@ fabricate(
 
 ```{r}
 fabricate(N = 5, x = rnorm(N), l = draw_likert(x, breaks = c(-1, 0, 1)))
+```
+
+`draw_count()` takes a log link, so a Poisson rate can be built from a linear predictor the way a probability is: `draw_count(latent = x, link = "log")` draws at `exp(x)`. 1.0.2 refuses this outright, answering "Count data does not accept link functions", which left no way to write a count outcome on the scale a model would fit it on. `draw_binary()` and `draw_binomial()` also accept `"logistic"` as a synonym for `"logit"`, which 1.x does not.
+
+```{r}
+fabricate(N = 6, x = rnorm(N), visits = draw_count(latent = x, link = "log"))
 ```
 
 And `correlate()` works with base R random number generators, not only with the `draw_*` family, by mapping each `r*` function to its `q*` counterpart:
@@ -563,6 +572,8 @@ None outstanding. Three items were carried as gaps until they were checked again
 - `sigma` in `link_levels()` beyond two levels was in fact correct: a three-level draw is identical to 1.x's, seed for seed, down to every ID triple. What was missing was validation. A matrix that is not positive semi-definite used to reach `chol(pivot = TRUE)`, which warns and returns a decomposition carrying none of the requested structure. Non-PSD matrices, entries outside `[-1, 1]`, wrong dimensions, asymmetry, and a single negative `rho` across three or more levels are now all errors.
 
 One naming change is easy to miss. `draw_ordered()`, `draw_likert()`, and `draw_categorical()` all take their category names as `labels`. In 1.x the first is `break_labels` and the last is `category_labels`; both old names are accepted and warn once with the corrected call. The return types are 1.x's: `draw_ordered()` and `draw_likert()` give an ordered factor, and `draw_categorical()` an unordered one, because its categories are nominal and an ordered factor would change which contrasts a model formula picks. Leave `labels` off if you want the integer codes.
+
+Three refusals are new, and all three replace a silent answer rather than a working one. A `prob` or `mean` supplied alongside a non-identity link now errors: `draw_binary(prob = 0.3, link = "logit")` drew at 0.3 in both packages, where the author plainly meant `plogis(0.3)`, and no range check can catch it, because 0.3 is a legal probability. A link name that is not recognised now errors, where 2.0 had been returning the latent untransformed; 1.x errors here too, so this is a restoration. A function passed as `link` is applied again, as 1.x applies it, where 2.0 had silently ignored it. And `draw_ordered()` refuses an `N` that is not `length(x)`, which is the one case where 2.0 stops and 1.x ran: 1.x checks `N` against a recycling rule that neither version has ever applied, so a script relying on it was already getting `length(x)` back.
 
 One difference is quieter than the rest, because it is a warning rather than a result. 1.x warns when a resampling plan names `ALL` for its last level, on the grounds that leaving the level out does the same thing. 2.0 accepts it silently. The frame is the same either way, and in both packages `resample_data(dat, N = c(clusters = 3))` returns exactly what `resample_data(dat, N = c(clusters = 3, units = ALL))` returns.
 

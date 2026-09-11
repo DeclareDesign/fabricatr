@@ -13,18 +13,21 @@ draw_binary(
 )
 }
 \arguments{
-\item{prob}{Probability of success. Scalar or per-unit vector. Supports
-\code{link} functions: \code{"identity"} (default), \code{"logit"},
-\code{"probit"}.}
+\item{prob}{Probability of success. Scalar or per-unit vector. Already on
+the probability scale, so a non-identity \code{link} has nothing to do to
+it: supplying both is an error naming \code{latent}.}
 
 \item{N}{Number of draws. Defaults to \code{length(prob)}.}
 
-\item{link}{Link function name or function. \code{"identity"} expects
-\code{prob} to already be a probability. \code{"logit"} and
-\code{"probit"} transform a latent variable to the probability scale.}
+\item{link}{One of \code{"identity"} (default), \code{"logit"},
+\code{"logistic"}, \code{"probit"}, or a function, which is applied to
+\code{latent} as it stands. Any other name is an error, as it is in
+fabricatr 1.x; \code{"logistic"} is a 2.0 synonym for \code{"logit"}
+that 1.x does not accept. The link acts on \code{latent} only.}
 
-\item{latent}{Latent variable (supply instead of \code{prob} when using a
-non-identity link).}
+\item{latent}{Latent variable on an unbounded scale, mapped to the
+probability scale by \code{link}. Supply this rather than \code{prob}
+whenever \code{link} is not the identity.}
 
 \item{quantile_y}{Optional quantile vector for deterministic draws (used by
 \code{correlate}).}

@@ -25,15 +25,20 @@ the outermost categories unless \code{strict = TRUE}.}
 \item{labels}{Optional character vector of category labels. Length must
 equal \code{length(breaks) + 1}. When supplied, returns an ordered factor.}
 
-\item{N}{Length of \code{x}. Inferred automatically; rarely needs to be
-set explicitly.}
+\item{N}{Must equal \code{length(x)} if it is given at all, and is an
+error otherwise. It cannot change how many values come back, which is
+always \code{length(x)}: unlike \code{draw_binary()} and the rest of the
+family, \code{draw_ordered()} has never recycled to \code{N}, in either
+version. 1.x checks \code{N} against a recycling rule it does not apply.}
 
 \item{strict}{If \code{TRUE}, observations outside \code{breaks} are coded
 \code{NA} instead of being placed in the outermost category.}
 
 \item{latent}{Alias for \code{x} (kept for compatibility).}
 
-\item{link}{Ignored (identity only); present for API consistency.}
+\item{link}{Must be \code{"identity"}, the only link this function has:
+\code{breaks} cut the latent variable on the scale it arrives. Anything
+else is an error, as it is in fabricatr 1.x.}
 
 \item{break_labels}{fabricatr 1.x's name for \code{labels}. Accepted with
 a warning.}

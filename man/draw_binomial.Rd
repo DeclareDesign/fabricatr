@@ -14,17 +14,20 @@ draw_binomial(
 )
 }
 \arguments{
-\item{prob}{Probability of success per trial.}
+\item{prob}{Probability of success per trial, already on the probability
+scale. Supplying it with a non-identity \code{link} is an error naming
+\code{latent}.}
 
 \item{trials}{Number of trials per observation (scalar or vector).}
 
 \item{N}{Number of observations. Defaults to \code{length(prob)}.}
 
-\item{link}{Link function (\code{"identity"}, \code{"logit"},
-\code{"probit"}).}
+\item{link}{One of \code{"identity"} (default), \code{"logit"},
+\code{"logistic"}, \code{"probit"}, or a function applied to
+\code{latent}. Any other name is an error.}
 
-\item{latent}{Latent variable (alternative to \code{prob} with non-identity
-link).}
+\item{latent}{Latent variable on an unbounded scale, mapped to the
+probability scale by \code{link}.}
 
 \item{quantile_y}{Optional quantile vector for \code{correlate}.}
 }
