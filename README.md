@@ -32,7 +32,7 @@ The branch installs under the released name, so it replaces the CRAN fabricatr i
 * `N` is supplied by name: `fabricate(N = 100, ...)`, never `fabricate(100, ...)`.
 * `total_sd` in `draw_normal_icc()` is a parameter of the draw, not a rescaling, so the same call gives different numbers.
 * The correlated draw in `link_levels()` takes one code path on every machine, with or without `mvnfast`.
-* Levels are two to four times faster to build, which is where design diagnosis spends its time.
+* Levels are about twice as fast to build, and a 20,000-row three-level design closer to three times, which is where design diagnosis spends its time.
 
 ## Where to read next
 
