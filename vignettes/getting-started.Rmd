@@ -87,22 +87,28 @@ fabricate(
 
 ```{r}
 clustered <- fabricate(
-  villages = add_level(N = 20),
-  citizens = nest_level(N = 10, trust = draw_normal_icc(clusters = villages, ICC = 0.3))
+  villages = add_level(N = 100),
+  citizens = nest_level(N = 20, trust = draw_normal_icc(clusters = villages, ICC = 0.3))
 )
-summary(lm(trust ~ villages, data = clustered))$r.squared
+summary(lm(trust ~ villages, data = clustered))$adj.r.squared
 ```
+
+The adjusted figure is the one to read: it is the share of variance lying between villages, which is what the ICC sets. The ICC is a parameter of the draw rather than a property of any one data set, so the realized share varies around it, with a standard deviation of about 0.03 across draws of a hundred villages. Plain `r.squared` runs about 0.03 higher still, because it counts the ninety-nine village dummies as explanatory power.
 
 ## Resampling
 
-`resample_data()` bootstraps a data frame, and respects its levels: sample villages, then citizens within the villages drawn.
+`resample_data()` bootstraps a data frame, and respects its levels: villages are drawn with replacement, then citizens within each village that was drawn. A village can come up more than once, and its citizens are resampled separately each time.
 
 ```{r}
 boot <- resample_data(nested, N = c(villages = 3, citizens = 2))
 boot
 ```
 
-`ALL` in place of a number keeps every unit at that level.
+`ALL` in place of a number keeps every unit at that level, and leaving a level out of the plan does the same thing:
+
+```{r}
+resample_data(nested, N = c(villages = 3, citizens = ALL))
+```
 
 ## Where to read next
 
