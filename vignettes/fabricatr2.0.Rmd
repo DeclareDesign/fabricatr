@@ -461,6 +461,16 @@ Then run the script. You do not have to do any of it at once: the first four old
 
 ## What is new
 
+`n()` is the number of rows the level is building, and it works in every declaration: flat, `add_level()`, `nest_level()`, `cross_levels()`, and `modify_level()`, where it counts the level being worked at. `N` names the same quantity and still does. The reason to have both is that `N` is a name: a design that also carries an `N` in its workspace leaves a reader unsure which one an expression reads, and `redesign()` rebinds names, where nothing can rebind a call. A data set that carries a column called `n` keeps it, because R skips non-function bindings when it looks up a call, so `sum(n)` reads the column and `n()` reads the count. 1.0.2 fails with `could not find function "n"`.
+
+```{r}
+fabricate(
+  villages = add_level(N = 3, wealth = rnorm(n())),
+  citizens = nest_level(N = 2, income = wealth + rnorm(n())),
+  villages = modify_level(n_villages = n())
+)
+```
+
 Level calls and ordinary columns can be mixed in a single `fabricate()` call. 1.x requires that the arguments be either all level calls or none of them, so the following raises "Arguments passed to `...` must either all be calls to create or modify levels, or else none of them must be":
 
 ```{r}
