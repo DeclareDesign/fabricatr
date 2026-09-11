@@ -18,11 +18,17 @@ fabricatr 2.0.0 is a rewrite of the package on dplyr, tibble, purrr, and rlang, 
 
 * `total_sd` in `draw_normal_icc()` is a parameter of the draw rather than a rescaling of the finished vector, so the realised `sd()` varies from draw to draw as any sample statistic does. The same call gives different numbers than 1.x (fabricatr#133).
 
-* `link_levels()` with `rho` or `sigma` takes one draw path, `chol()` on the correlation matrix, on every machine. 1.x used `mvnfast::rmvn()` when that package was installed, so on such a machine the same seed gives different numbers than 1.x.
-
-* `fabricate(data = df, ...)` no longer advances the random number stream before evaluating your first column. 1.x named the workspace slot it put `df` into with `sample.int(.Machine$integer.max, 1)`, which costs two uniforms, so a script that fabricates from existing data under a fixed seed gets different draws in 2.0 than it did in 1.x. Neither set of numbers is more correct, but a stored seed will not reproduce its old output; re-run and store the new one.
-
 * `modify_level()` named after a level above the current one, `regions = modify_level(z = rnorm(N))` after a `cities` level, evaluates once per region as 1.x does, and then keeps the cities. 1.x returned the regions frame alone, dropping the nested rows.
+
+## Reproducing an old seed
+
+fabricatr does not promise that a given seed produces the same fabricated data in 2.0 as it did in 1.x, and two things here land at a different point in the random number stream. The distribution each one draws from is unchanged; only the position moves. This is deliberate: fabricatr invents data to stand in for data you do not have, so which particular draw you got is not a finding. Contrast randomizr, where the draw assigns real units to real treatments and is therefore part of the result, and whose stream does not move across versions. What 2.0 does promise is that it gives the same numbers as itself on every machine, which 1.x could not.
+
+If a saved analysis draws its data through `fabricate()` under a stored seed, expect its numbers to move; re-run it and store the new ones.
+
+* `link_levels()` with `rho` or `sigma` takes one draw path, `chol()` on the correlation matrix, on every machine. 1.x used `mvnfast::rmvn()` when that package was installed, and passed it a core count, so its numbers depended on both. Without `mvnfast` installed, 1.x and 2.0 agree exactly.
+
+* `fabricate(data = df, ...)` no longer advances the stream before evaluating your first column. 1.x named the workspace slot it put `df` into with `sample.int(.Machine$integer.max, 1)`, which costs exactly two uniforms, so every 1.x call starting from data began two draws in.
 
 ## Deprecations
 

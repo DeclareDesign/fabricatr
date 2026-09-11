@@ -43,7 +43,7 @@ vignette("fabricatr2.0")      # this document
 
 ## What does not change
 
-Everything in this section is byte-identical code between the two packages, and every example below returns the same frame from the same seed, verified row by row against 1.0.2. The one exception is the potential-outcomes example, whose second call starts from `data`: the code is unchanged and so is the frame it builds, but the draws inside it are not 1.x's, for the reason given under [Starting from `data` no longer costs two draws](#starting-from-data-no-longer-costs-two-draws).
+Everything in this section is byte-identical code between the two packages, and every example below was run under both and compared row by row. All but one return the same frame from the same seed. The exception is the potential-outcomes example, whose second call starts from `data`: it builds the same frame from the same distribution, but lands at a different point in the random number stream, for the reason given under [On reproducing an old seed](#on-reproducing-an-old-seed).
 
 Flat fabrication, with each column able to see the ones defined before it:
 
@@ -156,7 +156,7 @@ cor(score, offers, method = "spearman")
 
 ## What changes, and why
 
-There are ten. Five are spellings, and **a script written for 1.x still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. One is a hard error, a positional `N`. One changes the shape of the output, `modify_level()` named after a level above the current one. Three change results, and they are the only places in the package where the same call gives you different numbers than 1.x. Each has its own section below.
+There are ten. Five are spellings, and **a script written for 1.x still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. One is a hard error, a positional `N`. One changes the shape of the output, `modify_level()` named after a level above the current one. One changes what is drawn: `total_sd` is now a parameter of the distribution rather than a rescaling of the finished vector. The last two change only *where in the random number stream a draw lands*, which is a different kind of thing and is not a promise this package makes; see [On reproducing an old seed](#on-reproducing-an-old-seed). Each has its own section below.
 
 One caveat on the warnings. A level constructor runs inside every simulation, so the warning fires once per call site per session rather than once per call. Under a parallel `future` plan the first call happens in a worker, and a warning raised there may never reach your console. So treat the table below as the authority and the warnings as a convenience, not the other way round.
 
@@ -169,9 +169,9 @@ One caveat on the warnings. A level constructor runs inside every simulation, so
 | `draw_ordered(break_labels = )`, `draw_categorical(category_labels = )` | `labels = ` | One name for the same argument across the `draw_*` family |
 | `fabricate(100, ...)` | `fabricate(N = 100, ...)` | **An error, not a warning.** `N` is supplied by name |
 | `regions = modify_level()` after nesting drops the nested rows | keeps them | **Different shape.** See below |
-| `total_sd` rescales the finished draw | `total_sd` is a parameter of the draw | **Different numbers.** See below |
-| `link_levels()` draws via `mvnfast` when installed | one draw path, always | **Different numbers, if you have `mvnfast`.** See below |
-| `fabricate(data = df, ...)` burns two draws before your first column | burns none | **Different numbers** from the same seed. See below |
+| `total_sd` rescales the finished draw | `total_sd` is a parameter of the draw | **A different distribution.** See below |
+| `link_levels()` draws via `mvnfast` when installed | one draw path, always | Same distribution, different point in the stream, and only if you have `mvnfast` |
+| `fabricate(data = df, ...)` burns two draws before your first column | burns none | Same distribution, different point in the stream |
 
 ### `nest = FALSE` becomes `declare_level()`
 
@@ -344,15 +344,38 @@ The cost is nothing you can feel. `mvnfast` earns its name in hundreds of dimens
 
 The consequence is that if you have `mvnfast` installed, a correlated `link_levels()` gives different numbers here than in 1.x. Without it, the two agree exactly. Either way, 2.0 gives the same numbers as itself on every machine, which 1.x cannot promise.
 
-### Starting from `data` no longer costs two draws
+### On reproducing an old seed
 
-The third and last place where 2.0 gives different numbers than 1.x, and the only one that needs no
-argument about which answer is better. When `data` is supplied, fabricatr 1.x calls an internal
-helper, `makeUU()`, to invent a unique name for the workspace slot it is about to put your data
-frame in. That helper is `sprintf("%X-%X", as.integer(Sys.time()), sample.int(.Machine$integer.max, 1))`,
-and `sample.int()` consumes exactly two uniforms from the random number stream. So every
-`fabricate(data = df, ...)` call in 1.x advances the stream by two before evaluating your first
-column:
+**fabricatr does not promise that a given seed produces the same fabricated data in 2.0 as it did in
+1.x.** Two things in this release land at a different point in the random number stream than 1.x
+did, and neither is treated here as a break.
+
+The reason is what the package is for. fabricatr invents data to stand in for data you do not have
+yet. A draw is a draw from the distribution you specified, and which particular draw you got is not
+a finding: re-running with a different seed is a thing you are *supposed* to be able to do, and a
+design whose conclusion depends on the seed is a design in trouble. Compare randomizr, where the
+draw is the result. A real assignment of real units to real treatments is a fact about the study,
+recorded in its data and defensible years later, so randomizr's stream is part of its contract and
+does not move across versions. fabricatr's is not, and does.
+
+What 2.0 does promise is the part that matters: the distribution is the one the arguments describe,
+and **2.0 gives the same numbers as itself on every machine**, which 1.x could not say, because its
+correlated draw ran through `mvnfast` when that package happened to be installed and took a core
+count as an argument.
+
+So if you have a saved analysis whose numbers came out of `fabricate()` under a stored seed, expect
+them to move, and re-run and re-store rather than hunting for the difference. The two places are:
+
+**A correlated `link_levels()`, if you have `mvnfast` installed.** Covered in the section above.
+Without that package, 1.x and 2.0 agree exactly, verified 2,000 rows deep against a library built
+without it.
+
+**Any call that starts from `data`.** fabricatr 1.x calls an internal helper, `makeUU()`, to invent
+a unique name for the workspace slot it is about to put your data frame in. That helper is
+`sprintf("%X-%X", as.integer(Sys.time()), sample.int(.Machine$integer.max, 1))`, and `sample.int()`
+consumes exactly two uniforms. So every `fabricate(data = df, ...)` in 1.x began two draws into the
+stream. 2.0 has no temporary to name, because a column expression is evaluated with one
+`rlang::eval_tidy()` against a plain named list, so it starts at the beginning:
 
 ```{r}
 set.seed(7)
@@ -362,21 +385,10 @@ fabricate(data = data.frame(u = 1:6), Z = runif(6))$Z
 reference
 ```
 
-In 2.0 the column starts at the beginning of the stream, as shown above. In 1.0.2 it starts at the
-third draw, so the same script with the same seed gets `reference[3:8]`. The offset is exactly two
-whatever the data frame's size, whether or not it carries an ID column, and however many columns
-you then build.
-
-There is nothing to port. No 1.x result was wrong, and no 2.0 result is more correct; the two
-simply index different points of the same stream, and only the one recorded alongside a given set
-of numbers will reproduce them. It matters in one situation, which is the common one: a saved
-analysis whose data begins with `fabricate(data = ...)` and a stored seed will not reproduce its
-old numbers under 2.0. Re-run it and store the new ones.
-
-2.0 has no temporary to name, because a column expression is evaluated with one `rlang::eval_tidy()`
-against a plain named list rather than assembled in a workspace environment. This is the numerical
-edge of the architectural claim at the top of this vignette, and it was found by running 1.0.2 and
-2.0 side by side on every example in the section above rather than by reading either one.
+In 1.0.2 that same call returns `reference[3:8]`. The offset is exactly two whatever the data
+frame's size, whether or not it carries an ID column, and however many columns you then build. It
+is pinned by a test, not because the stream position is promised, but because a silent change in it
+is worth knowing about deliberately rather than discovering downstream.
 
 ### `N` is never a column
 

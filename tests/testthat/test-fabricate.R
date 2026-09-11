@@ -193,8 +193,11 @@ test_that("the data= path consumes no random draws before the first column", {
   # makeUU(), whose sample.int(.Machine$integer.max, 1) costs exactly two
   # uniforms, so every fabricate(data = df, ...) started two draws into the
   # stream. 2.0 evaluates against a plain list and has no name to invent.
-  # A change here is a change in what a stored seed reproduces, so it is
-  # pinned rather than left to be rediscovered downstream.
+  # The stream position is not promised across versions: fabricatr fabricates
+  # data, and which draw you got is not a finding (randomizr, which assigns
+  # real units, is where that promise lives). This is pinned as a tripwire
+  # rather than as a contract, so that a change in it is noticed here
+  # deliberately rather than downstream by surprise.
   set.seed(7)
   reference <- runif(6)
 
