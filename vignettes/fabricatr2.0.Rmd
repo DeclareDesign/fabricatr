@@ -521,7 +521,7 @@ Median time per call, measured with microbenchmark on an Apple M4 Pro under R 4.
 | Clustered draw with target ICC, 100 x 20 | 0.82 ms | 0.42 ms | 2.0x |
 | Potential outcomes plus reveal, `N = 1,000` | 0.71 ms | 0.58 ms | 1.2x |
 
-One change accounts for nearly all of it: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. A three-level design of 20,000 rows takes 55 seconds to build 10,000 times under 1.0.2 and 20 seconds here.
+One change accounts for nearly all of it: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. A three-level design of 20,000 rows takes 53 seconds to build 10,000 times under 1.0.2 and 19 seconds here.
 
 The gains concentrate where design diagnosis actually spends its time, which is hierarchical data. The one row that barely moves is flat `N = 200,000`, where the two packages are close to parity: at that size both spend nearly all their time building the zero-padded ID strings, and 2.0 pads exactly as 1.x does. `data-raw/benchmark_vignette.R` re-measures every figure in this section, and in `README.md`, and fails when one has drifted.
 
@@ -537,7 +537,7 @@ What survives untouched is the statistical content: `draw_normal_icc()`, `draw_b
 
 ## Current status
 
-On the current `rewrite` head, `R CMD check --as-cran --no-manual` on the built tarball reports 0 errors, 0 warnings, and 1 note, the CRAN incoming check's remark that the maintainer has changed from 1.0.2's. The test suite passes 283 expectations across seven files.
+On the current `rewrite` head, `R CMD check --as-cran --no-manual` on the built tarball reports 0 errors, 0 warnings, and 1 note, the CRAN incoming check's remark that the maintainer has changed from 1.0.2's. The test suite passes 323 expectations across six files.
 
 ### Upstream issues
 

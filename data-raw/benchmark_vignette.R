@@ -1,6 +1,11 @@
 # The source of the nine-row speed table in vignettes/fabricatr2.0.Rmd, of the
-# "63 seconds against 17 seconds" figure in the paragraph below it, and of
-# README.md's "two to four times faster to build". Rbuildignored.
+# 10,000-build sentence in the paragraph below it, and of README.md's
+# "twice as fast to build" claim. Rbuildignored.
+#
+# The figures are named rather than quoted here on purpose. This comment used
+# to say 'the "63 seconds against 17 seconds" figure', which the vignette had
+# already moved to 55 and 20, so the guard script's description of the document
+# was itself the stale copy (2026-09-12).
 #
 # Run: Rscript data-raw/benchmark_vignette.R
 #
