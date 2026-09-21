@@ -14,10 +14,10 @@ This version was written by the maintainers working with AI assistance (Claude, 
 ## Test environments
 
 * local macOS 26.6 (aarch64, Apple M4), R 4.6.0
-* GitHub Actions: ubuntu-latest (devel, release, oldrel-1), macOS-latest (release), windows-latest (release)
+* GitHub Actions: ubuntu-latest (devel, release, oldrel-1), macOS-latest (release), windows-latest (release). All five green at `FAIL 0 | WARN 0 | SKIP 0 | PASS 331` (run 35552743496).
 * win-builder: not yet run
 
-The package has no `skip_on_cran()`, so the suite does not split on `NOT_CRAN`: local and CI report the same `FAIL 0 | WARN 0 | SKIP 0 | PASS 331`.
+The package has no `skip_on_cran()`, so the suite does not split on `NOT_CRAN`: all five CI platforms and the local check report the same `FAIL 0 | WARN 0 | SKIP 0 | PASS 331`, and the zero skips are read off each job's log rather than inferred from the green badge.
 
 ## R CMD check results
 
