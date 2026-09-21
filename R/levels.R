@@ -350,7 +350,17 @@ link_levels <- function(N, .by, ..., rho = 0, sigma = NULL) {
 #' @export
 modify_level <- function(..., .by = NULL) {
   legacy <- absorb_legacy_by(rlang::enquos(...), sys.call())
-  new_level("modify", dots = legacy$dots, by = legacy$by %||% .by)
+  by <- legacy$by %||% .by
+  # `.by` is an ordinary argument, so a bare column name evaluates to the
+  # column itself and arrives here as a vector. `cross_levels()` and
+  # `link_levels()` already name the argument when their `.by` is wrong; this
+  # one reached `lst[[by]]` and failed inside the subscript.
+  if (!is.null(by) && (!is.character(by) || length(by) != 1L || is.na(by))) {
+    stop("`modify_level(.by = )` takes one column name, written as a string, ",
+         "as in `modify_level(cluster_mean = mean(Y), .by = \"cluster\")`.",
+         call. = FALSE)
+  }
+  new_level("modify", dots = legacy$dots, by = by)
 }
 
 # execute_* functions ---------------------------------------------------------
@@ -659,6 +669,11 @@ execute_modify_level <- function(level, lst, N_inject) {
     out
   } else {
     by_col <- level$by
+    if (!by_col %in% names(lst)) {
+      stop("`modify_level(.by = \"", by_col, "\")`: no column named `",
+           by_col, "` is in view. The columns here are ",
+           paste0("`", names(lst), "`", collapse = ", "), ".", call. = FALSE)
+    }
     grp_vec <- lst[[by_col]]
     groups  <- split(seq_along(grp_vec), grp_vec)
     orig_order <- order(unlist(groups, use.names = FALSE))

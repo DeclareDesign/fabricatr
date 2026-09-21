@@ -100,3 +100,39 @@ test_that("a genuine missing object is reported as itself", {
     fabricate(g = add_level(N = 3, x = 1:3), g = modify_level(y = notacolumn * 2)),
     "object 'notacolumn' not found")
 })
+
+test_that("modify_level(.by = ) names the argument when it is not a column name", {
+  # `.by` is an ordinary argument, so a bare column name evaluates to the
+  # column and arrives as a vector; the 1.x spelling `by = ` is captured
+  # unevaluated and does take a bare name, so the two differ and the error
+  # has to say which one this is. `lst[[by]]` used to fail inside the
+  # subscript, with "no such index at level 1" for a bare name, "argument 1
+  # is not a vector" for a column that is not there, and "subscript out of
+  # bounds" for two names, while a number silently grouped by whichever
+  # column came first.
+  expect_error(fabricate(g = add_level(N = 2, a = 1:2),
+                         u = add_level(N = 3, Y = rnorm(N)),
+                         u = modify_level(m = mean(Y), .by = g)),
+               "takes one column name, written as a string")
+  expect_error(modify_level(m = 1, .by = 1), "written as a string")
+  expect_error(modify_level(m = 1, .by = c("g", "u")), "written as a string")
+  expect_error(modify_level(m = 1, .by = NA_character_), "written as a string")
+
+  expect_error(fabricate(g = add_level(N = 2, a = 1:2),
+                         u = add_level(N = 3, Y = rnorm(N)),
+                         u = modify_level(m = mean(Y), .by = "nope")),
+               "no column named `nope` is in view")
+})
+
+test_that("both spellings of the grouping column still work", {
+  by_string <- fabricate(g = add_level(N = 2, a = 1:2),
+                         u = add_level(N = 3, Y = rnorm(N)),
+                         u = modify_level(m = mean(Y), .by = "g"))
+  by_legacy <- suppressWarnings(
+    fabricate(g = add_level(N = 2, a = 1:2),
+              u = add_level(N = 3, Y = rnorm(N)),
+              u = modify_level(m = mean(Y), by = g)))
+  expect_equal(nrow(by_string), 6L)
+  expect_length(unique(by_string$m), 2L)
+  expect_equal(names(by_legacy), names(by_string))
+})
