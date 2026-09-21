@@ -16,6 +16,12 @@ fabricatr 2.0.0 is a rewrite of the package on dplyr, tibble, purrr, and rlang, 
 
 * `draw_ordered()` requires `breaks`; 1.x defaulted it to `c(-1, 0, 1)`.
 
+* `draw_likert(breaks = )` reads interior cut-points, as `draw_ordered(breaks = )` does, so `draw_likert(x, breaks = c(-1, 0, 1))` gives four categories where 1.0.2 gave two. 1.0.2 handed `breaks` to `cut()`, which reads the vector as the full set of bin boundaries and sends every value outside it to `NA`: on 200 draws from `rnorm()` the same call returned two categories and 53 `NA`. `draw_likert()` is a convenience wrapper around `draw_ordered()`, and in 1.0.2 the two read the same argument name in two different ways, since `draw_ordered(x, breaks = c(-1, 0, 1))` gives four categories in 1.0.2 and in 2.0 alike. To ask for bin boundaries, say so: `draw_ordered(x, breaks = c(-1, 0, 1), strict = TRUE)` returns 1.0.2's two categories and its 53 `NA`.
+
+* `draw_likert(min = , max = , bins = )` puts values outside `[min, max]` in the outermost bins rather than returning `NA` for them. `min` and `max` declare the range the latent variable is cut on, not a filter, and 1.0.2's `NA` was missing data in a Likert item that nothing reported: `draw_likert(x, min = -3, max = 3, bins = 5)` on 200 draws from `rnorm()` returned one. A value exactly equal to `min` was `NA` too, because `cut()` leaves its lowest boundary open. The same recipe recovers 1.0.2 exactly: `draw_ordered(x, breaks = seq(min, max, length.out = bins + 1), strict = TRUE)`.
+
+* `draw_likert()` returns integer codes where 1.0.2 returned doubles, which it got by passing `cut()`'s factor through `as.numeric()`. The codes are the same numbers, so only `identical()` and `typeof()` see the difference. `draw_ordered()` returned integer codes in 1.0.2 and still does.
+
 * `draw_categorical()` drops `latent` and `link`, which 1.x accepted but rejected for any link other than identity.
 
 * `total_sd` in `draw_normal_icc()` is a parameter of the draw rather than a rescaling of the finished vector, so the realised `sd()` varies from draw to draw as any sample statistic does. The same call gives different numbers than 1.x (fabricatr#133).
@@ -62,7 +68,7 @@ Each of these is accepted and warns once per call site with the call to write in
 
 * `draw_ordered()`, `draw_likert()`, and `draw_categorical()` take `labels`. `draw_ordered()` and `draw_likert()` return an ordered factor when it is given, and `draw_categorical()` an unordered one, as in 1.x.
 
-* `draw_likert()` accepts a manual `breaks` vector.
+* `draw_likert()` reports the number of categories a manual `breaks` vector produces when `labels` does not match it, rather than failing inside `cut()`.
 
 * `draw_normal_icc()` accepts any two of `ICC`, `sd`, `sd_between`, and `total_sd`, and the full `ICC` range including 0 and 1 (fabricatr#149).
 
@@ -83,6 +89,8 @@ Each of these is accepted and warns once per call site with the call to write in
 * `draw_quantile()` returns an unordered factor, as 1.x does, so a model formula picks treatment contrasts rather than polynomial ones.
 
 * `draw_ordered()` numbers its categories from 1 whatever `breaks` looks like. An infinite endpoint bounds the scale rather than cutting it, so `c(-Inf, 0, Inf)` gives the same two categories as `0`, and `strict = TRUE` drops the open end categories instead of leaving them empty and unreachable. 1.0.2 reads the lower end the same way but applies the same test to a trailing `Inf`, so `c(-1, 0, Inf)` came back 0-based; only the lower end decides, since `findInterval()` returns 0 for a value below the first break and nothing else. `labels` now takes one label per category that can occur, which is `length(breaks) + 1` for interior cut-points and one fewer for each infinite endpoint.
+
+* `draw_likert(labels = )` attaches each label to its own category. 1.0.2 built the factor with `levels = unique(x_ret)`, the order the categories happen to appear in the data rather than their sorted order, so each label landed on whichever category turned up first: `draw_likert(c(2.5, 1.5, 0, -1.5, -2.5), min = -3, max = 3, bins = 5, labels = c("SD", "D", "N", "A", "SA"))` labelled the highest value `SD` and the lowest `SA`, inverting the scale in silence. When fewer than `bins` categories occurred it failed outright, with `invalid 'labels'; length 5 should be 1 or 3` raised from inside `factor()`.
 
 * `resample_data(unique_labels = TRUE)` builds labels matching 1.x column for column.
 

@@ -16,12 +16,19 @@ draw_likert(
 \arguments{
 \item{x}{Latent numeric variable.}
 
-\item{min, max}{Range of \code{x}.}
+\item{min, max}{Range the latent variable is cut on, rather than a filter
+applied to it: a value outside \code{[min, max]} joins the outermost bin.
+For 1.0.2's behaviour, where such a value became \code{NA}, call
+\code{draw_ordered(x, breaks = seq(min, max, length.out = bins + 1),
+strict = TRUE)}.}
 
 \item{bins}{Number of Likert categories.}
 
-\item{breaks}{Manual break vector (alternative to \code{min}/\code{max}/
-\code{bins}).}
+\item{breaks}{Manual interior cut-points, read as \code{draw_ordered()}
+reads them, so \code{length(breaks) + 1} categories. An alternative to
+\code{min}, \code{max}, and \code{bins}. 1.0.2 read the same vector as
+the full set of bin boundaries; the \code{strict = TRUE} call above
+returns that answer.}
 
 \item{labels}{Optional category labels.}
 }

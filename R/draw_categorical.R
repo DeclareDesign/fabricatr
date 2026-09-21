@@ -187,10 +187,17 @@ draw_ordered <- function(x = latent,
 #' spaced breaks between \code{min} and \code{max}.
 #'
 #' @param x Latent numeric variable.
-#' @param min,max Range of \code{x}.
+#' @param min,max Range the latent variable is cut on, rather than a filter
+#'   applied to it: a value outside \code{[min, max]} joins the outermost bin.
+#'   For 1.0.2's behaviour, where such a value became \code{NA}, call
+#'   \code{draw_ordered(x, breaks = seq(min, max, length.out = bins + 1),
+#'   strict = TRUE)}.
 #' @param bins Number of Likert categories.
-#' @param breaks Manual break vector (alternative to \code{min}/\code{max}/
-#'   \code{bins}).
+#' @param breaks Manual interior cut-points, read as \code{draw_ordered()}
+#'   reads them, so \code{length(breaks) + 1} categories. An alternative to
+#'   \code{min}, \code{max}, and \code{bins}. 1.0.2 read the same vector as
+#'   the full set of bin boundaries; the \code{strict = TRUE} call above
+#'   returns that answer.
 #' @param labels Optional category labels.
 #'
 #' @return An integer vector of category indices, one per element of
