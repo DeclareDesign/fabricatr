@@ -158,7 +158,7 @@ cor(score, offers, method = "spearman")
 
 ## What changes, and why
 
-There are eleven. Five are spellings, and **a script written for 1.x still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. One is a hard error, a positional `N`. One changes the shape of the output, `modify_level()` named after a level above the current one. One is a deliberate fix that 1.x will not match, `reveal_outcomes()` keeping the type of the outcome. One changes what is drawn: `total_sd` is now a parameter of the distribution rather than a rescaling of the finished vector. The last two change only *where in the random number stream a draw lands*, which is a different kind of thing and is not a promise this package makes; see [On reproducing an old seed](#on-reproducing-an-old-seed). Each has its own section below.
+There are twelve. Five are spellings, and **a script written for 1.x still runs**: each of the five old spellings is accepted and deprecated, and warns once with the call you should have written. One is a hard error, a positional `N`. One changes the class of what comes back, a tibble rather than a data frame. One changes the shape of the output, `modify_level()` named after a level above the current one. One is a deliberate fix that 1.x will not match, `reveal_outcomes()` keeping the type of the outcome. One changes what is drawn: `total_sd` is now a parameter of the distribution rather than a rescaling of the finished vector. The last two change only *where in the random number stream a draw lands*, which is a different kind of thing and is not a promise this package makes; see [On reproducing an old seed](#on-reproducing-an-old-seed). Each has its own section below.
 
 One caveat on the warnings. A level constructor runs inside every simulation, so the warning fires once per call site per session rather than once per call. Under a parallel `future` plan the first call happens in a worker, and a warning raised there may never reach your console. So treat the table below as the authority and the warnings as a convenience, not the other way round.
 
@@ -170,6 +170,7 @@ One caveat on the warnings. A level constructor runs inside every simulation, so
 | `modify_level(..., by = "g")` | `modify_level(..., .by = "g")` | Leading dot marks a control argument, not a column |
 | `draw_ordered(break_labels = )`, `draw_categorical(category_labels = )` | `labels = ` | One name for the same argument across the `draw_*` family |
 | `fabricate(100, ...)` | `fabricate(N = 100, ...)` | **An error, not a warning.** `N` is supplied by name |
+| `fabricate()` returns a `data.frame` | returns a `tbl_df` | **A different class.** Same columns, same values, and `identical()` against a data frame is now `FALSE`. See below |
 | `regions = modify_level()` after nesting drops the nested rows | keeps them | **Different shape.** See below |
 | `reveal_outcomes()` renders a factor or `Date` outcome as character | keeps the type | **A fix.** 1.x lost an ordered outcome's levels, silently. See below |
 | `total_sd` rescales the finished draw | `total_sd` is a parameter of the draw | **A different distribution.** See below |
@@ -253,6 +254,12 @@ Every column needs a name. Expression 1 in fabricate(), `100`, has none.
 ```
 
 Write `fabricate(N = 100, Y = rnorm(N))`. The same rule catches an unnamed column anywhere, `fabricate(N = 5, rnorm(N))`, which 1.x failed on with an indexing error from deep inside and which an early build of 2.0 dropped without a word.
+
+### The result is a tibble
+
+`fabricate()` returns a tibble where 1.0.2 returned a plain data frame. The columns, their order, their types, and their values are the same; only the class differs, from `"data.frame"` to `c("tbl_df", "tbl", "data.frame")`. A tibble is a data frame, so anything that takes one still works.
+
+Two things do change for a caller. A test written `expect_identical(fabricate(...), some_data_frame)` compares the class attribute and now fails, which is how this surfaced: six of the eight test failures in a revdepcheck of DeclareDesign 1.1.1 are that comparison and not one of them concerns a value. And single-bracket indexing does not drop to a vector, so `df[, "Y"]` is a one-column tibble where 1.0.2 gave a numeric vector. `df$Y` and `df[["Y"]]` are unchanged.
 
 ### `modify_level()` at a named level works at that level
 
@@ -537,7 +544,7 @@ What survives untouched is the statistical content: `draw_normal_icc()`, `draw_b
 
 ## Current status
 
-On the current `rewrite` head, `R CMD check --as-cran --no-manual` on the built tarball reports 0 errors, 0 warnings, and 1 note, the CRAN incoming check's remark that the maintainer has changed from 1.0.2's. The test suite passes 323 expectations across six files.
+On the current `rewrite` head, `R CMD check --as-cran --no-manual` on the built tarball reports 0 errors, 0 warnings, and 1 note, the CRAN incoming check's remark that the maintainer has changed from 1.0.2's. The test suite passes 331 expectations across six files.
 
 ### Upstream issues
 

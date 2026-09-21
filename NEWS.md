@@ -4,6 +4,8 @@ fabricatr 2.0.0 is a rewrite of the package on dplyr, tibble, purrr, and rlang, 
 
 ## Breaking changes
 
+* `fabricate()` returns a tibble where 1.0.2 returned a plain data frame. The columns, their order, their types, and their values are unchanged, and a tibble is a data frame, so anything that accepts one still works. Two things differ for a caller: `identical()` against a plain data frame is now `FALSE`, and `df[, "Y"]` returns a one-column tibble rather than dropping to a vector. `df$Y` and `df[["Y"]]` are unchanged.
+
 * `N` is supplied by name. `fabricate(100, Y = rnorm(N))` was read as `N = 100` in 1.x and is now an error whose message says to write `fabricate(N = 100, Y = rnorm(N))`.
 
 * Every expression passed to `fabricate()` or to a level needs a name. An unnamed one, `fabricate(N = 5, rnorm(N))`, is an error naming its position; 1.x failed on it with an internal indexing error.
