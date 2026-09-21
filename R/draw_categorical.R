@@ -41,6 +41,9 @@ draw_categorical <- function(prob, N = NULL, labels = NULL,
                              category_labels = NULL) {
   labels <- absorb_legacy_labels(labels, category_labels, "category_labels",
                                  sys.call())
+  if (!is.null(N) && (!is.numeric(N) || length(N) != 1L || is.na(N) || N < 1)) {
+    stop("`N` must be a single positive integer.")
+  }
   # Coerce vector to matrix (same probs for all units)
   if (is.null(dim(prob))) {
     if (!is.numeric(prob) || length(prob) < 2) {
@@ -53,6 +56,7 @@ draw_categorical <- function(prob, N = NULL, labels = NULL,
   if (!is.numeric(prob) || any(prob < 0, na.rm = TRUE)) {
     stop("`prob` must be a non-negative numeric matrix.")
   }
+  if (anyNA(prob)) stop("`prob` must not contain NA.")
   if (is.null(N)) N <- nrow(prob)
   if (nrow(prob) != N) stop("nrow(prob) must equal N.")
 
@@ -189,6 +193,12 @@ draw_likert <- function(x, min = NULL, max = NULL, bins = NULL,
     if (is.null(min) || is.null(max) || is.null(bins)) {
       stop("Provide either `breaks` or all of `min`, `max`, and `bins`.")
     }
+    for (nm in c("min", "max", "bins")) {
+      v <- get(nm)
+      if (!is.numeric(v) || length(v) != 1L || !is.finite(v)) {
+        stop("`", nm, "` must be a single finite number.", call. = FALSE)
+      }
+    }
     breaks <- seq(min, max, length.out = bins + 1L)
     # Drop the endpoints so all values are binned
     breaks <- breaks[-c(1L, length(breaks))]
@@ -215,7 +225,8 @@ draw_likert <- function(x, min = NULL, max = NULL, bins = NULL,
 #' @export
 split_quantile <- function(x, type) {
   if (length(x) < 2) stop("`x` must have length >= 2.")
-  if (!is.numeric(type) || length(type) != 1 || type < 2) {
+  if (!is.numeric(type) || length(type) != 1 || is.na(type) ||
+      type != round(type) || type < 2) {
     stop("`type` must be a single integer >= 2.")
   }
   probs <- seq(0, 1, length.out = type + 1L)
@@ -245,10 +256,11 @@ split_quantile <- function(x, type) {
 #' @importFrom stats runif
 #' @export
 draw_quantile <- function(type, N) {
-  if (!is.numeric(N) || length(N) != 1 || N < 1) {
+  if (!is.numeric(N) || length(N) != 1 || is.na(N) || N < 1) {
     stop("`N` must be a single positive integer.")
   }
-  if (!is.numeric(type) || length(type) != 1 || type < 2 || type >= N) {
+  if (!is.numeric(type) || length(type) != 1 || is.na(type) ||
+      type != round(type) || type < 2 || type >= N) {
     stop("`type` must be a single integer between 2 and N-1.")
   }
   split_quantile(runif(N), type = type)

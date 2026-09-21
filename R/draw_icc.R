@@ -187,7 +187,8 @@ draw_binary_icc <- function(clusters, prob = 0.5, ICC = 0, N = NULL) {
   k <- length(uclusters)
 
   if (!is.null(N) && N != n) stop("`N` must equal length(clusters).")
-  if (length(ICC) != 1 || !is.numeric(ICC) || ICC < 0 || ICC > 1) {
+  if (length(ICC) != 1 || !is.numeric(ICC) || is.na(ICC) ||
+      ICC < 0 || ICC > 1) {
     stop("`ICC` must be a single number in [0, 1].")
   }
 

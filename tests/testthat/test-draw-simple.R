@@ -63,3 +63,48 @@ test_that("prob or mean with a non-identity link is refused", {
   expect_equal(mean(draw_count(latent = rep(log(3), 20000), link = "log")),
                3, tolerance = 0.05)
 })
+
+test_that("a bad link name reports the function the caller wrote", {
+  # draw_binary() delegates to draw_binomial(), which validated the link name
+  # under its own label, so a user who never wrote draw_binomial() was told
+  # about it. draw_binary() already named itself for the link-target check.
+  expect_error(draw_binary(latent = rep(0.3, 5), link = "logti"),
+               "draw_binary\\(\\)", fixed = FALSE)
+  expect_error(draw_binomial(latent = rep(0.3, 5), trials = 2, link = "logti"),
+               "draw_binomial\\(\\)")
+  expect_error(draw_count(latent = rep(0.3, 5), link = "probit"),
+               "draw_count\\(\\)")
+})
+
+test_that("the logistic and logit link names are the same transform", {
+  lat <- rnorm(200)
+  set.seed(343); by_logit <- draw_binary(latent = lat, link = "logit")
+  set.seed(343); by_logistic <- draw_binary(latent = lat, link = "logistic")
+  expect_identical(by_logit, by_logistic)
+})
+
+test_that("an explicit identity link with a latent draws at the latent", {
+  lat <- rep(0.4, 20)
+  set.seed(343); explicit <- draw_binary(latent = lat, link = "identity")
+  set.seed(343); implicit <- draw_binary(prob = lat)
+  expect_identical(explicit, implicit)
+  expect_equal(draw_count(latent = c(0, 2, 4), link = "identity",
+                          quantile_y = c(0.5, 0.5, 0.5)),
+               qpois(c(0.5, 0.5, 0.5), c(0, 2, 4)))
+})
+
+test_that("draw_binary and draw_count validate their parameter ranges", {
+  expect_error(draw_binary(prob = c("a", "b")), "`prob` must be numeric")
+  expect_error(draw_binary(prob = 1.5, N = 3), "between 0 and 1")
+  expect_error(draw_binary(prob = -0.5, N = 3), "between 0 and 1")
+  expect_error(draw_binomial(prob = 2, trials = 3, N = 3), "between 0 and 1")
+  expect_error(draw_count(mean = c(1, -2)), "must be non-negative")
+})
+
+test_that("quantile_y makes the draw deterministic, which is what correlate uses", {
+  expect_equal(draw_count(mean = 5, N = 3, quantile_y = c(0.1, 0.5, 0.9)),
+               qpois(c(0.1, 0.5, 0.9), 5))
+  expect_equal(draw_binomial(prob = 0.5, trials = 10, N = 3,
+                             quantile_y = c(0.1, 0.5, 0.9)),
+               qbinom(c(0.1, 0.5, 0.9), 10, 0.5))
+})

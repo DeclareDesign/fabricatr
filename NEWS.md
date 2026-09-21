@@ -85,3 +85,9 @@ Each of these is accepted and warns once per call site with the call to write in
 * `resample_data(unique_labels = TRUE)` builds labels matching 1.x column for column.
 
 * ID columns are zero-padded character strings at every level, padded to the number of units at that level, as in 1.x.
+
+* An `NA` in `given` propagates to the result of `correlate()` rather than being absorbed into it. `rank()` puts an `NA` last by default, so 1.0.2 gave the missing value the highest rank and drew a correspondingly extreme value to match: the returned vector held no `NA` anywhere and the missingness read as a real observation. The observed values are now ranked among themselves and each `NA` comes back as an `NA`.
+
+* Argument validation names the argument and the function rather than failing inside a comparison. An `NA` supplied as `rho` to `correlate()`, as `prob` or `N` to `draw_categorical()`, as `ICC` to `draw_binary_icc()`, or as `min`, `max`, or `bins` to `draw_likert()` reached an `if()` still `NA` and raised R's own `missing value where TRUE/FALSE needed`, which names neither. A fractional `type` in `split_quantile()` and `draw_quantile()` is an error rather than `number of intervals and length of 'labels' differ` raised from inside `cut()`.
+
+* An unrecognised `link` in `draw_binary()` reports `draw_binary()`. It delegates to `draw_binomial()`, which validated the name under its own label, so the error named a function the caller had not written. 1.0.2 named no function at all and listed a set of valid links that omitted `logistic`.

@@ -131,3 +131,56 @@ test_that("total_sd leaves the realised sd free to vary, unlike fabricatr", {
   expect_gt(sd(reps), 0.01)
   expect_equal(mean(reps), 2, tolerance = 0.2)
 })
+
+test_that("the ICC draws refuse an N that disagrees with the clusters", {
+  cl <- rep(1:5, each = 4)
+  expect_error(draw_normal_icc(clusters = cl, N = 99, ICC = 0.5, sd = 1),
+               "must equal length\\(clusters\\)")
+  expect_error(draw_binary_icc(clusters = cl, N = 99, ICC = 0.5, prob = 0.5),
+               "must equal length\\(clusters\\)")
+  expect_length(draw_normal_icc(clusters = cl, N = 20, ICC = 0.5, sd = 1), 20L)
+})
+
+test_that("the scale parameters must each be a single non-negative number", {
+  cl <- rep(1:5, each = 4)
+  expect_error(draw_normal_icc(clusters = cl, ICC = 0.5, sd = -1),
+               "`sd` must be a single non-negative number")
+  expect_error(draw_normal_icc(clusters = cl, ICC = 0.5, sd_between = c(1, 2)),
+               "`sd_between` must be a single non-negative number")
+  expect_error(draw_normal_icc(clusters = cl, ICC = 0.5, total_sd = "3"),
+               "`total_sd` must be a single non-negative number")
+  expect_error(draw_normal_icc(clusters = cl, ICC = 1.5, sd = 1),
+               "`ICC` must be a single number between 0 and 1")
+})
+
+test_that("an ICC at an endpoint that leaves the scale unpinned is refused", {
+  cl <- rep(1:5, each = 4)
+  # ICC = 1 means all variance is between clusters, so a positive within-cluster
+  # sd contradicts it, and sd = 0 says nothing about how large the draw is.
+  expect_error(draw_normal_icc(clusters = cl, ICC = 1, sd = 2), "`sd` must ")
+  expect_error(draw_normal_icc(clusters = cl, ICC = 1, sd = 0),
+               "does not pin the scale")
+  expect_error(draw_normal_icc(clusters = cl, ICC = 0, sd_between = 2),
+               "`sd_between` must be 0")
+  expect_error(draw_normal_icc(clusters = cl, ICC = 0, sd_between = 0),
+               "does not pin the scale")
+})
+
+test_that("draw_binary_icc validates ICC, including an NA", {
+  cl <- rep(1:5, each = 4)
+  expect_error(draw_binary_icc(clusters = cl, ICC = 1.5, prob = 0.5),
+               "single number in \\[0, 1\\]")
+  expect_error(draw_binary_icc(clusters = cl, ICC = "0.5", prob = 0.5),
+               "single number in \\[0, 1\\]")
+  # `ICC < 0` is NA for an NA ICC, so this used to reach `if (NA)`.
+  expect_error(draw_binary_icc(clusters = cl, ICC = NA_real_, prob = 0.5),
+               "single number in \\[0, 1\\]")
+})
+
+test_that("a cluster-level prob may be given one value per cluster", {
+  cl <- rep(1:5, each = 4)
+  set.seed(343)
+  y <- draw_binary_icc(clusters = cl, ICC = 0.5, prob = c(0.1, 0.3, 0.5, 0.7, 0.9))
+  expect_length(y, 20L)
+  expect_true(all(y %in% 0:1))
+})

@@ -34,7 +34,8 @@ A double vector of length \code{length(given)}. Note that the type
   \code{draw_binomial}, and \code{draw_count} each return an integer vector
   when called directly and a double one when routed through here, because
   the copula reaches them through a quantile function. The values are
-  unaffected.
+  unaffected. An \code{NA} in \code{given} yields an \code{NA} in the
+  result at that position.
 }
 \description{
 Uses a Gaussian copula to produce a draw from \code{draw_handler} whose

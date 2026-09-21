@@ -33,6 +33,9 @@ draw_binary <- function(prob = apply_link(latent, link),
                         latent = NULL,
                         quantile_y = NULL) {
   check_link_target(link, !missing(prob), latent, "prob", "draw_binary")
+  # Named here as well as in draw_binomial(), so that a bad link name reports
+  # the function the caller actually wrote.
+  check_link_name(link, BINARY_LINKS, "draw_binary")
   draw_binomial(prob = prob, trials = 1L, N = N, link = link,
                 latent = latent, quantile_y = quantile_y)
 }

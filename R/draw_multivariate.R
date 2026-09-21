@@ -93,7 +93,8 @@ draw_multivariate <- function(formula, sep = "_") {
 #'   \code{draw_binomial}, and \code{draw_count} each return an integer vector
 #'   when called directly and a double one when routed through here, because
 #'   the copula reaches them through a quantile function. The values are
-#'   unaffected.
+#'   unaffected. An \code{NA} in \code{given} yields an \code{NA} in the
+#'   result at that position.
 #'
 #' @examples
 #' score  <- rnorm(100, mean = 75, sd = 10)
@@ -110,7 +111,8 @@ correlate <- function(draw_handler, ..., given, rho) {
   if (!rlang::is_closure(draw_handler)) {
     stop("`draw_handler` must be a function (unquoted).")
   }
-  if (!is.numeric(rho) || length(rho) != 1 || rho < -1 || rho > 1) {
+  if (!is.numeric(rho) || length(rho) != 1 || is.na(rho) ||
+      rho < -1 || rho > 1) {
     stop("`rho` must be a single number in [-1, 1].")
   }
   if (is.null(given) || !is.null(dim(given))) {
@@ -118,10 +120,18 @@ correlate <- function(draw_handler, ..., given, rho) {
   }
 
   n <- length(given)
+  # `rank()` defaults to na.last = TRUE, which gives an NA in `given` the top
+  # rank and draws a correspondingly extreme value for it, so the missingness
+  # disappears into a number that looks real. Rank the observed values only and
+  # carry the NA through to the result. With no NAs this is the same arithmetic
+  # on the same random stream as before.
+  obs  <- !is.na(given)
+  sn_x <- rep(NA_real_, n)
   # Map given to standard normal via rank-based ECDF (avoids infinite z-scores)
-  sn_x <- qnorm(rank(given) / (n + 1))
+  sn_x[obs] <- qnorm(rank(given[obs]) / (sum(obs) + 1))
   # Conditional distribution of Y | X for bivariate standard normal
-  sn_y <- rnorm(n, rho * sn_x, sqrt(1 - rho^2))
+  sn_y <- rep(NA_real_, n)
+  sn_y[obs] <- rnorm(sum(obs), rho * sn_x[obs], sqrt(1 - rho^2))
   q_y  <- pnorm(sn_y)
 
   # If draw_handler accepts quantile_y (our draw_* functions), use it directly
