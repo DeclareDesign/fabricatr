@@ -58,6 +58,8 @@ Each of these is accepted and warns once per call site with the call to write in
 
 * `modify_level(.by = )` groups the rows in hand by a column before evaluating, on flat data as well as on levels.
 
+* `ID_label = NA` suppresses the unit ID column, leaving the rows it would have numbered. 1.x accepted the argument and then failed with an indexing error, so there was no way to ask for a frame without one.
+
 * `draw_ordered()`, `draw_likert()`, and `draw_categorical()` take `labels`. `draw_ordered()` and `draw_likert()` return an ordered factor when it is given, and `draw_categorical()` an unordered one, as in 1.x.
 
 * `draw_likert()` accepts a manual `breaks` vector.

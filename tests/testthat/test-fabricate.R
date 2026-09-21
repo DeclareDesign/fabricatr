@@ -254,3 +254,21 @@ test_that("a data frame after the first position is still spliced as columns", {
   expect_named(df, c("ID", "x", "a"))
   expect_equal(df$a, 1:2)
 })
+
+test_that("ID_label = NA suppresses the column without dropping the rows", {
+  # list_to_df() returned an empty tibble for a column-less list, so `N` rows
+  # became no rows as soon as nothing was left to name them. 1.0.2 errors on
+  # ID_label = NA outright, so there is no 1.x answer to match here.
+  expect_equal(dim(fabricate(N = 3, ID_label = NA)), c(3L, 0L))
+  expect_equal(nrow(fabricate(N = 3, y = rnorm(N), ID_label = NA)), 3L)
+  # fabricate() given nothing at all still has nothing to report
+  expect_equal(dim(fabricate()), c(0L, 0L))
+})
+
+test_that("data with rows and no columns keeps its row count", {
+  # The row count was read off length(lst[[1L]]), which has no first element
+  # here, so the call died with "subscript out of bounds".
+  dat <- tibble::tibble(.rows = 3)
+  expect_equal(fabricate(data = dat, y = seq_len(N))$y, 1:3)
+  expect_equal(nrow(fabricate(data = dat, y = 1:3)), 3L)
+})

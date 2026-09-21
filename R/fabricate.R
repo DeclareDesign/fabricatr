@@ -221,8 +221,10 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
          "variables; or `N` alone.", call. = FALSE)
   }
   if (!is.null(data)) {
-    lst      <- as.list(tibble::as_tibble(data))
-    N_inject <- length(lst[[1L]])
+    tbl      <- tibble::as_tibble(data)
+    lst      <- as.list(tbl)
+    # nrow(), not length(lst[[1L]]): a data frame may have rows and no columns.
+    N_inject <- nrow(tbl)
   } else if (!is.null(N)) {
     N_val    <- validate_n(N)
     lst      <- list()
@@ -310,7 +312,7 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
     lst <- c(stats::setNames(list(id_vec), ID_label), lst)
   }
 
-  list_to_df(lst)
+  list_to_df(lst, N_inject)
 }
 
 # A length-1 column is recycled to N as soon as it is stored, not at output
@@ -349,9 +351,15 @@ store_column <- function(lst, nm, val, fix = function(v, nm) v, mask = NULL) {
   lst
 }
 
-# Converts a named list of equal-length vectors to a tibble.
-list_to_df <- function(lst) {
-  if (length(lst) == 0L) return(tibble::tibble())
+# Converts a named list of equal-length vectors to a tibble. A list with no
+# columns still has a row count whenever `N` was given, so it is carried
+# through: `fabricate(N = 3, ID_label = NA)` asked for three rows and declining
+# to name the ID column is not a reason to return none.
+list_to_df <- function(lst, n_rows = NULL) {
+  if (length(lst) == 0L) {
+    if (is.null(n_rows)) return(tibble::tibble())
+    return(tibble::tibble(.rows = n_rows))
+  }
   tibble::as_tibble(lst)
 }
 
