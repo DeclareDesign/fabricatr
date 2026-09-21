@@ -61,6 +61,7 @@ recycle_to_level <- function(val, n_total, col_nm) {
 #' @export
 add_level <- function(N, ...) {
   legacy <- absorb_legacy_nest(rlang::enquos(...), sys.call(), "add")
+  if (missing(N)) stop_missing_n("add_level()", legacy$dots)
   new_level(legacy$type, N = N, dots = legacy$dots)
 }
 
@@ -98,7 +99,86 @@ add_level <- function(N, ...) {
 #' @export
 declare_level <- function(N, ...) {
   legacy <- absorb_legacy_nest(rlang::enquos(...), sys.call(), "declare")
+  if (missing(N)) stop_missing_n("declare_level()", legacy$dots)
   new_level(legacy$type, N = N, dots = legacy$dots)
+}
+
+# import_level ----------------------------------------------------------------
+
+#' Import an existing data frame as a level
+#'
+#' Brings a data frame into a \code{fabricate} call as a level of its own, so
+#' that real data can be crossed or linked with other real data.
+#' \code{fabricate(data = )} starts from one frame and builds down from it;
+#' \code{import_level} makes each frame a named level, which is the thing
+#' \code{cross_levels} and \code{link_levels} work on.
+#'
+#' @param data A data frame. Its rows are the level's units.
+#' @param ... Column expressions evaluated against the imported columns, as in
+#'   any other level. \code{N} is the number of rows imported.
+#' @param .id Optional string naming the column of \code{data} that already
+#'   identifies its rows. Left off, a column named after the level is used when
+#'   the data has one, the way a join matches on a shared name, and otherwise
+#'   fabricatr numbers the rows itself.
+#'
+#' @section Which column is the ID:
+#' A level's ID column is named after the level, and \code{import_level} only
+#' decides what goes in it. Three cases, in order:
+#'
+#' \itemize{
+#'   \item \code{.id = "pid"} uses that column of the imported data, renamed
+#'     to the level's name. It has to exist, and its values have to be distinct
+#'     and non-missing, because a level's rows are its units.
+#'   \item Left off, a column already named after the level is used as it
+#'     stands: \code{individuals = import_level(df)} where \code{df} has an
+#'     \code{individuals} column keeps that column rather than putting a
+#'     second ID beside it.
+#'   \item Otherwise the rows are numbered, as \code{add_level} numbers them.
+#' }
+#'
+#' A column called \code{N} is refused. \code{N} is the number of rows the
+#' level is building in every expression it evaluates, so the two cannot both
+#' be in view; rename the column before importing it, or use
+#' \code{fabricate(data = )}, which evaluates nothing at a level and keeps it.
+#'
+#' An imported ID keeps its own type and values, where a fabricated one is a
+#' zero-padded character string. That is the point of importing it: the column
+#' still matches the same key in the data it came from. It also means an
+#' integer key stays an integer, so a model formula reading it will treat it
+#' as a quantity unless you make it a factor.
+#'
+#' @return A \code{fabricatr_level} object, meaningful only as a named
+#'   argument to \code{fabricate}. It contributes the imported rows, an ID
+#'   column named after the argument it is assigned to, and one column per
+#'   expression in \code{...}. Like \code{declare_level}, it stands alone
+#'   rather than nesting into the frame in hand, so it can be named in a later
+#'   \code{cross_levels} or \code{link_levels}.
+#'
+#' @examples
+#' individuals <- data.frame(individuals = c("ann", "bob", "cyd"),
+#'                           ind_shock = c(-0.4, 0.1, 0.8))
+#' periods <- data.frame(year = 2020:2022, period_shock = c(0.2, -0.1, 0.3))
+#'
+#' # Each frame keeps its own key: `individuals` by name, `year` by `.id`
+#' fabricate(
+#'   individuals = import_level(individuals),
+#'   period      = import_level(periods, .id = "year"),
+#'   obs         = cross_levels(
+#'     .by = c("individuals", "period"),
+#'     Y = ind_shock + period_shock + rnorm(N)
+#'   )
+#' )
+#'
+#' # Imported units with fabricated units nested inside them
+#' fabricate(
+#'   villages = import_level(data.frame(villages = c("v1", "v2"),
+#'                                      v_income = c(10, 12))),
+#'   citizens = nest_level(N = 3, income = v_income + rnorm(N))
+#' )
+#'
+#' @export
+import_level <- function(data, ..., .id = NULL) {
+  new_level("import", data = data, id = .id, dots = rlang::enquos(...))
 }
 
 # nest_level ------------------------------------------------------------------
@@ -133,6 +213,7 @@ declare_level <- function(N, ...) {
 #' @export
 nest_level <- function(N, ...) {
   dots <- rlang::enquos(...)
+  if (missing(N)) stop_missing_n("nest_level()", dots)
   new_level("nest", N = rlang::enquo(N), dots = dots)
 }
 
@@ -284,6 +365,111 @@ execute_add_level <- function(level, nm) {
   lst <- eval_dots_into_list(level$dots, base, inner_N = N_val)
   lst[["N"]] <- NULL
   lst
+}
+
+# An imported level's ID is a column of the data rather than something
+# fabricatr makes up, which is the whole of fabricatr#165: two real data sets
+# can only be crossed if each one's own key survives the crossing. The ID
+# column is named after the level, as every other level's is, so
+# `modify_level()` named after the level, `cross_levels(.by = )`, and the
+# disjointness check all read it without knowing where it came from.
+execute_import_level <- function(level, nm) {
+  data <- level$data
+  if (!is.data.frame(data)) {
+    stop("import_level() builds a level out of a data frame, and was given ",
+         "an object of class ", class(data)[1L], ".", call. = FALSE)
+  }
+  n <- nrow(data)
+  if (n == 0L) {
+    stop("import_level() was given a data frame with no rows. A level's rows ",
+         "are its units, so it needs at least one.", call. = FALSE)
+  }
+  lst <- as.list(tibble::as_tibble(data))
+  if ("N" %in% names(lst)) {
+    # `N` is the row count in every expression a level evaluates, and the
+    # level's own bookkeeping drops it on the way out, so an imported column
+    # of that name would leave the frame silently. Refusing is the only
+    # reading that cannot lose data. `fabricate(data = )` keeps such a column,
+    # because it evaluates nothing at a level and has nothing to drop.
+    stop("The imported data has a column called `N`, and `N` is the number of ",
+         "rows the level is building in every expression, so the two cannot ",
+         "both be in view. Rename the column before importing it. If you only ",
+         "need this one data frame, `fabricate(data = )` keeps a column ",
+         "called `N`.", call. = FALSE)
+  }
+
+  id_col <- resolve_import_id(level$id, names(lst), nm)
+  if (is.null(id_col)) {
+    if (nzchar(nm)) lst <- c(stats::setNames(list(make_ids(n)), nm), lst)
+  } else {
+    check_import_id(lst[[id_col]], id_col, nm, explicit = !is.null(level$id))
+    if (id_col != nm && nm %in% names(lst)) {
+      stop("`.id = \"", id_col, "\"` in import_level() renames that column to ",
+           "`", nm, "`, the level's name, and the imported data already has a ",
+           "column called `", nm, "`. Rename one of them, or name the level ",
+           "something else.", call. = FALSE)
+    }
+    lst <- c(stats::setNames(lst[id_col], nm),
+             lst[setdiff(names(lst), id_col)])
+  }
+
+  lst <- eval_dots_into_list(level$dots, lst, inner_N = n)
+  lst[["N"]] <- NULL
+  lst
+}
+
+# Returns the name of the column to use as the level's ID, or NULL to number
+# the rows. The unnamed default is a name match, which is how a join finds the
+# column two frames share, and is what makes the common case,
+# `individuals = import_level(individuals_data)`, need no argument at all.
+resolve_import_id <- function(id, cols, nm) {
+  if (is.null(id)) {
+    return(if (nzchar(nm) && nm %in% cols) nm else NULL)
+  }
+  if (!is.character(id) || length(id) != 1L || is.na(id)) {
+    stop("`.id` in import_level() names one column of the imported data, as ",
+         "a string.", call. = FALSE)
+  }
+  if (!id %in% cols) {
+    stop("`.id = \"", id, "\"` in import_level(): the imported data has no ",
+         "column called `", id, "`. It has ",
+         paste0("`", cols, "`", collapse = ", "), ".", call. = FALSE)
+  }
+  if (!nzchar(nm)) {
+    stop("`.id` in import_level() renames the ID column after the level, and ",
+         "this import_level() has no level name. Write ",
+         "`<level> = import_level(data, .id = \"", id, "\")`.", call. = FALSE)
+  }
+  id
+}
+
+check_import_id <- function(v, id_col, nm, explicit) {
+  hint <- if (explicit) {
+    paste0("Point `.id` at a column whose values are distinct, or leave it ",
+           "off to have fabricatr number the rows.")
+  } else {
+    paste0("`", id_col, "` was used because it is named after the level. ",
+           "Set `.id` to the column that identifies a ", nm, ", or rename ",
+           "this one.")
+  }
+  if (anyNA(v)) {
+    n_na <- sum(is.na(v))
+    stop("`", id_col, "` cannot be the ID of level `", nm, "`: ", n_na,
+         " of its ", length(v), " values ", if (n_na == 1L) "is" else "are",
+         " missing, and a missing ID identifies nothing. ", hint,
+         call. = FALSE)
+  }
+  dup <- unique(v[duplicated(v)])
+  if (length(dup) > 0L) {
+    shown <- paste0("`", dup[seq_len(min(3L, length(dup)))], "`",
+                    collapse = ", ")
+    stop("`", id_col, "` cannot be the ID of level `", nm, "`: ", length(dup),
+         " of its values ", if (length(dup) == 1L) "appears" else "appear",
+         " more than once (", shown,
+         if (length(dup) > 3L) ", and others", "). A level's rows are its ",
+         "units, so their IDs have to be distinct. ", hint, call. = FALSE)
+  }
+  invisible(NULL)
 }
 
 # Signature updated: takes a plain list + N_inject scalar (not a tibble).
@@ -569,6 +755,36 @@ joint_draw_ecdf <- function(data_list, N, sigma = NULL, rho = 0) {
     ordered_idx <- pmax(1L, round(quantiles[, j] * length(v)))
     order(v)[ordered_idx]
   })
+}
+
+# fabricatr#165 was filed on `add_level(data = df, ...)`, which has never
+# imported a data frame: 1.x let `N` resolve to NULL and failed on that, and
+# here `data` is an ordinary column expression that would be stored as a
+# column called `data`. Either way the call lands on the missing `N`, so that
+# is where import_level() gets named. The argument is only evaluated when it
+# is a bare name, the shape the issue reports and the one shape that can be
+# looked at here without running an author's expression an extra time.
+stop_missing_n <- function(fn, dots) {
+  what <- if (fn == "nest_level()") {
+    "the number of rows to create for each row in hand"
+  } else {
+    "the number of rows the level builds"
+  }
+  msg <- paste0(fn, " needs `N`, ", what, ".")
+  if ("data" %in% names(dots)) {
+    quo <- dots[["data"]]
+    if (rlang::is_symbol(rlang::quo_get_expr(quo))) {
+      val <- tryCatch(rlang::eval_tidy(quo), error = function(e) NULL)
+      if (is.data.frame(val)) {
+        label <- rlang::as_label(quo)
+        msg <- paste0(
+          msg, "\n  ", fn, " does not import a data frame: `data` would be a ",
+          "column called `data`. To bring ", label, " in as a level of its ",
+          "own, write `import_level(", label, ", ...)`.")
+      }
+    }
+  }
+  stop(msg, call. = FALSE)
 }
 
 #' Check that `N` is a count of rows

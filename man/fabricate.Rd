@@ -8,7 +8,8 @@ fabricate(..., N = NULL, ID_label = "ID", data = NULL)
 }
 \arguments{
 \item{...}{Column definitions or level calls (\code{add_level},
-\code{nest_level}, \code{declare_level}, \code{cross_levels},
+\code{nest_level}, \code{declare_level}, \code{import_level},
+\code{cross_levels},
 \code{link_levels}, \code{modify_level}, \code{potential_outcomes},
 \code{draw_multivariate}). \code{N} must be supplied by name.}
 

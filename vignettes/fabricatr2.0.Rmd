@@ -471,6 +471,39 @@ Three other things stop rather than run, and each was answering the wrong questi
 
 ## What is new
 
+### Existing data frames come in as levels
+
+`import_level()` makes a data frame a level of the design, which is what lets two real data sets be crossed or linked. `fabricate(data = df, ...)` starts from one frame and builds down from it, and that is still the way to add columns to data you already have. What it cannot do is bring in a second frame, because a level is the thing `cross_levels()` and `link_levels()` work on.
+
+The level's ID is the frame's own key. A column named after the level is used as it stands, the way a join matches on a shared name, and `.id` names the column when it is called something else:
+
+```{r}
+individuals <- data.frame(individuals = c("ann", "bob", "cyd"),
+                          ind_shock = c(-0.4, 0.1, 0.8))
+periods <- data.frame(year = 2020:2022, period_shock = c(0.2, -0.1, 0.3))
+
+fabricate(
+  individuals = import_level(individuals),
+  period      = import_level(periods, .id = "year"),
+  obs         = cross_levels(.by = c("individuals", "period"),
+                             Y = ind_shock + period_shock + rnorm(N))
+)
+```
+
+An imported key keeps its own type and values, where a fabricated one is a zero-padded character string, so the column still matches the same key in the data it came from. The one column name an imported frame cannot carry is `N`, which is the row count in every expression a level evaluates, and which is refused rather than dropped in silence. A frame with no key of its own gets numbered rows, as `add_level()` numbers them. A key with a repeated or a missing value is refused, because a level's rows are its units.
+
+Levels nest under an imported one as they nest under any other, so a real sample of villages can carry simulated citizens:
+
+```{r}
+fabricate(
+  villages = import_level(data.frame(villages = c("v1", "v2"),
+                                     v_income = c(10, 12))),
+  citizens = nest_level(N = 3, income = v_income + rnorm(N))
+)
+```
+
+### `n()` counts the rows in hand
+
 `n()` is the number of rows the level is building, and it works in every declaration: flat, `add_level()`, `nest_level()`, `cross_levels()`, and `modify_level()`, where it counts the level being worked at. `N` names the same quantity and still does. The reason to have both is that `N` is a name: a design that also carries an `N` in its workspace leaves a reader unsure which one an expression reads, and `redesign()` rebinds names, where nothing can rebind a call. A data set that carries a column called `n` keeps it, because R skips non-function bindings when it looks up a call, so `sum(n)` reads the column and `n()` reads the count. 1.0.2 fails with `could not find function "n"`.
 
 ```{r}
@@ -544,11 +577,11 @@ What survives untouched is the statistical content: `draw_normal_icc()`, `draw_b
 
 ## Current status
 
-On the current `rewrite` head, `R CMD check --as-cran --no-manual` on the built tarball reports 0 errors, 0 warnings, and 1 note, the CRAN incoming check's remark that the maintainer has changed from 1.0.2's. The test suite passes 331 expectations across six files.
+On the current `rewrite` head, `R CMD check --as-cran --no-manual` on the built tarball reports 0 errors, 0 warnings, and 1 note, the CRAN incoming check's remark that the maintainer has changed from 1.0.2's. The test suite passes 604 expectations across fourteen files.
 
 ### Upstream issues
 
-All eleven issues open on fabricatr 1.x were checked by running the reporter's own code under both packages. Eight no longer reproduce here, two are documentation bugs in fabricatr's own vignettes, and one is genuinely still open.
+All eleven issues open on fabricatr 1.x were checked by running the reporter's own code under both packages. Nine no longer reproduce here, and the remaining two are documentation bugs in fabricatr's own vignettes.
 
 The distinction in the last column is worth reading. Some of these never went wrong here, because the rewrite happened not to repeat the mistake. Others were wrong here too, and were only found because someone had already written the issue up.
 
@@ -558,7 +591,7 @@ The distinction in the last column is worth reading. Some of these never went wr
 | [#149](https://github.com/DeclareDesign/fabricatr/issues/149) | `draw_normal_icc()` refuses ICC values at or near 0 and 1 | **Fixed**, and it was wrong here too. Full `[0, 1]` range, with both endpoints treated as the degenerate cases they are |
 | [#158](https://github.com/DeclareDesign/fabricatr/issues/158) | `draw_likert()` returns a factor, ignores arbitrary `breaks`, and the `draw_*` functions share one man page | Never reproduced. Integer by default, `breaks` honoured, ten separate man pages |
 | [#160](https://github.com/DeclareDesign/fabricatr/issues/160) | `join()` collides with dplyr | Never reproduced. No such function; `.by` takes a character vector |
-| [#165](https://github.com/DeclareDesign/fabricatr/issues/165) | Data frames should be importable as levels, so two existing datasets can be crossed | **Still open.** See below |
+| [#165](https://github.com/DeclareDesign/fabricatr/issues/165) | Data frames should be importable as levels, so two existing datasets can be crossed | **Fixed** by `import_level()`, which is the one thing here that 1.x was missing rather than getting wrong. See [above](#existing-data-frames-come-in-as-levels) |
 | [#167](https://github.com/DeclareDesign/fabricatr/issues/167) | `modify_level()` before a crossed level fails with "the variable name is ambiguous" | Never reproduced |
 | [#182](https://github.com/DeclareDesign/fabricatr/issues/182) | Variable-length hierarchy plus `potential_outcomes()` warns, and errors outright on R 4.2 and later | Never reproduced |
 | [#188](https://github.com/DeclareDesign/fabricatr/issues/188) | A matrix column cannot be referenced as `X.1` by a later expression | **Fixed**, and it was wrong here too, in a different way: the matrix was kept whole, so the output had one column where 1.x had three |
@@ -566,9 +599,9 @@ The distinction in the last column is worth reading. Some of these never went wr
 | [#191](https://github.com/DeclareDesign/fabricatr/issues/191) | Asks for a worked `copula` example in the documentation | Not applicable. `draw_multivariate()` takes the same `rMvdc()` formula, so the example in the issue transfers unchanged |
 | [#193](https://github.com/DeclareDesign/fabricatr/issues/193) | The vignettes document a `type` argument to `draw_likert()` that does not exist | Not applicable. `draw_likert()` has `bins` and `breaks`, and these pages are new |
 
-Four of the eight were live defects here, found by reading someone else's bug report rather than by testing. That is the argument for going through an upstream issue tracker after a rewrite, and not only the parts of it you expect to have inherited.
+Four of them were live defects here, found by reading someone else's bug report rather than by testing. That is the argument for going through an upstream issue tracker after a rewrite, and not only the parts of it you expect to have inherited.
 
-**What is still open.** [#165](https://github.com/DeclareDesign/fabricatr/issues/165) wants to import existing data frames as levels, so that a real sample of units and a real set of periods can be brought in separately and crossed. `fabricate(data = df, ...)` covers the single-frame case, and `declare_level()` is the right shape for the rest, but nothing here imports a data frame as a level. A prototype `import_level()` works in about twenty lines; the open design question is whether an imported frame's own key should become the level ID rather than a synthetic one appearing beside it.
+**What #165 asked for.** [#165](https://github.com/DeclareDesign/fabricatr/issues/165) wanted existing data frames importable as levels, so that a real sample of units and a real set of periods could be brought in separately and crossed. `import_level()` does that. The design question the prototype left open, whether an imported frame's own key becomes the level ID or a synthetic one appears beside it, is settled in favour of the frame's own key: a synthetic ID beside an imported one is two names for the same unit, and the imported key is the one that still matches the data it came from. See [above](#existing-data-frames-come-in-as-levels).
 
 ### Known gaps
 

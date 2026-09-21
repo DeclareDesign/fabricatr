@@ -58,6 +58,8 @@ Each of these is accepted and warns once per call site with the call to write in
 
 * `declare_level()` builds an independent level for `cross_levels()` and `link_levels()`, replacing `add_level(nest = FALSE)`.
 
+* `import_level()` brings an existing data frame into a `fabricate()` call as a level of its own, so two real data sets can be crossed or linked (fabricatr#165). The level's ID is the frame's own key: a column named after the level is used as it stands, the way a join matches on a shared name, `.id` names one that is called something else, and a frame with no key of its own gets numbered rows. An imported key keeps its own type and values, so it still matches the data it came from, and a key with a repeated or missing value is refused. `add_level(data = df)`, the spelling the issue was filed on and one that has never imported anything in either version, now fails with a message naming `import_level()`. A column called `N` is refused, because `N` is the row count in every expression a level evaluates and the column would leave the frame in silence; `fabricate(data = )` evaluates nothing at a level and still keeps it.
+
 * `n()` inside any declaration is the number of rows the level is building, the same count `N` names, as a function call that cannot be confused with a parameter of the design.
 
 * Level calls and ordinary columns can be mixed in one `fabricate()` call. 1.x required all of the arguments to be level calls or none of them.

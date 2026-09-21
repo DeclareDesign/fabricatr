@@ -5,7 +5,8 @@
 #' existing data.
 #'
 #' @param ... Column definitions or level calls (\code{add_level},
-#'   \code{nest_level}, \code{declare_level}, \code{cross_levels},
+#'   \code{nest_level}, \code{declare_level}, \code{import_level},
+#'   \code{cross_levels},
 #'   \code{link_levels}, \code{modify_level}, \code{potential_outcomes},
 #'   \code{draw_multivariate}). \code{N} must be supplied by name.
 #' @param N Number of rows. Made available as a scalar integer \code{N} inside
@@ -372,6 +373,7 @@ execute_level <- function(level, lst, N_inject, nm, level_registry) {
               else
                 execute_add_level(level, nm),
     declare = execute_add_level(level, nm),
+    import  = execute_import_level(level, nm),
     nest    = execute_nest_level(level, lst, N_inject, nm),
     cross   = execute_cross_level(level, level_registry, nm),
     link    = execute_link_level(level, level_registry, nm),
