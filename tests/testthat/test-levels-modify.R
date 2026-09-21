@@ -86,3 +86,17 @@ test_that("modify_level in the middle of three levels works at that level", {
   expect_equal(df$x2, df$x * 2)
   expect_equal(df$z[c(1, 3, 5, 7)], df$z[c(2, 4, 6, 8)])
 })
+
+test_that("modify_level requires one value per unit of the level", {
+  expect_error(
+    fabricate(g = add_level(N = 3, x = 1:3), g = modify_level(y = c(1, 2))),
+    "returned 2 values for 3 g")
+})
+
+test_that("a genuine missing object is reported as itself", {
+  # The out-of-view message rewrites "object 'x' not found" only when `x` is a
+  # real column of a level nested inside, so a plain typo must pass through.
+  expect_error(
+    fabricate(g = add_level(N = 3, x = 1:3), g = modify_level(y = notacolumn * 2)),
+    "object 'notacolumn' not found")
+})

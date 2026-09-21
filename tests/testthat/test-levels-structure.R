@@ -111,3 +111,46 @@ test_that("a level's expressions see the author's environment, not the frame", {
   expect_equal(df$y, c(5, 10, 15, 20))
   expect_equal(df$z, c(5, 5, 10, 10))
 })
+
+test_that("nest_level needs a parent and an N that matches it", {
+  expect_error(fabricate(u = nest_level(N = 2, x = 1)),
+               "requires an existing level to nest within")
+  expect_error(
+    fabricate(g = add_level(N = 3), u = nest_level(N = c(1, 2), x = 1)),
+    "scalar or a vector of length nrow\\(parent\\)")
+  d <- fabricate(g = add_level(N = 3), u = nest_level(N = c(1, 2, 3), x = 1))
+  expect_equal(nrow(d), 6L)
+})
+
+test_that("an unnamed data frame inside a level splats into columns", {
+  # Tested flat, where the whole frame is the level; inside a level the columns
+  # go through recycle_to_level() instead, which is a different code path.
+  skip_if_not_installed("MASS")
+  S <- matrix(c(1, 0.6, 0.6, 1), 2, 2)
+  set.seed(343)
+  d <- fabricate(
+    g = add_level(N = 3),
+    u = nest_level(N = 2, draw_multivariate(c(A, B) ~ MASS::mvrnorm(N, c(0, 0), S))))
+  expect_equal(names(d), c("g", "u", "A", "B"))
+  expect_equal(nrow(d), 6L)
+  # One value per unit of the nested level, not one per parent recycled.
+  expect_equal(length(unique(d$A)), 6L)
+  # A one-row frame still recycles to the level.
+  d2 <- fabricate(g = add_level(N = 2), u = nest_level(N = 3, data.frame(k = 1)))
+  expect_equal(d2$k, rep(1, 6))
+})
+
+test_that("an unnamed data frame splats inside add_level too", {
+  # add_level() reaches the splat through eval_dots_into_list(), where the
+  # columns are recycled with recycle_to_n() rather than recycle_to_level().
+  skip_if_not_installed("MASS")
+  S <- matrix(c(1, 0.4, 0.4, 1), 2, 2)
+  set.seed(343)
+  d <- fabricate(g = add_level(
+    N = 4, draw_multivariate(c(A, B) ~ MASS::mvrnorm(N, c(0, 0), S))))
+  expect_equal(names(d), c("g", "A", "B"))
+  expect_equal(nrow(d), 4L)
+  expect_equal(length(unique(d$A)), 4L)
+  # A single row recycles to the level's N.
+  expect_equal(fabricate(g = add_level(N = 3, data.frame(k = 7)))$k, rep(7, 3))
+})

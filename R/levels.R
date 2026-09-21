@@ -343,6 +343,24 @@ execute_nest_level <- function(level, lst, N_inject, nm) {
 }
 
 # Pure-list Cartesian product (avoids data.frame construction overhead).
+# A level built with add_level() is nested inside the level before it, and its
+# registry entry carries that ancestor's columns. Crossing or linking the two
+# would concatenate the shared columns into a duplicate name, which surfaces
+# much later as a name-uniqueness failure that says nothing about the cause.
+# 1.0.2 refuses the same combination, naming the ambiguous level.
+check_levels_disjoint <- function(lsts, fn) {
+  shared <- setdiff(names(which(table(unlist(lapply(lsts, names))) > 1L)), "N")
+  if (length(shared) > 0L) {
+    stop(fn, ": the levels in `.by` both carry ",
+         paste0("`", shared, "`", collapse = ", "),
+         ", so joining them would produce duplicate columns. A level created ",
+         "with add_level() is nested inside the one before it and carries its ",
+         "columns; declare_level() creates a level that stands alone.",
+         call. = FALSE)
+  }
+  invisible(NULL)
+}
+
 cross_join_lists <- function(a, b) {
   na <- length(a[[1L]])
   nb <- length(b[[1L]])
@@ -361,6 +379,7 @@ execute_cross_level <- function(level, level_registry, nm) {
   if (length(level$by) < 2L) stop("cross_levels: specify at least 2 levels in .by.")
 
   lsts  <- level_registry[level$by]
+  check_levels_disjoint(lsts, "cross_levels")
   base  <- Reduce(cross_join_lists, lsts)
   base[["N"]] <- NULL
   N_val <- length(base[[1L]])
@@ -378,6 +397,7 @@ execute_link_level <- function(level, level_registry, nm) {
          paste(missing, collapse = ", "))
   }
   lsts <- level_registry[level$by]
+  check_levels_disjoint(lsts, "link_levels")
   N    <- validate_n(level$N, "link_levels()")
 
   indices <- joint_draw_ecdf(

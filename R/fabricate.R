@@ -112,7 +112,7 @@ fabricate_with_dots <- function(data = NULL, dots, ID_label = "ID") {
 level_mask <- function(data, size = NULL) {
   nms <- names(data) %||% character(0)
   if (length(data) && (anyDuplicated(nms) || !all(nzchar(nms)))) {
-    rlang::abort("`data` must be uniquely named but has duplicate columns")
+    rlang::abort("`data` must have unique, non-empty column names.")
   }
   helpers <- new.env(parent = rlang::empty_env())
   # `list2env()` rather than `rlang::as_environment()`, which re-checks that

@@ -136,3 +136,88 @@ test_that("link_levels keeps rho and sigma behind the dots", {
   expect_equal(df$s, df$x + df$y)
   expect_equal(names(formals(link_levels)), c("N", ".by", "...", "rho", "sigma"))
 })
+
+test_that("cross_levels and link_levels check the levels named in .by", {
+  expect_error(
+    fabricate(g = add_level(N = 2), c = cross_levels(.by = "g")),
+    "at least 2 levels")
+  expect_error(
+    fabricate(g = add_level(N = 2), c = cross_levels(.by = c("g", "zz"))),
+    "levels not found in registry: zz")
+  expect_error(
+    fabricate(g = add_level(N = 2), l = link_levels(N = 4, .by = c("g", "zz"))),
+    "levels not found in registry: zz")
+})
+
+test_that("a level cannot be crossed with one it is nested inside", {
+  # add_level() nests, so `h`'s registry entry carries `g` and everything else
+  # from the level above it. Concatenating the two duplicated those columns and
+  # surfaced as a name-uniqueness failure naming neither level. 1.0.2 refuses
+  # the same call, saying the level name is ambiguous.
+  expect_error(
+    fabricate(g = add_level(N = 3, x = 1:3), h = add_level(N = 2, z = 1:6),
+              c = cross_levels(.by = c("g", "h"))),
+    "both carry `g`, `x`")
+  expect_error(
+    fabricate(g = add_level(N = 3, x = 1:3), h = add_level(N = 2, z = 1:6),
+              l = link_levels(N = 9, .by = c("g", "h"))),
+    "both carry `g`, `x`")
+  # Two independent levels that happen to share a column name are refused too.
+  expect_error(
+    fabricate(g = declare_level(N = 3, w = 1:3), h = declare_level(N = 2, w = 1:2),
+              c = cross_levels(.by = c("g", "h"))),
+    "both carry `w`")
+  # declare_level() builds levels that stand alone, so crossing them works.
+  expect_equal(
+    names(fabricate(g = declare_level(N = 3, x = 1:3),
+                    h = declare_level(N = 2, z = 1:2),
+                    c = cross_levels(.by = c("g", "h")))),
+    c("g", "x", "h", "z", "c"))
+})
+
+test_that("link_levels validates N, rho and sigma", {
+  two <- function(...) fabricate(g = declare_level(N = 2, x = c(0, 1)),
+                                 h = declare_level(N = 2, z = c(0, 1)), ...)
+  expect_error(two(l = link_levels(N = -1, .by = c("g", "h"))), "positive")
+  expect_error(two(l = link_levels(N = 4, .by = c("g", "h"), rho = c(1, 2))),
+               "`rho` in link_levels\\(\\) must be a single number")
+  expect_error(
+    two(l = link_levels(N = 4, .by = c("g", "h"),
+                        sigma = matrix(c(2, 0, 0, 2), 2))),
+    "diagonal of `sigma` must be all 1s")
+  expect_error(
+    two(l = link_levels(N = 4, .by = c("g", "h"), sigma = matrix(1, 1, 1))),
+    "one row and one column per")
+})
+
+test_that("1.x's by = join_using() spelling still resolves", {
+  # `by` is captured as an expression, so each spelling has to be written out
+  # at the call rather than passed in through a variable.
+  expected <- c("g", "x", "h", "z", "l")
+  set.seed(343)
+  expect_setequal(suppressWarnings(names(fabricate(
+    g = declare_level(N = 3, x = c(0, 1, 2)),
+    h = declare_level(N = 3, z = c(0, 1, 2)),
+    l = link_levels(N = 9, by = join_using(g, h))))), expected)
+  expect_setequal(suppressWarnings(names(fabricate(
+    g = declare_level(N = 3, x = c(0, 1, 2)),
+    h = declare_level(N = 3, z = c(0, 1, 2)),
+    l = link_levels(N = 9, by = join_using("g", "h"))))), expected)
+  expect_setequal(suppressWarnings(names(fabricate(
+    g = declare_level(N = 3, x = c(0, 1, 2)),
+    h = declare_level(N = 3, z = c(0, 1, 2)),
+    l = link_levels(N = 9, by = join_using(g, h, rho = 0.5))))), expected)
+  expect_setequal(suppressWarnings(names(fabricate(
+    g = declare_level(N = 3, x = c(0, 1, 2)),
+    h = declare_level(N = 3, z = c(0, 1, 2)),
+    l = link_levels(N = 9, by = c("g", "h"))))), expected)
+})
+
+test_that("joint_draw_ecdf checks N itself, behind link_levels's own check", {
+  # validate_n() rejects a bad N before this is reached through link_levels(),
+  # so the guard is a precondition on the internal rather than a user message.
+  expect_error(fabricatr:::joint_draw_ecdf(list(1:3, 1:3), N = -1),
+               "single positive number")
+  expect_error(fabricatr:::joint_draw_ecdf(list(1:3, 1:3), N = NA_real_),
+               "single positive number")
+})

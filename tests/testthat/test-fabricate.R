@@ -272,3 +272,37 @@ test_that("data with rows and no columns keeps its row count", {
   expect_equal(fabricate(data = dat, y = seq_len(N))$y, 1:3)
   expect_equal(nrow(fabricate(data = dat, y = 1:3)), 3L)
 })
+
+test_that("n() counts the level being built, and says so when there is none", {
+  expect_equal(fabricate(N = 3, y = n())$y, rep(3L, 3))
+  expect_equal(fabricate(g = add_level(N = 2), u = nest_level(N = 3, y = n()))$y,
+               rep(6L, 6))
+  expect_equal(fabricate(data = data.frame(g = 1:3), y = n())$y, rep(3L, 3))
+  # n_fn() is reached with no level only from inside, where size is NULL.
+  m <- fabricatr:::level_mask(list(a = 1:3))
+  expect_error(m$n_fn(), "n\\(\\) has no level to count here")
+})
+
+test_that("a local value called n wins over the n() helper, as in 1.x", {
+  n <- 99
+  expect_equal(fabricate(N = 3, y = n)$y, rep(99, 3))
+  rm(n)
+  expect_equal(fabricate(N = 3, y = n())$y, rep(3L, 3))
+})
+
+test_that("a level's columns must be uniquely and non-emptily named", {
+  # The guard is what lets level_mask() use list2env() rather than
+  # rlang::as_environment(), which re-checks the names on every call.
+  expect_error(fabricatr:::level_mask(setNames(list(1:3, 4:6), c("a", "a"))),
+               "unique, non-empty column names")
+  expect_error(fabricatr:::level_mask(setNames(list(1:3), "")),
+               "unique, non-empty column names")
+  expect_silent(fabricatr:::level_mask(list(a = 1:3, b = 4:6), size = 3L))
+})
+
+test_that("a rejected N is rendered readably in the message", {
+  expect_equal(fabricatr:::format_n_value(NULL), "NULL")
+  expect_equal(fabricatr:::format_n_value(1:10), "10 values starting 1, 2, 3")
+  expect_match(fabricatr:::format_n_value(lm(1 ~ 1)), "^an object of class lm$")
+  expect_error(fabricate(N = 1:10, y = 1), "10 values")
+})

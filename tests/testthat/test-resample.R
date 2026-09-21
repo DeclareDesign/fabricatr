@@ -97,3 +97,9 @@ test_that("resample_data cluster bootstrap resamples correct clusters", {
   # Unique clusters may be < 6 due to replacement, so bound from above
   expect_lte(length(unique(boot$clusters)), 6L)
 })
+
+test_that("resample_data checks N against ID_labels", {
+  d <- fabricate(N = 4, y = 1)
+  expect_error(resample_data(d, N = c(2, 2), ID_labels = "ID"),
+               "same length")
+})

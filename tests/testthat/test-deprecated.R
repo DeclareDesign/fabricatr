@@ -143,3 +143,7 @@ test_that("break_labels and category_labels are accepted as labels", {
   expect_s3_class(old, "factor")
   expect_false(is.ordered(old))
 })
+
+test_that("recycle() says how to supply N when it cannot find one", {
+  expect_error(fabricatr:::recycle(1:2), "could not find `N`")
+})

@@ -134,3 +134,7 @@ test_that("a factorial reveal picks the right cell and keeps its type", {
   }, character(1))
   expect_identical(as.character(revealed), wanted)
 })
+
+test_that("potential_outcomes needs an outcome name on the LHS", {
+  expect_error(potential_outcomes(~ Z * 2), "LHS of the formula")
+})
