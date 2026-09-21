@@ -13,3 +13,5 @@
 ^docs$
 ^_pkgdown\.yml$
 ^pkgdown$
+^revdep$
+^cran-comments\.md$
