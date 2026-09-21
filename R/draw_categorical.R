@@ -88,9 +88,13 @@ draw_categorical <- function(prob, N = NULL, labels = NULL,
 #' @param x Latent continuous variable (numeric vector).
 #' @param breaks Numeric vector of cut-points in ascending order. The vector
 #'   should span the range of \code{x}; values outside the range are placed in
-#'   the outermost categories unless \code{strict = TRUE}.
-#' @param labels Optional character vector of category labels. Length must
-#'   equal \code{length(breaks) + 1}. When supplied, returns an ordered factor.
+#'   the outermost categories unless \code{strict = TRUE}. An infinite
+#'   endpoint bounds the scale rather than cutting it, so
+#'   \code{c(-Inf, 0, Inf)} gives the same two categories as \code{0}.
+#' @param labels Optional character vector of category labels, one per
+#'   category. That is \code{length(breaks) + 1} for interior cut-points, one
+#'   fewer for each infinite endpoint, and \code{length(breaks) - 1} when
+#'   \code{strict = TRUE}. When supplied, returns an ordered factor.
 #' @param N Must equal \code{length(x)} if it is given at all, and is an
 #'   error otherwise. It cannot change how many values come back, which is
 #'   always \code{length(x)}: unlike \code{draw_binary()} and the rest of the
@@ -148,12 +152,23 @@ draw_ordered <- function(x = latent,
   if (!is.numeric(breaks)) stop("`breaks` must be numeric.")
   if (is.unsorted(breaks)) stop("`breaks` must be in ascending order.")
 
-  n_cats <- length(breaks) + 1L
+  # `breaks` may be interior cut-points, or may carry infinite endpoints that
+  # bound the scale rather than cut it. Each infinite endpoint removes a
+  # category, and `strict = TRUE` removes both, by sending everything outside
+  # `breaks` to NA. findInterval() returns 0 only for a value below breaks[1],
+  # so the offset that makes the codes 1-based is 1 exactly when that region
+  # is still a category of its own. 1.x reads the lower end correctly but
+  # applies the same test to a trailing Inf, which returns 0-based codes for
+  # breaks = c(-1, 0, Inf); the lower end alone decides the offset.
+  open_below <- strict || (is.infinite(breaks[1L]) && breaks[1L] < 0)
+  open_above <- strict || (is.infinite(breaks[length(breaks)]) &&
+                             breaks[length(breaks)] > 0)
+  n_cats <- length(breaks) + 1L - open_below - open_above
   if (!is.null(labels) && length(labels) != n_cats) {
-    stop("length(labels) must equal length(breaks) + 1 = ", n_cats, ".")
+    stop("length(labels) must equal the number of categories, ", n_cats, ".")
   }
 
-  vals <- findInterval(x, breaks) + 1L
+  vals <- findInterval(x, breaks) + if (open_below) 0L else 1L
 
   if (strict) {
     vals[x < breaks[1] | x > breaks[length(breaks)]] <- NA_integer_

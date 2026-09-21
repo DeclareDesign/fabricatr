@@ -20,10 +20,14 @@ draw_ordered(
 
 \item{breaks}{Numeric vector of cut-points in ascending order. The vector
 should span the range of \code{x}; values outside the range are placed in
-the outermost categories unless \code{strict = TRUE}.}
+the outermost categories unless \code{strict = TRUE}. An infinite
+endpoint bounds the scale rather than cutting it, so
+\code{c(-Inf, 0, Inf)} gives the same two categories as \code{0}.}
 
-\item{labels}{Optional character vector of category labels. Length must
-equal \code{length(breaks) + 1}. When supplied, returns an ordered factor.}
+\item{labels}{Optional character vector of category labels, one per
+category. That is \code{length(breaks) + 1} for interior cut-points, one
+fewer for each infinite endpoint, and \code{length(breaks) - 1} when
+\code{strict = TRUE}. When supplied, returns an ordered factor.}
 
 \item{N}{Must equal \code{length(x)} if it is given at all, and is an
 error otherwise. It cannot change how many values come back, which is

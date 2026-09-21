@@ -113,21 +113,56 @@ test_that("draw_ordered validates breaks and labels", {
   expect_error(draw_ordered(x, breaks = c("a", "b")), "`breaks` must be numeric")
   expect_error(draw_ordered(x, breaks = c(1, 0)), "ascending order")
   expect_error(draw_ordered(x, breaks = c(-1, 1), labels = c("a", "b")),
-               "length\\(breaks\\) \\+ 1 = 3")
+               "number of categories, 3")
 })
 
 test_that("draw_ordered(strict = TRUE) makes values outside the breaks NA", {
   # A formal the man page documents three times and no test set, so the branch
   # never ran. Values below the first break or above the last have no bounded
   # category, and strict = TRUE refuses to put them in the open end ones.
+  # The codes count the categories that can occur. strict = TRUE refuses the
+  # open end ones, so the first bounded interval is category 1 and there are
+  # length(breaks) - 1 of them, which is what 1.x returns. Numbering it 2
+  # leaves a category 1 that is NA by construction and a label nothing can
+  # carry.
   x <- c(-5, -0.5, 5)
   expect_equal(draw_ordered(x, breaks = c(-1, 1), strict = TRUE),
-               c(NA, 2L, NA))
+               c(NA, 1L, NA))
   expect_equal(draw_ordered(x, breaks = c(-1, 1)), c(1L, 2L, 3L))
-  f <- draw_ordered(x, breaks = c(-1, 1), labels = c("lo", "mid", "hi"),
-                    strict = TRUE)
+  f <- draw_ordered(c(-5, -0.5, 0.5, 5), breaks = c(-1, 0, 1),
+                    labels = c("lo", "hi"), strict = TRUE)
   expect_s3_class(f, "ordered")
-  expect_equal(as.character(f), c(NA, "mid", NA))
+  expect_equal(as.character(f), c(NA, "lo", "hi", NA))
+  expect_error(draw_ordered(x, breaks = c(-1, 1), strict = TRUE,
+                            labels = c("lo", "mid", "hi")),
+               "number of categories, 1")
+})
+
+test_that("an infinite break bounds the scale instead of cutting it", {
+  # DesignLibrary's cluster_sampling_designer cuts a latent normal at
+  # qnorm(seq(0, 1, length.out = 8)), whose endpoints are -Inf and Inf. No
+  # value falls below -Inf, so findInterval() never returns 0 and the usual
+  # +1 offset numbered the seven categories 2:8. mean(Y) came out exactly one
+  # too high, which no test in this package could see.
+  set.seed(343)
+  x <- rnorm(500)
+  expect_equal(draw_ordered(x, breaks = c(-Inf, 0, Inf)),
+               draw_ordered(x, breaks = 0))
+  bounded <- draw_ordered(x, breaks = qnorm(seq(0, 1, length.out = 8)))
+  expect_equal(range(bounded), c(1L, 7L))
+  expect_equal(draw_ordered(x, breaks = c(-Inf, -1, 0, 1, Inf)),
+               draw_ordered(x, breaks = c(-1, 0, 1)))
+  # One infinite endpoint removes one category, and only the lower one moves
+  # the offset: a trailing Inf still leaves "below the first break" a
+  # category. 1.x reads c(-1, 0, Inf) as 0-based.
+  expect_equal(range(draw_ordered(x, breaks = c(-Inf, 0, 1))), c(1L, 3L))
+  expect_equal(range(draw_ordered(x, breaks = c(-1, 0, Inf))), c(1L, 3L))
+  f <- draw_ordered(x, breaks = c(-Inf, 0, Inf), labels = c("lo", "hi"))
+  expect_s3_class(f, "ordered")
+  expect_setequal(levels(f), c("lo", "hi"))
+  expect_error(draw_ordered(x, breaks = c(-Inf, 0, Inf),
+                            labels = c("a", "b", "c", "d")),
+               "number of categories, 2")
 })
 
 test_that("draw_likert requires breaks or all three of min, max and bins", {
