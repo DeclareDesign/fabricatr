@@ -93,6 +93,13 @@ reference:
   - resample_data
   - ALL
 
+- title: Calling fabricatr from a package
+  desc: >
+    For a caller that captures the expressions itself, as DeclareDesign's
+    declaration verbs do.
+  contents:
+  - fabricate_with_dots
+
 - title: fabricatr 1.x spellings
   desc: >
     Kept so that scripts written for fabricatr 1.x run unchanged. Each is

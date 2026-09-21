@@ -1,11 +1,26 @@
 # The contract DeclareDesign depends on.
 #
-# `fabricate_with_dots()` is internal, has no man page and is called by nothing
-# inside this package, so until now no test reached it: it was the only
-# function in fabricatr with zero coverage. DeclareDesign calls it at two sites
-# in `R/declare_model.R`, with quosures it captured itself, precisely to avoid
-# `fabricate()`'s own `enquos()` re-capturing them. Every test here is written
-# the way those call sites write it, with a `dots` list built by `quos()`.
+# `fabricate_with_dots()` is called by nothing inside this package, so its only
+# caller is another package and its only description of what it must do is
+# here. DeclareDesign calls it at two sites in `R/declare_model.R`, with
+# quosures it captured itself, precisely to avoid `fabricate()`'s own
+# `enquos()` re-capturing them. Every test here is written the way those call
+# sites write it, with a `dots` list built by `quos()`.
+#
+# It was an unexported function reached with `:::` until 2026-09-21. Nothing
+# about that arrangement was safe: `R CMD check` suppresses the
+# unexported-object NOTE when the two packages share a maintainer, so the
+# boundary was quiet for a reason that had nothing to do with the boundary.
+# It is exported now, and the first test below is what makes that a promise.
+
+test_that("fabricate_with_dots() is exported, and DeclareDesign can call it", {
+  expect_true("fabricate_with_dots" %in% getNamespaceExports("fabricatr"))
+  # The argument names are half of the contract: DeclareDesign calls it by
+  # name at both sites.
+  expect_equal(names(formals(fabricatr::fabricate_with_dots)),
+               c("data", "dots", "ID_label"))
+  expect_equal(formals(fabricatr::fabricate_with_dots)$ID_label, "ID")
+})
 
 test_that("a pre-captured dots list builds what the literal call builds", {
   set.seed(343)

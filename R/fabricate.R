@@ -71,9 +71,45 @@ fabricate <- function(..., N = NULL, ID_label = "ID", data = NULL) {
   fabricate_impl(N = N, dots = dots, data = data, ID_label = ID_label)
 }
 
-# Internal: called by DeclareDesign's make_fabricate_step with a
-# pre-captured quosures list, avoiding double-quoting from !!!-injection.
-#' @keywords internal
+#' Fabricate from a list of quosures
+#'
+#' The programmatic entry point, for a caller that has already captured the
+#' expressions it wants fabricated. [fabricate()] captures its \code{...} with
+#' \code{enquos()}, which such a caller cannot use: splicing captured quosures
+#' back in with \code{!!!} renders them as formulas, and \code{fabricate()}
+#' then captures those, one level too deep.
+#' \code{fabricate_with_dots()} takes the captured list as it stands and
+#' builds the frame [fabricate()] would have built from the same expressions.
+#'
+#' DeclareDesign is the caller this exists for. Its \code{declare_model()},
+#' \code{declare_measurement()}, \code{declare_assignment()} and
+#' \code{declare_sampling()} each capture their own arguments, so that a
+#' design carries its expressions as a value rather than as a view onto the
+#' environment it was written in, and then pass the captured list here.
+#'
+#' @param data Optional existing data frame to start from, as in
+#'   [fabricate()].
+#' @param dots A named list of quosures, such as [rlang::quos()] or
+#'   [rlang::enquos()] returns. A quosure named \code{N} sets the number of
+#'   rows and does not become a column, exactly as \code{fabricate(N = )}
+#'   does. Every other element needs a name.
+#' @param ID_label Name of the unit ID column, or \code{NA} to suppress it.
+#'   See [fabricate()].
+#'
+#' @return A tibble, the same one [fabricate()] returns for the same
+#'   expressions.
+#' @seealso [fabricate()], which is what to call when you hold the expressions
+#'   rather than their captures.
+#' @examples
+#' dots <- rlang::quos(N = 10, Y = rnorm(N), X = Y > 0)
+#' fabricate_with_dots(dots = dots)
+#'
+#' # The same frame without the row id, which is how a step that adds columns
+#' # to data already in hand calls it.
+#' fabricate_with_dots(dots = rlang::quos(Y2 = Y * 2),
+#'                     data = fabricate_with_dots(dots = dots),
+#'                     ID_label = NA)
+#' @export
 fabricate_with_dots <- function(data = NULL, dots, ID_label = "ID") {
   # Extract N if it was captured as a named quosure in dots (flat case)
   N <- NULL
