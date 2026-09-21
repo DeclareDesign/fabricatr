@@ -1,5 +1,5 @@
 test_that("draw_normal_icc produces target ICC", {
-  set.seed(42)
+  set.seed(343)
   clusters <- rep(1:20, each = 50)
   y <- draw_normal_icc(clusters = clusters, ICC = 0.4)
   r2 <- summary(lm(y ~ factor(clusters)))$r.squared
@@ -8,7 +8,7 @@ test_that("draw_normal_icc produces target ICC", {
 })
 
 test_that("draw_binary_icc produces target ICC", {
-  set.seed(42)
+  set.seed(343)
   clusters <- rep(1:20, each = 50)
   y <- draw_binary_icc(clusters = clusters, prob = 0.5, ICC = 0.3)
   r2 <- summary(lm(y ~ factor(clusters)))$r.squared

@@ -137,13 +137,15 @@ test_that("a column called n does not stop n() from working", {
 })
 
 test_that("n() beats a same-named function on the search path", {
-  skip_if_not_installed("dplyr")
   # dplyr::n() errors outside a dplyr verb, so a declaration writing n() would
-  # fail if the search path won the lookup.
-  local({
-    library(dplyr)
-    expect_equal(unique(fabricate(N = 3, k = n())$k), 3L)
-  })
+  # fail if the search path won the lookup. The attach is reversed by hand:
+  # library() is not undone by local(), so leaving dplyr on the search path
+  # would change what every test file alphabetically after this one sees.
+  already <- "package:dplyr" %in% search()
+  if (!already) library(dplyr)
+  k <- try(unique(fabricate(N = 3, k = n())$k), silent = TRUE)
+  if (!already) detach("package:dplyr")
+  expect_equal(k, 3L)
 })
 
 test_that("a variable already called n keeps its meaning", {

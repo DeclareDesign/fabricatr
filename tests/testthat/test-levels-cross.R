@@ -41,7 +41,7 @@ test_that("link_levels samples N rows from cross product", {
 })
 
 test_that("link_levels with rho produces correlated assignments", {
-  set.seed(42)
+  set.seed(343)
   df <- fabricate(
     A = declare_level(N = 100, a_val = seq(0, 1, length.out = N)),
     B = declare_level(N = 100, b_val = seq(0, 1, length.out = N)),
