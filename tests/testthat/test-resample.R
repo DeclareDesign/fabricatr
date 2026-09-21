@@ -79,3 +79,21 @@ test_that("a bare scalar N draws with replacement", {
 test_that("an unnamed N longer than one still needs ID_labels", {
   expect_error(resample_data(make_clustered(), N = c(2, 2)), "ID_labels")
 })
+
+test_that("resample_data simple bootstrap returns correct nrow", {
+  df <- fabricate(N = 40, Y = rnorm(N))
+  boot <- resample_data(df)
+  expect_equal(nrow(boot), 40L)
+})
+
+test_that("resample_data cluster bootstrap resamples correct clusters", {
+  df <- fabricate(
+    clusters = add_level(N = 10),
+    units    = nest_level(N = 5, Y = rnorm(N))
+  )
+  boot <- resample_data(df, N = c(clusters = 6))
+  # 6 draws (with replacement) * 5 units = 30 rows
+  expect_equal(nrow(boot), 30L)
+  # Unique clusters may be < 6 due to replacement, so bound from above
+  expect_lte(length(unique(boot$clusters)), 6L)
+})
