@@ -82,6 +82,8 @@ Each of these is accepted and warns once per call site with the call to write in
 
 * `draw_quantile()` returns an unordered factor, as 1.x does, so a model formula picks treatment contrasts rather than polynomial ones.
 
+* `draw_ordered()` numbers its categories from 1 whatever `breaks` looks like. An infinite endpoint bounds the scale rather than cutting it, so `c(-Inf, 0, Inf)` gives the same two categories as `0`, and `strict = TRUE` drops the open end categories instead of leaving them empty and unreachable. 1.0.2 reads the lower end the same way but applies the same test to a trailing `Inf`, so `c(-1, 0, Inf)` came back 0-based; only the lower end decides, since `findInterval()` returns 0 for a value below the first break and nothing else. `labels` now takes one label per category that can occur, which is `length(breaks) + 1` for interior cut-points and one fewer for each infinite endpoint.
+
 * `resample_data(unique_labels = TRUE)` builds labels matching 1.x column for column.
 
 * ID columns are zero-padded character strings at every level, padded to the number of units at that level, as in 1.x.
