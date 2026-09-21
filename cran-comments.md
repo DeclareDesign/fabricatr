@@ -1,7 +1,7 @@
-> **HOLD. Do not submit yet.** Two things are outstanding: Graeme Blair has not
-> yet written to CRAN confirming the maintainer transfer, and win-builder has
-> not been run. Delete this banner once both are done and the
-> "Test environments" section names the win-builder reports.
+> **HOLD. Do not submit yet.** win-builder has not been run. Delete this banner
+> once it has, and name the two reports in the "Test environments" section.
+> Graeme Blair's note to CRAN confirming the maintainer transfer was sent on
+> 2026-09-20.
 
 ## Submission
 
