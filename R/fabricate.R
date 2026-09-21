@@ -276,6 +276,18 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
         if (nchar(nm) > 0) level_registry[[nm]] <- lst
       }
       N_inject <- if (length(lst) > 0L) length(lst[[1L]]) else N_inject
+    } else if (i == 1L && nchar(nm) == 0L && is.data.frame(val) &&
+               is.null(data) && is.null(N)) {
+      # A leading unnamed data frame is the data, as it is in fabricatr 1.0.2.
+      # Without this it falls through to the multi-column branch below and is
+      # spliced in as columns, which leaves `N` and `n()` unbound: the frame
+      # then looks right while `fabricate(df, y = rnorm(N))` errors, and it is
+      # the shape every wrapper produces, since `f(data, ...)` forwarding
+      # cannot name the argument.
+      lst      <- as.list(tibble::as_tibble(val))
+      N_inject <- length(lst[[1L]])
+      id_vec   <- NULL
+      m        <- NULL
     } else if (is.data.frame(val)) {
       # Recycle length-1 columns (e.g. potential_outcomes with constant RHS)
       n_rows <- if (length(lst) > 0L) length(lst[[1L]]) else N_inject %||% 0L

@@ -220,3 +220,35 @@ test_that("the data= path consumes no random draws before the first column", {
   set.seed(7)
   expect_identical(fabricate(N = 6, Z = runif(N))$Z, reference)
 })
+
+test_that("a leading unnamed data frame is the data, as in 1.0.2", {
+  # fabricatr 1.0.2 reads the first unnamed argument as `data`. 2.0.0 fell
+  # through to the multi-column branch and spliced the frame in as columns,
+  # which left `N` and `n()` unbound: the result looked right until an
+  # expression asked how many rows it was building. Found by the first
+  # revdepcheck, where it accounted for every DeclareDesign 1.1.1 error.
+  df <- fabricate(sleep, e2 = rnorm(N))
+  expect_equal(nrow(df), 20L)
+  expect_named(df, c("extra", "group", "ID", "e2"))
+  expect_equal(nrow(fabricate(sleep, k = n())), 20L)
+  expect_equal(unique(fabricate(sleep, k = n())$k), 20L)
+
+  # The shape every wrapper produces: forwarding through `...` cannot name the
+  # argument, which is how DeclareDesign's step handlers call fabricate().
+  forward <- function(data, ...) fabricate(data, ...)
+  expect_equal(nrow(forward(sleep, e2 = rnorm(N))), 20L)
+
+  # `N` present means a frame is being built, so a leading unnamed frame is a
+  # multi-column result there (the potential_outcomes() shape) rather than the
+  # data. The two readings cannot both hold, and this is the one 1.0.2 takes.
+  expect_error(fabricate(sleep, N = 5, e2 = rnorm(N)))
+})
+
+test_that("a data frame after the first position is still spliced as columns", {
+  # The branch above is first-position only, so potential_outcomes() and
+  # draw_multivariate(), which return a frame of columns mid-call, are
+  # unaffected.
+  df <- fabricate(N = 2, x = 1, data.frame(a = 1:2))
+  expect_named(df, c("ID", "x", "a"))
+  expect_equal(df$a, 1:2)
+})
