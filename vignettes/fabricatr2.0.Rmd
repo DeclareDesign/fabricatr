@@ -537,6 +537,17 @@ fabricate(N = 5, x = rnorm(N), l = draw_likert(x, breaks = c(-1, 0, 1)))
 fabricate(N = 6, x = rnorm(N), visits = draw_count(latent = x, link = "log"))
 ```
 
+`draw_count()` also takes `dispersion`, for counts that vary more than a Poisson allows, which is most counts outside a textbook. The default 0 is the Poisson draw as before, on the same random number stream. A positive value draws from the negative binomial with the same mean and variance `mean + dispersion * mean^2`, so `dispersion = 0.5` at a mean of 3 gives a variance of 7.5 rather than 3. The parameter is Stata's `alpha` and the reciprocal of the `theta` that `MASS::glm.nb()` reports, so a design can be simulated at the dispersion a fitted model found.
+
+```{r}
+counts <- fabricate(
+  N = 10000,
+  poisson = draw_count(mean = 3, N = N),
+  overdispersed = draw_count(mean = 3, N = N, dispersion = 0.5)
+)
+sapply(counts[c("poisson", "overdispersed")], function(y) round(c(mean = mean(y), var = var(y)), 2))
+```
+
 And `correlate()` works with base R random number generators, not only with the `draw_*` family, by mapping each `r*` function to its `q*` counterpart:
 
 ```{r}
@@ -544,6 +555,37 @@ x <- rnorm(200)
 y <- correlate(rnorm, mean = 0, sd = 1, given = x, rho = -0.5)
 cor(x, y, method = "spearman")
 ```
+
+### Panels with persistent shocks
+
+`draw_normal_ar()` draws a first-order autoregressive process inside each unit of a panel: each period's value is `rho` times the last one plus a fresh shock. It is the error structure behind the problem Bertrand, Duflo, and Mullainathan (2004) found in difference-in-differences, where shocks that persist within a unit make standard errors that ignore the persistence far too small, and clustering by unit repairs them. With the draw in hand, that failure can be diagnosed in a design before it happens in an analysis.
+
+```{r}
+panel <- fabricate(
+  units = declare_level(N = 100, unit_effect = rnorm(N)),
+  periods = declare_level(N = 10),
+  obs = cross_levels(
+    .by = c("units", "periods"),
+    e = draw_normal_ar(clusters = units, time = periods, rho = 0.8),
+    Y = unit_effect + e,
+    voted = draw_binary(latent = Y, link = "probit"),
+    contacts = draw_count(mean = 2, quantile_y = pnorm(e))
+  )
+)
+head(panel)
+```
+
+Four choices in the draw are worth knowing.
+
+* Each unit's series starts at its stationary distribution, so the first period has the same variance as the tenth and there is no burn-in to discard.
+
+* `sd` is the standard deviation of the process in any one period, not of each period's new shock. Changing `rho` therefore changes how persistent the shocks are and leaves the variance where it was, so designs compared across `rho` differ in persistence alone. `stats::arima.sim()` reads its `sd` the other way, and at `rho = 0.8` the same number there gives a process 1.7 times wider.
+
+* The correlation between two observations of a unit is `rho` raised to the gap in `time` between them. A panel with a missing wave, or waves at uneven intervals, is the same process seen at fewer points and needs no special handling. `time` may be a number, a `Date` (read in days), or the character ID that `cross_levels()` gives a level.
+
+* The draw is a latent normal variable. A binary or count outcome with the same persistence comes from passing it on, as `latent` to `draw_binary()` or as `quantile_y = pnorm(e)` to `draw_count()`, as the example does. The serial correlation of the outcome is then weaker than `rho`, as it is with `correlate()`.
+
+The function draws persistent errors, not state dependence. A model in which this period's outcome depends on last period's outcome itself, a lagged dependent variable, is a different model, and fitting one with unit fixed effects in a short panel has a bias of its own.
 
 ## Speed
 

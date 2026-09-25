@@ -95,6 +95,23 @@ summary(lm(trust ~ villages, data = clustered))$adj.r.squared
 
 The adjusted figure is the one to read: it is the share of variance lying between villages, which is what the ICC sets. The ICC is a parameter of the draw rather than a property of any one data set, so the realized share varies around it, with a standard deviation of about 0.03 across draws of a hundred villages. Plain `r.squared` runs about 0.03 higher still, because it counts the ninety-nine village dummies as explanatory power.
 
+`draw_normal_ar()` is the same idea over time. `declare_level()` builds a level on its own and `cross_levels()` crosses two of them into a panel, one row per unit per period. The draw then gives each unit a series whose shocks persist, so a unit resembles its own recent past by the amount `rho` sets:
+
+```{r}
+panel <- fabricate(
+  units = declare_level(N = 2000),
+  periods = declare_level(N = 6),
+  obs = cross_levels(
+    .by = c("units", "periods"),
+    shock = draw_normal_ar(clusters = units, time = periods, rho = 0.7)
+  )
+)
+wide <- tapply(panel$shock, list(panel$units, panel$periods), sum)
+round(cor(wide)[1, ], 2)
+```
+
+The correlation with the first period falls as the gap grows: about 0.7 one period later, 0.49 two periods later, and in general 0.7 raised to the gap.
+
 ## Resampling
 
 `resample_data()` bootstraps a data frame, and respects its levels: villages are drawn with replacement, then citizens within each village that was drawn. A village can come up more than once, and its citizens are resampled separately each time.
