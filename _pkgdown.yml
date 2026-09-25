@@ -76,10 +76,11 @@ reference:
   - draw_quantile
 
 - title: Drawing clustered variables
-  desc: Draws with a target intra-cluster correlation.
+  desc: Draws with a target intra-cluster correlation, or serial correlation within a unit over time.
   contents:
   - draw_normal_icc
   - draw_binary_icc
+  - draw_normal_ar
 
 - title: Drawing correlated variables
   desc: Several variables at once, or one correlated with a variable you have.

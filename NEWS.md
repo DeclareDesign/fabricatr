@@ -78,6 +78,8 @@ Each of these is accepted and warns once per call site with the call to write in
 
 * `draw_count()` takes `dispersion` for overdispersed counts. The default 0 is the Poisson draw it has always made, on the same random number stream. A positive value draws from the negative binomial with the same mean and variance `mean + dispersion * mean^2`, the parameterization of Stata's `nbreg` and the reciprocal of `MASS::glm.nb()`'s `theta`. The link, the latent scale, and `quantile_y` work as before, so an overdispersed count can be correlated with another variable through `correlate()`.
 
+* `draw_normal_ar()` draws an AR(1) process inside each unit of a panel, the serially correlated errors that make unclustered standard errors wrong in difference-in-differences. Each unit's series starts at its stationary distribution, so every period has the same variance, and a gap in `time` decays the correlation as `rho` raised to the gap, so an unbalanced panel needs no special handling. `time` may be the character ID that `cross_levels()` gives a level, or a `Date`, read in days. `sd` is the standard deviation of the process in each period, not of each period's new shock as in `stats::arima.sim()`, so changing `rho` leaves the variance where it was. Binary and count outcomes with the same persistence come from passing the draw on as `latent` or `quantile_y`.
+
 * `correlate()` works with base R random number generators such as `rnorm()`, not only the `draw_*` family.
 
 * `link_levels()` validates `sigma`: wrong dimensions, entries outside `[-1, 1]`, asymmetry, and a matrix that is not positive semi-definite are errors rather than a silently uncorrelated draw.
