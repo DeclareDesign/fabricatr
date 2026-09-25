@@ -76,6 +76,8 @@ Each of these is accepted and warns once per call site with the call to write in
 
 * `draw_normal_icc()` accepts any two of `ICC`, `sd`, `sd_between`, and `total_sd`, and the full `ICC` range including 0 and 1 (fabricatr#149).
 
+* `draw_count()` takes `dispersion` for overdispersed counts. The default 0 is the Poisson draw it has always made, on the same random number stream. A positive value draws from the negative binomial with the same mean and variance `mean + dispersion * mean^2`, the parameterization of Stata's `nbreg` and the reciprocal of `MASS::glm.nb()`'s `theta`. The link, the latent scale, and `quantile_y` work as before, so an overdispersed count can be correlated with another variable through `correlate()`.
+
 * `correlate()` works with base R random number generators such as `rnorm()`, not only the `draw_*` family.
 
 * `link_levels()` validates `sigma`: wrong dimensions, entries outside `[-1, 1]`, asymmetry, and a matrix that is not positive semi-definite are errors rather than a silently uncorrelated draw.

@@ -94,6 +94,12 @@ draw_binomial <- function(prob = apply_link(latent, link),
 #' @param latent Latent variable on the log scale, exponentiated by
 #'   \code{link = "log"} to give the rate.
 #' @param quantile_y Optional quantile vector for \code{correlate}.
+#' @param dispersion Overdispersion, a single non-negative number. The
+#'   default 0 is the Poisson, whose variance equals its mean. A positive
+#'   value draws from the negative binomial with the same mean and variance
+#'   \code{mean + dispersion * mean^2}. It is the reciprocal of the
+#'   \code{theta} that \code{MASS::glm.nb()} reports, and the \code{alpha}
+#'   of Stata's \code{nbreg}.
 #'
 #' @return An integer vector of non-negative counts, of length \code{N}.
 #'
@@ -101,20 +107,42 @@ draw_binomial <- function(prob = apply_link(latent, link),
 #' fabricate(N = 5, rate = c(0, 1, 5, 10, 50),
 #'           Y = draw_count(mean = rate))
 #'
-#' @importFrom stats rpois qpois
+#' # same mean, variance 3 + 0.5 * 3^2 = 7.5 rather than 3
+#' y <- draw_count(mean = 3, N = 10000, dispersion = 0.5)
+#' c(mean(y), var(y))
+#'
+#' @importFrom stats rpois qpois rnbinom qnbinom
 #' @export
 draw_count <- function(mean = apply_link(latent, link),
                        N = length(mean),
                        link = "identity",
                        latent = NULL,
-                       quantile_y = NULL) {
+                       quantile_y = NULL,
+                       dispersion = 0) {
   check_link_target(link, !missing(mean), latent, "mean", "draw_count")
   mean <- resolve_link(mean, link, latent, COUNT_LINKS, "draw_count")
   if (any(mean < 0, na.rm = TRUE)) stop("`mean` must be non-negative for draw_count().")
-  if (is.null(quantile_y)) {
-    rpois(N, lambda = mean)
+  if (!is.numeric(dispersion) || length(dispersion) != 1L ||
+      is.na(dispersion) || dispersion < 0 || !is.finite(dispersion)) {
+    stop("`dispersion` must be a single non-negative number.", call. = FALSE)
+  }
+  # The Poisson branch keeps `dispersion = 0` on the same random number stream
+  # as before the argument existed.
+  if (dispersion == 0) {
+    if (is.null(quantile_y)) {
+      rpois(N, lambda = mean)
+    } else {
+      qpois(quantile_y, lambda = mean)
+    }
   } else {
-    qpois(quantile_y, lambda = mean)
+    if (is.null(quantile_y)) {
+      # rnbinom() returns doubles when given `mu`; rpois() returns integers
+      # until a count passes the integer range, and so does this.
+      y <- rnbinom(N, size = 1 / dispersion, mu = mean)
+      if (all(y <= .Machine$integer.max, na.rm = TRUE)) as.integer(y) else y
+    } else {
+      qnbinom(quantile_y, size = 1 / dispersion, mu = mean)
+    }
   }
 }
 

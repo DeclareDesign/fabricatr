@@ -9,7 +9,8 @@ draw_count(
   N = length(mean),
   link = "identity",
   latent = NULL,
-  quantile_y = NULL
+  quantile_y = NULL,
+  dispersion = 0
 )
 }
 \arguments{
@@ -30,6 +31,13 @@ here at all, answering "Count data does not accept link functions".}
 \code{link = "log"} to give the rate.}
 
 \item{quantile_y}{Optional quantile vector for \code{correlate}.}
+
+\item{dispersion}{Overdispersion, a single non-negative number. The
+default 0 is the Poisson, whose variance equals its mean. A positive
+value draws from the negative binomial with the same mean and variance
+\code{mean + dispersion * mean^2}. It is the reciprocal of the
+\code{theta} that \code{MASS::glm.nb()} reports, and the \code{alpha}
+of Stata's \code{nbreg}.}
 }
 \value{
 An integer vector of non-negative counts, of length \code{N}.
@@ -40,5 +48,9 @@ Draw Poisson count data
 \examples{
 fabricate(N = 5, rate = c(0, 1, 5, 10, 50),
           Y = draw_count(mean = rate))
+
+# same mean, variance 3 + 0.5 * 3^2 = 7.5 rather than 3
+y <- draw_count(mean = 3, N = 10000, dispersion = 0.5)
+c(mean(y), var(y))
 
 }

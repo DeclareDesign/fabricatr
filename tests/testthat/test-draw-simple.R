@@ -108,3 +108,41 @@ test_that("quantile_y makes the draw deterministic, which is what correlate uses
                              quantile_y = c(0.1, 0.5, 0.9)),
                qbinom(c(0.1, 0.5, 0.9), 10, 0.5))
 })
+
+test_that("draw_count with dispersion is overdispersed around the same mean", {
+  set.seed(343)
+  y <- draw_count(mean = 3, N = 50000, dispersion = 0.5)
+  expect_type(y, "integer")
+  expect_equal(mean(y), 3, tolerance = 0.03)
+  expect_equal(var(y), 3 + 0.5 * 9, tolerance = 0.05)
+
+  set.seed(343)
+  y_log <- draw_count(latent = rep(log(3), 50000), link = "log",
+                      dispersion = 0.5)
+  expect_equal(mean(y_log), 3, tolerance = 0.03)
+})
+
+test_that("dispersion = 0 is the Poisson draw, on the same stream", {
+  set.seed(343)
+  a <- draw_count(mean = 4, N = 20)
+  set.seed(343)
+  b <- draw_count(mean = 4, N = 20, dispersion = 0)
+  expect_identical(a, b)
+})
+
+test_that("draw_count with dispersion inverts quantile_y for correlate()", {
+  q <- c(0.1, 0.5, 0.9)
+  expect_equal(draw_count(mean = 3, N = 3, quantile_y = q, dispersion = 0.5),
+               qnbinom(q, size = 2, mu = 3))
+  set.seed(343)
+  score <- rnorm(5000)
+  y <- correlate(draw_count, mean = 3, dispersion = 1, given = score, rho = 0.6)
+  expect_gt(cor(y, score, method = "spearman"), 0.4)
+})
+
+test_that("draw_count validates dispersion", {
+  expect_error(draw_count(mean = 3, N = 5, dispersion = -1), "non-negative")
+  expect_error(draw_count(mean = 3, N = 5, dispersion = c(1, 2)), "single")
+  expect_error(draw_count(mean = 3, N = 5, dispersion = NA), "single")
+  expect_error(draw_count(mean = 3, N = 5, dispersion = Inf), "single")
+})
