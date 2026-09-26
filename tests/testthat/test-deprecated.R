@@ -147,3 +147,53 @@ test_that("break_labels and category_labels are accepted as labels", {
 test_that("recycle() says how to supply N when it cannot find one", {
   expect_error(fabricatr:::recycle(1:2), "could not find `N`")
 })
+
+test_that("legacy `by =` does not eat the first unnamed argument", {
+  # R will not partial-match `by =` to the `.by` formal, so `.by` is left
+  # unfilled and the first unnamed argument binds to it positionally. Before
+  # this was handled, `absorb_legacy_by()` returned the legacy value and the
+  # unnamed argument vanished without a warning.
+  set.seed(343)
+  legacy <- suppressWarnings(fabricate(
+    units   = declare_level(N = 3, u = rnorm(N)),
+    periods = declare_level(N = 2, p = rnorm(N)),
+    obs     = cross_levels(by = join_using(units, periods),
+                           potential_outcomes(Y ~ Z), Z = 1)
+  ))
+  set.seed(343)
+  modern <- fabricate(
+    units   = declare_level(N = 3, u = rnorm(N)),
+    periods = declare_level(N = 2, p = rnorm(N)),
+    obs     = cross_levels(.by = c("units", "periods"),
+                           potential_outcomes(Y ~ Z), Z = 1)
+  )
+  expect_equal(legacy, modern)
+  expect_true(all(c("Y_Z_0", "Y_Z_1") %in% names(legacy)))
+
+  set.seed(343)
+  legacy_link <- suppressWarnings(fabricate(
+    a  = declare_level(N = 4, x = rnorm(N)),
+    b  = declare_level(N = 4, y = rnorm(N)),
+    ab = link_levels(N = 6, by = join_using(a, b),
+                     potential_outcomes(Y ~ Z), Z = 1)
+  ))
+  set.seed(343)
+  modern_link <- fabricate(
+    a  = declare_level(N = 4, x = rnorm(N)),
+    b  = declare_level(N = 4, y = rnorm(N)),
+    ab = link_levels(N = 6, .by = c("a", "b"),
+                     potential_outcomes(Y ~ Z), Z = 1)
+  )
+  expect_equal(legacy_link, modern_link)
+})
+
+test_that("naming both `.by` and `by` displaces nothing", {
+  set.seed(343)
+  both <- suppressWarnings(fabricate(
+    units   = declare_level(N = 3, u = rnorm(N)),
+    periods = declare_level(N = 2, p = rnorm(N)),
+    obs     = cross_levels(.by = c("units", "periods"),
+                           by = join_using(units, periods), Y = u + p)
+  ))
+  expect_equal(names(both), c("units", "u", "periods", "p", "obs", "Y"))
+})

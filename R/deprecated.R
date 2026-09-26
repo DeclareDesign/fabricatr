@@ -139,6 +139,30 @@ absorb_legacy_by <- function(dots, cl) {
   list(by = resolved$by, rho = resolved$rho, dots = dots[names(dots) != "by"])
 }
 
+#' Recover the argument that a legacy `by =` displaced
+#'
+#' The level constructors name their level argument `.by`, and R will not
+#' partial-match a supplied `by =` to a formal whose name begins with a dot.
+#' So a 1.x call leaves `.by` unfilled and R binds the first *unnamed*
+#' argument to it positionally. In a design that writes
+#' `cross_levels(by = join_using(a, b), potential_outcomes(Y ~ Z))` the
+#' potential outcomes land in `.by`, and `absorb_legacy_by()` then returns the
+#' legacy value and discards them without a word. This puts that argument back
+#' at the front of the dots, where the author wrote it.
+#'
+#' Positional matching always takes the leftmost unmatched argument, so the
+#' displaced one precedes everything still in the dots and prepending restores
+#' the author's order. A call that names `.by` as well as `by` has displaced
+#' nothing and is returned untouched.
+#'
+#' @keywords internal
+#' @noRd
+restore_displaced_by <- function(quo, dots, cl) {
+  supplied <- names(cl)
+  if (!is.null(supplied) && any(!is.na(pmatch(supplied[-1], ".by")))) return(dots)
+  c(stats::setNames(list(quo), ""), dots)
+}
+
 #' Accept a fabricatr 1.x name for `labels` in a `draw_*` function
 #'
 #' `draw_ordered(break_labels = )` and `draw_categorical(category_labels = )`

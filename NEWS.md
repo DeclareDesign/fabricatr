@@ -46,7 +46,7 @@ Each of these is accepted and warns once per call site with the call to write in
 
 * `add_level(..., nest = FALSE)` is `declare_level(...)`, and `nest = TRUE` is `add_level(...)`.
 
-* `cross_levels(by = join_using(A, B))` and `link_levels(by = join_using(A, B))` are `.by = c("A", "B")`. A `rho` inside `join_using()` is carried through to `link_levels(rho = )`.
+* `cross_levels(by = join_using(A, B))` and `link_levels(by = join_using(A, B))` are `.by = c("A", "B")`. A `rho` inside `join_using()` is carried through to `link_levels(rho = )`. R will not partial-match a supplied `by =` to a formal named `.by`, so `.by` is left unfilled and R binds the first *unnamed* argument to it positionally: `cross_levels(by = join_using(A, B), potential_outcomes(Y ~ Z))` put the potential outcomes in `.by`, where the shim discarded them without a warning and the design ran on without its potential outcomes. The displaced argument is now put back where the author wrote it, so the two spellings of such a call return the same data.
 
 * `modify_level(..., by = "g")` is `modify_level(..., .by = "g")`.
 
