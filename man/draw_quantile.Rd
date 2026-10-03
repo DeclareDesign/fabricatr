@@ -17,8 +17,10 @@ A factor of length \code{N} with levels \code{1} through
   \code{\link{split_quantile}}.
 }
 \description{
-Draws N observations and assigns them to \code{type} equally sized
-quantile buckets via a uniform latent variable.
+Draws \code{N} new bucket assignments, \code{type} equally sized buckets
+in random order, by cutting \code{N} uniform draws with
+\code{\link{split_quantile}}. To bucket a variable you already have, use
+\code{split_quantile} on it directly.
 }
 \examples{
 draw_quantile(type = 4, N = 100)

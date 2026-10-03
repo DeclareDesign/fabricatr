@@ -36,11 +36,13 @@ recycle_to_level <- function(val, n_total, col_nm) {
 
 # add_level -------------------------------------------------------------------
 
-#' Add a hierarchical level
+#' Add a level, nested in the one before it if there is one
 #'
-#' Creates N rows and registers the result as the new current data frame.
-#' Subsequent calls to \code{nest_level} will fan out from these rows.
-#' For independent (non-nested) levels used in \code{cross_levels} or
+#' The first \code{add_level()} in a \code{fabricate()} call creates \code{N}
+#' rows, since there is nothing above it to nest in. A later one nests: it
+#' creates \code{N} rows inside each row of the level before it, exactly as
+#' \code{\link{nest_level}} does, and the two can be used interchangeably
+#' there. For independent (non-nested) levels used in \code{cross_levels} or
 #' \code{link_levels}, use \code{declare_level}.
 #'
 #' @param N Number of rows to create.
@@ -183,9 +185,11 @@ import_level <- function(data, ..., .id = NULL) {
 
 # nest_level ------------------------------------------------------------------
 
-#' Nest a level within the current hierarchy
+#' Nest a level in the one before it (same as a later add_level())
 #'
-#' For each row in the current data frame, creates N child rows. Parent columns
+#' For each row in the current data frame, creates N child rows. This is what
+#' \code{\link{add_level}} does after the first level of a call;
+#' \code{nest_level()} is the spelling that says so. Parent columns
 #' are replicated across children. \code{N} may be a scalar (same count for
 #' every parent) or a vector of length \code{nrow} of the parent (variable
 #' children per parent).
@@ -323,6 +327,12 @@ link_levels <- function(N, .by, ..., rho = 0, sigma = NULL) {
 #' the result is written back to every row of each unit. Left unnamed, it
 #' works on the rows in hand, with an optional \code{.by} for
 #' split-apply-combine on a grouping column.
+#'
+#' On a flat frame, unnamed \code{modify_level(..., .by = "g")} gives the
+#' same columns as \code{group_by(g) |> mutate(...) |> ungroup()}. Its use is
+#' that it runs inside the \code{fabricate()} call, so it is part of a
+#' DeclareDesign \code{declare_model()} step rather than a pipe after it, and
+#' that only it can work at a named level.
 #'
 #' @param ... Column expressions to add or overwrite.
 #' @param .by Optional character string: column name to group by before

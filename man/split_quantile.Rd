@@ -20,7 +20,10 @@ A factor with levels \code{1} through \code{type}, one per element
   different coefficients without saying why.
 }
 \description{
-Split data into quantile buckets
+Cuts a numeric vector you already have into \code{type} equally sized
+buckets at its sample quantiles, so bucket \code{1} holds the lowest
+values. To draw new bucket assignments without a variable to cut, use
+\code{\link{draw_quantile}}.
 }
 \examples{
 split_quantile(rnorm(100), type = 4)

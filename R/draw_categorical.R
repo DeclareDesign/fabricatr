@@ -230,6 +230,11 @@ draw_likert <- function(x, min = NULL, max = NULL, bins = NULL,
 
 #' Split data into quantile buckets
 #'
+#' Cuts a numeric vector you already have into \code{type} equally sized
+#' buckets at its sample quantiles, so bucket \code{1} holds the lowest
+#' values. To draw new bucket assignments without a variable to cut, use
+#' \code{\link{draw_quantile}}.
+#'
 #' @param x Numeric vector.
 #' @param type Number of buckets (2 = median split, 3 = terciles, etc.).
 #'
@@ -262,8 +267,10 @@ split_quantile <- function(x, type) {
 
 #' Draw quantile bucket assignments
 #'
-#' Draws N observations and assigns them to \code{type} equally sized
-#' quantile buckets via a uniform latent variable.
+#' Draws \code{N} new bucket assignments, \code{type} equally sized buckets
+#' in random order, by cutting \code{N} uniform draws with
+#' \code{\link{split_quantile}}. To bucket a variable you already have, use
+#' \code{split_quantile} on it directly.
 #'
 #' @param type Number of buckets.
 #' @param N Number of observations.

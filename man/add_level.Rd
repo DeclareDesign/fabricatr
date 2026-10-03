@@ -2,7 +2,7 @@
 % Please edit documentation in R/levels.R
 \name{add_level}
 \alias{add_level}
-\title{Add a hierarchical level}
+\title{Add a level, nested in the one before it if there is one}
 \usage{
 add_level(N, ...)
 }
@@ -19,9 +19,11 @@ A \code{fabricatr_level} object, meaningful only as a named
   in \code{...}. Any level nested below it repeats these rows.
 }
 \description{
-Creates N rows and registers the result as the new current data frame.
-Subsequent calls to \code{nest_level} will fan out from these rows.
-For independent (non-nested) levels used in \code{cross_levels} or
+The first \code{add_level()} in a \code{fabricate()} call creates \code{N}
+rows, since there is nothing above it to nest in. A later one nests: it
+creates \code{N} rows inside each row of the level before it, exactly as
+\code{\link{nest_level}} does, and the two can be used interchangeably
+there. For independent (non-nested) levels used in \code{cross_levels} or
 \code{link_levels}, use \code{declare_level}.
 }
 \examples{

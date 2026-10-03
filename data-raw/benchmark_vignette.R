@@ -230,7 +230,14 @@ if (any(drift > TOL)) {
 cat("\nunrounded gains:\n")
 for (k in ROW_KEYS) cat(sprintf("  %-12s %.3fx\n", k, gain[[k]]))
 
+# The seconds below the table are its own three_big medians times 10,000.
+secs_line <- grep("seconds to build 10,000 times", vig, value = TRUE)
+secs_said <- as.numeric(regmatches(secs_line, gregexpr("[0-9]+(?= seconds)", secs_line, perl = TRUE))[[1]])
+secs_table <- round(c(old_said[["three_big"]], new_said[["three_big"]]) * 10)
+
 stopifnot(
+  "the seconds quoted below the vignette's table are not its three_big row times 10,000" =
+    identical(secs_said, secs_table),
   "rows differ in shape between versions; the two are not timing the same work" =
     all(shape_ok),
   "the vignette's table is not the nine rows this script measures, in order" =

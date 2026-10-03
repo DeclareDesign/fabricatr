@@ -2,7 +2,7 @@
 % Please edit documentation in R/levels.R
 \name{nest_level}
 \alias{nest_level}
-\title{Nest a level within the current hierarchy}
+\title{Nest a level in the one before it (same as a later add_level())}
 \usage{
 nest_level(N, ...)
 }
@@ -24,7 +24,9 @@ A \code{fabricatr_level} object, meaningful only as a named
   unique across the whole frame rather than restarting within each parent.
 }
 \description{
-For each row in the current data frame, creates N child rows. Parent columns
+For each row in the current data frame, creates N child rows. This is what
+\code{\link{add_level}} does after the first level of a call;
+\code{nest_level()} is the spelling that says so. Parent columns
 are replicated across children. \code{N} may be a scalar (same count for
 every parent) or a vector of length \code{nrow} of the parent (variable
 children per parent).

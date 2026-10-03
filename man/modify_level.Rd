@@ -26,6 +26,13 @@ the result is written back to every row of each unit. Left unnamed, it
 works on the rows in hand, with an optional \code{.by} for
 split-apply-combine on a grouping column.
 }
+\details{
+On a flat frame, unnamed \code{modify_level(..., .by = "g")} gives the
+same columns as \code{group_by(g) |> mutate(...) |> ungroup()}. Its use is
+that it runs inside the \code{fabricate()} call, so it is part of a
+DeclareDesign \code{declare_model()} step rather than a pipe after it, and
+that only it can work at a named level.
+}
 \section{Which columns a level can see}{
 
 Inside \code{regions = modify_level(...)}, the columns in view are the ones

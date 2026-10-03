@@ -41,7 +41,7 @@ existing data.
 }
 \section{ID column type}{
 
-ID columns are zero-padded character strings, as in fabricatr, so that an
+ID columns are zero-padded character strings, as in fabricatr 1.x, so that an
 ID is a label rather than a quantity. The padding keeps character sort
 order matching numeric order, and the character type keeps a cluster ID
 from being read as a linear term by a model formula. The padding width is

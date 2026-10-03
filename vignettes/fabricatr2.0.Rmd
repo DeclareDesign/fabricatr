@@ -9,18 +9,18 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-set.seed(42)
 ```
 
 ```{r setup}
 library(fabricatr)
+set.seed(343)
 ```
 
 ## The short version
 
-fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is nine files of R against 1.0.2's sixteen, and it is the code rather than the documentation that shrank: stripping blanks and comment lines, 1,094 lines against 1,609, while the roxygen above them grew from 751 lines to 919. Neither package has any compiled code. `data-raw/count_lines.R` re-measures all six figures and fails if this paragraph has gone stale. It depends on dplyr, tibble, purrr, and rlang, and it does not carry 1.x's custom workspace and evaluation machinery.
+fabricatr 2.0 is a ground-up rewrite of fabricatr 1.x with the same public API. Every exported function has the same name and, with a handful of exceptions catalogued below, the same signature and the same behavior. The rewrite is nine files of R against 1.0.2's sixteen, and it is the code rather than the documentation that shrank: stripping blanks and comment lines, 1,094 lines against 1,609, while the roxygen above them grew from 751 lines to 919. Neither package has any compiled code. fabricatr 2.0 depends on dplyr, tibble, purrr, and rlang, and it does not carry 1.x's custom workspace and evaluation machinery.
 
-Two things motivated it. The first is speed: fabricate() sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr 1.x reaches deep into rlang internals to manage its evaluation environment, and that surface has broken more than once when rlang changed underneath it. 2.0 evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
+Two things motivated it. The first is speed: `fabricate()` sits in the innermost loop of every DeclareDesign simulation, so a constant factor there is a constant factor on every diagnosis anyone runs. The second is durability: fabricatr 1.x manages its evaluation environment with rlang machinery that rlang does not promise to keep stable, and more than once an rlang release has broken fabricatr without any change to fabricatr itself. 2.0 evaluates each column expression with a single `rlang::eval_tidy()` call against a plain named list, which is both the fastest and the least fragile thing available.
 
 The headline for a collaborator porting an existing script: almost nothing changes. The rest of this vignette shows what stays the same, what moves, and why.
 
@@ -43,7 +43,7 @@ vignette("fabricatr2.0")      # this document
 
 ## What does not change
 
-Everything in this section is byte-identical code between the two packages, and every example below was run under both and compared row by row. All but one return the same frame from the same seed. The exception is the potential-outcomes example, whose second call starts from `data`: it builds the same frame from the same distribution, but lands at a different point in the random number stream, for the reason given under [On reproducing an old seed](#on-reproducing-an-old-seed).
+Everything in this section is byte-identical code between the two packages, and every example below was run under both and compared row by row. All but one return the same frame from the same seed, `set.seed(343)`, set once at the top of this page. The exception is the potential-outcomes example, whose second call starts from `data`: it builds the same frame from the same distribution, but lands at a different point in the random number stream, for the reason given under [On reproducing an old seed](#on-reproducing-an-old-seed).
 
 Flat fabrication, with each column able to see the ones defined before it:
 
@@ -155,6 +155,8 @@ score  <- rnorm(200, mean = 75, sd = 10)
 offers <- correlate(draw_count, mean = 3, given = score, rho = 0.6)
 cor(score, offers, method = "spearman")
 ```
+
+The realized correlation is not `rho`, and is not meant to be. `rho` is the correlation of the two normal draws underneath the copula, and the rank correlation it produces is $(6/\pi)\arcsin(\rho/2)$, which is 0.58 at `rho = 0.6`. A count outcome has ties, which bring that down to about 0.57, and a sample of 200 varies around 0.57 with a standard deviation of about 0.04; this one lands at `r round(cor(score, offers, method = "spearman"), 2)`. The same holds for `link_levels()` and for `draw_normal_ar()` outcomes passed through a link, below.
 
 ## What changes, and why
 
@@ -345,9 +347,9 @@ fabricate(N = 3, Y = rnorm(N), ID_label = NA)
 
 This is the one change that gives different numbers from the same call, so it gets the argument on both sides rather than an assertion.
 
-`draw_normal_icc()` builds each value from a cluster-level draw and an individual-level draw, so there are four ways to describe the same pair of variances: the ICC, the within-cluster standard deviation, the between-cluster standard deviation, and the total. They are related by $\sigma_{total}^2 = \sigma_b^2 + \sigma_w^2$ and $ICC = \sigma_b^2 / \sigma_{total}^2$, so any two of them pin the other two.
+`draw_normal_icc()` builds each value from a cluster-level draw and an individual-level draw, so there are four ways to describe the same pair of variances: the ICC, the within-cluster standard deviation, the between-cluster standard deviation, and the total. They are related by $\sigma_{total}^2 = \sigma_{between}^2 + \sigma_{within}^2$ and $ICC = \sigma_{between}^2 / \sigma_{total}^2$, so any two of them pin the other two.
 
-1.x treats `total_sd` differently from the other three. It draws using the ICC, then rescales the finished vector so its sample standard deviation equals `total_sd`. 2.0 solves for the two standard deviations instead and draws once: $\sigma_{between} = s\sqrt{ICC}$ and $\sigma_{within} = s\sqrt{1 - ICC}$.
+1.x treats `total_sd` differently from the other three. It draws using the ICC, then rescales the finished vector so its sample standard deviation equals `total_sd`. 2.0 solves for the two standard deviations instead and draws once: with $\sigma_{total}$ set by `total_sd`, $\sigma_{between} = \sigma_{total}\sqrt{ICC}$ and $\sigma_{within} = \sigma_{total}\sqrt{1 - ICC}$.
 
 The consequence, over 200 draws of 100 observations with `ICC = 0.4` and `total_sd = 2`:
 
@@ -370,7 +372,7 @@ sd(y)
 
 One correction to the [upstream discussion](https://github.com/DeclareDesign/fabricatr/issues/133), because it changes what is actually at stake. The thread worries that rescaling "will possibly distort the between group differences." It does not. Rescaling is an affine transformation and the ICC is scale-invariant, so the realised ICC is untouched; the mean R² is the same either way. The only thing rescaling changes is the sampling variability of the variance. That is a narrower objection than the thread supposes, and still a sufficient one.
 
-A side benefit of solving rather than rescaling is that combinations 1.x rejects now work, because any two of the four determine the draw:
+A side benefit of solving rather than rescaling is that `total_sd` can now be paired with any of the other three. 1.x accepts `total_sd` only alongside `ICC`, because rescaling needs an ICC to draw from first. In 2.0 any two of the ICC, `sd` (within), `sd_between`, and `total_sd` determine the draw, so `total_sd` with `sd_between` works:
 
 ```{r}
 cl <- rep(1:20, each = 10)
@@ -465,7 +467,7 @@ Six greps will find everything that needs to change:
 # draw_*(prob|mean = ..., link = ) -> draw_*(latent = ..., link = )
 ```
 
-Then run the script. You do not have to do any of it at once: the first four old spellings still work, and each warns once with the corrected call, so you can port as you go and use a clean run as the signal that you are finished. The positional `N` is the one that stops, and its error says what to write.
+Then run the script. You do not have to do any of it at once: the five old spellings the first four greps find still work (`join_using(` finds two of them), and each warns once with the corrected call, so you can port as you go and use a clean run as the signal that you are finished. The positional `N` is the one that stops, and its error says what to write.
 
 Three other things stop rather than run, and each was answering the wrong question before it did. A `prob` or `mean` handed a non-identity link is refused, because the link was being dropped and the draw taken on the untransformed scale: write `latent =` instead, which is where a link has always acted. An `N` passed to `draw_ordered()` that is not `length(x)` is refused, because it never recycled `x` in either version. And a link name that is not one of the handful each draw accepts is refused, as it is in 1.x, rather than falling through to the identity. Nothing else needs checking: ID columns, column types, and column order all match 1.x.
 
@@ -490,7 +492,7 @@ fabricate(
 )
 ```
 
-An imported key keeps its own type and values, where a fabricated one is a zero-padded character string, so the column still matches the same key in the data it came from. The one column name an imported frame cannot carry is `N`, which is the row count in every expression a level evaluates, and which is refused rather than dropped in silence. A frame with no key of its own gets numbered rows, as `add_level()` numbers them. A key with a repeated or a missing value is refused, because a level's rows are its units.
+`.id` says which incoming column is the key. The key then takes the level's name, so `year` arrives as `period`. Its type and values are kept, where a fabricated key is a zero-padded character string, so `period` still holds 2020 to 2022 and joins back to `periods` with `by = c(period = "year")`. The one column name an imported frame cannot carry is `N`, which is the row count in every expression a level evaluates, and which is refused rather than dropped in silence. A frame with no key of its own gets numbered rows, as `add_level()` numbers them. A key with a repeated or a missing value is refused, because a level's rows are its units.
 
 Levels nest under an imported one as they nest under any other, so a real sample of villages can carry simulated citizens:
 
@@ -603,7 +605,7 @@ Median time per call, measured with microbenchmark on an Apple M4 Pro under R 4.
 | Clustered draw with target ICC, 100 x 20 | 0.82 ms | 0.42 ms | 2.0x |
 | Potential outcomes plus reveal, `N = 1,000` | 0.71 ms | 0.58 ms | 1.2x |
 
-One change accounts for nearly all of it: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. A three-level design of 20,000 rows takes 53 seconds to build 10,000 times under 1.0.2 and 19 seconds here.
+One change accounts for nearly all of it: intermediate state is a plain named list of vectors rather than a tibble, so a level that fans out 1,000 parents into 20,000 children is `lapply(lst, function(v) v[idx])` instead of a tibble row-subset with its class dispatch, name repair, and validity checks. The conversion to a tibble happens exactly once, at the end. At the table's medians, a three-level design of 20,000 rows takes 55 seconds to build 10,000 times under 1.0.2 and 20 seconds here.
 
 The gains concentrate where design diagnosis actually spends its time, which is hierarchical data. The one row that barely moves is flat `N = 200,000`, where the two packages are close to parity: at that size both spend nearly all their time building the zero-padded ID strings, and 2.0 pads exactly as 1.x does. `data-raw/benchmark_vignette.R` re-measures every figure in this section, and in `README.md`, and fails when one has drifted.
 
@@ -617,11 +619,7 @@ The level functions return S3 objects that `fabricate()` dispatches on, replacin
 
 What survives untouched is the statistical content: `draw_normal_icc()`, `draw_binary_icc()`, `correlate()`, and `draw_multivariate()` carry real algebra with no tidyverse one-liner equivalent, and they were ported rather than rewritten.
 
-## Current status
-
-On the current `rewrite` head, `R CMD check --as-cran --no-manual` on the built tarball reports 0 errors, 0 warnings, and 1 note, the CRAN incoming check's remark that the maintainer has changed from 1.0.2's. The test suite passes 604 expectations across fourteen files.
-
-### Upstream issues
+## Upstream issues
 
 All eleven issues open on fabricatr 1.x were checked by running the reporter's own code under both packages. Nine no longer reproduce here, and the remaining two are documentation bugs in fabricatr's own vignettes.
 
@@ -645,17 +643,11 @@ Four of them were live defects here, found by reading someone else's bug report 
 
 **What #165 asked for.** [#165](https://github.com/DeclareDesign/fabricatr/issues/165) wanted existing data frames importable as levels, so that a real sample of units and a real set of periods could be brought in separately and crossed. `import_level()` does that. The design question the prototype left open, whether an imported frame's own key becomes the level ID or a synthetic one appears beside it, is settled in favour of the frame's own key: a synthetic ID beside an imported one is two names for the same unit, and the imported key is the one that still matches the data it came from. See [above](#existing-data-frames-come-in-as-levels).
 
-### Known gaps
-
-None outstanding. Three items were carried as gaps until they were checked against 1.x directly, and checking them turned up two real defects rather than the missing features they were filed as:
-
-- `resample_data(unique_labels = TRUE)` produced malformed labels, `"_2_1"` where 1.x gives `"2_1"`, and doubled the separator when nesting, `"_2_1__06_1"` against `"2_1_06_1"`. The unique-label columns also came out innermost first. Both fixed, and the output now matches 1.x column for column.
-- `draw_quantile()` was at parity on values but returned an *ordered* factor where 1.x returns an unordered one. Ordering is not cosmetic here: `lm(Y ~ q)` on an ordered factor fits polynomial contrasts (`q.L`, `q.Q`, `q.C`) instead of treatment contrasts (`q2`, `q3`, `q4`), so the same script would have reported different coefficients under the two packages without saying why. Now unordered.
-- `sigma` in `link_levels()` beyond two levels was in fact correct: a three-level draw is identical to 1.x's, seed for seed, down to every ID triple. What was missing was validation. A matrix that is not positive semi-definite used to reach `chol(pivot = TRUE)`, which warns and returns a decomposition carrying none of the requested structure. Non-PSD matrices, entries outside `[-1, 1]`, wrong dimensions, asymmetry, and a single negative `rho` across three or more levels are now all errors.
+## Other changes worth knowing
 
 One naming change is easy to miss. `draw_ordered()`, `draw_likert()`, and `draw_categorical()` all take their category names as `labels`. In 1.x the first is `break_labels` and the last is `category_labels`; both old names are accepted and warn once with the corrected call. The return types are 1.x's: `draw_ordered()` and `draw_likert()` give an ordered factor, and `draw_categorical()` an unordered one, because its categories are nominal and an ordered factor would change which contrasts a model formula picks. Leave `labels` off if you want the integer codes.
 
-Three refusals are new, and all three replace a silent answer rather than a working one. A `prob` or `mean` supplied alongside a non-identity link now errors: `draw_binary(prob = 0.3, link = "logit")` drew at 0.3 in both packages, where the author plainly meant `plogis(0.3)`, and no range check can catch it, because 0.3 is a legal probability. A link name that is not recognised now errors, where 2.0 had been returning the latent untransformed; 1.x errors here too, so this is a restoration. A function passed as `link` is applied again, as 1.x applies it, where 2.0 had silently ignored it. And `draw_ordered()` refuses an `N` that is not `length(x)`, which is the one case where 2.0 stops and 1.x ran: 1.x checks `N` against a recycling rule that neither version has ever applied, so a script relying on it was already getting `length(x)` back.
+Three refusals are new relative to 1.x, and all three replace a silent answer rather than a working one. A `prob` or `mean` supplied alongside a non-identity link now errors: `draw_binary(prob = 0.3, link = "logit")` draws at 0.3 in 1.x, where the author plainly meant `plogis(0.3)`, and no range check can catch it, because 0.3 is a legal probability. `draw_ordered()` refuses an `N` that is not `length(x)`, which is the one case where 2.0 stops and 1.x ran: 1.x checks `N` against a recycling rule it never applies, so a script relying on it was already getting `length(x)` back. A `sigma` passed to `link_levels()` that is not a valid correlation matrix (not positive semi-definite, an entry outside `[-1, 1]`, the wrong dimensions, or asymmetric) now errors, as does a single negative `rho` across three or more levels; 1.x handed such a matrix to `chol(pivot = TRUE)`, which warns and returns a decomposition carrying none of the requested structure. Link handling otherwise matches 1.x: an unrecognised link name errors in both, and a function passed as `link` is applied in both.
 
 One difference is quieter than the rest, because it is a warning rather than a result. 1.x warns when a resampling plan names `ALL` for its last level, on the grounds that leaving the level out does the same thing. 2.0 accepts it silently. The frame is the same either way, and in both packages `resample_data(dat, N = c(clusters = 3))` returns exactly what `resample_data(dat, N = c(clusters = 3, units = ALL))` returns.
 

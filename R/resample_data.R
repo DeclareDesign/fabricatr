@@ -1,8 +1,10 @@
-#' Magic constant: pass all units at a resampling level
+#' Keep every unit at a resampling level
 #'
 #' Use \code{ALL} in the \code{N} argument of \code{resample_data} to keep
 #' every unit at a given hierarchical level while still resampling inner
-#' levels.
+#' levels. Leaving a level out of \code{N} does the same thing:
+#' \code{N = c(clusters = 2)} and \code{N = c(clusters = 2, units = ALL)}
+#' return the same frame.
 #'
 #' @format A single integer used as a sentinel. Its value carries no meaning
 #'   and should not be relied on or arithmetic done with it; write \code{ALL}
