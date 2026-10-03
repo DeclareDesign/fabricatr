@@ -303,7 +303,9 @@ fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
     val <- mask_eval(m, dots[[i]])
 
     if (inherits(val, "fabricatr_level")) {
-      saw_level <- TRUE
+      # modify_level() adds no rows, so on its own it leaves the flat ID in
+      # place; only a level that builds rows names its own ID column.
+      if (val$type != "modify") saw_level <- TRUE
       m <- NULL
       if (val$type == "modify" && is.null(val$by) &&
           nm %in% names(level_registry) && nm %in% names(lst)) {

@@ -136,3 +136,17 @@ test_that("both spellings of the grouping column still work", {
   expect_length(unique(by_string$m), 2L)
   expect_equal(names(by_legacy), names(by_string))
 })
+
+test_that("modify_level in a flat call keeps the ID column", {
+  df <- fabricate(
+    N = 12,
+    cluster = rep(1:3, each = 4),
+    Y = rnorm(N),
+    modify_level(cluster_mean = mean(Y), .by = "cluster")
+  )
+  expect_identical(names(df), c("ID", "cluster", "Y", "cluster_mean"))
+  expect_identical(df$ID, sprintf("%02d", 1:12))
+
+  df <- fabricate(N = 5, Y = rnorm(N), modify_level(Y2 = Y * 2))
+  expect_identical(names(df), c("ID", "Y", "Y2"))
+})
