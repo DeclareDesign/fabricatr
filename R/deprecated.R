@@ -148,19 +148,31 @@ absorb_legacy_by <- function(dots, cl) {
 #' `cross_levels(by = join_using(a, b), potential_outcomes(Y ~ Z))` the
 #' potential outcomes land in `.by`, and `absorb_legacy_by()` then returns the
 #' legacy value and discards them without a word. This puts that argument back
-#' at the front of the dots, where the author wrote it.
+#' in the dots, where the author wrote it.
 #'
-#' Positional matching always takes the leftmost unmatched argument, so the
-#' displaced one precedes everything still in the dots and prepending restores
-#' the author's order. A call that names `.by` as well as `by` has displaced
-#' nothing and is returned untouched.
+#' Position matters, because a level's variables are built in order. The
+#' displaced argument is the leftmost *unnamed* one, but named variables can
+#' precede it: in `cross_levels(by = join_using(a, b), U = rnorm(N),
+#' potential_outcomes(Y ~ U))` the potential outcomes refer to `U`, so they
+#' must go back after it. The insertion point is the number of arguments
+#' written before the displaced one that landed in the dots, meaning named
+#' arguments other than `by` and the constructor's own `formal_names`. A call
+#' that names `.by` as well as `by` has displaced nothing and is returned
+#' untouched.
 #'
 #' @keywords internal
 #' @noRd
-restore_displaced_by <- function(quo, dots, cl) {
+restore_displaced_by <- function(quo, dots, cl, formal_names) {
   supplied <- names(cl)
   if (!is.null(supplied) && any(!is.na(pmatch(supplied[-1], ".by")))) return(dots)
-  c(stats::setNames(list(quo), ""), dots)
+  args <- as.list(cl)[-1]
+  arg_names <- names(args)
+  displaced <- rlang::quo_get_expr(quo)
+  at <- which(arg_names == "" &
+                vapply(args, identical, logical(1), displaced))[1]
+  before <- arg_names[seq_len(at - 1)]
+  n_before <- sum(before != "" & before != "by" & !before %in% formal_names)
+  append(dots, stats::setNames(list(quo), ""), after = n_before)
 }
 
 #' Accept a fabricatr 1.x name for `labels` in a `draw_*` function

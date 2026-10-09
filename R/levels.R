@@ -253,7 +253,7 @@ cross_levels <- function(.by, ...) {
   legacy <- absorb_legacy_by(rlang::enquos(...), cl)
   dots <- legacy$dots
   if (!is.null(legacy$by) && !missing(.by)) {
-    dots <- restore_displaced_by(rlang::enquo(.by), dots, cl)
+    dots <- restore_displaced_by(rlang::enquo(.by), dots, cl, ".by")
   }
   by <- if (is.null(legacy$by)) .by else legacy$by
   new_level("cross", by = by, dots = dots)
@@ -310,7 +310,8 @@ link_levels <- function(N, .by, ..., rho = 0, sigma = NULL) {
   legacy <- absorb_legacy_by(rlang::enquos(...), cl)
   dots <- legacy$dots
   if (!is.null(legacy$by) && !missing(.by)) {
-    dots <- restore_displaced_by(rlang::enquo(.by), dots, cl)
+    dots <- restore_displaced_by(rlang::enquo(.by), dots, cl,
+                                 c("N", ".by", "rho", "sigma"))
   }
   by <- if (is.null(legacy$by)) .by else legacy$by
   new_level("link", N = N, by = by, rho = legacy$rho %||% rho, sigma = sigma,
