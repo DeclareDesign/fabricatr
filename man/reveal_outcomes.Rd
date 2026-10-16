@@ -4,13 +4,16 @@
 \alias{reveal_outcomes}
 \title{Reveal observed outcomes from potential outcomes columns}
 \usage{
-reveal_outcomes(x)
+reveal_outcomes(x, sep = "_")
 }
 \arguments{
 \item{x}{A formula of the form \code{outcome ~ assignment} or
 \code{outcome ~ Z1 + Z2} for factorial assignments. The outcome name and
 assignment variable(s) must match columns already in the data (typically
 created by \code{potential_outcomes}).}
+
+\item{sep}{Column-name separator. Default \code{"_"}. It must match the
+\code{sep} given to \code{potential_outcomes()}.}
 }
 \value{
 A vector with one element per row, holding each unit's outcome
@@ -33,6 +36,14 @@ fabricate(
   data = dat,
   Z = rbinom(N, 1, 0.5),
   Y = reveal_outcomes(Y ~ Z)
+)
+
+# A separator other than "_" is given to both
+fabricate(
+  N = 10, U = rnorm(N),
+  potential_outcomes(Y ~ 0.5 * Z + U, sep = "."),
+  Z = rbinom(N, 1, 0.5),
+  Y = reveal_outcomes(Y ~ Z, sep = ".")
 )
 
 }
