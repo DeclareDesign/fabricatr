@@ -14,15 +14,20 @@ columns).}
 \item{conditions}{Named list mapping assignment variable name(s) to their
 possible values. Default \code{list(Z = c(0, 1))}.}
 
-\item{sep}{Column-name separator. Default \code{"_"}.}
+\item{sep}{Column-name separator. Default \code{"_"}. Give
+\code{reveal_outcomes()} the same \code{sep}.}
 }
 \value{
 A data frame with one column per combination of the values in
   \code{conditions}, named \code{<outcome><sep><var><sep><value>} and, with
   more than one assignment variable, carrying one such pair per variable:
   \code{Y_Z1_0_Z2_0}, \code{Y_Z1_1_Z2_0}, \code{Y_Z1_0_Z2_1},
-  \code{Y_Z1_1_Z2_1}, the first variable varying fastest. Called inside
-  \code{fabricate()} without a name, these columns are appended to the frame.
+  \code{Y_Z1_1_Z2_1}, the first variable varying fastest. The names are kept
+  as written even where they are not syntactic R names, so a negative
+  condition gives \code{Y_Z_-1} and a condition \code{"b c"} gives
+  \code{Y_Z_b c}; refer to such a column with backticks or \code{.data}.
+  Called inside \code{fabricate()} without a name, these columns are
+  appended to the frame.
 }
 \description{
 For each combination of condition values, evaluates the RHS of \code{x}

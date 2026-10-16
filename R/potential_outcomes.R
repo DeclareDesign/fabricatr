@@ -13,14 +13,19 @@
 #'   columns).
 #' @param conditions Named list mapping assignment variable name(s) to their
 #'   possible values. Default \code{list(Z = c(0, 1))}.
-#' @param sep Column-name separator. Default \code{"_"}.
+#' @param sep Column-name separator. Default \code{"_"}. Give
+#'   \code{reveal_outcomes()} the same \code{sep}.
 #'
 #' @return A data frame with one column per combination of the values in
 #'   \code{conditions}, named \code{<outcome><sep><var><sep><value>} and, with
 #'   more than one assignment variable, carrying one such pair per variable:
 #'   \code{Y_Z1_0_Z2_0}, \code{Y_Z1_1_Z2_0}, \code{Y_Z1_0_Z2_1},
-#'   \code{Y_Z1_1_Z2_1}, the first variable varying fastest. Called inside
-#'   \code{fabricate()} without a name, these columns are appended to the frame.
+#'   \code{Y_Z1_1_Z2_1}, the first variable varying fastest. The names are kept
+#'   as written even where they are not syntactic R names, so a negative
+#'   condition gives \code{Y_Z_-1} and a condition \code{"b c"} gives
+#'   \code{Y_Z_b c}; refer to such a column with backticks or \code{.data}.
+#'   Called inside \code{fabricate()} without a name, these columns are
+#'   appended to the frame.
 #'
 #' @examples
 #' fabricate(
@@ -64,7 +69,9 @@ potential_outcomes <- function(x, conditions = list(Z = c(0, 1)), sep = "_") {
     out[[nm]] <- eval(rhs, envir = child, enclos = fenv)
   }
 
-  as.data.frame(out)
+  # `check.names = TRUE` would turn `Y_Z_-1` into `Y_Z_.1` and `Y_Z_b c` into
+  # `Y_Z_b.c`, names `reveal_outcomes()` cannot rebuild from the assignment.
+  as.data.frame(out, check.names = FALSE)
 }
 
 #' Reveal observed outcomes from potential outcomes columns
@@ -76,6 +83,8 @@ potential_outcomes <- function(x, conditions = list(Z = c(0, 1)), sep = "_") {
 #'   \code{outcome ~ Z1 + Z2} for factorial assignments. The outcome name and
 #'   assignment variable(s) must match columns already in the data (typically
 #'   created by \code{potential_outcomes}).
+#' @param sep Column-name separator. Default \code{"_"}. It must match the
+#'   \code{sep} given to \code{potential_outcomes()}.
 #'
 #' @return A vector with one element per row, holding each unit's outcome
 #'   under the assignment it actually received, and carrying the type of the
@@ -95,34 +104,73 @@ potential_outcomes <- function(x, conditions = list(Z = c(0, 1)), sep = "_") {
 #'   Y = reveal_outcomes(Y ~ Z)
 #' )
 #'
+#' # A separator other than "_" is given to both
+#' fabricate(
+#'   N = 10, U = rnorm(N),
+#'   potential_outcomes(Y ~ 0.5 * Z + U, sep = "."),
+#'   Z = rbinom(N, 1, 0.5),
+#'   Y = reveal_outcomes(Y ~ Z, sep = ".")
+#' )
+#'
 #' @importFrom rlang eval_tidy f_lhs as_name
 #' @importFrom stats terms
 #' @export
-reveal_outcomes <- function(x) {
-  outcome  <- rlang::as_name(rlang::f_lhs(x))
-  z_vars   <- labels(stats::terms(x))
+reveal_outcomes <- function(x, sep = "_") {
+  outcome <- rlang::as_name(rlang::f_lhs(x))
+  z_vars <- assignment_names(x)
+  env <- environment(x)
 
-  # Build a data frame of realized assignment values from the calling env
-  assign_expr <- str2lang(
-    paste0("data.frame(", paste(z_vars, collapse = ", "), ")")
-  )
-  assign_df <- rlang::eval_tidy(assign_expr, env = environment(x))
+  # Every column is read by name from the environment the formula was written
+  # in, which inside `fabricate()` is the data mask. Pasting the names into
+  # code to evaluate, as 1.0.2 did, parsed `Y_Z_-1` as a subtraction and
+  # failed on `Y_Z_b c` as a syntax error.
+  read_column <- function(nm) rlang::eval_tidy(rlang::sym(nm), env = env)
+
+  assign_df <- z_vars |>
+    rlang::set_names() |>
+    lapply(read_column) |>
+    as.data.frame(check.names = FALSE)
 
   # Construct the potential outcome column name for each unit
   po_cols <- do.call(paste, c(
     list(outcome),
-    mapply(paste, z_vars, assign_df, sep = "_", SIMPLIFY = FALSE),
-    sep = "_"
+    mapply(paste, z_vars, assign_df, sep = sep,
+           SIMPLIFY = FALSE, USE.NAMES = FALSE),
+    sep = sep
   ))
 
   unique_cols <- unique(po_cols)
-  po_expr <- str2lang(
-    paste0("data.frame(", paste(unique_cols, collapse = ", "), ")")
-  )
-  po_df <- rlang::eval_tidy(po_expr, env = environment(x))
+  found <- vapply(unique_cols, exists, logical(1L), envir = env)
+  if (!all(found)) {
+    stop("reveal_outcomes() can't find the potential outcome column ",
+         paste0("`", unique_cols[!found], "`", collapse = ", "), ".\n",
+         "  Check that every assigned value is among the `conditions` given ",
+         "to potential_outcomes(), and that `sep` matches the one used ",
+         "there (here \"", sep, "\").", call. = FALSE)
+  }
 
-  col_idx <- match(po_cols, colnames(po_df))
+  po_df <- unique_cols |>
+    rlang::set_names() |>
+    lapply(read_column) |>
+    as.data.frame(check.names = FALSE)
+
+  col_idx <- match(po_cols, unique_cols)
   reveal_one_per_row(po_df, col_idx, outcome)
+}
+
+# The names of the assignment variables on the right-hand side of a
+# `reveal_outcomes()` formula, without the backticks `labels(terms(x))` keeps
+# on a non-syntactic one. Each must be a bare name, since it is half of a
+# column name: `Y ~ log(Z)` names no potential outcome column.
+assignment_names <- function(x) {
+  tt <- stats::terms(x)
+  vars <- as.list(attr(tt, "variables"))[-1L]
+  if (attr(tt, "response") == 1L) vars <- vars[-1L]
+  if (!length(vars) || !all(vapply(vars, is.symbol, logical(1L)))) {
+    stop("reveal_outcomes() needs the assignment variables named on the ",
+         "right-hand side, as in `Y ~ Z` or `Y ~ Z1 + Z2`.", call. = FALSE)
+  }
+  vapply(vars, rlang::as_string, character(1L))
 }
 
 # Take one value per row across the potential outcome columns, keeping the type
