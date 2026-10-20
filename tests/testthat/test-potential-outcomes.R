@@ -187,6 +187,24 @@ test_that("a sep that does not match potential_outcomes is named", {
   )
 })
 
+test_that("a global object cannot stand in for a missing potential outcome", {
+  Y_Z_2 <- c(99, 99)
+  expect_error(
+    fabricate(
+      N = 2,
+      potential_outcomes(Y ~ Z),
+      Z = c(0, 2),
+      Yobs = reveal_outcomes(Y ~ Z)
+    ),
+    "can't find the potential outcome column `Y_Z_2`"
+  )
+  d <- fabricate(N = 2, potential_outcomes(Y ~ Z))
+  expect_error(
+    dplyr::mutate(d, Z = c(0, 2), Yobs = reveal_outcomes(Y ~ Z)),
+    "can't find the potential outcome column `Y_Z_2`"
+  )
+})
+
 test_that("negative conditions keep their names and reveal", {
   # `as.data.frame()` checked the names, which made `Y_Z_-1` into `Y_Z_.1`,
   # and reveal_outcomes() pasted the name it wanted into code, where `Y_Z_-1`

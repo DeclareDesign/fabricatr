@@ -139,8 +139,19 @@ reveal_outcomes <- function(x, sep = "_") {
     sep = sep
   ))
 
+  # Inside a data mask (`fabricate()` or dplyr) the potential outcomes are read
+  # through `.data`, which looks only at the columns, so a global object that
+  # happens to be called `Y_Z_2` cannot stand in for a missing column.
+  pronoun <- get0(".data", envir = env)
+  read_po <- if (inherits(pronoun, "rlang_data_pronoun")) {
+    function(nm) tryCatch(pronoun[[nm]], error = function(e) NULL)
+  } else {
+    function(nm) get0(nm, envir = env)
+  }
+
   unique_cols <- unique(po_cols)
-  found <- vapply(unique_cols, exists, logical(1L), envir = env)
+  po_list <- lapply(rlang::set_names(unique_cols), read_po)
+  found <- !vapply(po_list, is.null, logical(1L))
   if (!all(found)) {
     stop("reveal_outcomes() can't find the potential outcome column ",
          paste0("`", unique_cols[!found], "`", collapse = ", "), ".\n",
@@ -149,10 +160,7 @@ reveal_outcomes <- function(x, sep = "_") {
          "there (here \"", sep, "\").", call. = FALSE)
   }
 
-  po_df <- unique_cols |>
-    rlang::set_names() |>
-    lapply(read_column) |>
-    as.data.frame(check.names = FALSE)
+  po_df <- as.data.frame(po_list, check.names = FALSE)
 
   col_idx <- match(po_cols, unique_cols)
   reveal_one_per_row(po_df, col_idx, outcome)
