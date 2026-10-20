@@ -1,8 +1,3 @@
-> **HOLD. Do not submit yet.** win-builder has not been run. Delete this banner
-> once it has, and name the two reports in the "Test environments" section.
-> Graeme Blair's note to CRAN confirming the maintainer transfer was sent on
-> 2026-09-20.
-
 ## Submission
 
 fabricatr 2.0.0 is a rewrite of the package on dplyr, tibble, purrr, and rlang. Every function 1.0.2 exported is still exported, under the same name. Five argument spellings change and each old spelling is accepted with a deprecation warning naming the call to write instead, so a script written for 1.x still runs. Two changes are hard: a positional `N`, `fabricate(100, ...)`, is now an error whose message says to write `fabricate(N = 100, ...)`, and every expression passed to `fabricate()` must be named. The full list is in NEWS.md and each item has its own section in `vignette("fabricatr2.0")`.
@@ -15,7 +10,7 @@ This version was written by the maintainers working with AI assistance (Claude, 
 
 * local macOS 26.6 (aarch64, Apple M4), R 4.6.0
 * GitHub Actions: ubuntu-latest (devel, release, oldrel-1), macOS-latest (release), windows-latest (release). All five green at `FAIL 0 | WARN 0 | SKIP 0 | PASS 677` (run 39362129598, on the submitted code).
-* win-builder: not yet run
+* win-builder: R-devel (Windows, R 4.7.0), 2026-10-20: 1 NOTE, the maintainer change and the spelling list below. The tarball it checked differs from this one by one sentence added to `vignette("fabricatr2.0")` and by single quotes around the package names in DESCRIPTION; no code changed.
 
 The package has no `skip_on_cran()`, so the suite does not split on `NOT_CRAN`: all five CI platforms and the local check report the same `FAIL 0 | WARN 0 | SKIP 0 | PASS 677`, and the zero skips are read off each job's log rather than inferred from the green badge.
 
@@ -34,6 +29,8 @@ Old maintainer(s):
 ```
 
 The maintainer change is intentional and is covered by Graeme Blair's separate message to CRAN.
+
+win-builder's incoming check also lists "Tidyverse" and "intra" as possibly misspelled in DESCRIPTION. Both are correct: "Tidyverse" names the family of packages the rewrite is built on, and "intra" is the first half of "intra-cluster correlation". It listed the four package names too; those are now single-quoted, as CRAN asks.
 
 ## Reverse dependencies
 
