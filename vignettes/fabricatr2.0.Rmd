@@ -24,6 +24,8 @@ Two things motivated it. The first is speed: `fabricate()` sits in the innermost
 
 The headline for a collaborator porting an existing script: almost nothing changes. The rest of this vignette shows what stays the same, what moves, and why.
 
+fabricatr 2.0 was written by its maintainers working with AI assistance (Claude, from Anthropic).
+
 ## Getting it
 
 Until 2.0 reaches CRAN, install it from the `rewrite` branch on GitHub and ask for the vignettes to be built:
