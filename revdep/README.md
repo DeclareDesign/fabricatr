@@ -10,7 +10,7 @@
 |collate  |en_US.UTF-8                                         |
 |ctype    |en_US.UTF-8                                         |
 |tz       |America/Chicago                                     |
-|date     |2026-09-20                                          |
+|date     |2026-10-19                                          |
 |pandoc   |3.9.0.2 @ /opt/homebrew/bin/pandoc                  |
 |quarto   |1.10.18 @ /Users/alexandercoppock/.local/bin/quarto |
 
@@ -24,10 +24,9 @@
 
 # Revdeps
 
-## New problems (2)
+## New problems (1)
 
 |package       |version |error  |warning |note |
 |:-------------|:-------|:------|:-------|:----|
 |[DeclareDesign](problems.md#declaredesign)|1.1.1   |__+1__ |1       |     |
-|[DesignLibrary](problems.md#designlibrary)|0.1.10  |__+1__ |1       |     |
 
