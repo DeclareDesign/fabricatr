@@ -1,0 +1,464 @@
+#' Fabricate a data frame
+#'
+#' The main entry point for fabricatr. Builds a data frame column by column,
+#' supporting hierarchical levels, multi-column outputs, and starting from
+#' existing data.
+#'
+#' @param ... Column definitions or level calls (\code{add_level},
+#'   \code{nest_level}, \code{declare_level}, \code{import_level},
+#'   \code{cross_levels},
+#'   \code{link_levels}, \code{modify_level}, \code{potential_outcomes},
+#'   \code{draw_multivariate}). \code{N} must be supplied by name.
+#' @param N Number of rows. Made available as a scalar integer \code{N} inside
+#'   all column expressions; it does not appear as a column in the output
+#'   unless you write it explicitly (e.g. \code{n_obs = N}).
+#' @param ID_label Name of the unit ID column created alongside \code{N}.
+#'   Defaults to \code{"ID"}; set to \code{NA} to suppress it. Ignored when
+#'   \code{data} is supplied or when the data frame is built from levels
+#'   (each level's ID column is named after the level).
+#' @param data Optional existing data frame to start from.
+#'
+#' @section ID column type:
+#' ID columns are zero-padded character strings, as in fabricatr 1.x, so that an
+#' ID is a label rather than a quantity. The padding keeps character sort
+#' order matching numeric order, and the character type keeps a cluster ID
+#' from being read as a linear term by a model formula. The padding width is
+#' set by the number of units at that level, so a frame can hold
+#' \code{clusters} running \code{"1"} to \code{"4"} alongside \code{units}
+#' running \code{"01"} to \code{"12"}.
+#'
+#' @section Counting the rows a level is building:
+#' \code{N} names the number of rows the current level is building, so
+#' \code{rnorm(N)} draws one value per row. \code{n()} answers the same
+#' question as a function call and is available in every declaration. Two
+#' things make it worth reaching for. It cannot be confused with a parameter
+#' of the design: \code{N} is a name, so a design that also has an \code{N}
+#' in the workspace can leave a reader unsure which one an expression reads,
+#' and \code{redesign()} rebinds names, where \code{n()} always means the
+#' rows in hand. And a data set carrying a column called \code{n} keeps it:
+#' \code{sum(n)} reads the column and \code{n()} reads the count.
+#'
+#' @return A tibble with one row per unit of the lowest level and columns in
+#'   the order they were declared. Each level contributes an ID column named
+#'   after the argument it was assigned to, placed before that level's own
+#'   columns; a flat call contributes one named by \code{ID_label}, and
+#'   \code{ID_label = NA} suppresses it. A call that starts from \code{data}
+#'   adds no ID column at all. A nested level's IDs are unique across the whole
+#'   frame rather than restarting inside each parent, so nesting 2 citizens in
+#'   each of 3 villages numbers the citizens \code{"1"} through \code{"6"}.
+#'
+#' @examples
+#' # Flat fabrication
+#' fabricate(N = 100, Y = rnorm(N), X = rbinom(N, 1, 0.5))
+#'
+#' # n() is the number of rows the level is building
+#' fabricate(N = 10, Y = rnorm(n()))
+#'
+#' # Hierarchical: 20 villages, 5 citizens each
+#' fabricate(
+#'   villages = add_level(N = 20, v_income = rnorm(N)),
+#'   citizens = nest_level(N = 5, income = v_income + rnorm(N))
+#' )
+#'
+#' # Starting from existing data
+#' df <- data.frame(x = 1:10)
+#' fabricate(data = df, y = x ^ 2)
+#'
+#' @importFrom rlang %||%
+#' @export
+fabricate <- function(..., N = NULL, ID_label = "ID", data = NULL) {
+  dots <- rlang::enquos(...)
+  fabricate_impl(N = N, dots = dots, data = data, ID_label = ID_label)
+}
+
+#' Fabricate from a list of quosures
+#'
+#' The programmatic entry point, for a caller that has already captured the
+#' expressions it wants fabricated. [fabricate()] captures its \code{...} with
+#' \code{enquos()}, which such a caller cannot use: splicing captured quosures
+#' back in with \code{!!!} renders them as formulas, and \code{fabricate()}
+#' then captures those, one level too deep.
+#' \code{fabricate_with_dots()} takes the captured list as it stands and
+#' builds the frame [fabricate()] would have built from the same expressions.
+#'
+#' DeclareDesign is the caller this exists for. Its \code{declare_model()},
+#' \code{declare_measurement()}, \code{declare_assignment()} and
+#' \code{declare_sampling()} each capture their own arguments, so that a
+#' design carries its expressions as a value rather than as a view onto the
+#' environment it was written in, and then pass the captured list here.
+#'
+#' @param data Optional existing data frame to start from, as in
+#'   [fabricate()].
+#' @param dots A named list of quosures, such as [rlang::quos()] or
+#'   [rlang::enquos()] returns. A quosure named \code{N} sets the number of
+#'   rows and does not become a column, exactly as \code{fabricate(N = )}
+#'   does. Every other element needs a name.
+#' @param ID_label Name of the unit ID column, or \code{NA} to suppress it.
+#'   See [fabricate()].
+#'
+#' @return A tibble, the same one [fabricate()] returns for the same
+#'   expressions.
+#' @seealso [fabricate()], which is what to call when you hold the expressions
+#'   rather than their captures.
+#' @examples
+#' dots <- rlang::quos(N = 10, Y = rnorm(N), X = Y > 0)
+#' fabricate_with_dots(dots = dots)
+#'
+#' # The same frame without the row id, which is how a step that adds columns
+#' # to data already in hand calls it.
+#' fabricate_with_dots(dots = rlang::quos(Y2 = Y * 2),
+#'                     data = fabricate_with_dots(dots = dots),
+#'                     ID_label = NA)
+#' @export
+fabricate_with_dots <- function(data = NULL, dots, ID_label = "ID") {
+  # Extract N if it was captured as a named quosure in dots (flat case)
+  N <- NULL
+  N_idx <- which(names(dots) == "N")
+  if (length(N_idx) > 0L) {
+    N <- rlang::eval_tidy(dots[[N_idx[1L]]])
+    dots <- dots[-N_idx[1L]]
+  }
+  fabricate_impl(N = N, dots = dots, data = data, ID_label = ID_label)
+}
+
+#' A data mask that also answers `n()`
+#'
+#' `N` is a column of the mask, so a declaration that reads it gets whatever
+#' the level is building. `n()` answers the same question as a function call,
+#' which is worth having for two reasons: it cannot be mistaken for a
+#' parameter of the design and rebound by `redesign()`, and a data set that
+#' happens to carry a column called `n` still reads as that column, because R
+#' skips non-function bindings when it looks up a call.
+#'
+#' The size is bound between the data and the code's own environment, so the
+#' columns win over it and it wins over a `n()` from an attached package.
+#' A declaration written where `n` is already an ordinary variable is left
+#' alone: that variable keeps its meaning, and `n()` there is whatever it was
+#' before. Shadowing it would silently change designs that use `n` as a name.
+#'
+#' One mask serves a whole level, and `mask_bind()` puts each new column into
+#' it as the column is stored. `eval_tidy()` reads the mask's environment when
+#' it runs, so that is all the next declaration needs to see the column. The
+#' mask used to be rebuilt for every declaration, which cost 16 microseconds
+#' each: more than the arithmetic in a flat `fabricate()` call, and paid seven
+#' times over by a three-level design. It was not visible until
+#' `data-raw/benchmark_vignette.R` existed to measure it.
+#'
+#' @keywords internal
+#' @noRd
+level_mask <- function(data, size = NULL) {
+  nms <- names(data) %||% character(0)
+  if (length(data) && (anyDuplicated(nms) || !all(nzchar(nms)))) {
+    rlang::abort("`data` must have unique, non-empty column names.")
+  }
+  helpers <- new.env(parent = rlang::empty_env())
+  # `list2env()` rather than `rlang::as_environment()`, which re-checks that
+  # the names are a dictionary on every call and costs eight times as much.
+  # The check above is the same one, and here it runs once per level.
+  data_env <- list2env(data, envir = new.env(parent = helpers))
+  mask <- rlang::new_data_mask(data_env, top = helpers)
+  mask$.data <- rlang::as_data_pronoun(data_env)
+  rlang::new_environment(list(
+    mask = mask, data = data_env, helpers = helpers,
+    # The last declaration's environment, and what it decided about `n`. Every
+    # declaration in a level normally shares one environment, so the decision
+    # is made once and the search-path walk in `name_holds_a_value()` does not
+    # happen again.
+    env = NULL, n_bound = FALSE,
+    n_fn = function() {
+      if (is.null(size)) {
+        stop("n() has no level to count here: nothing is being built.",
+             call. = FALSE)
+      }
+      size
+    }
+  ))
+}
+
+#' Put a column into a mask that is already built
+#'
+#' @keywords internal
+#' @noRd
+mask_bind <- function(m, nm, value) {
+  assign(nm, value, envir = m$data)
+  invisible(m)
+}
+
+#' Whether a name already means something other than a function where the
+#' declaration was written
+#'
+#' @keywords internal
+#' @noRd
+name_holds_a_value <- function(env, name) {
+  if (!rlang::is_environment(env)) return(FALSE)
+  # `get0()` answers this in 0.6 microseconds where `rlang::env_get()` wrapped
+  # in a `tryCatch()` takes 3.6, and the question is asked once per level.
+  found <- get0(name, envir = env, inherits = TRUE, ifnotfound = NULL)
+  !is.null(found) && !is.function(found)
+}
+
+#' Evaluate one declaration against a level's mask
+#'
+#' A level call such as `regions = modify_level(z = rnorm(N))` is itself
+#' evaluated in the mask of the frame in hand, so the quosures it captures for
+#' its own expressions are homed in that mask rather than where the author
+#' wrote them. Left there, a name that misses the level's own mask falls
+#' through to a column of the outer frame: `mean(b)` at the regions level
+#' would quietly average every city's `b`. The level's quosures are moved back
+#' to the author's environment, so a name that is out of view at the level is
+#' out of view. Quosures homed anywhere else, such as inside a function the
+#' author wrote to build the level, are left where they are.
+#'
+#' @keywords internal
+#' @noRd
+mask_eval <- function(m, quo) {
+  env <- rlang::quo_get_env(quo)
+  if (!identical(env, m$env)) {
+    m$env <- env
+    bind_n <- !name_holds_a_value(env, "n")
+    if (!identical(bind_n, m$n_bound)) {
+      if (bind_n) {
+        rlang::env_bind(m$helpers, n = m$n_fn)
+      } else {
+        rlang::env_unbind(m$helpers, "n")
+      }
+      m$n_bound <- bind_n
+    }
+  }
+  val <- rlang::eval_tidy(quo, data = m$mask)
+  if (inherits(val, "fabricatr_level")) val <- rehome_level(val, m$mask, env)
+  val
+}
+
+rehome_level <- function(level, mask, env) {
+  rehome <- function(q) {
+    if (rlang::is_quosure(q) && identical(rlang::quo_get_env(q), mask)) {
+      rlang::quo_set_env(q, env)
+    } else {
+      q
+    }
+  }
+  level$dots <- lapply(level$dots, rehome)
+  level$N <- rehome(level$N)
+  level
+}
+
+fabricate_impl <- function(N = NULL, dots, data = NULL, ID_label = "ID") {
+  # Maintain a plain named list throughout, which is far cheaper than a tibble
+  # for intermediate operations. Convert to tibble exactly once at the end.
+  if (!is.null(data) && !is.null(N)) {
+    # fabricatr 1.0.2 refuses this outright, and it is worth refusing: the row
+    # count is already fixed by the data, so `N` can only be read as an attempt
+    # to make a column called `N`, which is a name the data mask owns. Silently
+    # dropping it is how `declare_model(N = m, ...) + declare_model(N = 2.5)`
+    # ran clean and did nothing.
+    stop("`N` cannot be given alongside existing data.\n",
+         "  The data already fix the number of rows. Do exactly one of:\n",
+         "  a level call, with or without data; existing data plus new ",
+         "variables; or `N` alone.", call. = FALSE)
+  }
+  if (!is.null(data)) {
+    tbl      <- tibble::as_tibble(data)
+    lst      <- as.list(tbl)
+    # nrow(), not length(lst[[1L]]): a data frame may have rows and no columns.
+    N_inject <- nrow(tbl)
+  } else if (!is.null(N)) {
+    N_val    <- validate_n(N)
+    lst      <- list()
+    N_inject <- N_val
+  } else {
+    lst      <- list()
+    N_inject <- NULL
+  }
+
+  # A flat fabricate() gets a unit ID column. Levels name their own ID columns,
+  # so the flat ID is suppressed as soon as any level call runs. It is injected
+  # into the data mask (so expressions can reference it) and prepended to the
+  # output at the end.
+  use_id <- is.null(data) && !is.null(N) &&
+    !is.null(ID_label) && !is.na(ID_label) && nzchar(ID_label)
+  id_vec <- if (use_id) make_ids(N_inject) else NULL
+
+  level_registry <- list()
+  saw_level <- FALSE
+
+  # A level call replaces the whole frame, so the mask is rebuilt after one
+  # runs and left alone otherwise. `N` and the flat ID are in the mask but not
+  # in `lst`: they are readable by a declaration without being columns of the
+  # result, and a declaration that writes either name binds over them.
+  m <- NULL
+
+  for (i in seq_along(dots)) {
+    nm <- names(dots)[[i]]
+
+    if (is.null(m)) {
+      base <- lst
+      if (!is.null(N_inject) && !"N" %in% names(base)) base[["N"]] <- N_inject
+      if (!is.null(id_vec) && !saw_level && !ID_label %in% names(base)) {
+        base[[ID_label]] <- id_vec
+      }
+      m <- level_mask(base, N_inject)
+    }
+
+    val <- mask_eval(m, dots[[i]])
+
+    if (inherits(val, "fabricatr_level")) {
+      # modify_level() adds no rows, so on its own it leaves the flat ID in
+      # place; only a level that builds rows names its own ID column.
+      if (val$type != "modify") saw_level <- TRUE
+      m <- NULL
+      if (val$type == "modify" && is.null(val$by) &&
+          nm %in% names(level_registry) && nm %in% names(lst)) {
+        modified <- modify_existing_level(val, lst, nm)
+        lst <- modified$data
+        level_registry[[nm]] <- modified$level
+      } else {
+        lst <- execute_level(val, lst, N_inject, nm, level_registry)
+        if (nchar(nm) > 0) level_registry[[nm]] <- lst
+      }
+      N_inject <- if (length(lst) > 0L) length(lst[[1L]]) else N_inject
+    } else if (i == 1L && nchar(nm) == 0L && is.data.frame(val) &&
+               is.null(data) && is.null(N)) {
+      # A leading unnamed data frame is the data, as it is in fabricatr 1.0.2.
+      # Without this it falls through to the multi-column branch below and is
+      # spliced in as columns, which leaves `N` and `n()` unbound: the frame
+      # then looks right while `fabricate(df, y = rnorm(N))` errors, and it is
+      # the shape every wrapper produces, since `f(data, ...)` forwarding
+      # cannot name the argument.
+      lst      <- as.list(tibble::as_tibble(val))
+      N_inject <- length(lst[[1L]])
+      id_vec   <- NULL
+      m        <- NULL
+    } else if (is.data.frame(val)) {
+      # Recycle length-1 columns (e.g. potential_outcomes with constant RHS)
+      n_rows <- if (length(lst) > 0L) length(lst[[1L]]) else N_inject %||% 0L
+      for (j in seq_along(val)) {
+        v <- val[[j]]
+        if (length(v) == 1L && n_rows > 1L) v <- rep(v, n_rows)
+        lst[[names(val)[[j]]]] <- v
+        mask_bind(m, names(val)[[j]], v)
+      }
+    } else if (nchar(nm) > 0) {
+      lst <- store_column(lst, nm, val,
+                          function(v, cn) recycle_to_n(v, N_inject), m)
+    } else {
+      stop_unnamed_expression(i, dots[[i]], val, "fabricate()",
+                              positional_n = is.null(N) && is.null(data))
+    }
+  }
+
+  if (use_id && !saw_level && !ID_label %in% names(lst)) {
+    lst <- c(stats::setNames(list(id_vec), ID_label), lst)
+  }
+
+  list_to_df(lst, N_inject)
+}
+
+# A length-1 column is recycled to N as soon as it is stored, not at output
+# time, because the list is also the data mask for every later expression in
+# the level. Deferring it lets a constant column reach a later expression as a
+# scalar, so `coordination = "high"` followed by
+# `if_else(coordination == "high", tau_1, tau_2)` fails on a size mismatch
+# where fabricatr, which recycles eagerly, succeeds.
+recycle_to_n <- function(val, n) {
+  if (!is.null(n) && length(val) == 1L && n > 1L) rep(val, n) else val
+}
+
+# A multi-column matrix becomes one column per matrix column, named X.1, X.2,
+# ... as data.frame() would name them, and the split happens as the column is
+# stored rather than on the way out. Keeping the matrix whole until output
+# leaves `X = matrix(...)` followed by `Y = X.1` unable to see X.1, which is
+# fabricatr#188.
+split_matrix_column <- function(nm, val) {
+  if (!is.matrix(val)) return(stats::setNames(list(val), nm))
+  if (ncol(val) == 1L) return(stats::setNames(list(val[, 1L]), nm))
+  suffix <- colnames(val)
+  if (is.null(suffix)) suffix <- seq_len(ncol(val))
+  stats::setNames(lapply(seq_len(ncol(val)), function(j) val[, j]),
+                  paste(nm, suffix, sep = "."))
+}
+
+# `fix` is applied to each resulting column, so a length rule is enforced per
+# column rather than against the whole matrix.
+store_column <- function(lst, nm, val, fix = function(v, nm) v, mask = NULL) {
+  cols <- split_matrix_column(nm, val)
+  for (cn in names(cols)) {
+    v <- fix(cols[[cn]], cn)
+    lst[[cn]] <- v
+    if (!is.null(mask)) mask_bind(mask, cn, v)
+  }
+  lst
+}
+
+# Converts a named list of equal-length vectors to a tibble. A list with no
+# columns still has a row count whenever `N` was given, so it is carried
+# through: `fabricate(N = 3, ID_label = NA)` asked for three rows and declining
+# to name the ID column is not a reason to return none.
+list_to_df <- function(lst, n_rows = NULL) {
+  if (length(lst) == 0L) {
+    if (is.null(n_rows)) return(tibble::tibble())
+    return(tibble::tibble(.rows = n_rows))
+  }
+  tibble::as_tibble(lst)
+}
+
+# Internal dispatcher ----
+
+execute_level <- function(level, lst, N_inject, nm, level_registry) {
+  switch(level$type,
+    add     = if (length(lst) > 0L)
+                execute_nest_level(level, lst, N_inject, nm)
+              else
+                execute_add_level(level, nm),
+    declare = execute_add_level(level, nm),
+    import  = execute_import_level(level, nm),
+    nest    = execute_nest_level(level, lst, N_inject, nm),
+    cross   = execute_cross_level(level, level_registry, nm),
+    link    = execute_link_level(level, level_registry, nm),
+    modify  = execute_modify_level(level, lst, N_inject),
+    stop("Unknown fabricatr level type: ", level$type)
+  )
+}
+
+# Sequential eval helper ----
+eval_dots_into_list <- function(dots, base_list, inner_N = NULL) {
+  lst <- base_list
+  if (!is.null(inner_N) && !"N" %in% names(lst)) lst[["N"]] <- inner_N
+  m <- level_mask(lst, inner_N)
+
+  for (i in seq_along(dots)) {
+    nm  <- names(dots)[[i]]
+    val <- mask_eval(m, dots[[i]])
+
+    if (nchar(nm) > 0) {
+      lst <- store_column(lst, nm, val,
+                          function(v, cn) recycle_to_n(v, inner_N), m)
+    } else if (is.data.frame(val)) {
+      for (j in seq_along(val)) {
+        v <- recycle_to_n(val[[j]], inner_N)
+        lst[[names(val)[[j]]]] <- v
+        mask_bind(m, names(val)[[j]], v)
+      }
+    } else {
+      stop_unnamed_expression(i, dots[[i]], val, "this level")
+    }
+  }
+  lst
+}
+
+# An expression with no name has nowhere to go. fabricatr 1.x failed on it
+# with an indexing error from deep inside; dropping it silently, which is
+# what happened here for a while, is worse, because `fabricate(100, ...)`
+# then reads as a design with no rows. The unnamed things that do have a
+# meaning, a level call and a multi-column result such as
+# `potential_outcomes()`, are handled before this is reached.
+stop_unnamed_expression <- function(i, quo, val, where, positional_n = FALSE) {
+  looks_like_n <- positional_n && is.numeric(val) && length(val) == 1L
+  stop("Every column needs a name. Expression ", i, " in ", where, ", `",
+       rlang::as_label(quo), "`, has none.",
+       if (looks_like_n) {
+         paste0("\n  If this is the number of rows, write `N = ",
+                format(val), "`: N is supplied by name.")
+       },
+       call. = FALSE)
+}

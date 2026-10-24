@@ -7,56 +7,40 @@
 draw_multivariate(formula, sep = "_")
 }
 \arguments{
-\item{formula}{Formula describing the multivariate draw. The lefthand side is the names or prefix and the right-hand side is the multivariate draw function call, such as mvrnorm from the MASS library or rmnom from the extraDistr library.}
+\item{formula}{A two-sided formula. LHS: either a single bare name (used as
+a column prefix, producing \code{name_1}, \code{name_2}, ...) or a
+\code{c(name1, name2, ...)} call giving explicit column names. RHS: any
+expression returning an N-by-k numeric matrix.}
 
-\item{sep}{Separator string between prefix and variable number. Only used when a single character string is provided and multiple variables created.}
+\item{sep}{Separator between prefix and index when LHS is a single name.
+Default \code{"_"}.}
 }
 \value{
-tibble
+A tibble with one column per name on the left-hand side of the
+  formula, in that order, and one row per row of the matrix the right-hand
+  side returns.
 }
 \description{
-Draw multivariate random variables
+A formula interface for functions that return a matrix of draws (e.g.
+\code{MASS::mvrnorm}, \code{extraDistr::rmnom}). The left-hand side of the
+formula names the resulting columns; the right-hand side is any expression
+that returns an N-by-k matrix.
+}
+\details{
+When called inside \code{fabricate()} without a name on the left of \code{=},
+the resulting columns are appended directly to the data frame.
 }
 \examples{
+if (requireNamespace("MASS", quietly = TRUE)) {
+  S <- matrix(c(1, 0.6, 0.6, 1), 2, 2)
+  draw_multivariate(c(Y1, Y2) ~ MASS::mvrnorm(n = 100, mu = c(0, 0), Sigma = S))
+}
 
-library(MASS)
-
-# draw from multivariate normal distribution
-dat <-
-  draw_multivariate(c(Y_1, Y_2) ~ mvrnorm(
-    n = 500,
-    mu = c(0, 0),
-    Sigma = matrix(c(1, 0.5, 0.5, 1), 2, 2)
-  ))
-
-
-cor(dat)
-
-
-# equivalently, you can provide a prefix for the variable names
-# (easier if you have many variables)
-draw_multivariate(Y ~ mvrnorm(
-  n = 5,
-  mu = c(0, 0),
-  Sigma = matrix(c(1, 0.5, 0.5, 1), 2, 2)
-))
-
-# within fabricate
-fabricate(
-  N = 100,
-  draw_multivariate(c(Y_1, Y_2) ~ mvrnorm(
-    n = N,
-    mu = c(0, 0),
-    Sigma = matrix(c(1, 0.5, 0.5, 1), 2, 2)
-  ))
-)
-
-# You can also write the following, which works but gives less control over the names
-fabricate(N = 100,
-Y = mvrnorm(
-  n = N,
-  mu = c(0, 0),
-  Sigma = matrix(c(1, 0.5, 0.5, 1), 2, 2)
-))
+# Inside fabricate (unnamed -> columns appended automatically)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  S <- matrix(c(1, 0.4, 0.4, 1), 2, 2)
+  fabricate(N = 50,
+            draw_multivariate(c(X, Y) ~ MASS::mvrnorm(n = N, mu = c(0, 0), Sigma = S)))
+}
 
 }

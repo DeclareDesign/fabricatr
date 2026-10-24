@@ -1,0 +1,308 @@
+test_that("flat fabricate creates N rows", {
+  df <- fabricate(N = 50, Y = rnorm(N), X = rbinom(N, 1, 0.5))
+  expect_equal(nrow(df), 50L)
+  expect_true(all(c("Y", "X") %in% names(df)))
+})
+
+test_that("N is not a persistent column", {
+  df <- fabricate(N = 10, Y = rnorm(N))
+  expect_false("N" %in% names(df))
+})
+
+test_that("sequential column access works", {
+  df <- fabricate(N = 20, X = rnorm(N), Y = X + rnorm(N))
+  expect_equal(nrow(df), 20L)
+  expect_true(all(c("X", "Y") %in% names(df)))
+})
+
+test_that("fabricate from existing data works", {
+  base <- data.frame(x = 1:10)
+  df <- fabricate(data = base, y = x^2)
+  expect_equal(df$y, (1:10)^2)
+})
+
+test_that("multi-column output via data frame return is bind_col'd", {
+  df <- fabricate(N = 5,
+                  potential_outcomes(A ~ Z + 1, conditions = list(Z = 0:1)))
+  expect_true("A_Z_0" %in% names(df))
+  expect_true("A_Z_1" %in% names(df))
+})
+
+test_that("flat fabricate creates a zero-padded character ID column", {
+  df <- fabricate(N = 10, Y = rnorm(N))
+  expect_equal(names(df), c("ID", "Y"))
+  expect_equal(df$ID, c(paste0("0", 1:9), "10"))
+})
+
+test_that("ID_label renames and NA suppresses the ID column", {
+  expect_equal(names(fabricate(N = 5, Y = rnorm(N), ID_label = "unit")),
+               c("unit", "Y"))
+  expect_equal(names(fabricate(N = 5, Y = rnorm(N), ID_label = NA)), "Y")
+})
+
+test_that("ID is visible to column expressions and can be overwritten", {
+  expect_equal(fabricate(N = 5, x = paste0("u", ID))$x, paste0("u", 1:5))
+  df <- fabricate(N = 3, ID = letters[1:3])
+  expect_equal(df$ID, letters[1:3])
+  expect_equal(ncol(df), 1L)
+})
+
+test_that("no flat ID column when levels or data are used", {
+  expect_false("ID" %in% names(fabricate(g = add_level(N = 3, x = rnorm(N)))))
+  expect_false("ID" %in% names(fabricate(data = data.frame(x = 1:5), y = x^2)))
+})
+
+test_that("unnamed level and multi-column calls are not swallowed as N", {
+  df <- fabricate(data = data.frame(U = rnorm(5)),
+                  potential_outcomes(Y ~ 0.5 * Z + U))
+  expect_true(all(c("Y_Z_0", "Y_Z_1") %in% names(df)))
+
+  d2 <- fabricate(N = 12, g = rep(1:3, 4), Y = rnorm(N),
+                  modify_level(gm = mean(Y), .by = "g"))
+  expect_true("gm" %in% names(d2))
+  expect_equal(d2$gm[d2$g == 1][1], mean(d2$Y[d2$g == 1]))
+})
+
+test_that("fabricatr legacy arguments are accepted and deprecated", {
+  # These used to be hard errors. They now work, and warn with the rewrite:
+  # see tests/testthat/test-deprecated.R.
+  rlang::local_options(rlib_warning_verbosity = "verbose")
+  expect_warning(
+    d1 <- fabricate(a = add_level(N = 2, x = rnorm(N), nest = FALSE)),
+    "`nest = FALSE` is deprecated"
+  )
+  expect_equal(nrow(d1), 2L)
+  expect_false("nest" %in% names(d1))
+
+  expect_warning(
+    d2 <- fabricate(N = 4, g = rep(1:2, 2), Y = rnorm(N),
+                    modify_level(m = mean(Y), by = "g")),
+    "`by =` is deprecated"
+  )
+  expect_equal(d2$m[d2$g == 1][1], mean(d2$Y[d2$g == 1]))
+})
+
+test_that("padded ID width follows the number of units at that level", {
+  df <- fabricate(clusters = add_level(N = 12), units = add_level(N = 2))
+  expect_equal(df$clusters[1], "01")
+  expect_equal(df$units[24], "24")
+  expect_equal(fabricate(N = 5, Y = rnorm(N))$ID, as.character(1:5))
+})
+
+test_that("a matrix column is split so later expressions can use its columns", {
+  # fabricatr#188
+  set.seed(1)
+  df <- fabricate(N = 4, X = matrix(rnorm(12), 4), Y = X.1)
+  expect_equal(names(df), c("ID", "X.1", "X.2", "X.3", "Y"))
+  expect_equal(df$Y, df$X.1)
+
+  named <- fabricate(N = 3,
+                     X = matrix(rnorm(6), 3, dimnames = list(NULL, c("a", "b"))))
+  expect_equal(names(named), c("ID", "X.a", "X.b"))
+
+  # a single-column matrix stays one plain column
+  expect_equal(names(fabricate(N = 3, X = matrix(rnorm(3), 3))), c("ID", "X"))
+
+  # and it works inside a level, where each split column must fill the level
+  lev <- fabricate(g = add_level(N = 2),
+                   u = nest_level(N = 2, X = matrix(rnorm(8), 4), Z = X.2))
+  expect_equal(names(lev), c("g", "u", "X.1", "X.2", "Z"))
+  expect_equal(lev$Z, lev$X.2)
+})
+
+test_that("n() counts the rows the level is building", {
+  expect_equal(nrow(fabricate(N = 7, Y = rnorm(n()))), 7L)
+  expect_equal(unique(fabricate(N = 7, k = n())$k), 7L)
+
+  # each level counts its own rows
+  df <- fabricate(
+    villages = add_level(N = 4, v = n()),
+    citizens = nest_level(N = 3, c = n())
+  )
+  expect_equal(unique(df$v), 4L)
+  expect_equal(unique(df$c), 12L)
+  expect_equal(unique(df$c), nrow(df))
+
+  # and a modified level counts the group it is in
+  grouped <- fabricate(N = 6, g = rep(1:2, each = 3),
+                       k = modify_level(.by = "g", k = n()))
+  expect_equal(unique(grouped$k), 3L)
+})
+
+test_that("a column called n does not stop n() from working", {
+  df <- fabricate(N = 5, n = 10:14, total = sum(n), size = n())
+  expect_equal(df$n, 10:14)
+  expect_equal(unique(df$total), 60L)
+  expect_equal(unique(df$size), 5L)
+})
+
+test_that("n() beats a same-named function on the search path", {
+  # dplyr::n() errors outside a dplyr verb, so a declaration writing n() would
+  # fail if the search path won the lookup. The attach is reversed by hand:
+  # library() is not undone by local(), so leaving dplyr on the search path
+  # would change what every test file alphabetically after this one sees.
+  already <- "package:dplyr" %in% search()
+  if (!already) library(dplyr)
+  k <- try(unique(fabricate(N = 3, k = n())$k), silent = TRUE)
+  if (!already) detach("package:dplyr")
+  expect_equal(k, 3L)
+})
+
+test_that("a variable already called n keeps its meaning", {
+  # From ResearchDesigns, where several designs use `n` as a sample size.
+  # Binding n() below the data but above the design's own scope would shadow
+  # them, and `n < 0` on a function is not a useful error.
+  local({
+    n <- 5
+    expect_equal(nrow(fabricate(N = n, Y = rnorm(n))), 5L)
+    expect_equal(unique(fabricate(N = 4, k = n)$k), 5L)
+  })
+})
+
+test_that("N alongside existing data is refused, as in 1.0.2", {
+  # `declare_model(N = m, U = rnorm(N)) + declare_model(N = 2.5)` ran clean and
+  # did nothing: the row count is fixed by the data, so the second `N` could
+  # only have meant a column called `N`, and it was dropped in silence.
+  base <- fabricate(N = 3, x = 1:3)
+  expect_error(fabricate(data = base, N = 2.5), "cannot be given alongside")
+  expect_error(fabricate(data = base, N = 5), "cannot be given alongside")
+  # data plus new variables, and N alone, both still work
+  expect_equal(nrow(fabricate(data = base, y = x * 2)), 3L)
+  expect_equal(nrow(fabricate(N = 5)), 5L)
+})
+
+test_that("an expression without a name is an error, not a silent drop", {
+  expect_error(fabricate(N = 5, rnorm(N)),
+               "Every column needs a name. Expression 1 in fabricate(), `rnorm(N)`, has none.",
+               fixed = TRUE)
+  expect_error(fabricate(N = 5, x = rnorm(N), rnorm(N)),
+               "Expression 2 in fabricate()", fixed = TRUE)
+  expect_error(fabricate(a = add_level(N = 3, rnorm(N))),
+               "Expression 1 in this level", fixed = TRUE)
+  expect_error(fabricate(a = add_level(N = 3), b = nest_level(N = 2, rnorm(N))),
+               "Expression 1 in nest_level()", fixed = TRUE)
+})
+
+test_that("a positional N says to name it", {
+  # fabricatr 1.0.2 read fabricate(100, ...) as N = 100. Here N is named, and
+  # the error says so rather than building a frame with no rows.
+  expect_error(fabricate(100, Y = rnorm(N)),
+               "If this is the number of rows, write `N = 100`", fixed = TRUE)
+})
+
+test_that("the data= path consumes no random draws before the first column", {
+  # fabricatr 1.0.2 named the workspace slot it put `data` into with
+  # makeUU(), whose sample.int(.Machine$integer.max, 1) costs exactly two
+  # uniforms, so every fabricate(data = df, ...) started two draws into the
+  # stream. 2.0 evaluates against a plain list and has no name to invent.
+  # The stream position is not promised across versions: fabricatr fabricates
+  # data, and which draw you got is not a finding (randomizr, which assigns
+  # real units, is where that promise lives). This is pinned as a tripwire
+  # rather than as a contract, so that a change in it is noticed here
+  # deliberately rather than downstream by surprise.
+  set.seed(7)
+  reference <- runif(6)
+
+  set.seed(7)
+  from_data <- fabricate(data = data.frame(u = 1:6), Z = runif(6))$Z
+  expect_identical(from_data, reference)
+
+  # Not a property of the data frame's shape: no ID column, more rows, and
+  # more columns all start at the same place.
+  set.seed(7)
+  wider <- fabricate(data = data.frame(u = 1:6), Z = runif(6), W = runif(6))
+  expect_identical(wider$Z, reference)
+
+  set.seed(7)
+  expect_identical(fabricate(data = data.frame(ID = sprintf("%d", 1:6), u = 1:6),
+                             Z = runif(6))$Z,
+                   reference)
+
+  # And the N= path, which never had the temporary, is unchanged.
+  set.seed(7)
+  expect_identical(fabricate(N = 6, Z = runif(N))$Z, reference)
+})
+
+test_that("a leading unnamed data frame is the data, as in 1.0.2", {
+  # fabricatr 1.0.2 reads the first unnamed argument as `data`. 2.0.0 fell
+  # through to the multi-column branch and spliced the frame in as columns,
+  # which left `N` and `n()` unbound: the result looked right until an
+  # expression asked how many rows it was building. Found by the first
+  # revdepcheck, where it accounted for every DeclareDesign 1.1.1 error.
+  df <- fabricate(sleep, e2 = rnorm(N))
+  expect_equal(nrow(df), 20L)
+  expect_named(df, c("extra", "group", "ID", "e2"))
+  expect_equal(nrow(fabricate(sleep, k = n())), 20L)
+  expect_equal(unique(fabricate(sleep, k = n())$k), 20L)
+
+  # The shape every wrapper produces: forwarding through `...` cannot name the
+  # argument, which is how DeclareDesign's step handlers call fabricate().
+  forward <- function(data, ...) fabricate(data, ...)
+  expect_equal(nrow(forward(sleep, e2 = rnorm(N))), 20L)
+
+  # `N` present means a frame is being built, so a leading unnamed frame is a
+  # multi-column result there (the potential_outcomes() shape) rather than the
+  # data. The two readings cannot both hold, and this is the one 1.0.2 takes.
+  expect_error(fabricate(sleep, N = 5, e2 = rnorm(N)))
+})
+
+test_that("a data frame after the first position is still spliced as columns", {
+  # The branch above is first-position only, so potential_outcomes() and
+  # draw_multivariate(), which return a frame of columns mid-call, are
+  # unaffected.
+  df <- fabricate(N = 2, x = 1, data.frame(a = 1:2))
+  expect_named(df, c("ID", "x", "a"))
+  expect_equal(df$a, 1:2)
+})
+
+test_that("ID_label = NA suppresses the column without dropping the rows", {
+  # list_to_df() returned an empty tibble for a column-less list, so `N` rows
+  # became no rows as soon as nothing was left to name them. 1.0.2 errors on
+  # ID_label = NA outright, so there is no 1.x answer to match here.
+  expect_equal(dim(fabricate(N = 3, ID_label = NA)), c(3L, 0L))
+  expect_equal(nrow(fabricate(N = 3, y = rnorm(N), ID_label = NA)), 3L)
+  # fabricate() given nothing at all still has nothing to report
+  expect_equal(dim(fabricate()), c(0L, 0L))
+})
+
+test_that("data with rows and no columns keeps its row count", {
+  # The row count was read off length(lst[[1L]]), which has no first element
+  # here, so the call died with "subscript out of bounds".
+  dat <- tibble::tibble(.rows = 3)
+  expect_equal(fabricate(data = dat, y = seq_len(N))$y, 1:3)
+  expect_equal(nrow(fabricate(data = dat, y = 1:3)), 3L)
+})
+
+test_that("n() counts the level being built, and says so when there is none", {
+  expect_equal(fabricate(N = 3, y = n())$y, rep(3L, 3))
+  expect_equal(fabricate(g = add_level(N = 2), u = nest_level(N = 3, y = n()))$y,
+               rep(6L, 6))
+  expect_equal(fabricate(data = data.frame(g = 1:3), y = n())$y, rep(3L, 3))
+  # n_fn() is reached with no level only from inside, where size is NULL.
+  m <- fabricatr:::level_mask(list(a = 1:3))
+  expect_error(m$n_fn(), "n\\(\\) has no level to count here")
+})
+
+test_that("a local value called n wins over the n() helper, as in 1.x", {
+  n <- 99
+  expect_equal(fabricate(N = 3, y = n)$y, rep(99, 3))
+  rm(n)
+  expect_equal(fabricate(N = 3, y = n())$y, rep(3L, 3))
+})
+
+test_that("a level's columns must be uniquely and non-emptily named", {
+  # The guard is what lets level_mask() use list2env() rather than
+  # rlang::as_environment(), which re-checks the names on every call.
+  expect_error(fabricatr:::level_mask(setNames(list(1:3, 4:6), c("a", "a"))),
+               "unique, non-empty column names")
+  expect_error(fabricatr:::level_mask(setNames(list(1:3), "")),
+               "unique, non-empty column names")
+  expect_silent(fabricatr:::level_mask(list(a = 1:3, b = 4:6), size = 3L))
+})
+
+test_that("a rejected N is rendered readably in the message", {
+  expect_equal(fabricatr:::format_n_value(NULL), "NULL")
+  expect_equal(fabricatr:::format_n_value(1:10), "10 values starting 1, 2, 3")
+  expect_match(fabricatr:::format_n_value(lm(1 ~ 1)), "^an object of class lm$")
+  expect_error(fabricate(N = 1:10, y = 1), "10 values")
+})

@@ -1,0 +1,245 @@
+# fabricatr spellings, accepted and deprecated ---------------------------------
+#
+# fabricatr's `nest =` and `by =` are formals of its level constructors, so
+# they arrive here inside `...` and would otherwise be captured as ordinary
+# column expressions: a junk column named `nest`, and in the `by =` case an
+# ungrouped answer. They used to be a hard error. They are now accepted, with a
+# warning that prints the call the author should have written.
+#
+# The ambiguity that motivated the error is narrower than it looks. Because
+# both names are formals in fabricatr, no design written against fabricatr can
+# have columns called `nest` or `by`, so the only author these shims can
+# confuse is one writing new fabricatr code who wants a column with one of
+# those names, and the warning tells that author exactly what happened.
+
+#' Rewrite a call for a deprecation message
+#'
+#' Takes the call as the author wrote it and returns the call they should have
+#' written, so the warning can show both. Arguments keep their positions:
+#' renaming `by` to `.by` in place reads better than dropping it and appending.
+#'
+#' @param cl A call, from `sys.call()`.
+#' @param fn Optional new function name.
+#' @param drop Names of arguments to remove.
+#' @param rename Named character vector, `c(old = "new")`.
+#' @param values Named list of replacement argument values.
+#' @param add Named list of arguments to append.
+#' @return A one-line deparsed call.
+#' @keywords internal
+#' @noRd
+rewrite_call <- function(cl, fn = NULL, drop = character(), rename = NULL,
+                         values = NULL, add = NULL) {
+  if (!is.null(fn)) cl[[1L]] <- as.name(fn)
+  for (nm in drop) cl[[nm]] <- NULL
+  nms <- names(cl)
+  for (old in names(rename)) {
+    i <- match(old, nms)
+    if (!is.na(i)) {
+      if (old %in% names(values)) cl[[i]] <- values[[old]]
+      names(cl)[i] <- rename[[old]]
+    }
+  }
+  for (nm in names(add)) cl[[nm]] <- add[[nm]]
+  paste(trimws(deparse(cl, width.cutoff = 500L)), collapse = " ")
+}
+
+#' Warn once per offending call site
+#'
+#' A level constructor runs inside every simulation, so a warning per call
+#' would flood a diagnosis. The frequency id is the call itself rather than a
+#' fixed string, so a design with two deprecated calls reports both, each once,
+#' instead of the first one silencing the second.
+#'
+#' Under a parallel `future` plan the first call happens in a worker and the
+#' warning may not reach the console, which is why the vignette says this too
+#' rather than leaving the warning to teach it.
+#'
+#' @keywords internal
+#' @noRd
+warn_deprecated_spelling <- function(what, wrote, instead) {
+  rlang::warn(
+    paste0(
+      what, " is deprecated in fabricatr 2.0.\n",
+      "Write:  ", instead, "\n",
+      "Not:    ", wrote
+    ),
+    .frequency = "once",
+    .frequency_id = paste0("fabricatr_legacy_", wrote)
+  )
+}
+
+#' Resolve fabricatr 1.x's `by =` to level names, and a `rho` if it carried one
+#'
+#' Accepts everything fabricatr 1.x's `by` accepted: a bare name
+#' (`by = clusters`), a `join_using()` call (`by = join_using(a, b)`), and a
+#' character vector. In 1.x, `link_levels()` took its correlation inside the
+#' call too, `join_using(a, b, rho = 0.5)`, so a named `rho` there is returned
+#' beside the level names rather than mistaken for a level called `rho`.
+#'
+#' @return A list with `by`, a character vector, and `rho`, a number or `NULL`.
+#' @keywords internal
+#' @noRd
+resolve_legacy_by <- function(quo) {
+  expr <- rlang::quo_get_expr(quo)
+  if (rlang::is_symbol(expr)) {
+    return(list(by = rlang::as_string(expr), rho = NULL))
+  }
+  if (rlang::is_call(expr, "join_using")) {
+    args <- as.list(expr)[-1L]
+    is_rho <- (names(args) %||% rep("", length(args))) %in% "rho"
+    rho <- if (any(is_rho)) {
+      rlang::eval_tidy(args[[which(is_rho)[1L]]], env = rlang::quo_get_env(quo))
+    }
+    by <- vapply(args[!is_rho], function(a) {
+      if (is.character(a)) a else rlang::as_string(a)
+    }, character(1))
+    return(list(by = unname(by), rho = rho))
+  }
+  list(by = as.character(rlang::eval_tidy(quo)), rho = NULL)
+}
+
+#' Accept fabricatr 1.x's `nest =` in a level constructor
+#'
+#' `add_level(..., nest = FALSE)` is 1.x's spelling of `declare_level()`, and
+#' `nest = TRUE` is `add_level()` with nothing else to say. Returns the level
+#' type to build and the dots with `nest` removed.
+#'
+#' @keywords internal
+#' @noRd
+absorb_legacy_nest <- function(dots, cl, type) {
+  if (!"nest" %in% names(dots)) return(list(type = type, dots = dots))
+  nested <- isTRUE(rlang::eval_tidy(dots[["nest"]]))
+  new_type <- if (nested) type else "declare"
+  new_fn <- if (nested) NULL else "declare_level"
+  warn_deprecated_spelling(
+    paste0("`nest = ", if (nested) "TRUE" else "FALSE", "`"),
+    wrote = paste(trimws(deparse(cl, width.cutoff = 500L)), collapse = " "),
+    instead = rewrite_call(cl, fn = new_fn, drop = "nest")
+  )
+  list(type = new_type, dots = dots[names(dots) != "nest"])
+}
+
+#' Accept fabricatr 1.x's `by =` in a level constructor
+#'
+#' Returns the resolved level names and the dots with `by` removed, or `NULL`
+#' for `by` when the author used `.by` as they should.
+#'
+#' @keywords internal
+#' @noRd
+absorb_legacy_by <- function(dots, cl) {
+  if (!"by" %in% names(dots)) return(list(by = NULL, rho = NULL, dots = dots))
+  resolved <- resolve_legacy_by(dots[["by"]])
+  warn_deprecated_spelling(
+    "`by =`",
+    wrote = paste(trimws(deparse(cl, width.cutoff = 500L)), collapse = " "),
+    instead = rewrite_call(cl, rename = c(by = ".by"),
+                           values = list(by = resolved$by),
+                           add = if (!is.null(resolved$rho)) list(rho = resolved$rho))
+  )
+  list(by = resolved$by, rho = resolved$rho, dots = dots[names(dots) != "by"])
+}
+
+#' Recover the argument that a legacy `by =` displaced
+#'
+#' The level constructors name their level argument `.by`, and R will not
+#' partial-match a supplied `by =` to a formal whose name begins with a dot.
+#' So a 1.x call leaves `.by` unfilled and R binds the first *unnamed*
+#' argument to it positionally. In a design that writes
+#' `cross_levels(by = join_using(a, b), potential_outcomes(Y ~ Z))` the
+#' potential outcomes land in `.by`, and `absorb_legacy_by()` then returns the
+#' legacy value and discards them without a word. This puts that argument back
+#' in the dots, where the author wrote it.
+#'
+#' Position matters, because a level's variables are built in order. The
+#' displaced argument is the leftmost *unnamed* one, but named variables can
+#' precede it: in `cross_levels(by = join_using(a, b), U = rnorm(N),
+#' potential_outcomes(Y ~ U))` the potential outcomes refer to `U`, so they
+#' must go back after it. The insertion point is the number of arguments
+#' written before the displaced one that landed in the dots, meaning named
+#' arguments other than `by` and the constructor's own `formal_names`. A call
+#' that names `.by` as well as `by` has displaced nothing and is returned
+#' untouched.
+#'
+#' @keywords internal
+#' @noRd
+restore_displaced_by <- function(quo, dots, cl, formal_names) {
+  supplied <- names(cl)
+  if (!is.null(supplied) && any(!is.na(pmatch(supplied[-1], ".by")))) return(dots)
+  args <- as.list(cl)[-1]
+  arg_names <- names(args)
+  displaced <- rlang::quo_get_expr(quo)
+  at <- which(arg_names == "" &
+                vapply(args, identical, logical(1), displaced))[1]
+  before <- arg_names[seq_len(at - 1)]
+  n_before <- sum(before != "" & before != "by" & !before %in% formal_names)
+  append(dots, stats::setNames(list(quo), ""), after = n_before)
+}
+
+#' Accept a fabricatr 1.x name for `labels` in a `draw_*` function
+#'
+#' `draw_ordered(break_labels = )` and `draw_categorical(category_labels = )`
+#' are 1.x's names for what is `labels` in both. Returns the labels to use,
+#' warning once per call site when the old name was used.
+#'
+#' @keywords internal
+#' @noRd
+absorb_legacy_labels <- function(labels, legacy, old, cl) {
+  if (is.null(legacy)) return(labels)
+  warn_deprecated_spelling(
+    paste0("`", old, " =`"),
+    wrote = paste(trimws(deparse(cl, width.cutoff = 500L)), collapse = " "),
+    instead = rewrite_call(cl, rename = stats::setNames("labels", old))
+  )
+  labels %||% legacy
+}
+
+#' Name the levels to cross or link
+#'
+#' fabricatr 1.x's helper for `by = join_using(countries, years)`. In 2.0
+#' the levels are named directly, `.by = c("countries", "years")`, and this is
+#' kept so designs written for 1.x run unchanged. It returns exactly that
+#' character vector, so it is also harmless in front of `.by`.
+#'
+#' @param ... Bare level names, or strings.
+#' @return A character vector of level names.
+#' @export
+#' @examples
+#' join_using(countries, years)
+join_using <- function(...) {
+  unname(vapply(rlang::ensyms(...), rlang::as_string, character(1)))
+}
+
+#' Recycle a vector to the length of the level being built
+#'
+#' fabricatr 1.x's helper for filling a level with a short vector. 2.0
+#' recycles automatically whenever the vector's length divides the level
+#' evenly, so this is only ever a no-op made explicit, and is kept so designs
+#' written for 1.x run unchanged.
+#'
+#' Left off, `.N` is the `N` of the level being built. 1.x found it by
+#' walking the call stack; a 2.0 column expression is evaluated
+#' against a data mask instead, so `N` is read out of the calling frame, which
+#' is that mask.
+#'
+#' @param x A vector.
+#' @param .N Length to recycle to. Left off inside a level.
+#' @return `x`, recycled to length `.N`.
+#' @export
+#' @examples
+#' fabricate(villages = add_level(N = 6, arm = recycle(c("a", "b", "c"))))
+#' recycle(c("a", "b"), .N = 6)
+recycle <- function(x, .N = NULL) {
+  if (is.null(.N)) {
+    .N <- tryCatch(get("N", envir = parent.frame(), inherits = TRUE),
+                   error = function(e) NULL)
+  }
+  if (is.null(.N)) {
+    stop("recycle() could not find `N`. Supply it as `recycle(x, .N = )`.",
+         call. = FALSE)
+  }
+  if (length(x) == 0L || .N %% length(x) != 0L) {
+    stop("recycle(): ", length(x), " values do not divide ", .N, " evenly.",
+         call. = FALSE)
+  }
+  rep(x, length.out = .N)
+}

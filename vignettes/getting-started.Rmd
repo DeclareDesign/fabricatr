@@ -1,0 +1,139 @@
+---
+title: "Getting started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+set.seed(343)
+```
+
+```{r setup}
+library(fabricatr)
+```
+
+fabricatr makes data you do not have yet. You describe the variables and how they relate, and `fabricate()` builds a data frame that looks like what you expect to collect, so a design can be run and diagnosed before there is anything to analyze.
+
+## One level
+
+`fabricate()` builds a data frame one column at a time. `N` is the number of rows, and every column can use the columns before it:
+
+```{r}
+survey <- fabricate(
+  N = 100,
+  age = round(runif(N, 18, 80)),
+  income = 20 + 0.5 * age + rnorm(N, sd = 10)
+)
+head(survey)
+```
+
+`fabricate()` adds a unit identifier as the first column, named `ID` unless you choose another name with `ID_label`. IDs are character strings, zero-padded to the width of the largest one, so these run `"001"` to `"100"` and a frame of six rows runs `"1"` to `"6"`. `N = 100` sets the number of rows, and the name `N` can then be used inside any column's expression, which is why `runif(N, 18, 80)` and `rnorm(N, sd = 10)` each draw exactly one value per row.
+
+## Two levels
+
+Real data have structure: citizens in villages, students in schools, years within countries. Each level is a named argument to `fabricate()`. `add_level()` builds the first one, here five villages, each with its own `village_wealth`. `nest_level()` then builds four citizens inside each village, twenty rows in all. Every citizen row carries the `village_wealth` of the village it belongs to, so the expression for `income` can use it:
+
+```{r}
+nested <- fabricate(
+  villages = add_level(N = 5, village_wealth = rnorm(N)),
+  citizens = nest_level(N = 4, income = village_wealth + rnorm(N))
+)
+head(nested)
+```
+
+`N` inside a level means the number of rows that level is building. In `nest_level(N = 4, ...)` you supply 4 per village, but the expressions inside see `N` as 20, so `rnorm(N)` gives each of the twenty citizens a draw of their own. Each level names its own ID column after itself, here `villages` and `citizens`, in place of `ID`.
+
+## Potential outcomes
+
+An experiment has an outcome under treatment and an outcome under control, and observes only one of them. `potential_outcomes()` writes both down from a formula, one column per condition. `Z` in the formula is not a column: it names the treatment, and the formula is evaluated once with `Z = 0` and once with `Z = 1`, giving `Y_Z_0` and `Y_Z_1`:
+
+```{r}
+experiment <- fabricate(
+  N = 100,
+  U = rnorm(N),
+  potential_outcomes(Y ~ 0.5 * Z + U)
+)
+head(experiment)
+```
+
+Once units are assigned, `reveal_outcomes()` picks out the outcome each unit shows. A call that starts from `data` takes `N` from it, so `N` here is `nrow(experiment)`, 100:
+
+```{r}
+observed <- fabricate(
+  data = experiment,
+  Z = rbinom(N, 1, 0.5),
+  Y = reveal_outcomes(Y ~ Z)
+)
+head(observed)
+```
+
+## Draws that look like real variables
+
+The `draw_*` family turns a latent variable into the kind of measurement a survey produces. `draw_binary()` gives a 0/1 outcome. `latent` is the variable on the scale the link works on, so with `link = "logit"` each unit is a 1 with probability `plogis(x)`:
+
+```{r}
+fabricate(
+  N = 6,
+  x = rnorm(N),
+  voted = draw_binary(latent = x, link = "logit")
+)
+```
+
+`draw_normal_icc()` draws a clustered variable with a target intra-cluster correlation, so that citizens in the same village resemble each other by the amount you choose:
+
+```{r}
+clustered <- fabricate(
+  villages = add_level(N = 100),
+  citizens = nest_level(N = 20, trust = draw_normal_icc(clusters = villages, ICC = 0.3))
+)
+icc_share <- summary(lm(trust ~ villages, data = clustered))$adj.r.squared
+icc_share
+```
+
+The adjusted figure is the one to read: it is the share of variance lying between villages, which is what the ICC sets. The ICC is a parameter of the draw rather than a property of any one data set, so the realized share varies around it, with a standard deviation of about 0.03 across draws of a hundred villages. This draw lands at `r round(icc_share, 2)`. Plain `r.squared` runs about 0.03 higher still, because it counts the ninety-nine village dummies as explanatory power.
+
+`draw_normal_ar()` is the same idea over time. `declare_level()` builds a level that does not nest in the one before it: here 2,000 units and, separately, 6 periods. `cross_levels()` then pairs every unit with every period, giving a panel of 12,000 rows, one per unit per period, and `.by` names the two levels being crossed. The draw then gives each unit a series whose shocks persist, so a unit resembles its own recent past by the amount `rho` sets:
+
+```{r}
+panel <- fabricate(
+  units = declare_level(N = 2000),
+  periods = declare_level(N = 6),
+  obs = cross_levels(
+    .by = c("units", "periods"),
+    shock = draw_normal_ar(clusters = units, time = periods, rho = 0.7)
+  )
+)
+head(panel)
+```
+
+To see the persistence, put each period in its own column, one row per unit, and correlate the first period with the rest:
+
+```{r}
+wide <- tapply(panel$shock, list(panel$units, panel$periods), sum)
+round(cor(wide)[1, ], 2)
+```
+
+The correlation with the first period falls as the gap grows. In expectation it is 0.7 one period later, 0.49 (0.7 squared) two periods later, and in general 0.7 raised to the gap; a sample of 2,000 units lands within a couple of hundredths of each.
+
+## Resampling
+
+`resample_data()` bootstraps a data frame, and respects its levels: villages are drawn with replacement, then citizens within each village that was drawn. A village can come up more than once, and its citizens are resampled separately each time.
+
+```{r}
+boot <- resample_data(nested, N = c(villages = 3, citizens = 2))
+boot
+```
+
+`ALL` in place of a number keeps every unit at that level, and leaving a level out of the plan does the same thing:
+
+```{r}
+resample_data(nested, N = c(villages = 3, citizens = ALL))
+```
+
+## Where to read next
+
+The book at <https://book.declaredesign.org> puts fabricated data to work in complete research designs, and `vignette("fabricatr2.0")` lists what changed from fabricatr 1.x for anyone with an older script. Every function is documented in the [reference index](https://declaredesign.org/r/fabricatr/reference/index.html).

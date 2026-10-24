@@ -2,82 +2,60 @@
 % Please edit documentation in R/resample_data.R
 \name{resample_data}
 \alias{resample_data}
-\title{Resample data, including hierarchical data}
+\title{Resample a data frame, with optional hierarchical cluster resampling}
 \usage{
 resample_data(data, N, ID_labels = NULL, unique_labels = FALSE)
 }
 \arguments{
-\item{data}{A data.frame, usually provided by the user.}
+\item{data}{A data frame.}
 
-\item{N}{The number of sample observations to return. If \code{N} is a single
-scalar and no labels are provided, \code{N} will specify the number of unit
-observations to resample. If \code{N} is named, or if the \code{ID_labels}
-argument is specified (in which case, both \code{N} and \code{ID_labels}
-should be the same length), then the units resampled will be values of the
-levels resampled (this is useful for, e.g., cluster resampling). If \code{N}
-is the constant \code{ALL} for any level, all units of this level will be
-transparently passed through to the next level of resampling.}
+\item{N}{Resample size. May be:
+\itemize{
+  \item Missing: resample \code{nrow(data)} units (standard bootstrap).
+  \item A single unnamed number, with no \code{ID_labels}: resample that
+    many rows with replacement.
+  \item A named integer vector: names are cluster ID column names (from
+    outermost to innermost), values are the number of units to resample
+    at each level. Use the constant \code{ALL} to pass through all units
+    at a level.
+  \item An unnamed integer vector: same as above but supply \code{ID_labels}
+    separately.
+}}
 
-\item{ID_labels}{A character vector of the variables that indicate the data
-hierarchy, from highest to lowest (i.e., from cities to citizens).}
+\item{ID_labels}{Character vector of cluster ID column names (outermost to
+innermost). Required when \code{N} is unnamed.}
 
-\item{unique_labels}{A boolean, defaulting to FALSE. If TRUE, fabricatr will
-created an extra data frame column depicting a unique version of the ID_label
-variable resampled on, called <ID_label>_unique.}
+\item{unique_labels}{Logical. When \code{TRUE}, adds a
+\code{<ID>_unique} column with globally unique labels after resampling
+(useful for multi-level bootstraps where the same cluster is drawn
+multiple times). Default \code{FALSE}.}
 }
 \value{
-A data.frame
+A tibble of the resampled rows: \code{nrow(data)} of them for the
+  default bootstrap, \code{N} for an unnamed scalar \code{N}, and for a
+  hierarchical call the sizes requested at each level multiplied together.
+  ID columns are carried over from the rows that were drawn rather than
+  regenerated, so a cluster drawn twice appears twice under one ID; pass
+  \code{unique_labels = TRUE} to add an \code{<ID>_unique} column that
+  tells the copies apart.
 }
 \description{
-This function allows you to resample any data frame. The default mode
-performs a single resample of size \code{N} with replacement. Users can
-also specify more complex resampling strategies to resample hierarchical
-data.
+For simple bootstrap resampling, call \code{resample_data(data)} with no
+other arguments. For cluster resampling, supply \code{N} and
+\code{ID_labels}. For multi-level hierarchical resampling, supply vectors
+for both.
 }
 \examples{
+# Simple bootstrap
+df <- fabricate(N = 50, Y = rnorm(N))
+boot <- resample_data(df)
+nrow(boot)
 
-# Resample a dataset of size N without any hierarchy
-baseline_survey <- fabricate(N = 50, Y_pre = rnorm(N))
-bootstrapped_data <- resample_data(baseline_survey)
-
-# Specify a fixed number of observations to return
-baseline_survey <- fabricate(N = 50, Y_pre = rnorm(N))
-bootstrapped_data <- resample_data(baseline_survey, N = 100)
-
-# Resample by a single level of a hierarchical dataset (e.g. resampling
-# clusters of observations): N specifies a number of clusters to return
-
-clustered_survey <- fabricate(
-  clusters = add_level(N=25),
-  cities = add_level(N=round(runif(25, 1, 5)),
-                     population=runif(n = N, min=50000, max=1000000))
+# Cluster bootstrap: resample 10 of 20 clusters
+clustered <- fabricate(
+  clusters = add_level(N = 20, gdp = rnorm(N)),
+  units    = nest_level(N = 5, Y = gdp + rnorm(N))
 )
-
-cluster_resample <- resample_data(clustered_survey, N = 5, ID_labels = "clusters")
-
-# Alternatively, pass the level to resample as a name:
-cluster_resample_2 <- resample_data(clustered_survey, N=c(clusters = 5))
-
-# Resample a hierarchical dataset on multiple levels
-my_data <-
-fabricate(
-  cities = add_level(N = 20, elevation = runif(n = N, min = 1000, max = 2000)),
-  citizens = add_level(N = 30, age = runif(n = N, min = 18, max = 85))
-)
-
-# Specify the levels you wish to resample:
-my_data_2 <- resample_data(my_data, N = c(3, 5),
-                           ID_labels = c("cities", "citizens"))
-
-# To resample every unit at a given level, use the ALL constant
-# This example will resample 10 citizens at each of the cities:
-
-passthrough_resample_data <- resample_data(my_data, N = c(cities=ALL, citizens=10))
-
-# To ensure a column with unique labels (for example, to calculate block-level
-# statistics irrespective of sample choices), use the unique_labels=TRUE
-# argument -- this will produce new columns with unique labels.
-
-unique_resample <- resample_data(my_data, N = c(cities=5), unique_labels = TRUE)
+resample_data(clustered, N = c(clusters = 10))
 
 }

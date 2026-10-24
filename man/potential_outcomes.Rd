@@ -2,51 +2,60 @@
 % Please edit documentation in R/potential_outcomes.R
 \name{potential_outcomes}
 \alias{potential_outcomes}
-\title{Build potential outcomes variables}
+\title{Build potential outcomes columns}
 \usage{
 potential_outcomes(x, conditions = list(Z = c(0, 1)), sep = "_")
 }
 \arguments{
-\item{x}{Formula describing the potential outcomes with the outcome name on the left hand side and the expression describing the potential outcomes on the right hand side, e.g. \code{Y ~ 0.1 * Z + rnorm(N)} (this would draw two potential outcomes columns by default, named Y_Z_0 and Y_Z_1).}
+\item{x}{A two-sided formula. LHS: outcome variable name. RHS: expression
+for the potential outcome (may reference the assignment variable and other
+columns).}
 
-\item{conditions}{A list of conditions for each assignment variable. Defaults to \code{list(Z = c(0, 1))}.}
+\item{conditions}{Named list mapping assignment variable name(s) to their
+possible values. Default \code{list(Z = c(0, 1))}.}
 
-\item{sep}{Separator inserted between the outcome name and the assignment variable name used to construct the potential outcome variable names, defaults to "_".}
+\item{sep}{Column-name separator. Default \code{"_"}. Give
+\code{reveal_outcomes()} the same \code{sep}.}
+}
+\value{
+A data frame with one column per combination of the values in
+  \code{conditions}, named \code{<outcome><sep><var><sep><value>} and, with
+  more than one assignment variable, carrying one such pair per variable:
+  \code{Y_Z1_0_Z2_0}, \code{Y_Z1_1_Z2_0}, \code{Y_Z1_0_Z2_1},
+  \code{Y_Z1_1_Z2_1}, the first variable varying fastest. The names are kept
+  as written even where they are not syntactic R names, so a negative
+  condition gives \code{Y_Z_-1} and a condition \code{"b c"} gives
+  \code{Y_Z_b c}; refer to such a column with backticks or \code{.data}.
+  Called inside \code{fabricate()} without a name, these columns are
+  appended to the frame.
 }
 \description{
-Function to draw multiple potential outcomes, one for each condition that an assignment variable can be set to.
+For each combination of condition values, evaluates the RHS of \code{x}
+with the assignment variable(s) set to those values, producing one column
+per condition. The column names follow the pattern
+\code{<outcome>_<var>_<value>}.
+}
+\details{
+When called inside \code{fabricate()} without a left-hand name (i.e. as an
+unnamed argument), the resulting columns are appended automatically.
 }
 \examples{
-
 fabricate(
-  N = 10,
-  U = rnorm(N),
-  potential_outcomes(Y ~ 0.1 * Z + U)
+  N = 10, U = rnorm(N),
+  potential_outcomes(Y ~ 0.5 * Z + U)
 )
 
-# equivalently,
-
+# Three conditions
 fabricate(
-  N = 10,
-  U = rnorm(N),
-  potential_outcomes(Y ~ 0.1 * Z + U,
-                     conditions = list(Z = c(0, 1)))
+  N = 10, U = rnorm(N),
+  potential_outcomes(Y ~ Z * 0.5 + U, conditions = list(Z = 0:2))
 )
 
+# Multi-arm factorial
 fabricate(
-  N = 10,
-  U = rnorm(N),
-  potential_outcomes(Y ~ 0.1 * Z + U,
-                     conditions = list(Z = c(1, 2, 3)))
+  N = 10, U = rnorm(N),
+  potential_outcomes(Y ~ 0.3 * Z1 + 0.5 * Z2 + U,
+                     conditions = list(Z1 = 0:1, Z2 = 0:1))
 )
-
-fabricate(
-  N = 10,
-  U = rnorm(N),
-  potential_outcomes(Y ~ 0.1 * Z1 + 0.3 * Z2 + 0.5 * Z1 * Z2 + U,
-                     conditions = list(Z1 = c(0, 1),
-                                       Z2 = c(0, 1)))
-)
-
 
 }

@@ -1,30 +1,36 @@
 Package: fabricatr
-Type: Package
-Title: Imagine Your Data Before You Collect It 
-Version: 1.0.2
-Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9164-2102")),
+Title: Tidyverse-First Data Fabrication
+Version: 2.0.0
+Authors@R: c(person("Alexander", "Coppock", email = "acoppock@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-5733-2386")),
+             person("Graeme", "Blair", email = "graeme.blair@gmail.com", role = "aut", comment = c(ORCID = "0000-0001-9164-2102")),
              person("Jasper", "Cooper", email = "jaspercooper@gmail.com", role = "aut", comment = c(ORCID = "0000-0002-8639-3188")),
-             person("Alexander", "Coppock", email = "acoppock@gmail.com", role = "aut", comment = c(ORCID = "0000-0002-5733-2386")),
              person("Macartan", "Humphreys", email = "macartan@gmail.com", role = "aut", comment = c(ORCID = "0000-0001-7029-2326")),
              person("Aaron", "Rudkin", email = "rudkin@ucla.edu", role = "aut"),
              person("Neal", "Fultz", email = "nfultz@gmail.com", role = "aut"),
              person("David C.", "Hall", email = "david.hall.physics@gmail.com", role = "ctb", comment = c(ORCID = "0000-0002-2193-0480")))
-Description: Helps you imagine your data before you collect it. Hierarchical data structures
-   and correlated data can be easily simulated, either from random number generators or
-   by resampling from existing data sources. This package is faster with 'data.table' and
-   'mvnfast' installed.
+Description: Helps you imagine your data before you collect it. Builds a data
+    frame one column at a time, with hierarchical levels, cross-classified
+    levels, potential outcomes, and draws with a target intra-cluster
+    correlation, so that a research design can be simulated and diagnosed
+    before any data exist. Version 2.0 is a rewrite of the same public API on
+    'dplyr', 'tibble', 'purrr', and 'rlang'.
 URL: https://declaredesign.org/r/fabricatr/, https://github.com/DeclareDesign/fabricatr
 BugReports: https://github.com/DeclareDesign/fabricatr/issues
-Depends: R (>= 3.5.0)
-Imports: rlang (>= 1.0.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+Depends: R (>= 4.1.0)
+Imports:
+    dplyr (>= 1.1.0),
+    tibble,
+    purrr,
+    rlang,
+    stats,
+    utils
 Suggests:
-    testthat,
-    data.table,
-    mvnfast,
+    knitr,
     MASS,
-    extraDistr,
-    diagram,
-    dplyr
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
